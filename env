@@ -1,0 +1,20 @@
+# Configuration de la base de données
+# NE PAS COMMITTER CE FICHIER SUR GITHUB !
+
+DB_HOST=188.245.222.176
+DB_PORT=55432
+DB_NAME=GestionAbsence
+DB_USER=gestion_user
+DB_PASSWORD=strongpassword123
+
+# Environnement (development, production, testing)
+APP_ENV=development
+
+# Clé de sécurité pour les sessions (générez une clé aléatoire)
+APP_SECRET=votre_cle_secrete_aleatoire_ici
+
+# Configuration des emails (optionnel)
+MAIL_HOST=smtp.exemple.com
+MAIL_PORT=587
+MAIL_USER=votre_email@exemple.com
+MAIL_PASSWORD=votre_mot_de_passe_email
