@@ -45,7 +45,7 @@
                 <option value="rdv_medical">Rendez-vous médical</option>
                 <option value="convocation_officielle">Convocation officielle (permis, TOIC, etc.)</option>
                 <option value="transport">Problème de transport</option>
-                <option value="autre">Autre (préciser)</option>
+                <option value="Autre">Autre (préciser)</option>
             </select>
         </div>
         

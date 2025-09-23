@@ -1,9 +1,15 @@
+
+function getRealTime() {
+    var now = new Date();
+    return new Date(now.toLocaleString("en-US", {timeZone: "Europe/Paris"}));
+}
+
 function toggleCustomReason() {
     var select = document.getElementById('absence_reason');
     var customdiv = document.getElementById('custom_reason');
     var custominput = document.getElementById('other_reason');
 
-    if (select.value === 'autre') {
+    if (select.value === 'Autre') {
         customdiv.style.display = 'block';
         custominput.required = true;
     } else {
@@ -16,12 +22,14 @@ function toggleCustomReason() {
 function validateDates() {
     var dateStart = document.getElementById('datetime_start').value;
     var dateEnd = document.getElementById('datetime_end').value;
-    var currentDate = new Date();
-    
+
+    // Utiliser l'heure réelle pour les comparaisons
+    var realTime = getRealTime();
+
     // Validation of the end date not being more than 48 hours in the past
     if (dateEnd) {
         var fin = new Date(dateEnd);
-        var minDate = new Date(currentDate.getTime() - (48 * 60 * 60 * 1000));
+        var minDate = new Date(realTime.getTime() - (48 * 60 * 60 * 1000));
         
         if (fin < minDate) {
             alert('La date de fin ne peut pas être antérieure à plus de 48h.');

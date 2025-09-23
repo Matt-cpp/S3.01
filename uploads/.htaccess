@@ -1,0 +1,21 @@
+# Empêcher l'exécution de scripts dans le dossier uploads
+Options -ExecCGI
+RemoveHandler .php .phtml .php3 .php4 .php5 .php6 .phps .cgi .pl .asp .aspx .shtml .shtm .fcgi
+
+# Limiter l'accès aux types de fichiers autorisés
+<FilesMatch "\.(pdf|jpg|jpeg|png|gif|doc|docx)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
+# Bloquer tous les autres types de fichiers
+<FilesMatch ".*">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Réautoriser les fichiers autorisés
+<FilesMatch "\.(pdf|jpg|jpeg|png|gif|doc|docx)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
