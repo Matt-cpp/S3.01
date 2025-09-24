@@ -26,6 +26,7 @@
             <input type="datetime-local" id="datetime_start" name="datetime_start" required>
         </div>
 
+
         <div class="form-group">
             <label for="datetime_end">Date et heure de fin d'absence :</label>
             <input type="datetime-local" id="datetime_end" name="datetime_end" required>
@@ -44,6 +45,12 @@
                 <div id="courses_list" style="display: none;"></div>
             </div>
             <input type="hidden" name="class_involved" id="class_involved_hidden" value="">
+        </div>
+
+
+        <div class="form-group">
+            <label for="class_involved">Cours concerné(s) :</label>
+            <p> à compléter </p>
         </div>
 
         <div class="form-group">
@@ -71,6 +78,33 @@
             <input type="file" id="proof_file" name="proof_file" accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx" required>
             <p class="help-text">Formats acceptés : PDF, images (JPG, PNG, GIF), documents Word. Taille maximale : 5MB
             </p>
+        </div>
+
+        <div class="form-group">
+            <label for="comments">comments (facultatif) :</label>
+            <textarea id="comments" name="comments" rows="4" cols="50"
+                placeholder="Ajoutez des informations complémentaires si nécessaire..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="submit-btn">Soumettre le justificatif</button>
+        </div>
+
+        <option value="Autre">Autre (préciser)</option>
+        </select>
+        </div>
+
+        <div class="form-group" id="custom_reason" style="display: none;">
+            <label for="other_reason">Précisez le motif :</label>
+            <input type="text" id="other_reason" name="other_reason"
+                placeholder="Veuillez préciser votre motif d'absence">
+        </div>
+
+        <div class="form-group">
+            <label for="proof_reason">Fichier justificatif :</label>
+            <input type="file" id="proof_reason" name="proof_reason" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+            <p class="help-text">Formats acceptés : PDF (de préférence), images (JPG, PNG), documents Word. Taille
+                maximale : 5MB</p>
         </div>
 
         <div class="form-group">

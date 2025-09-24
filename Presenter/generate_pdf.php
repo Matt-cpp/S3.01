@@ -1,149 +1,212 @@
 <?php
 session_start();
+require_once('../vendor/autoload.php');
 
-if (!isset($_SESSION['justificatif_data'])) {
-    die('Aucune donnée de justificatif trouvée');
+date_default_timezone_set('Europe/Paris');
+
+if (!isset($_SESSION['reason_data'])) {
+    die('Aucune donnée de justificatif trouvée.');
 }
 
-$data = $_SESSION['justificatif_data'];
+$reason_data = $_SESSION['reason_data'];
 
-class SimplePDF {
-    private $content = '';
-    private $title = '';
-    
-    public function __construct($title = 'Document PDF') {
-        $this->title = $title;
-    }
-    
-    public function addText($text, $size = 12, $weight = 'normal') {
-        $weight_style = ($weight === 'bold') ? 'font-weight: bold;' : '';
-        $this->content .= "<p style='font-size: {$size}px; {$weight_style} margin: 10px 0;'>{$text}</p>";
-    }
-    
-    public function addTitle($title, $level = 1) {
-        $this->content .= "<h{$level} style='color: #2c3e50; margin: 20px 0 10px 0;'>{$title}</h{$level}>";
-    }
-    
-    public function addList($items) {
-        $this->content .= "<ul style='margin: 10px 0; padding-left: 20px;'>";
-        foreach ($items as $item) {
-            $this->content .= "<li style='margin: 5px 0;'>{$item}</li>";
+// Create new PDF document
+$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+// Set document information
+$pdf->SetCreator('Gestion d\'absences');
+$pdf->SetAuthor('Gestion d\'absences');
+$pdf->SetTitle('PDF with Text and Images');
+$pdf->SetSubject('Example PDF');
+
+// Set default header and footer fonts
+$pdf->setHeaderFont(array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+$pdf->setFooterFont(array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+
+// Set margins
+$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+
+// Set auto page breaks
+$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+$pdf->SetHeaderData('', 0, 'Justificatif d\'absence récapitulatif', 'Généré le ' . date('d/m/Y à H:i:s'));
+
+// Set footer
+$pdf->setFooterData();
+
+// Add a page
+$pdf->AddPage();
+
+// Add image from file
+// Image(file, x, y, width, height, type, link, align, resize, dpi, palign, ismask, imgmask, border)
+$pdf->Image('../View/img/UPHF.png', 165, 0, 30, 12, 'PNG', '', '', false, 300, '', false, false, 0, false, false, false);
+$pdf->Image('../View/img/logoIUT.png', 148, -1, 15, 15, 'PNG', '', '', false, 300, '', false, false, 0, false, false, false);
+
+// Set font for title
+$pdf->SetFont('helvetica', 'B', 20);
+// Cell(width, height, text, border, ln, align, fill, link)
+$pdf->Cell(0, 0, 'Justificatif d\'absence récapitulatif', 0, 1, 'C');
+$pdf->SetTextColor(255, 0, 0);
+$pdf->SetFont('helvetica', 'B', 18);
+$pdf->Cell(0, 0, 'En attente de validation', 0, 1, 'C');
+$pdf->SetTextColor(0, 0, 0);
+
+// Add some space
+$pdf->Ln(10);
+
+// Set font for normal text
+$pdf->SetFont('helvetica', '', 12);
+
+// Add paragraph
+$html_content = '<h2>Récapitulatif de votre demande :</h2>';
+$html_content .= '<table border="1" cellpadding="5" cellspacing="0" style="width:100%;">';
+
+// Use of the correspondind time zonz
+$datetime_start = new DateTime($reason_data['datetime_start']);
+$datetime_start->setTimezone(new DateTimeZone('Europe/Paris'));
+$html_content .= '<tr><td><strong>Date et heure de début :</strong></td><td>' . $datetime_start->format('d/m/Y à H:i:s') . '</td></tr>';
+
+$datetime_end = new DateTime($reason_data['datetime_end']);
+$datetime_end->setTimezone(new DateTimeZone('Europe/Paris'));
+$html_content .= '<tr><td><strong>Date et heure de fin :</strong></td><td>' . $datetime_end->format('d/m/Y à H:i:s') . '</td></tr>';
+
+$cours = $reason_data['class_involved'];
+if (is_array($cours)) {
+    $cours_text = htmlspecialchars(implode(', ', $cours));
+} else {
+    $cours_text = htmlspecialchars($cours);
+}
+$html_content .= '<tr><td><strong>Cours concerné(s) :</strong></td><td>' . $cours_text . '</td></tr>';
+
+$html_content .= '<tr><td><strong>Motif de l\'absence :</strong></td><td>' . htmlspecialchars($reason_data['absence_reason']) . '</td></tr>';
+
+if (!empty($reason_data['other_reason'])) {
+    $html_content .= '<tr><td><strong>Précision du motif :</strong></td><td>' . htmlspecialchars($reason_data['other_reason']) . '</td></tr>';
+}
+
+$html_content .= '<tr><td><strong>Fichier justificatif :</strong></td><td>' . htmlspecialchars($reason_data['proof_file']) . '</td></tr>';
+
+if (!empty($reason_data['comments'])) {
+    $html_content .= '<tr><td><strong>Commentaires :</strong></td><td>' . nl2br(htmlspecialchars($reason_data['comments'])) . '</td></tr>';
+}
+
+$html_content .= '<tr><td><strong>Date de soumission :</strong></td><td>' . date('d/m/Y à H:i:s', strtotime($reason_data['submission_date'])) . '</td></tr>';
+$html_content .= '</table>';
+
+$pdf->writeHTML($html_content);
+
+$pdf->Ln(10);
+
+
+
+// Add an image or PDF preview if available
+if (!empty($reason_data['proof_file']) && !empty($reason_data['saved_file_name'])) {
+    $pdf->SetFont('helvetica', 'B', 16);
+    $pdf->Cell(0, 10, 'Justificatif fourni', 0, 1, 'C');
+    $pdf->Ln(5);
+
+    // File name
+    $pdf->SetFont('helvetica', '', 12);
+    $pdf->MultiCell(0, 10, 'Nom du fichier : ' . htmlspecialchars($reason_data['proof_file']), 0, 'L');
+
+    // Construct absolute path to uploads directory
+    $upload_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $reason_data['saved_file_name'];
+    $extension = strtolower(pathinfo($reason_data['proof_file'], PATHINFO_EXTENSION));
+
+    if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+        $pdf->addPage();
+        if (file_exists($upload_path)) {
+            try {
+                $pdf->Image($upload_path, 15, $pdf->GetY(), 180, 0, '', '', '', false, 300, '', false, false, 1);
+            } catch (Exception $e) {
+                $pdf->SetTextColor(255, 0, 0);
+                $pdf->Cell(0, 10, 'Erreur lors de l\'affichage de l\'image : ' . $e->getMessage(), 0, 1, 'L');
+                $pdf->SetTextColor(0, 0, 0);
+            }
+        } else {
+            $pdf->SetTextColor(255, 0, 0);
+            $pdf->Cell(0, 10, 'Fichier image non trouvé : ' . $upload_path, 0, 1, 'L');
+            $pdf->SetTextColor(0, 0, 0);
         }
-        $this->content .= "</ul>";
-    }
-    
-    public function output($filename = 'document.pdf') {
-        // En-têtes pour forcer le téléchargement du PDF
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Cache-Control: private, max-age=0, must-revalidate');
-        header('Pragma: public');
-        
-        // Générer le contenu HTML qui sera converti
-        $html = $this->generateHTML();
-        
-        // Utiliser une approche simple de génération PDF via HTML
-        $this->convertHTMLToPDF($html, $filename);
-    }
-    
-    private function generateHTML() {
-        return "
-        <!DOCTYPE html>
-        <html lang='fr'>
-        <head>
-            <meta charset='UTF-8'>
-            <title>{$this->title}</title>
-            <style>
-                body { 
-                    font-family: Arial, sans-serif; 
-                    margin: 40px; 
-                    line-height: 1.6;
-                    color: #333;
+    } elseif ($extension === 'pdf') {
+        if (file_exists($upload_path)) {
+            try {
+                // Create a new TCPDF object to import the PDF
+                $pdf->SetTextColor(0, 0, 255);
+                $pdf->Cell(0, 10, 'Type de fichier : Document PDF', 0, 1, 'L');
+                $pdf->SetTextColor(0, 0, 0);
+                $pdf->addPage();
+
+                if (class_exists('Imagick')) {
+                    try {
+                        // First, get the number of pages in the PDF
+                        $imagick = new Imagick();
+                        $imagick->setResolution(150, 150);
+                        $imagick->readImage($upload_path);
+                        $num_pages = $imagick->getNumberImages();
+                        $imagick->destroy();
+
+                        // Loop through all pages
+                        for ($page = 0; $page < $num_pages; $page++) {
+                            $imagick = new Imagick();
+                            $imagick->setResolution(150, 150);
+                            $imagick->readImage($upload_path . '[' . $page . ']');
+
+                            $imagick->setImageFormat('jpeg');
+                            $imagick->setImageCompressionQuality(90);
+                            $imagick->setImageBackgroundColor('white');
+                            $imagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
+                            $imagick->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
+
+                            $temp_image = sys_get_temp_dir() . '/pdf_preview_imagick_page_' . $page . '_' . uniqid() . '.jpg';
+                            $imagick->writeImage($temp_image);
+
+                            if (file_exists($temp_image)) {
+                                // Add a new page for each PDF page (except the first one which is already added)
+                                if ($page > 0) {
+                                    $pdf->addPage();
+                                }
+
+                                // Display the image
+                                $pdf->Image($temp_image, 15, $pdf->GetY(), 180, 0, 'JPEG');
+                                unlink($temp_image);
+                            }
+                            $imagick->destroy();
+                        }
+
+                    } catch (Exception $e) {
+                        error_log('Imagick PDF conversion failed: ' . $e->getMessage());
+                        $pdf->SetTextColor(255, 0, 0);
+                        $pdf->Cell(0, 10, 'Erreur lors de la conversion PDF : ' . $e->getMessage(), 0, 1, 'L');
+                        $pdf->SetTextColor(0, 0, 0);
+                    }
                 }
-                .header { 
-                    text-align: center; 
-                    border-bottom: 2px solid #2c3e50; 
-                    padding-bottom: 20px; 
-                    margin-bottom: 30px;
-                }
-                .content { margin: 20px 0; }
-                .footer { 
-                    margin-top: 50px; 
-                    text-align: center; 
-                    font-size: 10px; 
-                    color: #777;
-                }
-            </style>
-        </head>
-        <body>
-            <div class='header'>
-                <h1>{$this->title}</h1>
-                <p>Généré le " . date('d/m/Y à H:i') . "</p>
-            </div>
-            <div class='content'>
-                {$this->content}
-            </div>
-            <div class='footer'>
-                <p>Document généré automatiquement par le système de gestion des absences</p>
-            </div>
-        </body>
-        </html>";
-    }
-    
-    private function convertHTMLToPDF($html, $filename) {
-        // Pour une solution rapide, on va créer un fichier HTML temporaire
-        // En production, vous devriez utiliser une vraie bibliothèque PDF comme TCPDF ou mPDF
-        
-        // Alternative : retourner le HTML avec des en-têtes qui simulent un PDF
-        header('Content-Type: text/html; charset=UTF-8');
-        header('Content-Disposition: attachment; filename="' . str_replace('.pdf', '.html', $filename) . '"');
-        
-        echo $html;
-        echo "
-        <script>
-            // Optionnel : ouvrir la boîte d'impression automatiquement
-            window.onload = function() {
-                window.print();
-            };
-        </script>";
+            } catch (Exception $e) {
+                $pdf->SetTextColor(255, 0, 0);
+                $pdf->Cell(0, 10, 'Erreur lors du traitement du PDF : ' . $e->getMessage(), 0, 1, 'L');
+                $pdf->SetTextColor(0, 0, 0);
+            }
+        } else {
+            $pdf->SetTextColor(255, 0, 0);
+            $pdf->Cell(0, 10, 'Fichier PDF non trouvé : ' . $upload_path, 0, 1, 'L');
+            $pdf->SetTextColor(0, 0, 0);
+        }
+    } else {
+        // Other file types handling
+        if (file_exists($upload_path)) {
+            $file_size = filesize($upload_path);
+            $pdf->SetTextColor(0, 0, 255);
+            $pdf->Cell(0, 10, 'Type de fichier : ' . strtoupper($extension), 0, 1, 'L');
+        }
+        $pdf->SetTextColor(255, 0, 0);
+        $pdf->Cell(0, 10, 'Note : Ce type de fichier ne peut pas être affiché dans le PDF.', 0, 1, 'L');
+        $pdf->Cell(0, 10, 'Veuillez consulter le fichier original joint à votre demande.', 0, 1, 'L');
+        $pdf->SetTextColor(0, 0, 0);
     }
 }
 
-// Générer le PDF avec les données du justificatif
-$pdf = new SimplePDF('Récapitulatif Justificatif d\'Absence');
-
-$pdf->addTitle('Justificatif d\'Absence - Récapitulatif');
-
-$pdf->addText('Informations sur l\'absence :', 14, 'bold');
-
-$infos = array();
-$infos[] = '<strong>Date et heure de début :</strong> ' . htmlspecialchars(date('d/m/Y à H:i', strtotime($data['datetime_debut'])));
-$infos[] = '<strong>Date et heure de fin :</strong> ' . htmlspecialchars(date('d/m/Y à H:i', strtotime($data['datetime_fin'])));
-
-if (!empty($data['cours_concernes'])) {
-    $cours = is_array($data['cours_concernes']) ? implode(', ', $data['cours_concernes']) : $data['cours_concernes'];
-    $infos[] = '<strong>Cours concerné(s) :</strong> ' . htmlspecialchars($cours);
-}
-
-$infos[] = '<strong>Motif de l\'absence :</strong> ' . htmlspecialchars($data['motif_absence'] ?? 'Non spécifié');
-
-if (!empty($data['motif_autre'])) {
-    $infos[] = '<strong>Précision du motif :</strong> ' . htmlspecialchars($data['motif_autre']);
-}
-
-if (!empty($data['fichier_justificatif'])) {
-    $infos[] = '<strong>Fichier justificatif fourni :</strong> ' . htmlspecialchars($data['fichier_justificatif']);
-}
-
-if (!empty($data['commentaires'])) {
-    $infos[] = '<strong>Commentaires :</strong> ' . nl2br(htmlspecialchars($data['commentaires']));
-}
-
-$pdf->addList($infos);
-
-$pdf->addText('Ce document certifie que la demande de justificatif d\'absence a été enregistrée dans le système.', 12);
-
-// Générer et télécharger le PDF
-$filename = 'Justificatif_Absence_' . date('Y-m-d_H-i-s') . '.pdf';
-$pdf->output($filename);
-?>
+// Download the PDF
+// $pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'D');
+$pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'I');
