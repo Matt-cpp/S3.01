@@ -1,6 +1,6 @@
 <?php
 
-// Charger les variables d'environnement
+// Load environment variables
 require_once __DIR__ . '/env.php';
 
 class Database
@@ -8,7 +8,7 @@ class Database
     private static $instance = null;
     private $pdo;
 
-    // Paramètres de connexion depuis le fichier .env
+    // Connection parameters from .env file
     private function getDSN(): string
     {
         $host = env('DB_HOST', 'localhost');
@@ -27,7 +27,7 @@ class Database
         return env('DB_PASSWORD', '');
     }
 
-    // Options PDO pour une meilleure sécurité et performance
+    // PDO options for better security and performance
     private const OPTIONS = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -35,29 +35,29 @@ class Database
         PDO::ATTR_PERSISTENT => false,
     ];
 
-    // Constructeur privé pour le pattern Singleton
+    // Private constructor for Singleton pattern
     private function __construct()
     {
         try {
             $this->pdo = new PDO($this->getDSN(), $this->getUser(), $this->getPassword(), self::OPTIONS);
         } catch (PDOException $e) {
-            error_log("Erreur de connexion à la base de données: " . $e->getMessage());
-            throw new Exception("Impossible de se connecter à la base de données");
+            error_log("Database connection error: " . $e->getMessage());
+            throw new Exception("Unable to connect to the database");
         }
     }
 
-    //Empêche le clonage de l'instance afin d'éviter plusieurs connexions
+    // Prevent cloning the instance to avoid multiple connections
     private function __clone()
     {
     }
 
-    //Empêche la désérialisation de l'instance Singleton afin d'éviter plusieurs connexions
+    // Prevent unserializing the Singleton instance to avoid multiple connections
     public function __wakeup()
     {
         throw new Exception("Cannot unserialize singleton");
     }
 
-    // Retourne l'instance unique de la classe Database (Singleton)
+    // Returns the unique instance of the Database class (Singleton)
     public static function getInstance(): Database
     {
         if (self::$instance === null) {
@@ -66,13 +66,13 @@ class Database
         return self::$instance;
     }
 
-    // Retourne l'objet PDO pour les requêtes
+    // Returns the PDO object for queries
     public function getConnection(): PDO
     {
         return $this->pdo;
     }
 
-    //Prépare et exécute une requête SELECT
+    // Prepares and executes a SELECT query
     public function select(string $sql, array $params = []): array
     {
         try {
@@ -80,12 +80,12 @@ class Database
             $stmt->execute($params);
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Erreur lors de l'exécution de SELECT: " . $e->getMessage());
-            throw new Exception("Erreur lors de la récupération des données");
+            error_log("Error executing SELECT: " . $e->getMessage());
+            throw new Exception("Error retrieving data");
         }
     }
 
-    //Prépare et exécute une requête SELECT pour un seul résultat
+    // Prepares and executes a SELECT query for a single result
     public function selectOne(string $sql, array $params = [])
     {
         try {
@@ -93,12 +93,12 @@ class Database
             $stmt->execute($params);
             return $stmt->fetch();
         } catch (PDOException $e) {
-            error_log("Erreur lors de l'exécution de SELECT: " . $e->getMessage());
-            throw new Exception("Erreur lors de la récupération des données");
+            error_log("Error executing SELECT: " . $e->getMessage());
+            throw new Exception("Error retrieving data");
         }
     }
 
-    // Prépare et exécute une requête INSERT, UPDATE ou DELETE
+    // Prepares and executes an INSERT, UPDATE or DELETE query
 
     public function execute(string $sql, array $params = []): int
     {
@@ -107,72 +107,74 @@ class Database
             $stmt->execute($params);
             return $stmt->rowCount();
         } catch (PDOException $e) {
-            error_log("Erreur lors de l'exécution de la requête: " . $e->getMessage());
-            throw new Exception("Erreur lors de l'exécution de la requête");
+            error_log("Error executing query: " . $e->getMessage());
+            error_log("SQL: " . $sql);
+            error_log("Params: " . print_r($params, true));
+            throw new Exception("Error executing query: " . $e->getMessage());
         }
     }
 
-    // Retourne l'ID du dernier élément inséré
+    // Returns the ID of the last inserted item
 
     public function lastInsertId(): string
     {
         return $this->pdo->lastInsertId();
     }
 
-    // Démarre une transaction
+    // Starts a transaction
 
     public function beginTransaction(): bool
     {
         return $this->pdo->beginTransaction();
     }
 
-    //Confirme une transaction
+    // Commits a transaction
 
     public function commit(): bool
     {
         return $this->pdo->commit();
     }
 
-    //Annule une transaction
+    // Rolls back a transaction
     public function rollBack(): bool
     {
         return $this->pdo->rollBack();
     }
 
-    //Vérifie si une transaction est active
+    // Checks if a transaction is active
 
     public function inTransaction(): bool
     {
         return $this->pdo->inTransaction();
     }
 
-    // Teste la connexion à la base de données
+    // Tests the database connection
     public function testConnection(): bool
     {
         try {
             $this->pdo->query("SELECT 1");
             return true;
         } catch (PDOException $e) {
-            error_log("Test de connexion échoué: " . $e->getMessage());
+            error_log("Connection test failed: " . $e->getMessage());
             return false;
         }
     }
 
-    // Ferme la connexion à la base de données
+    // Closes the database connection
     public function closeConnection(): void
     {
         $this->pdo = null;
     }
 }
 
-// Fonction utilitaire pour obtenir rapidement l'instance de la base de données
+// Utility function to quickly get the database instance
 
 function getDatabase(): Database
 {
     return Database::getInstance();
 }
 
-// Fonction utilitaire pour obtenir rapidement la connexion PDO
+// Utility function to quickly get the PDO connection
 
 function getConnection(): PDO
 {

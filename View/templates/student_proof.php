@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <script src="../assets/js/student-proof.js"></script>
 
 </head>
+
 <body>
     <div class="logos-container">
         <img src="../img/UPHF.png" alt="Logo UPHF" class="logo" width="220" height="80">
@@ -23,18 +25,27 @@
             <label for="datetime_start">Date et heure de début d'absence :</label>
             <input type="datetime-local" id="datetime_start" name="datetime_start" required>
         </div>
-        
+
         <div class="form-group">
             <label for="datetime_end">Date et heure de fin d'absence :</label>
             <input type="datetime-local" id="datetime_end" name="datetime_end" required>
             <p class="help-text">Sélectionnez la même date si l'absence ne dure qu'une journée</p>
         </div>
-        
+
         <div class="form-group">
             <label for="class_involved">Cours concerné(s) :</label>
-            <p> à compléter </p>
+            <div id="courses_loading" style="display: none; color: #666; font-style: italic;">
+                Chargement des cours...
+            </div>
+            <div id="courses_container">
+                <p id="courses_placeholder" style="color: #666; font-style: italic;">
+                    Sélectionnez les dates de début et fin pour voir les cours concernés
+                </p>
+                <div id="courses_list" style="display: none;"></div>
+            </div>
+            <input type="hidden" name="class_involved" id="class_involved_hidden" value="">
         </div>
-        
+
         <div class="form-group">
             <label for="absence_reason">Motif de l'absence :</label>
             <select id="absence_reason" name="absence_reason" onchange="toggleCustomReason()" required>
@@ -48,31 +59,33 @@
                 <option value="autre">Autre (préciser)</option>
             </select>
         </div>
-        
+
         <div class="form-group" id="custom_reason" style="display: none;">
             <label for="other_reason">Précisez le motif :</label>
-            <input type="text" id="other_reason" name="other_reason" placeholder="Veuillez préciser votre motif d'absence">
+            <input type="text" id="other_reason" name="other_reason"
+                placeholder="Veuillez préciser votre motif d'absence">
         </div>
-        
+
         <div class="form-group">
-            <label for="proof_reason">Fichier justificatif :</label>
-            <input type="file" id="proof_reason" name="proof_reason" 
-                   accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx" required>
-            <p class="help-text">Formats acceptés : PDF, images (JPG, PNG, GIF), documents Word. Taille maximale : 5MB</p>
+            <label for="proof_file">Fichier justificatif :</label>
+            <input type="file" id="proof_file" name="proof_file" accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx" required>
+            <p class="help-text">Formats acceptés : PDF, images (JPG, PNG, GIF), documents Word. Taille maximale : 5MB
+            </p>
         </div>
-        
+
         <div class="form-group">
             <label for="comments">comments (facultatif) :</label>
-            <textarea id="comments" name="comments" rows="4" cols="50" 
-                      placeholder="Ajoutez des informations complémentaires si nécessaire..."></textarea>
+            <textarea id="comments" name="comments" rows="4" cols="50"
+                placeholder="Ajoutez des informations complémentaires si nécessaire..."></textarea>
         </div>
-        
+
         <div class="form-group">
             <button type="submit" class="submit-btn">Soumettre le justificatif</button>
         </div>
-        
+
         <!-- Note : ne pas oublié de rajouter la classe de l'élève et sa formation-->
 
     </form>
 </body>
+
 </html>

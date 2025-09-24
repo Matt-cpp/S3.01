@@ -93,3 +93,147 @@ textarea {
 #custom_reason {
     margin-top: 10px;
 }
+
+/* Course selection styles */
+.courses-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px;
+    background-color: #f9f9f9;
+}
+
+.course-item {
+    margin-bottom: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.course-item.selected {
+    border: 2px solid #3498db;
+    transform: scale(1.02);
+}
+
+.course-item.unselected {
+    opacity: 0.6;
+    border: 2px solid #bdc3c7;
+}
+
+.course-item.evaluation {
+    border-left: 5px solid #e74c3c;
+}
+
+.course-button {
+    background-color: white;
+    border: none;
+    padding: 15px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+.course-button:hover {
+    background-color: #f8f9fa;
+}
+
+.course-item.selected .course-button {
+    background-color: #e8f4f8;
+}
+
+.course-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.course-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+    flex: 1;
+    max-width: 80%;
+}
+
+.course-code {
+    font-weight: normal;
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.evaluation-badge {
+    position: absolute;
+    background-color: #e74c3c;
+    color: white;
+    right: 41px;
+    top: 44px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.course-details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+}
+
+.course-info {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.info-label {
+    font-weight: bold;
+    color: #34495e;
+    margin-right: 6px;
+    min-width: 100px;
+}
+
+.info-value {
+    color: #2c3e50;
+}
+
+.selection-indicator {
+    position: absolute;
+    top: 10px;
+    right: 35px;
+    background-color: #27ae60;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.course-item.selected .selection-indicator {
+    opacity: 1;
+}
+
+.courses-summary {
+    margin-top: 12px;
+    padding: 10px;
+    background-color: #ecf0f1;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 14px;
+    color: #34495e;
+}
