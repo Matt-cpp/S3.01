@@ -58,7 +58,7 @@
             <label for="proof_reason">Fichier justificatif :</label>
             <input type="file" id="proof_reason" name="proof_reason" 
                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
-            <p class="help-text">Formats acceptés : PDF, images (JPG, PNG), documents Word. Taille maximale : 5MB</p>
+            <p class="help-text">Formats acceptés : PDF (de préférence), images (JPG, PNG), documents Word. Taille maximale : 5MB</p>
         </div>
         
         <div class="form-group">

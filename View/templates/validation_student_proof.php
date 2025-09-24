@@ -49,6 +49,20 @@ $_SESSION['reason_data'] = array(
     'comments' => $_POST['comments'] ?? '',
     'submission_date' => date('Y-m-d H:i:s') // Date de soumission au fuseau horaire de Paris
 );
+
+if ($_SESSION['reason_data']['absence_reason'] === 'maladie') {
+    $_SESSION['reason_data']['absence_reason'] = 'Maladie';
+} else if ($_SESSION['reason_data']['absence_reason'] === 'deces') {
+    $_SESSION['reason_data']['absence_reason'] = 'Décès dans la famille';
+} else if ($_SESSION['reason_data']['absence_reason'] === 'obligations_familiales') {
+    $_SESSION['reason_data']['absence_reason'] = 'Obligations familiales';
+} else if ($_SESSION['reason_data']['absence_reason'] === 'rdv_medical') {
+    $_SESSION['reason_data']['absence_reason'] = 'Rendez-vous médical';
+} else if ($_SESSION['reason_data']['absence_reason'] === 'convocation_officielle') {
+    $_SESSION['reason_data']['absence_reason'] = 'Convocation officielle (permis, TOIC, etc.)';
+} else if ($_SESSION['reason_data']['absence_reason'] === 'transport') {
+    $_SESSION['reason_data']['absence_reason'] = 'Problème de transport';
+}
 ?>
 
 <!-- Faudra rajouter les infos de l'étudiants -->
