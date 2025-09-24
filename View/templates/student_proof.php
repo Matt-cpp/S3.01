@@ -77,8 +77,8 @@
 
         <div class="form-group">
             <label for="comments">Commentaires (facultatif) :</label>
-            <textarea id="comments" name="comments" rows="4" cols="50"
-                placeholder="Ajoutez des informations complémentaires si nécessaire..."></textarea>
+            <textarea id="comments" name="comments" rows="4" cols="50" 
+                      placeholder="Ajoutez des informations complémentaires si nécessaire..."></textarea>
         </div>
 
         <div class="form-group">

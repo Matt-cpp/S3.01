@@ -22,7 +22,6 @@ function validateDates() {
   var dateStart = document.getElementById("datetime_start").value;
   var dateEnd = document.getElementById("datetime_end").value;
 
-  // Utiliser l'heure réelle pour les comparaisons
   var realTime = getRealTime();
 
   // Validation of the end date not being more than 48 hours in the past
