@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once('../vendor/autoload.php');
+require_once('../Model/database.php');
 
 date_default_timezone_set('Europe/Paris');
 
@@ -9,6 +10,22 @@ if (!isset($_SESSION['reason_data'])) {
 }
 
 $reason_data = $_SESSION['reason_data'];
+
+// Retrieve student information from database
+$student_info = null;
+if (isset($_SESSION['id_student'])) {
+    try {
+        $db = Database::getInstance();
+        $student_info = $db->selectOne(
+            "SELECT id, identifier, last_name, first_name, middle_name, birth_date, degrees, department, email, role 
+             FROM users 
+             WHERE id = ?",
+            [$_SESSION['id_student']]
+        );
+    } catch (Exception $e) {
+        error_log("Error retrieving student information: " . $e->getMessage());
+    }
+}
 
 // Create new PDF document
 $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -61,7 +78,49 @@ $pdf->SetFont('helvetica', '', 12);
 
 // Add paragraph
 $html_content = '<h2>Récapitulatif de votre demande :</h2>';
+
+// Add student information warning or details
+if (!$student_info) {
+    $html_content .= '<div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; margin-bottom: 15px; border-radius: 4px;">';
+    $html_content .= '<strong style="color: #856404;">Attention :</strong> Informations de l\'étudiant non disponibles.';
+    $html_content .= '</div>';
+}
+
 $html_content .= '<table border="1" cellpadding="5" cellspacing="0" style="width:100%;">';
+
+// Add student information section
+if ($student_info) {
+    $html_content .= '<tr><td colspan="2" style="background-color: #e9ecef; font-weight: bold; text-align: center;">INFORMATIONS DE L\'ÉTUDIANT</td></tr>';
+    
+    $html_content .= '<tr><td><strong>Nom :</strong></td><td>' . htmlspecialchars($student_info['last_name']) . '</td></tr>';
+    $html_content .= '<tr><td><strong>Prénom :</strong></td><td>' . htmlspecialchars($student_info['first_name']) . '</td></tr>';
+    
+    if (!empty($student_info['middle_name'])) {
+        $html_content .= '<tr><td><strong>Deuxième prénom :</strong></td><td>' . htmlspecialchars($student_info['middle_name']) . '</td></tr>';
+    }
+    
+    if (!empty($student_info['department'])) {
+        $html_content .= '<tr><td><strong>Département :</strong></td><td>' . htmlspecialchars($student_info['department']) . '</td></tr>';
+    }
+    
+    if (!empty($student_info['degrees'])) {
+        $html_content .= '<tr><td><strong>Diplôme(s) :</strong></td><td>' . htmlspecialchars($student_info['degrees']) . '</td></tr>';
+    }
+    
+    if (!empty($student_info['birth_date'])) {
+        $birth_date = new DateTime($student_info['birth_date']);
+        $html_content .= '<tr><td><strong>Date de naissance :</strong></td><td>' . $birth_date->format('d/m/Y') . '</td></tr>';
+    }
+    
+    if (!empty($student_info['email'])) {
+        $html_content .= '<tr><td><strong>Email :</strong></td><td>' . htmlspecialchars($student_info['email']) . '</td></tr>';
+    }
+    
+    // Add separator row for absence details
+    $html_content .= '<tr><td colspan="2" style="background-color: #e9ecef; font-weight: bold; text-align: center;">DÉTAILS DE L\'ABSENCE</td></tr>';
+}
+
+
 
 // Use of the correspondind time zonz
 $datetime_start = new DateTime($reason_data['datetime_start']);

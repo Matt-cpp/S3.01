@@ -2,23 +2,41 @@
 session_start();
 
 date_default_timezone_set('Europe/Paris');
+require_once __DIR__ . '/../../Model/database.php';
+
+// Retrieve student information from database
+$student_info = null;
+if (isset($_SESSION['id_student'])) {
+    try {
+        $db = Database::getInstance();
+        $student_info = $db->selectOne(
+            "SELECT id, identifier, last_name, first_name, middle_name, birth_date, degrees, department, email, role 
+             FROM users 
+             WHERE id = ?",
+            [$_SESSION['id_student']]
+        );
+    } catch (Exception $e) {
+        error_log("Error retrieving student information: " . $e->getMessage());
+    }
+}
 
 // Handling of the uploaded proof file
 $uploaded_file_name = '';
 $file_path = '';
-if (isset($_FILES['proof_reason']) && $_FILES['proof_reason']['error'] === UPLOAD_ERR_OK) {
+if (isset($_FILES['proof_reason'])) {
     $upload_dir = '../../uploads/';
 
     $allowed_extensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx'];
     $max_file_size = 5 * 1024 * 1024; // 5MB
+    
 
     $file_extension = strtolower(pathinfo($_FILES['proof_reason']['name'], PATHINFO_EXTENSION));
     $file_size = $_FILES['proof_reason']['size'];
-
+    error_log($file_size);
     if (!in_array($file_extension, $allowed_extensions)) {
         $uploaded_file_name = 'Erreur : Type de fichier non autorisé';
         $saved_file_name = '';
-    } elseif ($file_size > $max_file_size) {
+    } elseif ($file_size > $max_file_size || $file_size === 0) {
         $uploaded_file_name = 'Erreur : Fichier trop volumineux (max 5MB)';
         $saved_file_name = '';
     } else {
@@ -47,7 +65,7 @@ $_SESSION['reason_data'] = array(
     'proof_file' => $uploaded_file_name,
     'saved_file_name' => $saved_file_name,
     'comments' => $_POST['comments'] ?? '',
-    'submission_date' => date('Y-m-d H:i:s') // Date de soumission au fuseau horaire de Paris
+    'submission_date' => date('Y-m-d H:i:s'),
 );
 
 if ($_SESSION['reason_data']['absence_reason'] === 'maladie') {
@@ -85,6 +103,13 @@ if ($_SESSION['reason_data']['absence_reason'] === 'maladie') {
             <strong>Succès !</strong> Votre demande de justificatif d'absence a été enregistrée avec succès.
             Un email vous a été envoyé récapitulant les informations de votre justificatif.
         </div>
+        <?php 
+        if (!$student_info) {
+            echo '<div class="warning-message">';
+            echo '<strong>Attention :</strong> Informations de l\'étudiant non disponibles.';
+            echo '</div>';
+        }
+        ?>
 
         <div class="pdf-download">
             <a href="../../Presenter/generate_pdf.php" class="btn-pdf" target="_blank">
@@ -94,6 +119,31 @@ if ($_SESSION['reason_data']['absence_reason'] === 'maladie') {
 
         <h3>Récapitulatif de votre demande :</h3>
         <ul>
+            <?php
+            if ($student_info) {
+                echo '<li><strong>Informations de l\'étudiant :</strong> ';
+                echo '<li><strong>Nom :</strong> ' . htmlspecialchars($student_info['last_name']) . '</li>';
+                echo '<li><strong>Prénom :</strong> ' . htmlspecialchars($student_info['first_name']) . '</li>';
+                
+                if (!empty($student_info['middle_name'])) {
+                    echo '<li><strong>Deuxième prénom :</strong> ' . htmlspecialchars($student_info['middle_name']) . '</li>';
+                }
+                
+                if (!empty($student_info['department'])) {
+                    echo '<li><strong>Département :</strong> ' . htmlspecialchars($student_info['department']) . '</li>';
+                }
+                if (!empty($student_info['degrees'])) {
+                    echo '<li><strong>Diplôme(s) :</strong> ' . htmlspecialchars($student_info['degrees']) . '</li>';
+                }
+                if (!empty($student_info['birth_date'])) {
+                    $birth_date = new DateTime($student_info['birth_date']);
+                    echo '<li><strong>Date de naissance :</strong> ' . $birth_date->format('d/m/Y') . '</li>';
+                }
+                if (!empty($student_info['email'])) {
+                    echo '<li><strong>Email :</strong> ' . htmlspecialchars($student_info['email']) . '</li>';
+                }
+            }
+            ?>
             <li><strong>Date et heure de début :</strong>
                 <?php
                 $datetime_start = new DateTime($_SESSION['reason_data']['datetime_start']);

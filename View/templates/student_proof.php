@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
-
+<?php
+session_start();
+if (!isset($_SESSION['id_student'])) {
+    $_SESSION['id_student'] = 30;
+}
+?>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,14 +76,19 @@
         <div class="form-group">
             <label for="proof_reason">Fichier justificatif :</label>
             <input type="file" id="proof_reason" name="proof_reason" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
-            <p class="help-text">Formats acceptés : PDF (de préférence), images (JPG, PNG), documents Word. Taille
-                maximale : 5MB</p>
+            <p class="help-text" style="color: #e36153ff; font-weight: bold; margin-top: 8px;">
+                <strong>ATTENTION :</strong> Taille maximale autorisée : <strong>5MB</strong><br>
+                Formats acceptés : PDF (recommandé), JPG, JPEG, PNG, DOC, DOCX
+            </p>
+            <div id="file_size_warning" style="display: none; color: #e74c3c; font-weight: bold; margin-top: 5px; padding: 8px; background-color: #ffe6e6; border: 1px solid #e74c3c; border-radius: 4px;">
+                Fichier trop volumineux ! Veuillez sélectionner un fichier de moins de 5MB.
+            </div>
         </div>
 
         <div class="form-group">
             <label for="comments">Commentaires (facultatif) :</label>
             <textarea id="comments" name="comments" rows="4" cols="50" 
-                      placeholder="Ajoutez des informations complémentaires si nécessaire..."></textarea>
+            placeholder="Ajoutez des informations complémentaires si nécessaire..."></textarea>
         </div>
 
         <div class="form-group">

@@ -52,6 +52,34 @@ function validateDates() {
   return true;
 }
 
+function validateFileSize() {
+  const fileInput = document.getElementById("proof_reason");
+  const file = fileInput.files[0];
+  const warningDiv = document.getElementById("file_size_warning");
+  
+  if (warningDiv) {
+    warningDiv.style.display = "none";
+  }
+  
+  if (file) {
+    const maxSize = 5 * 1024 * 1024; // 5MB 
+    
+    if (file.size > maxSize || file.size === 0) {
+      if (warningDiv) {
+        warningDiv.innerHTML = `Fichier trop volumineux !`;
+        warningDiv.style.display = "block";
+      }
+      
+      alert(`Le fichier sélectionné est trop volumineux !`);
+      fileInput.value = "";
+      return false;
+    } else {
+    }
+  }
+  
+  return true;
+}
+
 // Function to fetch and display absences
 function fetchAbsences() {
   var dateStart = document.getElementById("datetime_start").value;
@@ -73,7 +101,7 @@ function fetchAbsences() {
     encodeURIComponent(dateStart) +
     "&datetime_end=" +
     encodeURIComponent(dateEnd) +
-    "&student_id=30";
+    "&student_id=1";
 
   xhr.open("GET", url, true);
   xhr.onreadystatechange = function () {
@@ -351,9 +379,14 @@ window.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-  // Validate dates on form submission
+  // File size validation on file selection
+  document.getElementById("proof_reason").addEventListener("change", function () {
+    validateFileSize();
+  });
+
+  // Validate dates and file size on form submission
   document.querySelector("form").addEventListener("submit", function (e) {
-    if (!validateDates()) {
+    if (!validateDates() || !validateFileSize()) {
       e.preventDefault();
     }
   });

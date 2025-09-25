@@ -61,3 +61,32 @@ li {
     text-decoration: none;
     color: white;
 }
+
+.student-info {
+    background-color: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    border-left: 4px solid #007bff;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.student-info h3 {
+    color: #0056b3;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.student-info ul {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.warning-message {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #ffc107;
+    margin-bottom: 20px;
+}
