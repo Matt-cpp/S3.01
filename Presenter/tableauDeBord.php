@@ -1,6 +1,8 @@
 <?php
 class backendTableauDeBord {
     private $page;
+    private $alldata;
+        public
     function __construct() {
             require_once __DIR__ . '/../Model/database.php';
             $this->page = 0;
@@ -28,8 +30,10 @@ class backendTableauDeBord {
     }
 }
 ?>
+
 <! a incorporer dans les fonctions php >
 <?php  
+
 $pages = isset($_GET['page']) ? (int)$_GET['page'] : 0;  
 $nextPage = $pages + 1;
 $prevPage = $pages > 0 ? $pages - 1 : 0;
@@ -43,17 +47,10 @@ $prevPage = $pages > 0 ? $pages - 1 : 0;
 </a>
 <br>
 
+<! les fonctions qui fonctionnent >
 <?php
 require_once __DIR__ . '/../Model/database.php';
-$db = getDatabase();
-$offset = $pages * 5;
-$query = "SELECT student_identifier,course_slot_id,status,justified FROM absences order by updated_at desc limit 5 offset $offset";
-$brutData=$db->select($query);
-$nbpages = $db->select("SELECT COUNT(*) as count FROM absences");
-$nbpages = ceil($nbpages[0]['count'] / 5);
-$names = array_column($brutData, 'student_identifier');
-$placeholders = implode(',', array_fill(0, count($names), '?'));
-echo json_encode($brutData);
-echo "<br>";
-echo "Page: " . $pages+1;
-echo "/" . $nbpages;
+$test=new backendTableauDeBord();
+$f=$test->getData(0);
+echo json_encode($f);
+$nbpages = $test->getTotalPages();
