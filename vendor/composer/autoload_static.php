@@ -11,12 +11,20 @@ class ComposerStaticInit1ba944b1b2880695113851e981334169
         array (
             'Spatie\\PdfToImage\\' => 18,
         ),
+        'P' => 
+        array (
+            'PHPMailer\\PHPMailer\\' => 20,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'Spatie\\PdfToImage\\' => 
         array (
             0 => __DIR__ . '/..' . '/spatie/pdf-to-image/src',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
     );
 
