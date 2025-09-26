@@ -11,6 +11,9 @@ class EmailService {
     
     public function __construct() {
         $this->mail = new PHPMailer(true);
+
+        $this->mail->CharSet = 'UTF-8';
+        $this->mail->Encoding = 'base64';
         
         // Server settings - using SSL (port 465)
         $this->mail->isSMTP();
@@ -112,18 +115,19 @@ if (basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
     $emailService = new EmailService();
     
     $htmlBody = '
-    <h1>Test Email with Image and Attachment</h1>
-    <p>This is a test email with an embedded image:</p>
-    <img src="cid:logo" alt="Logo" style="width: 100px;">
-    <p>Please find the attached document.</p>
+    <h1>Résumé de votre justificatif envoyé</h1>
+    <p>Veuillez trouver le document récapitulatof ci-joint.</p>
+    <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
+    <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
     ';
     
     $attachments = [
-        __DIR__ . '/../uploads/2 page test.pdf',
+        __DIR__ . '/../uploads/.pdf',
     ];
     
     $images = [
-        'logo' => __DIR__ . '/../View/img/logoIUT.png'
+        'logoUPHF' => __DIR__ . '/../View/img/logoUPHF.png',
+        'logoIUT' => __DIR__ . '/../View/img/logoIUT.png'
     ];
     
     $response = $emailService->sendEmail(
@@ -137,39 +141,3 @@ if (basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
     
     echo '<strong>Status:</strong> ' . $response['message'];
 }
-
-// Example usage with attachments and images:
-// $emailService = new EmailService();
-
-// // Simple email without attachments
-// $result = $emailService->sendEmail(
-//     'user@example.com', 
-//     'Subject here', 
-//     'Your email content here'
-// );
-
-// // Email with attachments and embedded images
-// $attachments = [
-//     '/path/to/document.pdf',
-//     ['path' => '/path/to/file.xlsx', 'name' => 'report.xlsx']
-// ];
-// $images = [
-//     'company_logo' => '/path/to/logo.png',
-//     'signature' => '/path/to/signature.jpg'
-// ];
-// $htmlBody = 'Hello! <img src="cid:company_logo"> <br> Best regards, <img src="cid:signature">';
-
-// $result = $emailService->sendEmail(
-//     'user@example.com',
-//     'Subject with attachments',
-//     $htmlBody,
-//     true, // HTML format
-//     $attachments,
-//     $images
-// );
-
-// if ($result['success']) {
-//     echo "Email sent successfully!";
-// } else {
-//     echo "Failed: " . $result['message'];
-// }

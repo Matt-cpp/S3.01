@@ -11,21 +11,7 @@ if (!isset($_SESSION['reason_data'])) {
     exit();
 }
 
-// Retrieve student information from database
-$student_info = null;
-if (isset($_SESSION['id_student'])) {
-    try {
-        $db = Database::getInstance();
-        $student_info = $db->selectOne(
-            "SELECT id, identifier, last_name, first_name, middle_name, birth_date, degrees, department, email, role 
-             FROM users 
-             WHERE id = ?",
-            [$_SESSION['id_student']]
-        );
-    } catch (Exception $e) {
-        error_log("Error retrieving student information: " . $e->getMessage());
-    }
-}
+$student_info = $_SESSION['student_info'] ?? null;
 
 // The uploaded file data should now be in session from the Presenter
 $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non disponible';

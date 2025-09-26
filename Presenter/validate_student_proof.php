@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../Model/database.php';
+require_once __DIR__ . '/../Model/email.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     session_start();
@@ -47,6 +48,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $saved_file_path = 'uploads/' . $unique_name; // Relative path for storage
         } else {
             throw new Exception('Aucun fichier justificatif fourni ou erreur lors du téléchargement.');
+        }
+
+        // Retrieve student information from database
+        if (isset($_SESSION['id_student'])) {
+            try {
+                $db = Database::getInstance();
+                $_SESSION['student_info'] = $db->selectOne(
+                    "SELECT id, identifier, last_name, first_name, middle_name, birth_date, degrees, department, email, role 
+                    FROM users 
+                    WHERE id = ?",
+                    [$_SESSION['id_student']]
+                );
+            } catch (Exception $e) {
+                error_log("Error retrieving student information: " . $e->getMessage());
+            }
         }
 
         // Store form data in session
@@ -110,7 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $absence_check = $db->selectOne($sql_check, $params_check);
 
-        // Debug: Let's also get the actual absences to see what we're finding
+        // Debug: get the actual absences to see what we're finding
         $sql_debug = "
             SELECT DISTINCT
                 cs.course_date,
@@ -219,10 +235,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'submission_date' => $_SESSION['reason_data']['submission_date']
             ];
 
-            // Send the email of validation to the student
             
+            // Send the email of validation to the student
+            $emailService = new EmailService();
 
-            $db->execute($sql, $params);
+            $htmlBody = '
+            <h1>Résumé de votre justificatif envoyé</h1>
+            <p>Veuillez trouver le document récapitulatif ci-joint.</p>
+            <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
+            <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
+            ';
+            
+            $attachments = [
+                __DIR__ . '/../' . $saved_file_path,
+            ];
+            
+            $images = [
+                'logoUPHF' => __DIR__ . '/../View/img/UPHF.png',
+                'logoIUT' => __DIR__ . '/../View/img/logoIUT.png'
+            ];
+            
+            $response = $emailService->sendEmail(
+                'ambroise.bisiaux@uphf.fr', 
+                'Test Subject with Attachments', 
+                $htmlBody,
+                true,
+                $attachments,
+                $images
+            );
+
+            if ($response['success']) {
+                // Email sent successfully
+            } else {
+                // Log the email error but do not fail the whole process
+                error_log("Email error: " . $response['message']);
+            }
+
             $db->execute($sql_insert, $params_insert);
             $proof_id = $db->lastInsertId();
 
