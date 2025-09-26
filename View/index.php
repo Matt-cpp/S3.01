@@ -117,7 +117,7 @@
             </table>
             
             <div class="pagination">
-                <div>Affichage de 5 sur 127 absences</div>
+                <div>Page <?php echo ($donnes->getCurrentPage())+1?> sur <?php echo $donnes->getTotalPages()?></div>
                 <div class="pagination-buttons">
                     <button class="btn">Précédent</button>
                     <button class="btn">Suivant</button>
