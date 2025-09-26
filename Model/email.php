@@ -1,0 +1,175 @@
+<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../Model/env.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+class EmailService {   
+    private $mail;
+    
+    public function __construct() {
+        $this->mail = new PHPMailer(true);
+        
+        // Server settings - using SSL (port 465)
+        $this->mail->isSMTP();
+        $this->mail->Host       = env('MAIL_HOST', 'smtp.gmail.com');
+        $this->mail->SMTPAuth   = true;
+        $this->mail->Username   = env('MAIL_USER', '');
+        $this->mail->Password   = env('MAIL_PASSWORD', '');
+        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL
+        $this->mail->Port       = 465;
+        
+        // Connection options
+        $this->mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
+        
+        $this->mail->Timeout = 60;
+        
+        // Disable debugging for production use
+        $this->mail->SMTPDebug = 0;
+    }
+    
+    public function sendEmail($to, $subject, $body, $isHTML = true, $attachments = [], $images = []) {
+        try {
+            // Clear any previous addresses and attachments
+            $this->mail->clearAddresses();
+            $this->mail->clearAttachments();
+            
+            $this->mail->setFrom(env('MAIL_USER', ''), 'Gestion Absence UPHF');
+            $this->mail->addAddress($to);
+            
+            $this->mail->isHTML($isHTML);
+            $this->mail->Subject = $subject;
+            $this->mail->Body    = $body;
+            
+            // Add file attachments
+            if (!empty($attachments)) {
+                foreach ($attachments as $attachment) {
+                    if (is_array($attachment)) {
+                        // Array format: ['path' => 'file/path', 'name' => 'display_name']
+                        $this->mail->addAttachment($attachment['path'], $attachment['name'] ?? '');
+                    } else {
+                        // String format: just the file path
+                        $this->mail->addAttachment($attachment);
+                    }
+                }
+            }
+            
+            // Add embedded images
+            if (!empty($images)) {
+                foreach ($images as $cid => $imagePath) {
+                    if (file_exists($imagePath)) {
+                        $this->mail->addEmbeddedImage($imagePath, $cid);
+                    }
+                }
+            }
+            
+            $this->mail->send();
+            return ['success' => true, 'message' => 'Email sent successfully'];
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => "Email could not be sent. Error: {$this->mail->ErrorInfo}"];
+        }
+    }
+
+    public function addAttachment($filePath, $fileName = '') {
+        if (file_exists($filePath)) {
+            try {
+                $this->mail->addAttachment($filePath, $fileName);
+                return true;
+            } catch (Exception $e) {
+                return false;
+            }
+        }
+        return false;
+    }
+    
+    public function addEmbeddedImage($imagePath, $cid) {
+        if (file_exists($imagePath)) {
+            try {
+                $this->mail->addEmbeddedImage($imagePath, $cid);
+                return true;
+            } catch (Exception $e) {
+                return false; 
+            }
+        }
+        return false;
+    }
+    
+    public function clearAttachments() {
+        $this->mail->clearAttachments();
+    }
+}
+
+if (basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
+    echo "<h2>Email Service Test</h2>";
+    $emailService = new EmailService();
+    
+    $htmlBody = '
+    <h1>Test Email with Image and Attachment</h1>
+    <p>This is a test email with an embedded image:</p>
+    <img src="cid:logo" alt="Logo" style="width: 100px;">
+    <p>Please find the attached document.</p>
+    ';
+    
+    $attachments = [
+        __DIR__ . '/../uploads/2 page test.pdf',
+    ];
+    
+    $images = [
+        'logo' => __DIR__ . '/../View/img/logoIUT.png'
+    ];
+    
+    $response = $emailService->sendEmail(
+        'ambroise.bisiaux@uphf.fr', 
+        'Test Subject with Attachments', 
+        $htmlBody,
+        true,
+        $attachments,
+        $images
+    );
+    
+    echo '<strong>Status:</strong> ' . $response['message'];
+}
+
+// Example usage with attachments and images:
+// $emailService = new EmailService();
+
+// // Simple email without attachments
+// $result = $emailService->sendEmail(
+//     'user@example.com', 
+//     'Subject here', 
+//     'Your email content here'
+// );
+
+// // Email with attachments and embedded images
+// $attachments = [
+//     '/path/to/document.pdf',
+//     ['path' => '/path/to/file.xlsx', 'name' => 'report.xlsx']
+// ];
+// $images = [
+//     'company_logo' => '/path/to/logo.png',
+//     'signature' => '/path/to/signature.jpg'
+// ];
+// $htmlBody = 'Hello! <img src="cid:company_logo"> <br> Best regards, <img src="cid:signature">';
+
+// $result = $emailService->sendEmail(
+//     'user@example.com',
+//     'Subject with attachments',
+//     $htmlBody,
+//     true, // HTML format
+//     $attachments,
+//     $images
+// );
+
+// if ($result['success']) {
+//     echo "Email sent successfully!";
+// } else {
+//     echo "Failed: " . $result['message'];
+// }

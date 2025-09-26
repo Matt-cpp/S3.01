@@ -61,6 +61,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'submission_date' => $_SESSION['reason_data']['submission_date']
             ];
 
+            // Send the email of validation to the student
+            
+
             $db->execute($sql, $params);
             $db->commit();
             header("Location: ../View/templates/validation_student_proof.php");
