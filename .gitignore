@@ -1,4 +1,6 @@
-# Fichiers à ignorer pour Git
+liquibase.properties
+liquibase.log
+liquibase.*
 
 # Fichier de configuration avec mots de passe
 .env
