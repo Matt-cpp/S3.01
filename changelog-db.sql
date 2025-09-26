@@ -197,3 +197,27 @@ ALTER TABLE users ALTER COLUMN email DROP NOT NULL;
 
 --rollback ALTER TABLE users ALTER COLUMN password_hash SET NOT NULL;
 --rollback ALTER TABLE users ALTER COLUMN email SET NOT NULL;
+
+--changeset collard.yony:add-proof-absences-association labels:Proof absences context:post-initial
+--comment: Add associative table to link proofs with multiple absences and update proof table structure
+
+-- Create associative table for proof-absences relationship
+CREATE TABLE proof_absences (
+    id SERIAL PRIMARY KEY,
+    proof_id INTEGER NOT NULL REFERENCES proof(id) ON DELETE CASCADE,
+    absence_id INTEGER NOT NULL REFERENCES absences(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(proof_id, absence_id)
+);
+
+-- Remove the single absence_id field from proof table since we now have many-to-many relationship
+ALTER TABLE proof DROP COLUMN IF EXISTS absence_id;
+
+-- Add index for better performance
+CREATE INDEX idx_proof_absences_proof_id ON proof_absences(proof_id);
+CREATE INDEX idx_proof_absences_absence_id ON proof_absences(absence_id);
+
+--rollback DROP INDEX IF EXISTS idx_proof_absences_absence_id;
+--rollback DROP INDEX IF EXISTS idx_proof_absences_proof_id;
+--rollback ALTER TABLE proof ADD COLUMN absence_id INTEGER REFERENCES absences(id);
+--rollback DROP TABLE IF EXISTS proof_absences CASCADE;

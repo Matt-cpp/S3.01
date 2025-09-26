@@ -4,6 +4,13 @@ session_start();
 date_default_timezone_set('Europe/Paris');
 require_once __DIR__ . '/../../Model/database.php';
 
+// Check if we have form data in session (redirected from successful submission)
+if (!isset($_SESSION['reason_data'])) {
+    // If no data in session, redirect back to form
+    header("Location: student_proof.php");
+    exit();
+}
+
 // Retrieve student information from database
 $student_info = null;
 if (isset($_SESSION['id_student'])) {
@@ -20,77 +27,10 @@ if (isset($_SESSION['id_student'])) {
     }
 }
 
-// Handling of the uploaded proof file
-$uploaded_file_name = '';
-$saved_file_name = '';
-$file_path = '';
-if (isset($_FILES['proof_reason'])) {
-    $upload_dir = '../../uploads/';
-
-    $allowed_extensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx'];
-    $max_file_size = 5 * 1024 * 1024; // 5MB
-    
-
-    $file_extension = strtolower(pathinfo($_FILES['proof_reason']['name'], PATHINFO_EXTENSION));
-    $file_size = $_FILES['proof_reason']['size'];
-    error_log($file_size);
-    if (!in_array($file_extension, $allowed_extensions)) {
-        $uploaded_file_name = 'Erreur : Type de fichier non autorisé';
-        $saved_file_name = '';
-    } elseif ($file_size > $max_file_size || $file_size === 0) {
-        $uploaded_file_name = 'Erreur : Fichier trop volumineux (max 5MB)';
-        $saved_file_name = '';
-    } else {
-        // Creation of a unique file name to avoid conflicts
-        $paris_time = new DateTime('now', new DateTimeZone('Europe/Paris'));
-        $unique_name = uniqid() . '_' . $paris_time->format('Y-m-d_H-i-s') . '.' . $file_extension;
-        $file_path = $upload_dir . $unique_name;
-
-        // Move the uploaded file to the destination folder
-        if (move_uploaded_file($_FILES['proof_reason']['tmp_name'], $file_path)) {
-            $uploaded_file_name = $_FILES['proof_reason']['name'];
-            $saved_file_name = $unique_name;
-        } else {
-            $uploaded_file_name = 'Erreur lors de la sauvegarde du fichier';
-            $saved_file_name = '';
-        }
-    }
-}
-
-$_SESSION['reason_data'] = array(
-    'datetime_start' => $_POST['datetime_start'] ?? '',
-    'datetime_end' => $_POST['datetime_end'] ?? '',
-    'class_involved' => $_POST['class_involved'] ?? array(),
-    'absence_reason' => $_POST['absence_reason'] ?? '',
-    'other_reason' => $_POST['other_reason'] ?? '',
-    'proof_file' => $uploaded_file_name,
-    'saved_file_name' => $saved_file_name,
-    'comments' => $_POST['comments'] ?? '',
-    'submission_date' => date('Y-m-d H:i:s'),
-    'stats_hours' => $_POST['absence_stats_hours'] ?? '0',
-    'stats_halfdays' => $_POST['absence_stats_halfdays'] ?? '0',
-    'stats_evaluations' => $_POST['absence_stats_evaluations'] ?? '0',
-    'stats_course_types' => $_POST['absence_stats_course_types'] ?? '{}',
-    'stats_evaluation_details' => $_POST['absence_stats_evaluation_details'] ?? '[]'
-);
-
-
-if ($_SESSION['reason_data']['absence_reason'] === 'maladie') {
-    $_SESSION['reason_data']['absence_reason'] = 'Maladie';
-} else if ($_SESSION['reason_data']['absence_reason'] === 'deces') {
-    $_SESSION['reason_data']['absence_reason'] = 'Décès dans la famille';
-} else if ($_SESSION['reason_data']['absence_reason'] === 'obligations_familiales') {
-    $_SESSION['reason_data']['absence_reason'] = 'Obligations familiales';
-} else if ($_SESSION['reason_data']['absence_reason'] === 'rdv_medical') {
-    $_SESSION['reason_data']['absence_reason'] = 'Rendez-vous médical';
-} else if ($_SESSION['reason_data']['absence_reason'] === 'convocation_officielle') {
-    $_SESSION['reason_data']['absence_reason'] = 'Convocation officielle (permis, TOIC, etc.)';
-} else if ($_SESSION['reason_data']['absence_reason'] === 'transport') {
-    $_SESSION['reason_data']['absence_reason'] = 'Problème de transport';
-}
+// The uploaded file data should now be in session from the Presenter
+$uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non disponible';
 ?>
 
-<!-- Faudra rajouter les infos de l'étudiants -->
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -110,7 +50,7 @@ if ($_SESSION['reason_data']['absence_reason'] === 'maladie') {
             <strong>Succès !</strong> Votre demande de justificatif d'absence a été enregistrée avec succès.
             Un email vous a été envoyé récapitulant les informations de votre justificatif.
         </div>
-        <?php 
+        <?php
         if (!$student_info) {
             echo '<div class="warning-message">';
             echo '<strong>Attention :</strong> Informations de l\'étudiant non disponibles.';
@@ -131,11 +71,11 @@ if ($_SESSION['reason_data']['absence_reason'] === 'maladie') {
                 echo '<li><strong>Informations de l\'étudiant :</strong> ';
                 echo '<li><strong>Nom :</strong> ' . htmlspecialchars($student_info['last_name']) . '</li>';
                 echo '<li><strong>Prénom :</strong> ' . htmlspecialchars($student_info['first_name']) . '</li>';
-                
+
                 if (!empty($student_info['middle_name'])) {
                     echo '<li><strong>Deuxième prénom :</strong> ' . htmlspecialchars($student_info['middle_name']) . '</li>';
                 }
-                
+
                 if (!empty($student_info['department'])) {
                     echo '<li><strong>Département :</strong> ' . htmlspecialchars($student_info['department']) . '</li>';
                 }
@@ -195,14 +135,7 @@ if ($_SESSION['reason_data']['absence_reason'] === 'maladie') {
         $stats_evaluation_details = json_decode($_SESSION['reason_data']['stats_evaluation_details'] ?? '[]', true);
         $cours = $_SESSION['reason_data']['class_involved'];
 
-        // Debug information - remove this after fixing
-        echo "<!-- DEBUG INFO: 
-        stats_hours: " . $stats_hours . "
-        stats_halfdays: " . $stats_halfdays . "
-        stats_evaluations: " . $stats_evaluations . "
-        stats_course_types: " . $_SESSION['reason_data']['stats_course_types'] . "
-        class_involved: " . $cours . "
-        -->";
+
 
         // Show statistics section if we have hours data OR course data
         if ($stats_hours > 0 || (!empty($cours) && $cours !== '')):

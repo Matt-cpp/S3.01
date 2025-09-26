@@ -2,10 +2,10 @@
 <html lang="fr">
 <?php
 session_start();
-if (!isset($_SESSION['id_student'])) {
-    $_SESSION['id_student'] = 30;
-}
+// FIXME Force student ID to 1 POUR LINSTANT
+$_SESSION['id_student'] = 1;
 ?>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +13,10 @@ if (!isset($_SESSION['id_student'])) {
     <title>Soumission Justificatif Élève</title>
 
     <link rel="stylesheet" href="../assets/css/student-proof.css">
+    <script>
+        // Pass PHP session data to JavaScript
+        window.studentId = <?php echo $_SESSION['id_student'] ?? 1; ?>;
+    </script>
     <script src="../assets/js/student-proof.js"></script>
 
 </head>
@@ -23,9 +27,26 @@ if (!isset($_SESSION['id_student'])) {
         <img src="../img/logoIUT.png" alt="Logo IUT" class="logo" width="100" height="90">
     </div>
 
+    <?php
+    // Display error message if there's one in session
+    if (isset($_SESSION['error_message'])) {
+        echo '<div style="background-color: #f8d7da; color: #721c24; padding: 15px; border: 1px solid #f1aeb5; border-radius: 4px; margin: 20px; text-align: center;">';
+        echo '<strong>⚠️ Erreur:</strong> ' . htmlspecialchars($_SESSION['error_message']);
+        echo '</div>';
+        unset($_SESSION['error_message']); // Clear the message after displaying
+    }
+
+    // Display success message if redirected from successful submission
+    if (isset($_GET['success'])) {
+        echo '<div style="background-color: #d4edda; color: #155724; padding: 15px; border: 1px solid #c3e6cb; border-radius: 4px; margin: 20px; text-align: center;">';
+        echo '<strong>✅ Succès:</strong> Votre justificatif a été soumis avec succès !';
+        echo '</div>';
+    }
+    ?>
+
     <h1>Absence</h1>
 
-    <form action="../templates/validation_student_proof.php" method="post" enctype="multipart/form-data">
+    <form action="../../Presenter/validate_student_proof.php" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="datetime_start">Date et heure de début d'absence :</label>
             <input type="datetime-local" id="datetime_start" name="datetime_start" required>
@@ -82,28 +103,28 @@ if (!isset($_SESSION['id_student'])) {
         </div>
 
         <div class="form-group">
-            <label for="proof_reason">Fichier justificatif :</label>
-            <input type="file" id="proof_reason" name="proof_reason" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+            <label for="proof_file">Fichier justificatif :</label>
+            <input type="file" id="proof_file" name="proof_file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
             <p class="help-text" style="color: #e36153ff; font-weight: bold; margin-top: 8px;">
                 <strong>ATTENTION :</strong> Taille maximale autorisée : <strong>5MB</strong><br>
                 Formats acceptés : PDF (recommandé), JPG, JPEG, PNG, DOC, DOCX
             </p>
-            <div id="file_size_warning" style="display: none; color: #e74c3c; font-weight: bold; margin-top: 5px; padding: 8px; background-color: #ffe6e6; border: 1px solid #e74c3c; border-radius: 4px;">
+            <div id="file_size_warning"
+                style="display: none; color: #e74c3c; font-weight: bold; margin-top: 5px; padding: 8px; background-color: #ffe6e6; border: 1px solid #e74c3c; border-radius: 4px;">
                 Fichier trop volumineux ! Veuillez sélectionner un fichier de moins de 5MB.
             </div>
         </div>
 
         <div class="form-group">
             <label for="comments">Commentaires (facultatif) :</label>
-            <textarea id="comments" name="comments" rows="4" cols="50" 
-            placeholder="Ajoutez des informations complémentaires si nécessaire..."></textarea>
+            <textarea id="comments" name="comments" rows="4" cols="50"
+                placeholder="Ajoutez des informations complémentaires si nécessaire..."></textarea>
         </div>
 
         <div class="form-group">
             <button type="submit" class="submit-btn">Soumettre le justificatif</button>
         </div>
 
-        <!-- Note : ne pas oublié de rajouter la classe de l'élève et sa formation-->
 
     </form>
 </body>
