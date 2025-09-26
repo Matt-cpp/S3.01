@@ -44,30 +44,30 @@ function validateDates() {
 }
 
 function validateFileSize() {
-  const fileInput = document.getElementById("proof_reason");
+  const fileInput = document.getElementById("proof_file");
   const file = fileInput.files[0];
   const warningDiv = document.getElementById("file_size_warning");
-  
+
   if (warningDiv) {
     warningDiv.style.display = "none";
   }
-  
+
   if (file) {
-    const maxSize = 5 * 1024 * 1024; // 5MB 
-    
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
     if (file.size > maxSize || file.size === 0) {
       if (warningDiv) {
         warningDiv.innerHTML = `Fichier trop volumineux !`;
         warningDiv.style.display = "block";
       }
-      
+
       alert(`Le fichier sélectionné est trop volumineux !`);
       fileInput.value = "";
       return false;
     } else {
     }
   }
-  
+
   return true;
 }
 
@@ -92,7 +92,8 @@ function fetchAbsences() {
     encodeURIComponent(dateStart) +
     "&datetime_end=" +
     encodeURIComponent(dateEnd) +
-    "&student_id=1";
+    "&student_id=" +
+    (window.studentId || 1);
 
   xhr.open("GET", url, true);
   xhr.onreadystatechange = function () {
@@ -160,9 +161,12 @@ function displayCourses(courses) {
 
   if (courses.length === 0) {
     placeholderEl.innerHTML =
-      "Aucune absence non justifiée trouvée pour cette période";
+      '<div style="background-color: #f8d7da; color: #721c24; padding: 15px; border: 1px solid #f1aeb5; border-radius: 4px; margin: 10px 0;">' +
+      "<strong>⚠️ Erreur:</strong> Aucune absence non justifiée trouvée pour cette période. " +
+      "Vous ne pouvez soumettre un justificatif que pour des absences déjà enregistrées dans le système." +
+      "</div>";
     placeholderEl.style.display = "block";
-    placeholderEl.style.color = "#28a745";
+    placeholderEl.style.color = "";
     listEl.style.display = "none";
     document.getElementById("absence_recap").style.display = "none";
     hiddenEl.value = "";
@@ -172,6 +176,15 @@ function displayCourses(courses) {
     document.getElementById("absence_stats_evaluations").value = "0";
     document.getElementById("absence_stats_course_types").value = "{}";
     document.getElementById("absence_stats_evaluation_details").value = "[]";
+
+    // Disable the submit button when no absences are found
+    var submitButton = document.querySelector(".submit-btn");
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.style.opacity = "0.5";
+      submitButton.style.cursor = "not-allowed";
+      submitButton.title = "Aucune absence trouvée pour cette période";
+    }
     return;
   }
 
@@ -189,7 +202,7 @@ function displayCourses(courses) {
     coursesHtml +=
       '<div class="course-item' +
       evaluationClass +
-      '" data-course-id="' +
+      ' selected locked" data-course-id="' +
       index +
       '">';
     coursesHtml +=
@@ -197,7 +210,7 @@ function displayCourses(courses) {
       index +
       '" checked style="display: none;">';
     coursesHtml +=
-      '<div class="course-button" onclick="toggleCourse(' + index + ')">';
+      '<div class="course-button selected" style="cursor: default; pointer-events: none;">';
 
     // Course header with title and evaluation badge
     coursesHtml += '<div class="course-header">';
@@ -281,6 +294,15 @@ function displayCourses(courses) {
   // Show recap section
   document.getElementById("absence_recap").style.display = "block";
 
+  // Re-enable the submit button when courses are found
+  var submitButton = document.querySelector(".submit-btn");
+  if (submitButton) {
+    submitButton.disabled = false;
+    submitButton.style.opacity = "1";
+    submitButton.style.cursor = "pointer";
+    submitButton.title = "";
+  }
+
   // Set the hidden field value
   hiddenEl.value = courseDescriptions.join("; ");
 
@@ -301,25 +323,11 @@ function displayCourses(courses) {
 }
 
 // Function to toggle course selection
+// Function to toggle course selection - DISABLED (courses are auto-selected and cannot be unselected)
 function toggleCourse(index) {
-  var checkbox = document.getElementById("course_" + index);
-  var courseItem = document.querySelector('[data-course-id="' + index + '"]');
-
-  checkbox.checked = !checkbox.checked;
-
-  if (checkbox.checked) {
-    courseItem.classList.add("selected");
-    courseItem.classList.remove("unselected");
-  } else {
-    courseItem.classList.add("unselected");
-    courseItem.classList.remove("selected");
-  }
-
-  // Update hidden field with selected courses
-  updateSelectedCoursesFromButtons();
-
-  // Update recap
-  updateAbsenceRecap();
+  // Courses are automatically selected and cannot be unselected
+  // This function is disabled to prevent deselection of absences
+  return false;
 }
 
 // Function to update selected courses from button states
@@ -580,14 +588,28 @@ window.addEventListener("DOMContentLoaded", function () {
     });
 
   // File size validation on file selection
-  document.getElementById("proof_reason").addEventListener("change", function () {
+  document.getElementById("proof_file").addEventListener("change", function () {
     validateFileSize();
   });
 
-  // Validate dates and file size on form submission
+  // Validate dates, file size, and selected courses on form submission
   document.querySelector("form").addEventListener("submit", function (e) {
+    var classInvolvedValue = document.getElementById(
+      "class_involved_hidden"
+    ).value;
+
     if (!validateDates() || !validateFileSize()) {
       e.preventDefault();
+      return;
+    }
+
+    // Check if any courses are selected
+    if (!classInvolvedValue || classInvolvedValue.trim() === "") {
+      e.preventDefault();
+      alert(
+        "Veuillez sélectionner les dates pour voir les absences concernées avant de soumettre le formulaire."
+      );
+      return;
     }
   });
 });
