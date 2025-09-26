@@ -17,8 +17,8 @@ if (isset($_SESSION['id_student'])) {
     try {
         $db = Database::getInstance();
         $student_info = $db->selectOne(
-            "SELECT id, identifier, last_name, first_name, middle_name, birth_date, degrees, department, email, role 
-             FROM users 
+            "SELECT id, identifier, last_name, first_name, middle_name, birth_date, degrees, department, email, role
+             FROM users
              WHERE id = ?",
             [$_SESSION['id_student']]
         );
@@ -33,8 +33,8 @@ $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8',
 // Set document information
 $pdf->SetCreator('Gestion d\'absences');
 $pdf->SetAuthor('Gestion d\'absences');
-$pdf->SetTitle('PDF with Text and Images');
-$pdf->SetSubject('Example PDF');
+$pdf->SetTitle('Justificatif d\'absence récapitulatif non validé');
+$pdf->SetSubject('Justificatif d\'absence');
 
 // Set default header and footer fonts
 $pdf->setHeaderFont(array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
@@ -91,36 +91,34 @@ $html_content .= '<table border="1" cellpadding="5" cellspacing="0" style="width
 // Add student information section
 if ($student_info) {
     $html_content .= '<tr><td colspan="2" style="background-color: #e9ecef; font-weight: bold; text-align: center;">INFORMATIONS DE L\'ÉTUDIANT</td></tr>';
-    
+
     $html_content .= '<tr><td><strong>Nom :</strong></td><td>' . htmlspecialchars($student_info['last_name']) . '</td></tr>';
     $html_content .= '<tr><td><strong>Prénom :</strong></td><td>' . htmlspecialchars($student_info['first_name']) . '</td></tr>';
-    
+
     if (!empty($student_info['middle_name'])) {
         $html_content .= '<tr><td><strong>Deuxième prénom :</strong></td><td>' . htmlspecialchars($student_info['middle_name']) . '</td></tr>';
     }
-    
+
     if (!empty($student_info['department'])) {
         $html_content .= '<tr><td><strong>Département :</strong></td><td>' . htmlspecialchars($student_info['department']) . '</td></tr>';
     }
-    
+
     if (!empty($student_info['degrees'])) {
         $html_content .= '<tr><td><strong>Diplôme(s) :</strong></td><td>' . htmlspecialchars($student_info['degrees']) . '</td></tr>';
     }
-    
+
     if (!empty($student_info['birth_date'])) {
         $birth_date = new DateTime($student_info['birth_date']);
         $html_content .= '<tr><td><strong>Date de naissance :</strong></td><td>' . $birth_date->format('d/m/Y') . '</td></tr>';
     }
-    
+
     if (!empty($student_info['email'])) {
         $html_content .= '<tr><td><strong>Email :</strong></td><td>' . htmlspecialchars($student_info['email']) . '</td></tr>';
     }
-    
+
     // Add separator row for absence details
     $html_content .= '<tr><td colspan="2" style="background-color: #e9ecef; font-weight: bold; text-align: center;">DÉTAILS DE L\'ABSENCE</td></tr>';
 }
-
-
 
 // Use of the correspondind time zonz
 $datetime_start = new DateTime($reason_data['datetime_start']);
@@ -130,14 +128,6 @@ $html_content .= '<tr><td><strong>Date et heure de début :</strong></td><td>' .
 $datetime_end = new DateTime($reason_data['datetime_end']);
 $datetime_end->setTimezone(new DateTimeZone('Europe/Paris'));
 $html_content .= '<tr><td><strong>Date et heure de fin :</strong></td><td>' . $datetime_end->format('d/m/Y à H:i:s') . '</td></tr>';
-
-$cours = $reason_data['class_involved'];
-if (is_array($cours)) {
-    $cours_text = htmlspecialchars(implode(', ', $cours));
-} else {
-    $cours_text = htmlspecialchars($cours);
-}
-$html_content .= '<tr><td><strong>Cours concerné(s) :</strong></td><td>' . $cours_text . '</td></tr>';
 
 $html_content .= '<tr><td><strong>Motif de l\'absence :</strong></td><td>' . htmlspecialchars($reason_data['absence_reason']) . '</td></tr>';
 
@@ -154,9 +144,59 @@ if (!empty($reason_data['comments'])) {
 $html_content .= '<tr><td><strong>Date de soumission :</strong></td><td>' . date('d/m/Y à H:i:s', strtotime($reason_data['submission_date'])) . '</td></tr>';
 $html_content .= '</table>';
 
+// Add absence statistics if available
+$cours = $reason_data['class_involved'];
+$stats_hours = floatval($reason_data['stats_hours'] ?? 0);
+$stats_halfdays = floatval($reason_data['stats_halfdays'] ?? 0);
+$stats_evaluations = intval($reason_data['stats_evaluations'] ?? 0);
+$stats_course_types = json_decode($reason_data['stats_course_types'] ?? '{}', true);
+$stats_evaluation_details = json_decode($reason_data['stats_evaluation_details'] ?? '[]', true);
+
+// Show statistics section if we have hours data OR course data
+if ($stats_hours > 0 || (!empty($cours) && $cours !== '')) {
+    $html_content .= '<br><h3>Statistiques des absences</h3>';
+    $html_content .= '<table border="1" cellpadding="5" cellspacing="0" style="width:100%;">';
+    $html_content .= '<tr><td colspan="2" style="background-color: #e9ecef; font-weight: bold; text-align: center;">ANALYSE DÉTAILLÉE DES ABSENCES</td></tr>';
+
+    // Count total courses involved
+    $total_courses = 0;
+    if (is_array($cours)) {
+        $total_courses = count($cours);
+    } else {
+        $courses_array = explode('; ', $cours);
+        $total_courses = count(array_filter($courses_array, function($course) {
+            return trim($course) !== '';
+        }));
+    }
+
+    if ($total_courses > 0) {
+        $html_content .= '<tr><td><strong>Total :</strong></td><td>' . $total_courses . ' cours avec absence non justifiée</td></tr>';
+    }
+
+    if ($stats_hours > 0) {
+        $html_content .= '<tr><td><strong>Nombre total d\'heures :</strong></td><td>' . number_format($stats_hours, 1) . 'h</td></tr>';
+    }
+
+    if (!empty($stats_course_types)) {
+        $course_types_text = '';
+        $course_type_items = array();
+        foreach ($stats_course_types as $type => $count) {
+            $course_type_items[] = htmlspecialchars($type) . ' (' . $count . ')';
+        }
+        $course_types_text = implode(', ', $course_type_items);
+        $html_content .= '<tr><td><strong>Types de cours :</strong></td><td>' . $course_types_text . '</td></tr>';
+    }
+
+    if ($stats_evaluations > 0) {
+        $html_content .= '<tr><td><strong>Évaluations :</strong></td><td>' . $stats_evaluations . '</td></tr>';
+    }
+
+    $html_content .= '</table>';
+}
+
 $pdf->writeHTML($html_content);
 
-$pdf->Ln(10);
+$pdf->addPage();
 
 
 
@@ -164,7 +204,6 @@ $pdf->Ln(10);
 if (!empty($reason_data['proof_file']) && !empty($reason_data['saved_file_name'])) {
     $pdf->SetFont('helvetica', 'B', 16);
     $pdf->Cell(0, 10, 'Justificatif fourni', 0, 1, 'C');
-    $pdf->Ln(5);
 
     // File name
     $pdf->SetFont('helvetica', '', 12);
@@ -267,5 +306,5 @@ if (!empty($reason_data['proof_file']) && !empty($reason_data['saved_file_name']
 }
 
 // Download the PDF
-// $pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'D');
-$pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'I');
+$pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'D');
+// $pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'I');

@@ -27,18 +27,6 @@ function validateDates() {
 
   var realTime = getRealTime();
 
-  // Validation of the end date not being more than 48 hours in the past
-  if (dateEnd) {
-    var fin = new Date(dateEnd);
-    var minDate = new Date(realTime.getTime() - 48 * 60 * 60 * 1000);
-
-    if (fin < minDate) {
-      alert("La date de fin ne peut pas être antérieure à plus de 48h.");
-      document.getElementById("datetime_end").value = "";
-      return false;
-    }
-  }
-
   // Validation of the end date being after the start date
   if (dateStart && dateEnd) {
     var debut = new Date(dateStart);
