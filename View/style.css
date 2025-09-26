@@ -58,12 +58,19 @@
         }
 
         .icon {
-            width: 24px;
-            height: 24px;
-            background: #333;
+            width: 32px;
+            height: 32px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
             border-radius: 50%;
             cursor: pointer;
             position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .icon:hover {
+            background: #e5e7eb;
+            transform: scale(1.1);
         }
 
         .icon.notification::before {
@@ -274,7 +281,8 @@
             color: #666;
         }
 
-        .pagination-btn:hover {
+
+        .btn:hover {
             background-color: #f9fafb;
         }
 
