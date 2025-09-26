@@ -4,13 +4,14 @@ class backendTableauDeBord {
     private $page;
     private $alldata;
     private $db;
-
+    //constructeur
     public function __construct() {
         $this->page = 0;
         require_once __DIR__ . '/../Model/database.php';
         $this->db = Database::getInstance();
         $this->alldata = $this->db->select('SELECT * FROM absences');
     }
+    // sert a faire la requete principale du tableau
     public function getData($page) {
         $offset = $page * 5;
         $query = "SELECT users.first_name,users.last_name,resources.label,course_slots.course_date,absences.status  
@@ -20,37 +21,41 @@ class backendTableauDeBord {
         ORDER BY course_slots.course_date DESC, absences.id ASC LIMIT 5 OFFSET :offset";
         return $this->db->select($query, ['offset' => $offset]);
     }
-
+// renvoie le nombre total de pages
     public function getTotalPages() {
         $result = $this->db->select("SELECT COUNT(*) as count FROM absences");
         return ceil($result[0]['count'] / 5);
     }
+    // sert a mettre a jour l'attribut page en posant des limites
     public function setPage($page) {
         if ($page >= 0 && $page < $this->getTotalPages()) {
             $this->page = $page;
         }
     }
+    // fait avancer la page de 1 si possible
     public function nextPage() {
         if ($this->page < $this->getTotalPages() - 1) {
             $this->page++;
         }
     }
+    // fait reculer la page de 1 si possible
     public function previousPage() {
         if ($this->page > 0) {
             $this->page--;
         }
     }
+    //renvoie le numéro de page actuel
     public function getCurrentPage() {
         return $this->page;
     }
-
+    //permet l'accès a la page suivante et précédente en posant des limites
     public function getNextPage() {
         return min($this->page + 1, $this->getTotalPages() - 1);
     }
-
     public function getPreviousPage() {
         return max($this->page - 1, 0);
     }
+    // Statistiques
     public function todayAbs() {
         $query = "SELECT COUNT(*) as count FROM absences WHERE DATE(updated_at) = CURRENT_DATE";
         $res = $this->db->select($query);
@@ -66,6 +71,7 @@ class backendTableauDeBord {
         $res = $this->db->select($query);
         return $res[0]['count'];
     }
+    // Tableau
     public function laTable() {
         // Récupération des données brutes
         $donnees = $this->getData($this->getCurrentPage());
@@ -86,7 +92,6 @@ class backendTableauDeBord {
                 $ligne['status']
             ];
         }
-        
         return $tableau;
     }
 }
