@@ -13,6 +13,9 @@ function toggleCustomReason() {
   }
 }
 
+// Global variable to store courses data
+var coursesData = [];
+
 function getRealTime() {
   var now = new Date();
   return new Date(now.toLocaleString("en-US", { timeZone: "Europe/Paris" }));
@@ -97,7 +100,7 @@ function fetchAbsences() {
   // Make AJAX request to fetch absences
   var xhr = new XMLHttpRequest();
   var url =
-    "../../Presenter/get_absences.php?datetime_start=" +
+    "../../Presenter/get_absences_of_student.php?datetime_start=" +
     encodeURIComponent(dateStart) +
     "&datetime_end=" +
     encodeURIComponent(dateEnd) +
@@ -136,7 +139,14 @@ function fetchAbsences() {
 function showCoursesPlaceholder() {
   document.getElementById("courses_placeholder").style.display = "block";
   document.getElementById("courses_list").style.display = "none";
+  document.getElementById("absence_recap").style.display = "none";
   document.getElementById("class_involved_hidden").value = "";
+  // Reset statistics hidden fields
+  document.getElementById("absence_stats_hours").value = "0";
+  document.getElementById("absence_stats_halfdays").value = "0";
+  document.getElementById("absence_stats_evaluations").value = "0";
+  document.getElementById("absence_stats_course_types").value = "{}";
+  document.getElementById("absence_stats_evaluation_details").value = "[]";
 }
 
 // Function to show/hide loading indicator
@@ -147,11 +157,15 @@ function showCoursesLoading(show) {
   if (show) {
     document.getElementById("courses_placeholder").style.display = "none";
     document.getElementById("courses_list").style.display = "none";
+    document.getElementById("absence_recap").style.display = "none";
   }
 }
 
 // Function to display courses
 function displayCourses(courses) {
+  // Store courses data globally for recap calculations
+  coursesData = courses;
+
   var placeholderEl = document.getElementById("courses_placeholder");
   var listEl = document.getElementById("courses_list");
   var hiddenEl = document.getElementById("class_involved_hidden");
@@ -162,7 +176,14 @@ function displayCourses(courses) {
     placeholderEl.style.display = "block";
     placeholderEl.style.color = "#28a745";
     listEl.style.display = "none";
+    document.getElementById("absence_recap").style.display = "none";
     hiddenEl.value = "";
+    // Reset statistics hidden fields
+    document.getElementById("absence_stats_hours").value = "0";
+    document.getElementById("absence_stats_halfdays").value = "0";
+    document.getElementById("absence_stats_evaluations").value = "0";
+    document.getElementById("absence_stats_course_types").value = "{}";
+    document.getElementById("absence_stats_evaluation_details").value = "[]";
     return;
   }
 
@@ -269,6 +290,9 @@ function displayCourses(courses) {
   listEl.style.display = "block";
   placeholderEl.style.display = "none";
 
+  // Show recap section
+  document.getElementById("absence_recap").style.display = "block";
+
   // Set the hidden field value
   hiddenEl.value = courseDescriptions.join("; ");
 
@@ -282,6 +306,9 @@ function displayCourses(courses) {
         courseItem.classList.add("selected");
       }
     });
+
+    // Update recap after initialization
+    updateAbsenceRecap();
   }, 10);
 }
 
@@ -302,6 +329,9 @@ function toggleCourse(index) {
 
   // Update hidden field with selected courses
   updateSelectedCoursesFromButtons();
+
+  // Update recap
+  updateAbsenceRecap();
 }
 
 // Function to update selected courses from button states
@@ -329,6 +359,40 @@ function updateSelectedCoursesFromButtons() {
 
   document.getElementById("class_involved_hidden").value =
     selectedCourses.join("; ");
+
+  // Update statistics in hidden fields
+  updateStatisticsFields();
+}
+
+// Function to update statistics in hidden form fields
+function updateStatisticsFields() {
+  var stats = calculateAbsenceStats();
+
+  // Create or update hidden fields for statistics
+  updateHiddenField("absence_stats_hours", stats.totalHours.toFixed(1));
+  updateHiddenField("absence_stats_halfdays", stats.halfDays.toFixed(1));
+  updateHiddenField("absence_stats_evaluations", stats.evaluations.toString());
+  updateHiddenField(
+    "absence_stats_course_types",
+    JSON.stringify(stats.courseTypes)
+  );
+  updateHiddenField(
+    "absence_stats_evaluation_details",
+    JSON.stringify(stats.evaluationDetails)
+  );
+}
+
+// Helper function to create or update hidden form fields
+function updateHiddenField(name, value) {
+  var field = document.getElementById(name);
+  if (!field) {
+    field = document.createElement("input");
+    field.type = "hidden";
+    field.id = name;
+    field.name = name;
+    document.querySelector("form").appendChild(field);
+  }
+  field.value = value;
 }
 
 // Function to update selected courses in hidden field
@@ -346,6 +410,147 @@ function updateSelectedCourses(courses) {
     selectedCourses.join("; ");
 }
 
+// Function to calculate time difference in hours
+function calculateHoursBetween(startTime, endTime) {
+  var start = new Date("1970-01-01T" + startTime + ":00");
+  var end = new Date("1970-01-01T" + endTime + ":00");
+  return (end - start) / (1000 * 60 * 60); // Convert milliseconds to hours
+}
+
+// Function to calculate absence recap statistics
+function calculateAbsenceStats() {
+  var stats = {
+    totalHours: 0,
+    halfDays: 0,
+    evaluations: 0,
+    courseTypes: {},
+    evaluationDetails: [],
+  };
+
+  var selectedCourses = [];
+  var checkboxes = document.querySelectorAll('[id^="course_"]');
+
+  checkboxes.forEach(function (checkbox) {
+    if (checkbox.checked) {
+      var index = parseInt(checkbox.id.replace("course_", ""));
+      if (coursesData[index]) {
+        var course = coursesData[index];
+        selectedCourses.push(course);
+
+        // Calculate hours
+        var hours = calculateHoursBetween(course.start_time, course.end_time);
+        stats.totalHours += hours;
+
+        // Count half-days (assuming 4+ hours = half day)
+        if (hours >= 4) {
+          stats.halfDays += 0.5;
+        } else if (hours >= 2) {
+          stats.halfDays += 0.25;
+        }
+
+        // Count course types
+        var courseType = course.course_type || "Non spécifié";
+        if (stats.courseTypes[courseType]) {
+          stats.courseTypes[courseType]++;
+        } else {
+          stats.courseTypes[courseType] = 1;
+        }
+
+        // Count evaluations and store details
+        if (course.is_evaluation) {
+          stats.evaluations++;
+          stats.evaluationDetails.push({
+            resource_label: course.resource_label || "Cours non spécifié",
+            resource_code: course.resource_code,
+            course_type: courseType,
+            course_date: course.course_date,
+            start_time: course.start_time,
+            end_time: course.end_time,
+            teacher: course.teacher,
+            room: course.room,
+          });
+        }
+      }
+    }
+  });
+
+  return stats;
+}
+
+// Function to update absence recap display
+function updateAbsenceRecap() {
+  var recapElement = document.getElementById("absence_recap");
+  if (!recapElement) return;
+
+  var stats = calculateAbsenceStats();
+
+  // Always update hidden fields with statistics data, even if 0
+  document.getElementById("absence_stats_hours").value =
+    stats.totalHours.toFixed(1);
+  document.getElementById("absence_stats_halfdays").value =
+    stats.halfDays.toFixed(1);
+  document.getElementById("absence_stats_evaluations").value =
+    stats.evaluations;
+  document.getElementById("absence_stats_course_types").value = JSON.stringify(
+    stats.courseTypes
+  );
+  document.getElementById("absence_stats_evaluation_details").value =
+    JSON.stringify(stats.evaluationDetails);
+
+  var recapHtml =
+    '<div class="recap-title">📊 Récapitulatif des absences sélectionnées</div>';
+
+  if (stats.totalHours === 0) {
+    recapHtml += '<div class="recap-empty">Aucune absence sélectionnée</div>';
+  } else {
+    recapHtml += '<div class="recap-stats">';
+
+    // Total hours
+    recapHtml += '<div class="recap-item">';
+    recapHtml +=
+      '<span class="recap-label">⏱️ Nombre total d\'heures :</span> ';
+    recapHtml +=
+      '<span class="recap-value">' + stats.totalHours.toFixed(1) + "h</span>";
+    recapHtml += "</div>";
+
+    // Half days
+    if (stats.halfDays > 0) {
+      recapHtml += '<div class="recap-item">';
+      recapHtml += '<span class="recap-label">📅 Demi-journées :</span> ';
+      recapHtml +=
+        '<span class="recap-value">' + stats.halfDays.toFixed(1) + "</span>";
+      recapHtml += "</div>";
+    }
+
+    // Course types
+    recapHtml += '<div class="recap-item">';
+    recapHtml += '<span class="recap-label">📚 Types de cours :</span>';
+    recapHtml += '<div class="course-types-list">';
+    Object.keys(stats.courseTypes).forEach(function (type) {
+      recapHtml +=
+        '<span class="course-type-badge">' +
+        type +
+        " (" +
+        stats.courseTypes[type] +
+        ")</span>";
+    });
+    recapHtml += "</div>";
+    recapHtml += "</div>";
+
+    // Evaluations
+    if (stats.evaluations > 0) {
+      recapHtml += '<div class="recap-item evaluation-alert">';
+      recapHtml += '<span class="recap-label">⚠️ Évaluations :</span> ';
+      recapHtml += '<span class="recap-value">' + stats.evaluations + "</span>";
+      recapHtml += "</div>";
+    }
+
+    recapHtml += "</div>";
+  }
+
+  recapElement.innerHTML = recapHtml;
+}
+
 // Function to show error message
 function showCoursesError(message) {
   var placeholderEl = document.getElementById("courses_placeholder");
@@ -353,7 +558,14 @@ function showCoursesError(message) {
   placeholderEl.style.display = "block";
   placeholderEl.style.color = "#dc3545";
   document.getElementById("courses_list").style.display = "none";
+  document.getElementById("absence_recap").style.display = "none";
   document.getElementById("class_involved_hidden").value = "";
+  // Reset statistics hidden fields
+  document.getElementById("absence_stats_hours").value = "0";
+  document.getElementById("absence_stats_halfdays").value = "0";
+  document.getElementById("absence_stats_evaluations").value = "0";
+  document.getElementById("absence_stats_course_types").value = "{}";
+  document.getElementById("absence_stats_evaluation_details").value = "[]";
 }
 
 window.addEventListener("DOMContentLoaded", function () {

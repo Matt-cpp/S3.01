@@ -8,4 +8,6 @@ if ($db->testConnection()) {
     echo "Database connection successful!\n";
 } else {
     echo "Database connection failed!\n";
-} 
+}
+
+?>

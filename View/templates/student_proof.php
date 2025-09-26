@@ -49,7 +49,15 @@ if (!isset($_SESSION['id_student'])) {
                 </p>
                 <div id="courses_list" style="display: none;"></div>
             </div>
+            <div id="absence_recap" style="display: none;"></div>
             <input type="hidden" name="class_involved" id="class_involved_hidden" value="">
+            <!-- Hidden fields for statistics data -->
+            <input type="hidden" name="absence_stats_hours" id="absence_stats_hours" value="0">
+            <input type="hidden" name="absence_stats_halfdays" id="absence_stats_halfdays" value="0">
+            <input type="hidden" name="absence_stats_evaluations" id="absence_stats_evaluations" value="0">
+            <input type="hidden" name="absence_stats_course_types" id="absence_stats_course_types" value="{}">
+            <input type="hidden" name="absence_stats_evaluation_details" id="absence_stats_evaluation_details"
+                value="[]">
         </div>
 
 
