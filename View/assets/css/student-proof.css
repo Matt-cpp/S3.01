@@ -237,3 +237,108 @@ textarea {
     font-size: 14px;
     color: #34495e;
 }
+
+/* Absence Recap Styles */
+#absence_recap {
+    margin-top: 15px;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.recap-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    text-align: center;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #3498db;
+}
+
+.recap-empty {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 10px;
+}
+
+.recap-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.recap-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background-color: white;
+    border-radius: 6px;
+    border-left: 4px solid #3498db;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.recap-item.evaluation-alert {
+    border-left-color: #e74c3c;
+    background-color: #fdf2f2;
+}
+
+.recap-label {
+    font-weight: 600;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+}
+
+.recap-value {
+    font-weight: bold;
+    color: #3498db;
+    background-color: #ecf8ff;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.evaluation-alert .recap-value {
+    color: #e74c3c;
+    background-color: #ffeaea;
+}
+
+.course-types-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.course-type-badge {
+    background-color: #3498db;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* Responsive adjustments for recap */
+@media (max-width: 600px) {
+    .recap-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    
+    .recap-value {
+        align-self: flex-end;
+    }
+    
+    .course-types-list {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}

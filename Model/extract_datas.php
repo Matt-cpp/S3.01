@@ -69,6 +69,12 @@ class DataExtractor
             throw new Exception("Cannot read CSV header from: $csvFile");
         }
 
+        // Clean BOM from header fields (especially the first one)
+        $header = array_map(function ($field) {
+            // Remove UTF-8 BOM if present
+            return str_replace("\xEF\xBB\xBF", '', $field);
+        }, $header);
+
         $rowCount = 0;
         while (($row = fgetcsv($handle, 0, ';', '"', '\\')) !== false) {
             if (count($row) !== count($header)) {

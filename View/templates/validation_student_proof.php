@@ -5,6 +5,7 @@ date_default_timezone_set('Europe/Paris');
 
 // Handling of the uploaded proof file
 $uploaded_file_name = '';
+$saved_file_name = '';
 $file_path = '';
 if (isset($_FILES['proof_reason']) && $_FILES['proof_reason']['error'] === UPLOAD_ERR_OK) {
     $upload_dir = '../../uploads/';
@@ -47,8 +48,14 @@ $_SESSION['reason_data'] = array(
     'proof_file' => $uploaded_file_name,
     'saved_file_name' => $saved_file_name,
     'comments' => $_POST['comments'] ?? '',
-    'submission_date' => date('Y-m-d H:i:s') // Date de soumission au fuseau horaire de Paris
+    'submission_date' => date('Y-m-d H:i:s'),
+    'stats_hours' => $_POST['absence_stats_hours'] ?? '0',
+    'stats_halfdays' => $_POST['absence_stats_halfdays'] ?? '0',
+    'stats_evaluations' => $_POST['absence_stats_evaluations'] ?? '0',
+    'stats_course_types' => $_POST['absence_stats_course_types'] ?? '{}',
+    'stats_evaluation_details' => $_POST['absence_stats_evaluation_details'] ?? '[]'
 );
+
 
 if ($_SESSION['reason_data']['absence_reason'] === 'maladie') {
     $_SESSION['reason_data']['absence_reason'] = 'Maladie';
@@ -108,16 +115,6 @@ if ($_SESSION['reason_data']['absence_reason'] === 'maladie') {
                 echo $datetime_end->format('d/m/Y à H:i:s');
                 ?>
             </li>
-            <li><strong>Cours concerné(s) :</strong>
-                <?php
-                $cours = $_SESSION['reason_data']['class_involved'];
-                if (is_array($cours)) {
-                    echo htmlspecialchars(implode(', ', $cours));
-                } else {
-                    echo htmlspecialchars($cours);
-                }
-                ?>
-            </li>
             <li><strong>Motif de l'absence :</strong>
                 <?php echo htmlspecialchars($_SESSION['reason_data']['absence_reason']); ?></li>
             <?php if (!empty($_SESSION['reason_data']['other_reason'])): ?>
@@ -138,6 +135,123 @@ if ($_SESSION['reason_data']['absence_reason'] === 'maladie') {
                 ?>
             </li>
         </ul>
+
+        <?php
+        // Display absence statistics if available
+        $stats_hours = floatval($_SESSION['reason_data']['stats_hours'] ?? 0);
+        $stats_halfdays = floatval($_SESSION['reason_data']['stats_halfdays'] ?? 0);
+        $stats_evaluations = intval($_SESSION['reason_data']['stats_evaluations'] ?? 0);
+        $stats_course_types = json_decode($_SESSION['reason_data']['stats_course_types'] ?? '{}', true);
+        $stats_evaluation_details = json_decode($_SESSION['reason_data']['stats_evaluation_details'] ?? '[]', true);
+        $cours = $_SESSION['reason_data']['class_involved'];
+
+        // Debug information - remove this after fixing
+        echo "<!-- DEBUG INFO: 
+        stats_hours: " . $stats_hours . "
+        stats_halfdays: " . $stats_halfdays . "
+        stats_evaluations: " . $stats_evaluations . "
+        stats_course_types: " . $_SESSION['reason_data']['stats_course_types'] . "
+        class_involved: " . $cours . "
+        -->";
+
+        // Show statistics section if we have hours data OR course data
+        if ($stats_hours > 0 || (!empty($cours) && $cours !== '')):
+            ?>
+            <div class="absence-statistics">
+                <h3>📊 Analyse détaillée des absences</h3>
+                <div class="stats-container">
+                    <?php if ($stats_hours > 0): ?>
+                        <div class="stats-summary">
+                            <div class="stat-item">
+                                <span class="stat-label">⏱️ Nombre total d'heures :</span>
+                                <span class="stat-value"><?php echo number_format($stats_hours, 1); ?>h</span>
+                            </div>
+
+                            <?php if ($stats_halfdays > 0): ?>
+                                <div class="stat-item">
+                                    <span class="stat-label">📅 Demi-journées :</span>
+                                    <span class="stat-value"><?php echo number_format($stats_halfdays, 1); ?></span>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (!empty($stats_course_types)): ?>
+                                <div class="stat-item">
+                                    <span class="stat-label">📚 Types de cours :</span>
+                                    <div class="course-types">
+                                        <?php foreach ($stats_course_types as $type => $count): ?>
+                                            <span class="course-type-tag"><?php echo htmlspecialchars($type); ?>
+                                                (<?php echo $count; ?>)</span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ($stats_evaluations > 0): ?>
+                                <div class="stat-item evaluation-warning">
+                                    <span class="stat-label">⚠️ Évaluations manquées :</span>
+                                    <span class="stat-value evaluation-count"><?php echo $stats_evaluations; ?></span>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($cours) && $cours !== ''): ?>
+                        <div class="courses-details">
+                            <h4>📋 Cours concernés</h4>
+                            <div class="courses-list">
+                                <?php
+                                if (is_array($cours)) {
+                                    foreach ($cours as $course) {
+                                        echo '<div class="course-detail-item">' . htmlspecialchars($course) . '</div>';
+                                    }
+                                } else {
+                                    $courses_array = explode('; ', $cours);
+                                    foreach ($courses_array as $course) {
+                                        if (trim($course)) {
+                                            echo '<div class="course-detail-item">' . htmlspecialchars(trim($course)) . '</div>';
+                                        }
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($stats_evaluations > 0 && !empty($stats_evaluation_details)): ?>
+                        <div class="evaluation-details">
+                            <h4>⚠️ Détails des évaluations manquées</h4>
+                            <div class="evaluation-list">
+                                <?php foreach ($stats_evaluation_details as $eval): ?>
+                                    <div class="evaluation-detail">
+                                        <div class="eval-header">
+                                            <strong><?php echo htmlspecialchars($eval['resource_label'] ?? 'Cours non spécifié'); ?></strong>
+                                            <?php if (!empty($eval['resource_code'])): ?>
+                                                <span class="eval-code">(<?php echo htmlspecialchars($eval['resource_code']); ?>)</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="eval-details">
+                                            <span class="eval-info">📅
+                                                <?php echo htmlspecialchars($eval['course_date'] ?? ''); ?></span>
+                                            <span class="eval-info">🕐
+                                                <?php echo htmlspecialchars($eval['start_time'] ?? ''); ?>-<?php echo htmlspecialchars($eval['end_time'] ?? ''); ?></span>
+                                            <?php if (!empty($eval['course_type'])): ?>
+                                                <span class="eval-info">📚 <?php echo htmlspecialchars($eval['course_type']); ?></span>
+                                            <?php endif; ?>
+                                            <?php if (!empty($eval['teacher'])): ?>
+                                                <span class="eval-info">👨‍🏫 <?php echo htmlspecialchars($eval['teacher']); ?></span>
+                                            <?php endif; ?>
+                                            <?php if (!empty($eval['room'])): ?>
+                                                <span class="eval-info">🏫 <?php echo htmlspecialchars($eval['room']); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <div style="margin-top: 30px; text-align: center; color: #6c757d;">
             <p><em>Conservez ce récapitulatif pour vos archives.</em></p>

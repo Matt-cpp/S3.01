@@ -9,3 +9,5 @@ if ($db->testConnection()) {
 } else {
     echo "Database connection failed!\n";
 }
+
+?>
