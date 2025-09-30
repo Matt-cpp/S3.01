@@ -181,17 +181,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Store the absence IDs for the associative table
         $absence_ids = array_column($debug_absences, 'absence_id');
 
-        // Convert absence reason to match enum
-        $absence_reason_mapped = match ($_SESSION['reason_data']['absence_reason']) {
-            'maladie' => 'illness',
-            'deces' => 'death',
-            'obligations_familiales' => 'family_obligations',
-            'rdv_medical' => 'other',
-            'convocation_officielle' => 'other',
-            'transport' => 'other',
-            'autre' => 'other',
-            default => 'other'
-        };
+        // Centralized absence reason mapping
+        $absence_reasons = [
+            'maladie' => [
+                'db_value' => 'illness',
+                'display_name' => 'Maladie'
+            ],
+            'deces' => [
+                'db_value' => 'death',
+                'display_name' => 'Décès dans la famille'
+            ],
+            'obligations_familiales' => [
+                'db_value' => 'family_obligations',
+                'display_name' => 'Obligations familiales'
+            ],
+            'rdv_medical' => [
+                'db_value' => 'other',
+                'display_name' => 'Rendez-vous médical'
+            ],
+            'convocation_officielle' => [
+                'db_value' => 'other',
+                'display_name' => 'Convocation officielle (permis, TOIC, etc.)'
+            ],
+            'transport' => [
+                'db_value' => 'other',
+                'display_name' => 'Problème de transport'
+            ],
+            'autre' => [
+                'db_value' => 'other',
+                'display_name' => 'Autre'
+            ]
+        ];
+
+        $form_reason = $_SESSION['reason_data']['absence_reason'];
+        $absence_reason_mapped = $absence_reasons[$form_reason]['db_value'] ?? 'other';
 
         // Insert the proof into database
         $db->beginTransaction();
@@ -269,20 +292,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
             <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
             ';
-            
+
             // Generate PDF summary using the generate_pdf.php logic
             $pdf_filename = 'Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf';
             $pdf_path = __DIR__ . '/../uploads/' . $pdf_filename;
-            
+
             // Simulate POST data for PDF generation
             $_POST['action'] = 'download_pdf_server';
             $_POST['name_file'] = $pdf_filename;
-            
+
             // Capture the PDF output by including the generate_pdf.php file
             ob_start();
             include __DIR__ . '/generate_pdf.php';
             ob_end_clean();
-            
+
             // Check if PDF was generated successfully
             if (!file_exists($pdf_path)) {
                 error_log("Background email script: PDF generation failed - file not found: " . $pdf_path);
@@ -290,7 +313,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             $attachments = [];
-    
+
             // Add original file if it exists
             $original_file_path = __DIR__ . '/../' . $_SESSION['reason_data']['saved_file_path'];
             if (file_exists($original_file_path)) {
@@ -298,21 +321,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 error_log("Background email script: Original file not found: " . $original_file_path);
             }
-            
+
             // Add PDF if it was generated successfully
             if (file_exists($pdf_path)) {
                 $attachments[] = ['path' => $pdf_path, 'name' => $pdf_filename];
             }
-            
+
             $images = [
                 'logoUPHF' => __DIR__ . '/../View/img/UPHF.png',
                 'logoIUT' => __DIR__ . '/../View/img/logoIUT.png'
             ];
-            
+
             $response = $emailService->sendEmail(
                 //TODO mettre mail de l'étudiant donc $SESSION['student_info']['email']
-                'ambroise.bisiaux@uphf.fr', 
-                'Confirmation de réception - Justificatif d\'absence', 
+                'ambroise.bisiaux@uphf.fr',
+                'Confirmation de réception - Justificatif d\'absence',
                 $htmlBody,
                 true,
                 $attachments,
@@ -343,12 +366,85 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 default => $_POST['absence_reason']
             };
 
-            // Redirect to success page
+            // Send response to user immediately, then handle emails in background
             header("Location: ../View/templates/validation_student_proof.php");
+
+            // Now handle email operations in background (user already redirected)
+            try {
+                $emailService = new EmailService();
+
+                $htmlBody = '
+                <h1>Résumé de votre justificatif envoyé</h1>
+                <p>Veuillez trouver le document récapitulatif ci-joint.</p>
+                <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
+                <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
+                ';
+
+                $attachments = [
+                    __DIR__ . '/../' . $saved_file_path,
+                ];
+
+                $images = [
+                    'logoUPHF' => __DIR__ . '/../View/img/UPHF.png',
+                    'logoIUT' => __DIR__ . '/../View/img/logoIUT.png'
+                ];
+
+                $response = $emailService->sendEmail(
+                    'ambroise.bisiaux@uphf.fr',
+                    'Justificatif d\'absence - Confirmation',
+                    $htmlBody,
+                    true,
+                    $attachments,
+                    $images
+                );
+
+                if ($response['success']) {
+                    // Log successful email notification
+                    insert_notification(
+                        $db,
+                        $student_identifier,
+                        'justification_processed',
+                        'Justificatif reçu',
+                        'Votre justificatif a été reçu et est en cours de traitement.',
+                        true
+                    );
+                } else {
+                    // Log the email error but do not fail the whole process
+                    insert_notification(
+                        $db,
+                        $student_identifier,
+                        'justification_processed',
+                        'Justificatif reçu (email échoué)',
+                        'Votre justificatif n\'a pas pu être envoyé.',
+                        false
+                    );
+                    error_log("Email error: " . $response['message']);
+                }
+            } catch (Exception $email_error) {
+                // Log email error but don't fail the main process since the proof was saved
+                error_log("Email sending failed: " . $email_error->getMessage());
+                // Still try to insert a notification about the email failure
+                try {
+                    insert_notification(
+                        $db,
+                        $student_identifier,
+                        'justification_processed',
+                        'Justificatif reçu (email échoué)',
+                        'Votre justificatif a été reçu mais l\'email de confirmation n\'a pas pu être envoyé.',
+                        false
+                    );
+                } catch (Exception $notification_error) {
+                    error_log("Notification insertion failed: " . $notification_error->getMessage());
+                }
+            }
+
             exit();
 
         } catch (Exception $e) {
-            $db->rollBack();
+            // Only rollback if transaction is still active
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
             // Clean up uploaded file on database error
             if ($saved_file_path && file_exists(__DIR__ . '/../' . $saved_file_path)) {
                 unlink(__DIR__ . '/../' . $saved_file_path);
@@ -365,5 +461,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Redirect if not POST request
     header("Location: ../View/templates/student_proof.php");
     exit();
+}
+
+function insert_notification($db, $student_identifier, $notification_type, $subject, $message, $sent): bool
+{
+    try {
+        $sql = "INSERT INTO notifications (student_identifier, notification_type, subject, message , sent, sent_date) 
+                VALUES (:student_identifier, :notification_type, :subject, :message, :sent, CASE WHEN :sent = TRUE THEN NOW() ELSE NULL END)";
+        $db->execute($sql, [
+            'student_identifier' => $student_identifier,
+            'notification_type' => $notification_type,
+            'subject' => $subject,
+            'message' => $message,
+            'sent' => $sent
+        ]);
+        return true;
+    } catch (Exception $e) {
+        error_log("Error inserting notification: " . $e->getMessage());
+        return false;
+    }
 }
 ?>

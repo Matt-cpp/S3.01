@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once('../vendor/autoload.php');
 require_once('../Model/database.php');
 
@@ -164,7 +166,7 @@ if ($stats_hours > 0 || (!empty($cours) && $cours !== '')) {
         $total_courses = count($cours);
     } else {
         $courses_array = explode('; ', $cours);
-        $total_courses = count(array_filter($courses_array, function($course) {
+        $total_courses = count(array_filter($courses_array, function ($course) {
             return trim($course) !== '';
         }));
     }
@@ -310,8 +312,8 @@ if (!empty($reason_data['proof_file']) && !empty($reason_data['saved_file_name']
 }
 
 if ($_POST['action'] === 'download_pdf_client') {
-// Download the PDF
-$pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'D');
+    // Download the PDF
+    $pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'D');
 }
 if ($_POST['action'] === 'download_pdf_server') {
     $save_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $_POST['name_file'];

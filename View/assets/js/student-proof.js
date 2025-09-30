@@ -272,7 +272,6 @@ function displayCourses(courses) {
     }
 
     coursesHtml += "</div>"; // Close course-details
-    coursesHtml += '<div class="selection-indicator">✓ Sélectionné</div>';
     coursesHtml += "</div>"; // Close course-button
     coursesHtml += "</div>"; // Close course-item
 

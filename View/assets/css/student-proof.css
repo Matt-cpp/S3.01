@@ -172,7 +172,7 @@ textarea {
     background-color: #e74c3c;
     color: white;
     right: 41px;
-    top: 44px;
+    top: 15px;
     padding: 4px 8px;
     border-radius: 12px;
     font-size: 10px;
@@ -210,23 +210,7 @@ textarea {
     color: #2c3e50;
 }
 
-.selection-indicator {
-    position: absolute;
-    top: 10px;
-    right: 35px;
-    background-color: #27ae60;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: bold;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
 
-.course-item.selected .selection-indicator {
-    opacity: 1;
-}
 
 .courses-summary {
     margin-top: 12px;
