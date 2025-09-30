@@ -44,11 +44,12 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
         }
         ?>
 
-        <div class="pdf-download">
-            <a href="../../Presenter/generate_pdf.php" class="btn-pdf" target="_blank">
-                Télécharger le récapitulatif PDF
-            </a>
-        </div>
+        <form class="pdf-download" action="../../Presenter/generate_pdf.php" method="post" target="_blank">
+            <input type="hidden" name="action" value="download_pdf_client">
+            <button type="submit" class="btn-pdf">
+            Télécharger le récapitulatif PDF
+            </button>
+        </form>
 
         <h3>Récapitulatif de votre demande :</h3>
         <ul>

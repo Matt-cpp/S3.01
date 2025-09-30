@@ -303,8 +303,18 @@ if (!empty($reason_data['proof_file']) && !empty($reason_data['saved_file_name']
         $pdf->Cell(0, 10, 'Veuillez consulter le fichier original joint à votre demande.', 0, 1, 'L');
         $pdf->SetTextColor(0, 0, 0);
     }
+} else {
+    $pdf->SetTextColor(255, 0, 0);
+    $pdf->Cell(0, 10, 'Aucun fichier justificatif fourni.', 0, 1, 'L');
+    $pdf->SetTextColor(0, 0, 0);
 }
 
+if ($_POST['action'] === 'download_pdf_client') {
 // Download the PDF
 $pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'D');
+}
+if ($_POST['action'] === 'download_pdf_server') {
+    $save_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $_POST['name_file'];
+    $pdf->Output($save_path, 'F');
+}
 // $pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'I');

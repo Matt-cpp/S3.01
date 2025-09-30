@@ -74,6 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'other_reason' => $_POST['other_reason'] ?? '',
             'proof_file' => $uploaded_file_name,
             'saved_file_path' => $saved_file_path,
+            'saved_file_name' => $unique_name,
             'comments' => $_POST['comments'] ?? '',
             'submission_date' => date('Y-m-d H:i:s'),
             'stats_hours' => $_POST['absence_stats_hours'] ?? '0',
@@ -235,42 +236,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'submission_date' => $_SESSION['reason_data']['submission_date']
             ];
 
-            
-            // Send the email of validation to the student
-            $emailService = new EmailService();
-
-            $htmlBody = '
-            <h1>Résumé de votre justificatif envoyé</h1>
-            <p>Veuillez trouver le document récapitulatif ci-joint.</p>
-            <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
-            <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
-            ';
-            
-            $attachments = [
-                __DIR__ . '/../' . $saved_file_path,
-            ];
-            
-            $images = [
-                'logoUPHF' => __DIR__ . '/../View/img/UPHF.png',
-                'logoIUT' => __DIR__ . '/../View/img/logoIUT.png'
-            ];
-            
-            $response = $emailService->sendEmail(
-                'ambroise.bisiaux@uphf.fr', 
-                'Test Subject with Attachments', 
-                $htmlBody,
-                true,
-                $attachments,
-                $images
-            );
-
-            if ($response['success']) {
-                // Email sent successfully
-            } else {
-                // Log the email error but do not fail the whole process
-                error_log("Email error: " . $response['message']);
-            }
-
             $db->execute($sql_insert, $params_insert);
             $proof_id = $db->lastInsertId();
 
@@ -287,6 +252,84 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             $db->commit();
+
+            // Send the email of validation to the student
+            $emailService = new EmailService();
+
+            $htmlBody = '
+            <h1>Confirmation de réception de votre justificatif</h1>
+            <p>Votre justificatif d\'absence a été reçu avec succès et est maintenant en attente de validation.</p>
+            <p>Vous trouverez ci-joint :</p>
+            <ul>
+                <li>Votre document justificatif original</li>
+                <li>Un récapitulatif détaillé de votre demande au format PDF</li>
+            </ul>
+            <p>Vous recevrez une notification par email une fois que votre justificatif aura été traité par l\'administration.</p>
+            <br>
+            <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
+            <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
+            ';
+            
+            // Generate PDF summary using the generate_pdf.php logic
+            $pdf_filename = 'Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf';
+            $pdf_path = __DIR__ . '/../uploads/' . $pdf_filename;
+            
+            // Simulate POST data for PDF generation
+            $_POST['action'] = 'download_pdf_server';
+            $_POST['name_file'] = $pdf_filename;
+            
+            // Capture the PDF output by including the generate_pdf.php file
+            ob_start();
+            include __DIR__ . '/generate_pdf.php';
+            ob_end_clean();
+            
+            // Check if PDF was generated successfully
+            if (!file_exists($pdf_path)) {
+                error_log("Background email script: PDF generation failed - file not found: " . $pdf_path);
+                // Continue with email sending even if PDF generation fails
+            }
+
+            $attachments = [];
+    
+            // Add original file if it exists
+            $original_file_path = __DIR__ . '/../' . $_SESSION['reason_data']['saved_file_path'];
+            if (file_exists($original_file_path)) {
+                $attachments[] = ['path' => $original_file_path, 'name' => $_SESSION['reason_data']['proof_file']];
+            } else {
+                error_log("Background email script: Original file not found: " . $original_file_path);
+            }
+            
+            // Add PDF if it was generated successfully
+            if (file_exists($pdf_path)) {
+                $attachments[] = ['path' => $pdf_path, 'name' => $pdf_filename];
+            }
+            
+            $images = [
+                'logoUPHF' => __DIR__ . '/../View/img/UPHF.png',
+                'logoIUT' => __DIR__ . '/../View/img/logoIUT.png'
+            ];
+            
+            $response = $emailService->sendEmail(
+                //TODO mettre mail de l'étudiant donc $SESSION['student_info']['email']
+                'ambroise.bisiaux@uphf.fr', 
+                'Confirmation de réception - Justificatif d\'absence', 
+                $htmlBody,
+                true,
+                $attachments,
+                $images
+            );
+
+            if ($response['success']) {
+                // Email sent successfully
+            } else {
+                // Log the email error but do not fail the whole process
+                error_log("Email error: " . $response['message']);
+            }
+
+            // Delete the generated PDF after sending the email
+            if (file_exists($pdf_path)) {
+                unlink($pdf_path);
+            }
 
             // Convert reason back to French for display
             $_SESSION['reason_data']['absence_reason'] = match ($_POST['absence_reason']) {
