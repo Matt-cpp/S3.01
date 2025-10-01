@@ -235,48 +235,23 @@ button[type="submit"]:hover {
     color: #495057;
 }
 
-@media (max-width: 768px) {
-    .header h1 {
-        position: static;
-        transform: none;
-        font-size: 1.4rem;
-    }
-    
-    .header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-    
-    main {
-        padding: 1rem;
-    }
-    
-    .stats-container {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .filter-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    #absenceTable {
-        font-size: 12px;
-    }
-    
-    #absenceTable th,
-    #absenceTable td {
-        padding: 8px 6px;
-    }
+/* bouton de preuve */
+
+.btn_export {
+    background-color: #ddd;
+    border-radius: 25%;
+    cursor: pointer;
+    border: none;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-@media (max-width: 480px) {
-    .stats-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .stat-item strong {
-        font-size: 1.5rem;
-    }
+.export  {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+
 }
 

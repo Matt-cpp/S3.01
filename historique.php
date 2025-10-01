@@ -7,8 +7,25 @@ function getName() {
     $name = !empty($result) ? $result[0] : null;
     return $name ? $name['first_name'] . ' ' . $name['last_name'] : '';
 }
-// Classe pour gérer l'historique des absences
-class AbsenceHistoryManager {
+
+function translateMotif($motif) {
+    $translations = [
+        'illness' => 'Maladie',
+        'death' => 'Décès',
+        'family' => 'Famille',
+        'medical' => 'Médical',
+        'transport' => 'Transport',
+        'personal' => 'Personnel'
+    ];
+    
+    return isset($translations[$motif]) ? $translations[$motif] : ($motif ?: '');
+}
+
+function translateStatus($justified) {
+    return $justified ? 'Justifiée' : 'Non justifiée';
+}
+
+    class AbsenceHistoryManager {
     private $db;
         
     public function __construct() {
@@ -18,7 +35,8 @@ class AbsenceHistoryManager {
 
     public function getAllAbsences($filters = []) {
         $query = "
-            SELECT 
+            SELECT DISTINCT ON (a.id)
+                a.id as absence_id,
                 CONCAT(u.first_name, ' ', u.last_name) as student_name,
                 u.identifier as student_identifier,
                 COALESCE(r.label, 'Non spécifié') as course,
@@ -26,28 +44,28 @@ class AbsenceHistoryManager {
                 cs.start_time::text as start_time,
                 cs.end_time::text as end_time,
                 cs.course_type,
-                CASE 
-                    WHEN a.justified = true THEN 'Justifiée'
-                    ELSE 'Non justifiée'
-                END as status,
-                'Non justifié' as reason
+                a.justified as status,
+                p.main_reason as motif,
+                p.file_path as file_path
             FROM absences a
             JOIN users u ON a.student_identifier = u.identifier
             JOIN course_slots cs ON a.course_slot_id = cs.id
             LEFT JOIN resources r ON cs.resource_id = r.id
+            LEFT JOIN proof_absences pa ON a.id = pa.absence_id
+            LEFT JOIN proof p ON pa.proof_id = p.id
             WHERE 1=1
         ";
         
         $params = [];
         $conditions = [];
-        
-        if (!empty($filters['name'])) {
-            $conditions[] = "(u.first_name ILIKE :name OR u.last_name ILIKE :name)";
-            $params[':name'] = '%' . $filters['name'] . '%';
-        }
-        
-        if (!empty($filters['start_date'])) {
-            $conditions[] = "cs.course_date >= :start_date";
+            
+            if (!empty($filters['name'])) {
+                $conditions[] = "(u.first_name ILIKE :name OR u.last_name ILIKE :name)";
+                $params[':name'] = '%' . $filters['name'] . '%';
+            }
+            
+            if (!empty($filters['start_date'])) {
+                $conditions[] = "cs.course_date >= :start_date";
             $params[':start_date'] = $filters['start_date'];
         }
         
@@ -72,7 +90,7 @@ class AbsenceHistoryManager {
         if (!empty($conditions)) {
             $query .= " AND " . implode(" AND ", $conditions);
         }
-        $query .= " ORDER BY cs.course_date DESC, cs.start_time DESC";
+        $query .= " ORDER BY a.id, cs.course_date DESC, cs.start_time DESC";
         
         try {
             return $this->db->select($query, $params);
@@ -118,6 +136,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $absences = $historyManager->getAllAbsences($filters);
 $courseTypes = $historyManager->getCourseTypes();
+
+function is_there_proof($absence) {
+    if ($absence['motif'] != null) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function get_proof($absence) {
+    if (is_there_proof($absence) && isset($absence['file_path'])){
+        return $absence['file_path'] ?? '';
+    }
+    else {
+        return '';
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -199,31 +235,43 @@ $courseTypes = $historyManager->getCourseTypes();
                     <th>Date</th>
                     <th>Horaire</th>
                     <th>Type</th>
+                    <th>Motif</th>
                     <th>Statut</th>
+                    <th>Preuve</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($absences)): ?>
                     <tr>
-                        <td colspan="6" class="no-results">
+                        <td colspan="7" class="no-results">
                             Aucune absence trouvée avec les critères sélectionnés.
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($absences as $absence): ?>
-                        <tr class="<?php echo ($absence['status'] === 'Justifiée') ? 'status-justified' : 'status-unjustified'; ?>">
+                        <tr class="<?php echo $absence['status'] ? 'status-justified' : 'status-unjustified'; ?>">
                             <td><?php echo htmlspecialchars($absence['student_name']); ?></td>
                             <td><?php echo htmlspecialchars($absence['course']); ?></td>
                             <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($absence['date']))); ?></td>
                             <td><?php echo htmlspecialchars($absence['start_time'] . ' - ' . $absence['end_time']); ?></td>
                             <td><?php echo htmlspecialchars($absence['course_type'] ?? 'Non spécifié'); ?></td>
+                            <td><?php echo htmlspecialchars(translateMotif($absence['motif'])); ?></td>
                             <td>
-                                <?php if ($absence['status'] === 'Justifiée'): ?>
+                                <?php if ($absence['status']): ?>
                                     <span class="badge badge-success">Justifiée</span>
                                 <?php else: ?>
                                     <span class="badge badge-danger">Non justifiée</span>
                                 <?php endif; ?>
                             </td>
+                            <td>
+                                <?php if (is_there_proof($absence)): ?>
+                                    <button onclick="window.open('<?php echo htmlspecialchars(get_proof($absence)); ?>', '_blank')" class="btn_export               ">
+                                        <img src="View/img/export.png" alt="export-icon" class="export">
+                                    </button>
+                                <?php else: ?>
+                                    <span class="no-proof"></span>
+                                    <?php endif; ?>
+                                </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
