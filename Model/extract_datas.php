@@ -122,7 +122,7 @@ class DataExtractor
             echo "Group ID: " . ($groupId ?? 'NULL') . "\n";
 
             echo "Processing resource...\n";
-            $resourceId = $this->processResource($data, $groupId);
+            $resourceId = $this->processResource($data);
             echo "Resource ID: " . ($resourceId ?? 'NULL') . "\n";
 
             echo "Processing room...\n";
@@ -134,7 +134,7 @@ class DataExtractor
             echo "Teacher ID: " . ($teacherId ?? 'NULL') . "\n";
 
             echo "Processing course slot...\n";
-            $courseSlotId = $this->processCourseSlot($data, $resourceId, $roomId, $teacherId);
+            $courseSlotId = $this->processCourseSlot($data, $resourceId, $roomId, $teacherId, $groupId);
             echo "Course Slot ID: " . ($courseSlotId ?? 'NULL') . "\n";
 
             // Link user to group
@@ -258,7 +258,7 @@ class DataExtractor
     /**
      * Process resource/subject data
      */
-    private function processResource($data, $groupId)
+    private function processResource($data)
     {
         $resourceCode = trim($data['Identifiant matière'] ?? '');
 
@@ -285,12 +285,11 @@ class DataExtractor
         $courseType = $this->mapCourseType(trim($data['Type'] ?? ''));
 
         $this->db->execute(
-            "INSERT INTO resources (code, label, teaching_type, group_id) VALUES (?, ?, ?, ?)",
+            "INSERT INTO resources (code, label, teaching_type) VALUES (?, ?, ?)",
             [
                 $resourceCode,
                 trim($data['Matière'] ?? ''),
-                $courseType,
-                $groupId
+                $courseType
             ]
         );
 
@@ -328,8 +327,8 @@ class DataExtractor
 
         // Create new room
         $this->db->execute(
-            "INSERT INTO rooms (code, label) VALUES (?, ?)",
-            [$roomCode, $roomCode]
+            "INSERT INTO rooms (code) VALUES (?)",
+            [$roomCode]
         );
 
         $roomId = $this->db->lastInsertId();
@@ -384,7 +383,7 @@ class DataExtractor
     /**
      * Process course slot data
      */
-    private function processCourseSlot($data, $resourceId, $roomId, $teacherId)
+    private function processCourseSlot($data, $resourceId, $roomId, $teacherId, $groupId)
     {
         $courseDate = $this->parseDate($data['Date'] ?? '', 'd/m/Y');
         $startTime = $this->parseTime($data['Heure'] ?? '');
@@ -407,14 +406,15 @@ class DataExtractor
         $existingSlot = $this->db->selectOne(
             "SELECT id FROM course_slots 
              WHERE course_date = ? AND start_time = ? AND end_time = ? 
-             AND resource_id = ? AND room_id = ? AND teacher_id = ?",
+             AND resource_id = ? AND room_id = ? AND teacher_id = ? AND group_id = ?",
             [
                 $courseDate,
                 $startTime,
                 $endDateTime->format('H:i:s'),
                 $resourceId,
                 $roomId,
-                $teacherId
+                $teacherId,
+                $groupId
             ]
         );
 
@@ -424,8 +424,8 @@ class DataExtractor
 
         // Create new course slot
         $this->db->execute(
-            "INSERT INTO course_slots (course_date, start_time, end_time, duration_minutes, course_type, resource_id, room_id, teacher_id, is_evaluation, subject_identifier) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO course_slots (course_date, start_time, end_time, duration_minutes, course_type, resource_id, room_id, teacher_id, group_id, is_evaluation, subject_identifier) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 $courseDate,
                 $startTime,
@@ -435,6 +435,7 @@ class DataExtractor
                 $resourceId,
                 $roomId,
                 $teacherId,
+                $groupId,
                 $isEvaluation ? 'true' : 'false', // Convert boolean to string for PostgreSQL
                 trim($data['Identifiant matière'] ?? '')
             ]

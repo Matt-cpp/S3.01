@@ -221,3 +221,39 @@ CREATE INDEX idx_proof_absences_absence_id ON proof_absences(absence_id);
 --rollback DROP INDEX IF EXISTS idx_proof_absences_proof_id;
 --rollback ALTER TABLE proof ADD COLUMN absence_id INTEGER REFERENCES absences(id);
 --rollback DROP TABLE IF EXISTS proof_absences CASCADE;
+
+--changeset collard.yony:fix-course-slots-resources-relationship labels:Schema refactor context:fixing-db
+--comment: Add group_id to course_slots and remove group_id from resources to fix relationship model
+
+-- Add group_id to course_slots table
+ALTER TABLE course_slots ADD COLUMN group_id INTEGER REFERENCES groups(id);
+
+-- Remove group_id from resources table
+ALTER TABLE resources DROP COLUMN IF EXISTS group_id;
+
+-- Add index for better performance
+CREATE INDEX idx_course_slots_group_id ON course_slots(group_id);
+
+--rollback DROP INDEX IF EXISTS idx_course_slots_group_id;
+--rollback ALTER TABLE resources ADD COLUMN group_id INTEGER REFERENCES groups(id);
+--rollback ALTER TABLE course_slots DROP COLUMN IF EXISTS group_id;
+
+--changeset collard.yony:remove-rooms-label-field labels:Schema cleanup context:fixing-db
+--comment: Remove label field from rooms table as it's not needed
+
+-- Remove label column from rooms table
+ALTER TABLE rooms DROP COLUMN IF EXISTS label;
+
+--rollback ALTER TABLE rooms ADD COLUMN label VARCHAR(100);
+
+--changeset collard.yony:move-rejection-reason-to-decision-history labels:Schema refactor context:fixing-db
+--comment: Move rejection_reason from proof table to decision_history table for better tracking
+
+-- Add rejection_reason to decision_history table
+ALTER TABLE decision_history ADD COLUMN rejection_reason TEXT;
+
+-- Remove rejection_reason from proof table
+ALTER TABLE proof DROP COLUMN IF EXISTS rejection_reason;
+
+--rollback ALTER TABLE proof ADD COLUMN rejection_reason TEXT;
+--rollback ALTER TABLE decision_history DROP COLUMN IF EXISTS rejection_reason;
