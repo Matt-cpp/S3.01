@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <title>Tableau de bord</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/accueil.css">
 </head>
+
 <body>
     <?php
-    require_once __DIR__ . '/../Presenter/tableauDeBord.php';
+    require_once __DIR__ . '/../../Presenter/tableauDeBord.php';
     $donnes = new backendTableauDeBord();
     ?>
     <header class="header">
         <div class="logo">
-            <img id="logo" src="img/UPHF_logo.png"/>
+            <img id="logo" src="img/UPHF_logo.png" />
         </div>
         <div class="header-icons">
             <div class="icon notification"></div>
@@ -48,7 +50,8 @@
             ?>
 
             <div class="pagination">
-                <div>Page <?php echo ($donnes->getCurrentPage()) + 1; ?> sur <?php echo $donnes->getTotalPages(); ?></div>
+                <div>Page <?php echo ($donnes->getCurrentPage()) + 1; ?> sur <?php echo $donnes->getTotalPages(); ?>
+                </div>
                 <div class="pagination-buttons">
                     <a href="?page=<?php echo $donnes->getPreviousPage(); ?>">
                         <button class="btn" type="button">Précédent</button>
@@ -59,7 +62,7 @@
                 </div>
             </div>
 
-                        <table class="table">
+            <table class="table">
                 <thead>
                     <!-- Add your table headers here if needed -->
                 </thead>
@@ -67,7 +70,7 @@
                     <?php
                     $f = $donnes->laTable();
                     $tabel = json_decode(json_encode($f), true);
-                    
+
                     foreach ($tabel as $row) {
                         echo "<tr>";
                         foreach ($row as $cell) {
@@ -90,7 +93,8 @@
             <div class="team-section">
                 <h3 class="team-title">Équipe de développement</h3>
                 <div class="team-names">
-                    <p>CIPOLAT Matteo • BOLTZ Louis • NAVREZ Louis • COLLARD Yony • BISIAUX Ambroise • FOURNIER Alexandre</p>
+                    <p>CIPOLAT Matteo • BOLTZ Louis • NAVREZ Louis • COLLARD Yony • BISIAUX Ambroise • FOURNIER
+                        Alexandre</p>
                 </div>
             </div>
             <div class="footer-info">
@@ -99,4 +103,5 @@
         </div>
     </footer>
 </body>
+
 </html>
