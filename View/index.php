@@ -20,7 +20,7 @@
             <div class="icon profile"></div>
         </div>
     </header>
-    
+
     <div class="main-content">
         <div class="stats-grid">
             <div class="stat-card">
@@ -36,94 +36,49 @@
                 <div class="stat-number"><?php echo $donnes->unjustifiedAbs() ?></div>
             </div>
         </div>
-        
+
         <div class="absences-section">
             <h2 class="section-title">Absences Récentes</h2>
             <p class="section-subtitle">Dernières absences signalées dans le système</p>
-            
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Étudiant</th>
-                        <th>Cours</th>
-                        <th>Date</th>
-                        <th>Raison</th>
-                        <th>Statut</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Marie Dubois</td>
-                        <td>Mathématiques Avancées</td>
-                        <td>15/01/2024</td>
-                        <td>Maladie</td>
-                        <td><span class="status-badge status-justified">Justifiée</span></td>
-                        <td class="actions">
-                            <button class="action-btn action-view">👁</button>
-                            <button class="action-btn action-edit">✏️</button>
-                            <button class="action-btn action-delete">🗑</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Pierre Leroy</td>
-                        <td>Physique Quantique</td>
-                        <td>15/01/2024</td>
-                        <td>Rendez-vous médical</td>
-                        <td><span class="status-badge status-justified">Justifiée</span></td>
-                        <td class="actions">
-                            <button class="action-btn action-view">👁</button>
-                            <button class="action-btn action-edit">✏️</button>
-                            <button class="action-btn action-delete">🗑</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Sophie Chen</td>
-                        <td>Chimie Organique</td>
-                        <td>14/01/2024</td>
-                        <td>Non spécifiée</td>
-                        <td><span class="status-badge status-unjustified">Non justifiée</span></td>
-                        <td class="actions">
-                            <button class="action-btn action-view">👁</button>
-                            <button class="action-btn action-edit">✏️</button>
-                            <button class="action-btn action-delete">🗑</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Lucas Bernard</td>
-                        <td>Histoire Contemporaine</td>
-                        <td>14/01/2024</td>
-                        <td>Problème familial</td>
-                        <td><span class="status-badge status-pending">En attente</span></td>
-                        <td class="actions">
-                            <button class="action-btn action-view">👁</button>
-                            <button class="action-btn action-edit">✏️</button>
-                            <button class="action-btn action-delete">🗑</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Emma Petit</td>
-                        <td>Littérature Française</td>
-                        <td>13/01/2024</td>
-                        <td>Transport</td>
-                        <td><span class="status-badge status-justified">Justifiée</span></td>
-                        <td class="actions">
-                            <button class="action-btn action-view">👁</button>
-                            <button class="action-btn action-edit">✏️</button>
-                            <button class="action-btn action-delete">🗑</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            
+            <?php
+            if (isset($_GET['page'])) {
+                $page = intval($_GET['page']);
+                $donnes->setPage($page);
+            }
+            ?>
+
             <div class="pagination">
-                <div>Page <?php echo ($donnes->getCurrentPage())+1?> sur <?php echo $donnes->getTotalPages()?></div>
+                <div>Page <?php echo ($donnes->getCurrentPage()) + 1; ?> sur <?php echo $donnes->getTotalPages(); ?></div>
                 <div class="pagination-buttons">
-                    <button class="btn">Précédent</button>
-                    <button class="btn">Suivant</button>
+                    <a href="?page=<?php echo $donnes->getPreviousPage(); ?>">
+                        <button class="btn" type="button">Précédent</button>
+                    </a>
+                    <a href="?page=<?php echo $donnes->getNextPage(); ?>">
+                        <button class="btn" type="button">Suivant</button>
+                    </a>
                 </div>
             </div>
-            
+
+                        <table class="table">
+                <thead>
+                    <!-- Add your table headers here if needed -->
+                </thead>
+                <tbody>
+                    <?php
+                    $f = $donnes->laTable();
+                    $tabel = json_decode(json_encode($f), true);
+                    
+                    foreach ($tabel as $row) {
+                        echo "<tr>";
+                        foreach ($row as $cell) {
+                            echo "<td>" . htmlspecialchars($cell) . "</td>";
+                        }
+                        echo "</tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+
             <div class="history-section">
                 <button class="btn-history">Consulter l'historique</button>
             </div>
@@ -136,7 +91,6 @@
                 <h3 class="team-title">Équipe de développement</h3>
                 <div class="team-names">
                     <p>CIPOLAT Matteo • BOLTZ Louis • NAVREZ Louis • COLLARD Yony • BISIAUX Ambroise • FOURNIER Alexandre</p>
-                    
                 </div>
             </div>
             <div class="footer-info">
