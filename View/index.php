@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <?php
+    require_once __DIR__ . '/../Presenter/tableauDeBord.php';
+    $donnes = new backendTableauDeBord();
+    ?>
     <header class="header">
         <div class="logo">
             <img id="logo" src="img/UPHF_logo.png"/>
@@ -21,15 +25,15 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-title">Absences du jour</div>
-                <div class="stat-number">13</div>
+                <div class="stat-number"><?php echo $donnes->todayAbs() ?></div>
             </div>
             <div class="stat-card">
                 <div class="stat-title">Cumul des absences du mois</div>
-                <div class="stat-number">un nombre</div>
+                <div class="stat-number"><?php echo $donnes->thisMonthAbs() ?></div>
             </div>
             <div class="stat-card">
                 <div class="stat-title">Absences non justifiées</div>
-                <div class="stat-number">26</div>
+                <div class="stat-number"><?php echo $donnes->unjustifiedAbs() ?></div>
             </div>
         </div>
         
@@ -113,7 +117,7 @@
             </table>
             
             <div class="pagination">
-                <div>Affichage de 5 sur 127 absences</div>
+                <div>Page <?php echo ($donnes->getCurrentPage())+1?> sur <?php echo $donnes->getTotalPages()?></div>
                 <div class="pagination-buttons">
                     <button class="btn">Précédent</button>
                     <button class="btn">Suivant</button>
