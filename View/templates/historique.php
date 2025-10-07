@@ -17,23 +17,7 @@ $errorMessage = $presenter->getErrorMessage();
     <title>Historique des absences</title>
 </head>
 <body>
-    <header class="header">
-        <div class="logo">
-            <img id="logo" src="../img/logoIUT.ico" alt="Logo IUT"/>
-        </div>
-        <h1>Historique des absences</h1>
-        <div class="header-icons">
-            <button class="btn">
-                <img src="../img/bell.png" alt="Notifications" class="btn-icon">
-            </button>
-            <button class="btn">
-                <img src="../img/settings.png" alt="Paramètres" class="btn-icon">
-            </button>
-            <button class="btn">
-                <img src="../img/profil.png" alt="Profil" class="btn-icon">
-            </button>
-        </div>
-    </header>
+    <?php include __DIR__ . '/navbar.php'; ?>
     <main>
         <?php if (!empty($errorMessage)): ?>
             <div class="error-message">
@@ -117,7 +101,7 @@ $errorMessage = $presenter->getErrorMessage();
                             <td>
                                 <?php if ($presenter->hasProof($absence)): ?>
                                     <button onclick="window.open('<?php echo htmlspecialchars($presenter->getProofPath($absence)); ?>', '_blank')" class="btn_export               ">
-                                        <img src="../View/img/export.png" alt="export-icon" class="export">
+                                        <img src="../img/export.png" alt="export-icon" class="export">
                                     </button>
                                 <?php else: ?>
                                     <span class="no-proof"></span>

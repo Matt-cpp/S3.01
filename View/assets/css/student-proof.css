@@ -9,10 +9,22 @@
 
 body {
     font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 70px 20px 20px 20px;
+    margin: 0;
+    padding: 0;
     background-color: #f5f5f5;
+}
+
+body > *:not(.header) {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+body > h1 {
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
 
 h1 {

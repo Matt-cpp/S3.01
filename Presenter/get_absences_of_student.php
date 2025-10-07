@@ -69,7 +69,7 @@ try {
             r.code as resource_code,
             t.last_name as teacher_last_name,
             t.first_name as teacher_first_name,
-            rm.label as room_label,
+            rm.code as room_label,
             a.id as absence_id,
             cs.id as course_slot_id
         FROM absences a

@@ -12,16 +12,7 @@
     require_once __DIR__ . '/../../Presenter/tableauDeBord.php';
     $donnes = new backendTableauDeBord();
     ?>
-    <header class="header">
-        <div class="logo">
-            <img id="logo" src="img/UPHF_logo.png" />
-        </div>
-        <div class="header-icons">
-            <div class="icon notification"></div>
-            <div class="icon settings"></div>
-            <div class="icon profile"></div>
-        </div>
-    </header>
+    <?php include __DIR__ . '/navbar.php'; ?>
 
     <div class="main-content">
         <div class="stats-grid">
@@ -83,7 +74,7 @@
             </table>
 
             <div class="history-section">
-                <button class="btn-history">Consulter l'historique</button>
+                <a href="historique.php" class="btn-history">Consulter l'historique</a>
             </div>
         </div>
     </div>
