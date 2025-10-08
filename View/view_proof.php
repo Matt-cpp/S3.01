@@ -67,7 +67,6 @@ if (isset($_GET['proof_id'])) {
             $showInfoForm = true;
             $infoError = "Veuillez saisir un message.";
         } else {
-            // À adapter selon votre modèle
             $model->setInfoRequest($proofId, $infoMessage);
             header('Location: view_proof.php?proof_id=' . $proofId);
             exit;

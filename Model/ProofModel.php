@@ -38,7 +38,6 @@ class ProofModel
         try {
             $result = $this->db->selectOne($sql, ['id' => $proofId]);
 
-            // ✅ Correction : fetch() peut renvoyer false, on le convertit en null
             if ($result === false) {
                 return null;
             }
