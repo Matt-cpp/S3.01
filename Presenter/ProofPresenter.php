@@ -10,8 +10,54 @@ class ProofPresenter
         $this->model = new ProofModel();
     }
 
-    public function getProofDetails(int $id): ?array
+    public function handleRequest($get, $post)
     {
-        return $this->model->getProofDetails($id);
+        $data = [
+            'proof' => null,
+            'showRejectForm' => false,
+            'rejectionError' => '',
+            'redirect' => null,
+        ];
+
+        if (isset($get['proof_id'])) {
+            $proofId = (int)$get['proof_id'];
+            $data['proof'] = $this->model->getProofDetails($proofId);
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($post['proof_id'])) {
+            $proofId = (int)$post['proof_id'];
+            $data['proof'] = $this->model->getProofDetails($proofId);
+
+            if (isset($post['reject']) && !isset($post['rejection_reason'])) {
+                $data['showRejectForm'] = true;
+            } elseif (isset($post['reject']) && isset($post['rejection_reason'])) {
+                $rejectionReason = trim($post['rejection_reason']);
+                $rejectionDetails = trim($post['rejection_details'] ?? '');
+
+                if ($rejectionReason === '') {
+                    $data['showRejectForm'] = true;
+                    $data['rejectionError'] = "Veuillez sélectionner un motif de rejet.";
+                } else {
+                    $this->model->updateProofStatus($proofId, 'rejected');
+                    $this->model->setRejectionReason($proofId, $rejectionReason, $rejectionDetails);
+                    $this->model->updateAbsencesForProof(
+                        $data['proof']['student_identifier'],
+                        $data['proof']['absence_start_date'],
+                        $data['proof']['absence_end_date'],
+                        'rejected'
+                    );
+                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                }
+            } elseif (isset($post['validate'])) {
+                $this->model->updateProofStatus($proofId, 'accepted');
+                $this->model->updateAbsencesForProof(
+                    $data['proof']['student_identifier'],
+                    $data['proof']['absence_start_date'],
+                    $data['proof']['absence_end_date'],
+                    'accepted'
+                );
+                $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+            }
+        }
+        return $data;
     }
 }
+
