@@ -17,6 +17,8 @@ class ProofPresenter
             'showRejectForm' => false,
             'rejectionError' => '',
             'redirect' => null,
+            'showInfoForm' => false,
+            'infoError' => '',
         ];
 
         if (isset($get['proof_id'])) {
@@ -55,9 +57,20 @@ class ProofPresenter
                     'accepted'
                 );
                 $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+            } elseif (isset($post['request_info']) && !isset($post['info_message'])) {
+                $data['showInfoForm'] = true;
+                $data['infoError'] = '';
+            } elseif (isset($post['request_info']) && isset($post['info_message'])) {
+                $infoMessage = trim($post['info_message']);
+                if ($infoMessage === '') {
+                    $data['showInfoForm'] = true;
+                    $data['infoError'] = "Veuillez saisir un message.";
+                } else {
+                    // À implémenter : enregistrement du message dans le modèle si besoin
+                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                }
             }
         }
         return $data;
     }
 }
-

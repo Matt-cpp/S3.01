@@ -11,6 +11,8 @@ if ($viewData['redirect']) {
 $proof = $viewData['proof'];
 $showRejectForm = $viewData['showRejectForm'];
 $rejectionError = $viewData['rejectionError'];
+$showInfoForm = $viewData['showInfoForm'] ?? false;
+$infoError = $viewData['infoError'] ?? '';
 
 if (!$proof) {
     echo "<p>Aucun justificatif trouvé pour cet ID.</p>";
@@ -66,21 +68,21 @@ if (!$proof) {
         </div>
     </div>
 
-    <a href="#" class="download-btn">
-        <img src="download-icon.png" alt="Télécharger">
-        Télécharger le justificatif
+    <a href="../Presenter/download.php?proof_id=<?= urlencode($proof['proof_id']) ?>" class="download-btn">
+        <img src="download-icon.png" alt="Télécharger le justificatif">
     </a>
 
+
     <div class="actions">
-        <?php if (!empty($viewData['showInfoForm'])): ?>
+        <?php if ($showInfoForm): ?>
             <form method="POST" class="rejection-form">
                 <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
                 <div class="form-group">
                     <label for="info_message">Message à l'étudiant :</label>
                     <textarea name="info_message" id="info_message" rows="3" required></textarea>
                 </div>
-                <?php if (!empty($viewData['infoError'])): ?>
-                    <div class="error"><?= htmlspecialchars($viewData['infoError']) ?></div>
+                <?php if ($infoError): ?>
+                    <div class="error"><?= htmlspecialchars($infoError) ?></div>
                 <?php endif; ?>
                 <div class="button-group">
                     <button type="submit" name="request_info" value="1" class="btn btn-info">Envoyer la demande</button>
