@@ -28,17 +28,7 @@ if (!$proof) {
     <link rel="icon" type="image/x-icon" href="../img/logoIUT.ico">
 </head>
 <body>
-<div class="header">
-    <div class="header-icons">
-        <img src="notification.png" alt="Notifications">
-        <img src="settings.png" alt="Paramètres">
-        <img src="profile.png" alt="Profil">
-    </div>
-</div>
-<div class="logos-container">
-    <img src="../img/UPHF.png" alt="Logo UPHF" class="logo" width="170" height="90">
-    <img src="../img/logoIUT.png" alt="Logo IUT" class="logo" width="80" height="150">
-</div>
+<?php include __DIR__ . '/navbar.php'; ?>
 
 <div class="container">
     <h1 class="title">Validation des justificatifs</h1>
