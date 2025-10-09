@@ -7,7 +7,7 @@ class ProofModel
 
     public function __construct()
     {
-        $this->db = getDatabase();
+        $this->db = Database::getInstance();
     }
 
     /**
@@ -91,22 +91,27 @@ class ProofModel
             ]);
         }
     }
-
-    public function setRejectionReason(int $proofId, string $reason, string $details = ''): bool
+// revoir la modification de la table proof pour ajouter la colonne rejection_reason
+    public function setRejectionReason(int $proofId, string $reason, string $comment = ''): bool
     {
-        $sql = "UPDATE proof SET rejection_reason = :reason, manager_comment = :details, updated_at = NOW() WHERE id = :id";
+        $sql = "UPDATE proof
+            SET rejection_reason = :reason,
+                manager_comment = :comment,
+                updated_at = NOW()
+            WHERE id = :id";
         try {
             $this->db->execute($sql, [
                 'reason' => $reason,
-                'details' => $details,
+                'comment' => $comment,
                 'id' => $proofId
             ]);
             return true;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             error_log("Erreur setRejectionReason : " . $e->getMessage());
             return false;
         }
     }
+
 
 
 }
