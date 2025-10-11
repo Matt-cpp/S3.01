@@ -13,7 +13,7 @@ $errorMessage = $presenter->getErrorMessage();
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../assets/css/style_historique.css">
+    <link rel="stylesheet" href="/View/assets/css/style_historique.css">
     <title>Historique des absences</title>
 </head>
 <body>
@@ -25,7 +25,7 @@ $errorMessage = $presenter->getErrorMessage();
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="index.php">
+        <form method="POST" action="../../Presenter/index.php">
             <div class="filter-grid">
                 <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..." 
                     value="<?php echo htmlspecialchars($filters['name'] ?? ''); ?>">
@@ -52,7 +52,7 @@ $errorMessage = $presenter->getErrorMessage();
                 <button type="submit" id="filterButton">
                     Filtrer
                 </button>
-                <a href="index.php" class="reset-link">
+                <a href="../../Presenter/index.php" class="reset-link">
                     Réinitialiser
                 </a>
             </div>
@@ -101,7 +101,7 @@ $errorMessage = $presenter->getErrorMessage();
                             <td>
                                 <?php if ($presenter->hasProof($absence)): ?>
                                     <button onclick="window.open('<?php echo htmlspecialchars($presenter->getProofPath($absence)); ?>', '_blank')" class="btn_export               ">
-                                        <img src="../img/export.png" alt="export-icon" class="export">
+                                        <img src="/View/img/export.png" alt="export-icon" class="export">
                                     </button>
                                 <?php else: ?>
                                     <span class="no-proof"></span>
