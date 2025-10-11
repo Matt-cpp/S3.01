@@ -1,4 +1,3 @@
-/* Style pour la page de création de compte */
 
 * {
     box-sizing: border-box;
@@ -22,20 +21,12 @@ body {
     padding: 2rem 0;
 }
 
-/* Overlay temporairement désactivé pour test */
-/*
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.3);
-    z-index: -1;
+.form-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+    text-align: center;
 }
-*/
-
 
 .container {
     background-color: rgba(248, 249, 250, 0.95);
@@ -64,10 +55,13 @@ body::before {
 }
 
 .logo {
+    position: fixed;
+    top: 20px;
+    left: 20px;
     height: 100px;
-    max-width: 200px;
+    max-width: 180px;
     object-fit: contain;
-    margin-bottom: 2rem;
+    z-index: 1000;
 }
 
 .form-group {

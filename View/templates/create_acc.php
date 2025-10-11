@@ -2,7 +2,6 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Créer un compte</title>
     <link rel="stylesheet" href="../assets/css/style_create_acc.css">
 </head>
@@ -10,13 +9,8 @@
     <img src="../img/logoIUT.png" alt="Logo" class="logo">
     <div class="container">
         <div class="form-container">
-            <h1>Créer un compte</h1>
+            <h1 class="form-title">Créer un compte</h1>
             <form action="../controllers/register.php" method="POST" class="register-form">
-                <div class="form-group">
-                    <label for="username">Nom d'utilisateur:</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                
                 <div class="form-group">
                     <label for="email">Email:</label>
                     <input type="email" id="email" name="email" required>
