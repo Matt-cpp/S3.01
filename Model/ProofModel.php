@@ -92,21 +92,43 @@ class ProofModel
         }
     }
 // revoir la modification de la table proof pour ajouter la colonne rejection_reason
-    public function setRejectionReason(int $proofId, string $reason, string $comment = ''): bool
+    public function setRejectionReason(int $proofId, string $reason, string $comment = '', int $userId = null): bool
     {
-        $sql = "UPDATE proof
-            SET rejection_reason = :reason,
-                manager_comment = :comment,
+        $this->db->beginTransaction();
+        try {
+            // Mise à jour du commentaire dans proof
+            $sql = "UPDATE proof
+            SET manager_comment = :comment,
                 updated_at = NOW()
             WHERE id = :id";
-        try {
             $this->db->execute($sql, [
-                'reason' => $reason,
                 'comment' => $comment,
                 'id' => $proofId
             ]);
+
+            // Récupération de l'ancien statut
+            $proof = $this->getProofDetails($proofId);
+            $oldStatus = $proof ? $proof['status'] : null;
+
+            // Insertion dans decision_history avec la raison et le commentaire
+            $sqlHistory = "INSERT INTO decision_history
+            (proof_id, user_id, action, old_status, new_status, rejection_reason, comment, created_at)
+            VALUES
+            (:proof_id, :user_id, :action, :old_status, :new_status, :rejection_reason, :comment, NOW())";
+            $this->db->execute($sqlHistory, [
+                'proof_id' => $proofId,
+                'user_id' => $userId,
+                'action' => 'reject',
+                'old_status' => $oldStatus,
+                'new_status' => 'rejected',
+                'rejection_reason' => $reason,
+                'comment' => $comment
+            ]);
+
+            $this->db->commit();
             return true;
         } catch (\Exception $e) {
+            $this->db->rollBack();
             error_log("Erreur setRejectionReason : " . $e->getMessage());
             return false;
         }
