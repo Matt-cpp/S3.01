@@ -1,4 +1,7 @@
 <?php
+// Protection de la page avec authentification simple
+require_once __DIR__ . '/../controllers/auth.php';
+$user = requireAuth();
 
 require_once __DIR__ . '/../Model/AbsenceModel.php';
 
