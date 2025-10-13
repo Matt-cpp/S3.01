@@ -39,13 +39,13 @@ class HistoriquePresenter
             'name' => $_POST['nameFilter'] ?? '',
             'start_date' => $_POST['firstDateFilter'] ?? '',
             'end_date' => $_POST['lastDateFilter'] ?? '',
-            'status' => $_POST['statusFilter'] ?? '',
+            'JustificationStatus' => $_POST['JustificationStatusFilter'] ?? '',
             'course_type' => $_POST['courseTypeFilter'] ?? ''
         ];
     }
 
 
-    public function getAbsences()
+    public function getAbsences(): array
     {
         return $this->absenceModel->getAllAbsences($this->filters);
     }
@@ -79,10 +79,11 @@ class HistoriquePresenter
         $translations = [
             'illness' => 'Maladie',
             'death' => 'Décès',
-            'family' => 'Famille',
+            'family_obligations' => 'Famille',
             'medical' => 'Médical',
             'transport' => 'Transport',
-            'personal' => 'Personnel'
+            'personal' => 'Personnel',
+            'other' => 'Autre'
         ];
 
         return isset($translations[$motif]) ? $translations[$motif] : ($motif ?: '');
@@ -108,16 +109,31 @@ class HistoriquePresenter
         return '';
     }
 
+    public function getStatus($absence)
+    {
+        if (!empty($absence['justification_status'])) {
+            $statusTranslations = [
+                'pending' => 'En attente',
+                'accepted' => 'Acceptée',
+                'rejected' => 'Rejetée',
+                'under_review' => 'En cours d\'examen'
+            ];
+            return $statusTranslations[$absence['justification_status']] ?? 'Inconnu';
+        }
+        return $absence['status'] ? 'Justifiée' : 'Non justifiée';
+    }
 
     public function formatDate($date)
     {
         return date('d/m/Y', strtotime($date));
     }
 
-    public function formatTime($startTime, $endTime)
-    {
-        return $startTime . ' - ' . $endTime;
-    }
+        public function formatTime($startTime, $endTime)
+        {
+            $start = date('H:i', strtotime($startTime));
+            $end = date('H:i', strtotime($endTime));
+            return $start . '-' . $end;
+        }
 }
 
 $presenter = new HistoriquePresenter();

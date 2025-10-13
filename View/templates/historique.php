@@ -33,10 +33,13 @@ $errorMessage = $presenter->getErrorMessage();
                     value="<?php echo htmlspecialchars($filters['start_date'] ?? ''); ?>">
                 <input type="date" name="lastDateFilter" id="lastDateFilter" 
                     value="<?php echo htmlspecialchars($filters['end_date'] ?? ''); ?>">
-                <select name="statusFilter" id="statusFilter">
+                <select name="JustificationStatusFilter" id="JustificationStatusFilter">
                     <option value="">Tous les statuts</option>
-                    <option value="justifiée" <?php echo (($filters['status'] ?? '') === 'justifiée') ? 'selected' : ''; ?>>Justifiée</option>
-                    <option value="non_justifiée" <?php echo (($filters['status'] ?? '') === 'non_justifiée') ? 'selected' : ''; ?>>Non Justifiée</option>
+                    <option value="En attente" <?php echo (($filters['JustificationStatus'] ?? '') === 'En attente') ? 'selected' : ''; ?>>En attente</option>
+                    <option value="Acceptée" <?php echo (($filters['JustificationStatus'] ?? '') === 'Acceptée') ? 'selected' : ''; ?>>Acceptée</option>
+                    <option value="Rejetée" <?php echo (($filters['JustificationStatus'] ?? '') === 'Rejetée') ? 'selected' : ''; ?>>Rejetée</option>
+                    <option value="En cours d'examen" <?php echo (($filters['JustificationStatus'] ?? '') === 'En cours d\'examen') ? 'selected' : ''; ?>>En cours d'examen</option>
+                    <option value="Non justifiée" <?php echo (($filters['JustificationStatus'] ?? '') === 'Non justifiée') ? 'selected' : ''; ?>>Non justifiée</option>
                 </select>
                 <select name="courseTypeFilter" id="courseTypeFilter">
                     <option value="">Tous les types</option>
@@ -91,12 +94,8 @@ $errorMessage = $presenter->getErrorMessage();
                             <td><?php echo htmlspecialchars($presenter->formatTime($absence['start_time'], $absence['end_time'])); ?></td>
                             <td><?php echo htmlspecialchars($absence['course_type'] ?? 'Non spécifié'); ?></td>
                             <td><?php echo htmlspecialchars($presenter->translateMotif($absence['motif'])); ?></td>
-                            <td>
-                                <?php if ($absence['status']): ?>
-                                    <span class="badge badge-success">Justifiée</span>
-                                <?php else: ?>
-                                    <span class="badge badge-danger">Non justifiée</span>
-                                <?php endif; ?>
+                            <td class="status-cell">
+                                <span class="status-text"><?php echo htmlspecialchars($presenter->getStatus($absence)); ?></span>
                             </td>
                             <td>
                                 <?php if ($presenter->hasProof($absence)): ?>
@@ -114,5 +113,46 @@ $errorMessage = $presenter->getErrorMessage();
         </table>
 
     </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Applique les classes CSS aux badges de statut selon leur contenu textuel
+        const statusTexts = document.querySelectorAll('.status-text');
+        
+        statusTexts.forEach(function(element) {
+            const text = element.textContent.trim();
+            
+            // Supprime les classes existantes
+            element.className = 'status-text';
+            
+            // Applique la classe appropriée selon le texte
+            switch(text) {
+                case 'En attente':
+                    element.classList.add('status-en-attente');
+                    break;
+                case 'Acceptée':
+                    element.classList.add('status-acceptee');
+                    break;
+                case 'Rejetée':
+                    element.classList.add('status-rejetee');
+                    break;
+                case 'En cours d\'examen':
+                    element.classList.add('status-en-cours');
+                    break;
+                case 'Justifiée':
+                    element.classList.add('status-justifiee');
+                    break;
+                case 'Non justifiée':
+                    element.classList.add('status-non-justifiee');
+                    break;
+                default:
+                    // Classe par défaut pour les statuts non reconnus
+                    element.style.backgroundColor = '#e2e3e5';
+                    element.style.color = '#383d41';
+                    element.style.borderColor = '#d6d8db';
+            }
+        });
+    });
+    </script>
 </body>
 </html>

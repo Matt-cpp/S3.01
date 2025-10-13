@@ -257,3 +257,51 @@ ALTER TABLE proof DROP COLUMN IF EXISTS rejection_reason;
 
 --rollback ALTER TABLE proof ADD COLUMN rejection_reason TEXT;
 --rollback ALTER TABLE decision_history DROP COLUMN IF EXISTS rejection_reason;
+
+--changeset fournier.alexandre:add-email-verification-table labels:Email verification context:user-registration
+--comment: Add email verification table for user registration process
+
+-- Table pour stocker les codes de vérification
+CREATE TABLE email_verifications (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    verification_code VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    is_verified BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index pour améliorer les performances
+CREATE INDEX idx_email_verifications_email ON email_verifications(email);
+CREATE INDEX idx_email_verifications_code ON email_verifications(verification_code);
+
+--rollback DROP INDEX IF EXISTS idx_email_verifications_code;
+--rollback DROP INDEX IF EXISTS idx_email_verifications_email;
+--rollback DROP TABLE IF EXISTS email_verifications;
+
+--changeset fournier.alexandre:add-email-verified-column labels:Email verification context:user-registration
+--comment: Add email_verified column to users table to track verified emails
+
+-- Ajouter la colonne email_verified à la table users
+ALTER TABLE users ADD COLUMN email_verified BOOLEAN DEFAULT FALSE;
+
+-- Créer un index pour améliorer les performances des requêtes
+CREATE INDEX idx_users_email_verified ON users(email_verified);
+
+--rollback DROP INDEX IF EXISTS idx_users_email_verified;
+--rollback ALTER TABLE users DROP COLUMN IF EXISTS email_verified;
+
+--changeset fournier.alexandre:make-identifier-optional labels:User registration context:user-registration
+--comment: Make identifier column optional for user registration without student ID
+
+-- Remove NOT NULL constraint from identifier column
+ALTER TABLE users ALTER COLUMN identifier DROP NOT NULL;
+
+-- Remove UNIQUE constraint from identifier column and recreate as partial unique (only for non-null values)
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_identifier_key;
+CREATE UNIQUE INDEX users_identifier_unique ON users (identifier) WHERE identifier IS NOT NULL;
+
+--rollback DROP INDEX IF EXISTS users_identifier_unique;
+--rollback ALTER TABLE users ADD CONSTRAINT users_identifier_key UNIQUE (identifier);
+--rollback ALTER TABLE users ALTER COLUMN identifier SET NOT NULL;
+

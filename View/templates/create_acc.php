@@ -9,24 +9,38 @@
     <img src="../img/logoIUT.png" alt="Logo" class="logo">
     <div class="container">
         <div class="form-container">
-            <h1 class="form-title">Créer un compte</h1>
-            <form action="../controllers/register.php" method="POST" class="register-form">
+            <h1 class="form-title">Créer un compte - Étape 1/3</h1>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                Entrez votre adresse email pour commencer l'inscription
+            </p>
+            
+            <?php 
+            session_start();
+            if (isset($_SESSION['success'])): ?>
+                <div class="success-message">
+                    <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+                </div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="error-message">
+                    <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+                </div>
+            <?php endif; ?>
+            
+            <form action="../../controllers/register.php" method="POST" class="register-form">
+                <input type="hidden" name="action" value="send_code">
                 <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
+                    <label for="identifier">Identifiant étudiant:</label>
+                    <input type="text" id="identifier" name="identifier" placeholder="XXXXXXXX" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email universitaire:</label>
+                    <input type="email" id="email" name="email" required placeholder="votre.email@uphf.fr">
+                    <small style="color: #666; font-size: 12px;">Un code de vérification sera envoyé à cette adresse</small>
                 </div>
                 
-                <div class="form-group">
-                    <label for="password">Mot de passe:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="confirm_password">Confirmer le mot de passe:</label>
-                    <input type="password" id="confirm_password" name="confirm_password" required>
-                </div>
-                
-                <button type="submit" class="btn-submit">Créer le compte</button>
+                <button type="submit" class="btn-submit">Envoyer le code de vérification</button>
             </form>
             
             <div class="login-link">

@@ -200,25 +200,107 @@ button[type="submit"]:hover {
     background-color: #e9ecef;
 }
 
-/* Styles pour les statuts */
-.status-badge {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
+/* Styles pour les cellules de statut */
+.status-cell {
+    text-align: center;
+}
+
+.status-text {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
     text-align: center;
     display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    min-width: 80px;
 }
 
-.status-justified .status-badge {
-    background-color: #d4edda;
-    color: #155724;
+/* Badge pour "En attente" - Couleurs pastel */
+.status-text:has-text("En attente"),
+.status-text[data-status="pending"] {
+    background-color: #fef9e7;
+    color: #9c7b00;
+    border-color: #f4e9c1;
 }
 
-.status-unjustified .status-badge {
-    background-color: #f8d7da;
-    color: #721c24;
+/* Sélecteurs basés sur le contenu textuel - Couleurs pastel */
+.status-text:contains("En attente") {
+    background-color: #fef9e7;
+    color: #9c7b00;
+    border-color: #f4e9c1;
 }
+
+.status-text:contains("Acceptée") {
+    background-color: #f0f9f0;
+    color: #2d5a2d;
+    border-color: #d1e7d1;
+}
+
+.status-text:contains("Rejetée") {
+    background-color: #fef5f5;
+    color: #9d2933;
+    border-color: #f5d0d3;
+}
+
+.status-text:contains("En cours d'examen") {
+    background-color: #f0f8ff;
+    color: #1e6091;
+    border-color: #b8daff;
+}
+
+.status-text:contains("Justifiée") {
+    background-color: #f0f9f0;
+    color: #2d5a2d;
+    border-color: #d1e7d1;
+}
+
+.status-text:contains("Non justifiée") {
+    background-color: #fef5f5;
+    color: #9d2933;
+    border-color: #f5d0d3;
+}
+
+/* Fallback avec classes spécifiques pour chaque statut - Couleurs pastel */
+.status-en-attente {
+    background-color: #fef9e7 !important;
+    color: #9c7b00 !important;
+    border-color: #f4e9c1 !important;
+}
+
+.status-acceptee {
+    background-color: #f0f9f0 !important;
+    color: #2d5a2d !important;
+    border-color: #d1e7d1 !important;
+}
+
+.status-rejetee {
+    background-color: #fef5f5 !important;
+    color: #9d2933 !important;
+    border-color: #f5d0d3 !important;
+}
+
+.status-en-cours {
+    background-color: #f0f8ff !important;
+    color: #1e6091 !important;
+    border-color: #b8daff !important;
+}
+
+.status-justifiee {
+    background-color: #f0f9f0 !important;
+    color: #2d5a2d !important;
+    border-color: #d1e7d1 !important;
+}
+
+.status-non-justifiee {
+    background-color: #fef5f5 !important;
+    color: #9d2933 !important;
+    border-color: #f5d0d3 !important;
+}
+
 
 /* Message pour aucun résultat */
 .no-results {

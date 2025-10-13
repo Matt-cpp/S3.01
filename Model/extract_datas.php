@@ -167,11 +167,27 @@ class DataExtractor
 
         // Check if user already exists
         $existingUser = $this->db->selectOne(
-            "SELECT id FROM users WHERE identifier = ?",
+            "SELECT id, birth_date FROM users WHERE identifier = ?",
             [$identifier]
         );
 
-        if ($existingUser) {
+        if ($existingUser and $existingUser['birth_date']) {
+            $this->processedUsers[$identifier] = $existingUser['id'];
+            return $existingUser['id'];
+        }
+        else if ($existingUser and $existingUser['birth_date'] === null) {
+            $birthDate = $this->parseDate($data['Date de naissance'] ?? '');
+            
+            $this->db->execute(
+                "UPDATE users SET birth_date = ?, middle_name = ?, degrees = ?, department = ? WHERE id = ?",
+                [
+                    $birthDate,
+                    !empty($data['Prénom 2']) ? trim($data['Prénom 2']) : null,
+                    !empty($data['Diplômes']) ? trim($data['Diplômes']) : null,
+                    !empty($data['Composante']) ? trim($data['Composante']) : null,
+                    $existingUser['id']
+                ]
+            );
             $this->processedUsers[$identifier] = $existingUser['id'];
             return $existingUser['id'];
         }
