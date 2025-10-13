@@ -1,11 +1,12 @@
 <meta charset="UTF-8">
 <?php
 class teacherTable {
-    private $page;
+    private $page1;
+    private $page2;
     private $db;
     private $userId;
-    private $ratrapage;
-    private $nombrepages;
+    private $nombrepages1;
+    private $nombrepages2;
 
     //constructeur
     public function __construct(int $id) {
@@ -13,14 +14,13 @@ class teacherTable {
         require_once __DIR__ . '/../Model/database.php';
         $this->db = Database::getInstance();
         $this->userId = $id;
-        $this->ratrapage = false;
-        $this->nombrepages = $this->getTotalPages();
+        $this->nombrepages1 = $this->getTotalPages1();
+        $this->nombrepages2 = $this->getTotalPages2();
     }
     // sert a faire la requete principale du tableau
-    public function getData($page,$ratrapage) {
+    public function getData($page1) {
         $offset = $page * 5;
         // ratrpage sert a modifier la requete pour afficher es étudiants a faire rattraper
-        if (!($ratrapage)) {
             $query = "SELECT users.first_name,users.last_name,resources.label,course_slots.course_date,absences.status  
             FROM absences LEFT JOIN users ON absences.student_identifier = users.identifier 
             LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id
@@ -30,8 +30,10 @@ class teacherTable {
             ORDER BY course_slots.course_date DESC, absences.id ASC LIMIT 5 OFFSET :offset";
             return $this->db->select($query, ['userId' => $this->userId, 'offset' => $offset]);
         }
-        else {
-            // Requête modifiée pour les étudiants à rattraper
+    
+    public function rattrapeTable($page2){
+        $offset = $page * 5;
+                    // Requête modifiée pour les étudiants à rattraper
             $query = "SELECT users.first_name,users.last_name,resources.label,course_slots.course_date,absences.status  
             FROM absences LEFT JOIN users ON absences.student_identifier = users.identifier
             LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id
@@ -41,58 +43,55 @@ class teacherTable {
             WHERE teachers.user_id = :userId AND absences.justified = true and makeups.scheduled = false
             ORDER BY course_slots.course_date DESC, absences.id ASC LIMIT 5 OFFSET :offset";
             return $this->db->select($query, ['userId' => $this->userId, 'offset' => $offset]);
-    }
-    }
-// renvoie le nombre total de pages
-    public function getTotalPages() {
-        if (!(this->ratrapage)) {
-        $result = $this->db->select("SELECT COUNT(*) as count FROM absences");
-        return ceil($result[0]['count'] / 5);
-        }
-        else{
-            $result = $this->db->select("SELECT COUNT(*) as count FROM absences 
-            LeFT JOIN makeups ON absences.id = makeups.absence_id
-            WHERE justified = true and makeups.scheduled = false");
-            return ceil($result[0]['count'] / 5);
-        }
 
     }
+ //Gestion des pages du premier tableau
+// renvoie le nombre total de pages
+    public function getTotalPages1() {
+    
+        $result = $this->db->select("SELECT COUNT(*) as count FROM absences");
+        return ceil($result[0]['count'] / 5);   
+    }
     // sert a mettre a jour l'attribut page en posant des limites
-    public function setPage($page) {
-        if ($page >= 0 && $page < $this->nombrepages) {
-            $this->page = $page;
+    public function setPage($page1) {
+        if ($page1 >= 0 && $page1 < $this->nombrepages1) {
+            $this->page1 = $page1;
         }
     }
     // fait avancer la page de 1 si possible
     public function nextPage() {
-        if ($this->page < $this->nombrepages - 1) {
-            $this->page++;
+        if ($this->page1 < $this->nombrepages1 - 1) {
+            $this->page1++;
         }
     }
     // fait reculer la page de 1 si possible
     public function previousPage() {
-        if ($this->page > 0) {
-            $this->page--;
+        if ($this->page1 > 0) {
+            $this->page1--;
         }
-    }
-    //activer le filtre pour rattrapage
-    public function enableRattrapage() {
-        $this->ratrapage = true;
-        $this->page = 0; // Réinitialiser la page à 0
-        $this->nombrepages = $this->getTotalPages(); // Mettre à jour le nombre total de pages
     }
 
     //renvoie le numéro de page actuel
     public function getCurrentPage() {
-        return $this->page;
+        return $this->page1;
     }
     //permet l'accès a la page suivante et précédente en posant des limites
     public function getNextPage() {
-        return min($this->page + 1, $this->nombrepages - 1);
+        return min($this->page1 + 1, $this->nombrepages1 - 1);
     }
     public function getPreviousPage() {
-        return max($this->page - 1, 0);
+        return max($this->page1 - 1, 0);
     }
+
+
+       /*
+            $result = $this->db->select("SELECT COUNT(*) as count FROM absences 
+            LeFT JOIN makeups ON absences.id = makeups.absence_id
+            WHERE justified = true and makeups.scheduled = false");
+            return ceil($result[0]['count'] / 5);
+            */
+
+
     // Statistiques
     public function todayAbs() {
         $query = "SELECT COUNT(*) as count FROM absences WHERE DATE(updated_at) = CURRENT_DATE";
@@ -134,7 +133,7 @@ class teacherTable {
     }
 }
 
-$test = new backendTableauDeBord();
+$test = new teachertable();
 
 echo "Nombre d'absences aujourd'hui : ";
 echo $test->todayAbs();
