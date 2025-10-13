@@ -52,10 +52,10 @@ if (!$proof) {
 
     <div class="dates-container">
         <div class="info-field">
-            <strong>Date de début:</strong> <?= htmlspecialchars($proof['absence_start_date'] ?? '') ?>
+            <strong>Date de début:</strong> <?= htmlspecialchars($proof['absence_start_datetime'] ?? '') ?>
         </div>
         <div class="info-field">
-            <strong>Date de fin:</strong> <?= htmlspecialchars($proof['absence_end_date'] ?? '') ?>
+            <strong>Date de fin:</strong> <?= htmlspecialchars($proof['absence_end_datetime'] ?? '') ?>
         </div>
     </div>
 

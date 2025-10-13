@@ -42,6 +42,28 @@ class ProofModel
                 return null;
             }
 
+            // Ajout récupération heure de début et de fin
+            $sqlAbs = "SELECT cs.course_date, cs.start_time, cs.end_time
+                FROM absences a
+                JOIN course_slots cs ON a.course_slot_id = cs.id
+                WHERE a.student_identifier = :student_identifier
+                  AND cs.course_date BETWEEN :start_date AND :end_date
+                ORDER BY cs.course_date ASC, cs.start_time ASC";
+            $absences = $this->db->selectAll($sqlAbs, [
+                'student_identifier' => $result['student_identifier'],
+                'start_date' => $result['absence_start_date'],
+                'end_date' => $result['absence_end_date']
+            ]);
+            if ($absences && count($absences) > 0) {
+                $first = $absences[0];
+                $last = $absences[count($absences)-1];
+                $result['absence_start_datetime'] = $first['course_date'] . ' ' . $first['start_time'];
+                $result['absence_end_datetime'] = $last['course_date'] . ' ' . $last['end_time'];
+            } else {
+                $result['absence_start_datetime'] = $result['absence_start_date'];
+                $result['absence_end_datetime'] = $result['absence_end_date'];
+            }
+
             return $result;
         } catch (Exception $e) {
             error_log("Erreur ProofModel->getProofDetails : " . $e->getMessage());
