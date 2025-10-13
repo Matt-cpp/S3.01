@@ -6,6 +6,7 @@ class backendTableauDeBord {
     private $userId;
     private $ratrapage;
     private $nombrepages;
+    
     //constructeur
     public function __construct(int $id) {
         $this->page = 0;
