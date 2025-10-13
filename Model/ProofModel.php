@@ -42,7 +42,7 @@ class ProofModel
                 return null;
             }
 
-            // Ajout récupération heure de début et de fin
+            // récupération heure de début et de fin
             $sqlAbs = "SELECT cs.course_date, cs.start_time, cs.end_time
                 FROM absences a
                 JOIN course_slots cs ON a.course_slot_id = cs.id

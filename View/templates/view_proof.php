@@ -1,6 +1,29 @@
 <?php
 require_once __DIR__ . '/../../Presenter/ProofPresenter.php';
+$translations = [
+    // Statuts
+        'pending' => 'En attente',
+        'approved' => 'Validé',
+        'rejected' => 'Refusé',
+    // Motifs d’absence
+        'illness' => 'Maladie',
+        'death' => 'Décès',
+        'family_obligations' => 'Obligations familiales',
+        'other' => 'Autre',
+];
 
+function translate($value, $translations) {
+    return $translations[$value] ?? $value;
+}
+
+// Fonction pour formater la date au format français
+function formatDateFr($datetimeStr) {
+    if (!$datetimeStr) return '';
+    $date = new DateTime($datetimeStr);
+    setlocale(LC_TIME, 'fr_FR.UTF-8');
+    return strftime('%d/%m/%Y à %Hh%M', $date->getTimestamp());
+}
+?>
 $presenter = new ProofPresenter();
 $viewData = $presenter->handleRequest($_GET, $_POST);
 
@@ -52,16 +75,16 @@ if (!$proof) {
 
     <div class="dates-container">
         <div class="info-field">
-            <strong>Date de début:</strong> <?= htmlspecialchars($proof['absence_start_datetime'] ?? '') ?>
+            <strong>Date de début :</strong> <?= htmlspecialchars(formatDateFr($proof['absence_start_datetime'] ?? '')) ?>
         </div>
         <div class="info-field">
-            <strong>Date de fin:</strong> <?= htmlspecialchars($proof['absence_end_datetime'] ?? '') ?>
+            <strong>Date de fin :</strong> <?= htmlspecialchars(formatDateFr($proof['absence_end_datetime'] ?? '')) ?>
         </div>
     </div>
 
     <div class="reason-container">
         <div class="info-field">
-            <strong>Motif:</strong> <?= htmlspecialchars($proof['main_reason'] ?? '') ?>
+            <strong>Motif :</strong> <?= htmlspecialchars(translate($proof['reason'] ?? '', $translations)) ?>
         </div>
         <div class="info-field">
             <strong>Détails:</strong> <?= htmlspecialchars($proof['custom_reason'] ?? '') ?>
