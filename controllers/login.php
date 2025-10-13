@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../Model/database.php';
 
 // Traitement du formulaire de connexion
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_POST['password'])) {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
     $errors = [];

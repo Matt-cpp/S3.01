@@ -25,7 +25,7 @@ $errorMessage = $presenter->getErrorMessage();
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="../../Presenter/index.php">
+        <form method="POST" action="">
             <div class="filter-grid">
                 <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..." 
                     value="<?php echo htmlspecialchars($filters['name'] ?? ''); ?>">
@@ -55,7 +55,7 @@ $errorMessage = $presenter->getErrorMessage();
                 <button type="submit" id="filterButton">
                     Filtrer
                 </button>
-                <a href="../../Presenter/index.php" class="reset-link">
+                <a href="historique.php" class="reset-link">
                     Réinitialiser
                 </a>
             </div>
