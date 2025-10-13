@@ -1,12 +1,12 @@
 <meta charset="UTF-8">
 <?php
-class backendTableauDeBord {
+class teacherTable {
     private $page;
     private $db;
     private $userId;
     private $ratrapage;
     private $nombrepages;
-    
+
     //constructeur
     public function __construct(int $id) {
         $this->page = 0;
@@ -32,6 +32,15 @@ class backendTableauDeBord {
         }
         else {
             // Requête modifiée pour les étudiants à rattraper
+            $query = "SELECT users.first_name,users.last_name,resources.label,course_slots.course_date,absences.status  
+            FROM absences LEFT JOIN users ON absences.student_identifier = users.identifier
+            LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id
+            LEFT JOIN resources ON course_slots.resource_id=resources.id
+            LEFT JOIN teachers ON resources.teacher_id=teachers.id
+            LEFT JOIN makeups ON absences.id = makeups.absence_id
+            WHERE teachers.user_id = :userId AND absences.justified = true and makeups.scheduled = false
+            ORDER BY course_slots.course_date DESC, absences.id ASC LIMIT 5 OFFSET :offset";
+            return $this->db->select($query, ['userId' => $this->userId, 'offset' => $offset]);
     }
     }
 // renvoie le nombre total de pages
