@@ -12,12 +12,12 @@ $_SESSION['id_student'] = 1;
     <link rel="icon" type="image/x-icon" href="../img/logoIUT.ico">
     <title>Soumission Justificatif Élève</title>
 
-    <link rel="stylesheet" href="../assets/css/student-proof.css">
+    <link rel="stylesheet" href="../assets/css/student_proof_submit.css">
     <script>
         // Pass PHP session data to JavaScript
         window.studentId = <?php echo $_SESSION['id_student'] ?? 1; ?>;
     </script>
-    <script src="../assets/js/student-proof.js"></script>
+    <script src="../assets/js/student_proof_submit.js"></script>
 
 </head>
 

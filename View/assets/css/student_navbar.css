@@ -1,0 +1,160 @@
+/* Navbar Styles - Common across all pages */
+
+.header {
+    background: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    box-sizing: border-box;
+    gap: 2rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+#logo {
+    height: auto;
+    width: 150px;
+}
+
+/* Navigation Menu */
+.nav-menu {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    text-decoration: none;
+    color: #374151;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: transparent;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.nav-link.nav-link-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.nav-link.nav-link-primary:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #6a4193 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.nav-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+/* Header Icons */
+.header-icons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.icon {
+    width: 32px;
+    height: 32px;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.icon:hover {
+    background: #e5e7eb;
+    transform: scale(1.1);
+}
+
+.icon.notification::before {
+    content: '🔔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+}
+
+.icon.settings::before {
+    content: '⚙️';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+}
+
+.icon.profile::before {
+    content: '👤';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .nav-link span:not(.nav-icon) {
+        display: none;
+    }
+    
+    .nav-link {
+        padding: 0.6rem;
+        justify-content: center;
+    }
+    
+    .nav-icon {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .nav-menu {
+        gap: 0.25rem;
+    }
+    
+    #logo {
+        width: 100px;
+    }
+}
+
