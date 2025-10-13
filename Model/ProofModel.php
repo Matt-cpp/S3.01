@@ -156,35 +156,29 @@ class ProofModel
         }
     }
 
-    /**
-     * Récupère la liste des motifs de rejet enregistrés
-     */
-    public function getRejectionReasons(): array
+    // Récupère les motifs de rejet ou de validation en fonction du type depuis la table rejection_validation_reasons
+    public function getReasons(string $type): array
     {
-        $sql = "SELECT label FROM rejection_reasons ORDER BY label ASC";
+        $sql = "SELECT label FROM rejection_validation_reasons WHERE type_of_reason = :type ORDER BY label ASC";
         try {
-            $results = $this->db->selectAll($sql);
+            $results = $this->db->selectAll($sql, ['type' => $type]);
             return array_map(fn($row) => $row['label'], $results);
         } catch (Exception $e) {
-            error_log("Erreur getRejectionReasons : " . $e->getMessage());
+            error_log("Erreur getReasons : " . $e->getMessage());
             return [];
         }
     }
-
-    /**
-     * Ajoute un nouveau motif de rejet personnalisé
-     */
-    public function addRejectionReason(string $label): bool
+// Ajoute un nouveau motif de rejet ou de validation dans la table rejection_validation_reasons en fonction du type
+    public function addReason(string $label, string $type): bool
     {
-        $sql = "INSERT IGNORE INTO rejection_reasons (label) VALUES (:label)";
+        $sql = "INSERT IGNORE INTO rejection_validation_reasons (label, type_of_reason) VALUES (:label, :type)";
         try {
-            $this->db->execute($sql, ['label' => $label]);
+            $this->db->execute($sql, ['label' => $label, 'type' => $type]);
             return true;
         } catch (Exception $e) {
-            error_log("Erreur addRejectionReason : " . $e->getMessage());
+            error_log("Erreur addReason : " . $e->getMessage());
             return false;
         }
-    }
 
 
 
