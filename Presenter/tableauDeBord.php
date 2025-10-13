@@ -2,39 +2,60 @@
 <?php
 class backendTableauDeBord {
     private $page;
-    private $alldata;
     private $db;
+    private $userId;
+    private $ratrapage;
+    private $nombrepages;
     //constructeur
-    public function __construct() {
+    public function __construct(int $id) {
         $this->page = 0;
         require_once __DIR__ . '/../Model/database.php';
         $this->db = Database::getInstance();
-        $this->alldata = $this->db->select('SELECT * FROM absences');
+        $this->userId = $id;
+        $this->ratrapage = false;
+        $this->nombrepages = $this->getTotalPages();
     }
     // sert a faire la requete principale du tableau
-    public function getData($page) {
+    public function getData($page,$ratrapage) {
         $offset = $page * 5;
-        $query = "SELECT users.first_name,users.last_name,resources.label,course_slots.course_date,absences.status  
-        FROM absences LEFT JOIN users ON absences.student_identifier = users.identifier 
-        LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id
-        LEFT JOIN resources ON course_slots.resource_id=resources.id
-        ORDER BY course_slots.course_date DESC, absences.id ASC LIMIT 5 OFFSET :offset";
-        return $this->db->select($query, ['offset' => $offset]);
+        // ratrpage sert a modifier la requete pour afficher es étudiants a faire rattraper
+        if (!($ratrapage)) {
+            $query = "SELECT users.first_name,users.last_name,resources.label,course_slots.course_date,absences.status  
+            FROM absences LEFT JOIN users ON absences.student_identifier = users.identifier 
+            LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id
+            LEFT JOIN resources ON course_slots.resource_id=resources.id
+            LEFT JOIN teachers ON resources.teacher_id=teachers.id
+            WHERE teachers.user_id = :userId AND absences.justified = false
+            ORDER BY course_slots.course_date DESC, absences.id ASC LIMIT 5 OFFSET :offset";
+            return $this->db->select($query, ['userId' => $this->userId, 'offset' => $offset]);
+        }
+        else {
+            // Requête modifiée pour les étudiants à rattraper
+    }
     }
 // renvoie le nombre total de pages
     public function getTotalPages() {
+        if (!(this->ratrapage)) {
         $result = $this->db->select("SELECT COUNT(*) as count FROM absences");
         return ceil($result[0]['count'] / 5);
+        }
+        else{
+            $result = $this->db->select("SELECT COUNT(*) as count FROM absences 
+            LeFT JOIN makeups ON absences.id = makeups.absence_id
+            WHERE justified = true and makeups.scheduled = false");
+            return ceil($result[0]['count'] / 5);
+        }
+
     }
     // sert a mettre a jour l'attribut page en posant des limites
     public function setPage($page) {
-        if ($page >= 0 && $page < $this->getTotalPages()) {
+        if ($page >= 0 && $page < $this->nombrepages) {
             $this->page = $page;
         }
     }
     // fait avancer la page de 1 si possible
     public function nextPage() {
-        if ($this->page < $this->getTotalPages() - 1) {
+        if ($this->page < $this->nombrepages - 1) {
             $this->page++;
         }
     }
@@ -44,13 +65,20 @@ class backendTableauDeBord {
             $this->page--;
         }
     }
+    //activer le filtre pour rattrapage
+    public function enableRattrapage() {
+        $this->ratrapage = true;
+        $this->page = 0; // Réinitialiser la page à 0
+        $this->nombrepages = $this->getTotalPages(); // Mettre à jour le nombre total de pages
+    }
+
     //renvoie le numéro de page actuel
     public function getCurrentPage() {
         return $this->page;
     }
     //permet l'accès a la page suivante et précédente en posant des limites
     public function getNextPage() {
-        return min($this->page + 1, $this->getTotalPages() - 1);
+        return min($this->page + 1, $this->nombrepages - 1);
     }
     public function getPreviousPage() {
         return max($this->page - 1, 0);
