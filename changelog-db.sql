@@ -197,3 +197,9 @@ ALTER TABLE users ALTER COLUMN email DROP NOT NULL;
 
 --rollback ALTER TABLE users ALTER COLUMN password_hash SET NOT NULL;
 --rollback ALTER TABLE users ALTER COLUMN email SET NOT NULL;
+
+--changeset navrez.louis:add-rejection-reasons-table labels:Enhancement context:post-initial
+CREATE TABLE rejection_reasons (id INT AUTO_INCREMENT PRIMARY KEY,
+                                label VARCHAR(255) NOT NULL UNIQUE);
+
+--rollback DROP TABLE IF EXISTS rejection_reasons CASCADE;

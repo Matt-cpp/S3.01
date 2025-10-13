@@ -119,16 +119,19 @@ if (!$proof) {
                     <label for="rejection_reason">Motif du rejet :</label>
                     <select name="rejection_reason" id="rejection_reason" required>
                         <option value="">-- Sélectionner un motif --</option>
-                        <option value="Justificatif illisible">Justificatif illisible</option>
-                        <option value="Justificatif non valable">Justificatif non valable</option>
-                        <option value="Dates non cohérentes">Dates non cohérentes</option>
-                        <option value="Absence non concernée">Absence non concernée</option>
-                        <option value="Autre">Autre</option>
+                        <?php foreach (($rejectionReasons ?? []) as $reason): ?>
+                            <option value="<?= htmlspecialchars($reason) ?>" <?= (isset($_POST['rejection_reason']) && $_POST['rejection_reason'] === $reason) ? 'selected' : '' ?>><?= htmlspecialchars($reason) ?></option>
+                        <?php endforeach; ?>
+                        <option value="Autre" <?= (isset($_POST['rejection_reason']) && $_POST['rejection_reason'] === 'Autre') ? 'selected' : '' ?>>Autre</option>
                     </select>
+                </div>
+                <div class="form-group" id="new-reason-group" style="display: none;">
+                    <label for="new_rejection_reason">Nouveau motif :</label>
+                    <input type="text" name="new_rejection_reason" id="new_rejection_reason" value="<?= htmlspecialchars($_POST['new_rejection_reason'] ?? '') ?>">
                 </div>
                 <div class="form-group">
                     <label for="rejection_details">Détails du rejet :</label>
-                    <textarea name="rejection_details" id="rejection_details" rows="3"></textarea>
+                    <textarea name="rejection_details" id="rejection_details" rows="3"><?= htmlspecialchars($_POST['rejection_details'] ?? '') ?></textarea>
                 </div>
                 <?php if ($rejectionError): ?>
                     <div class="error"><?= htmlspecialchars($rejectionError) ?></div>

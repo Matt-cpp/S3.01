@@ -156,6 +156,36 @@ class ProofModel
         }
     }
 
+    /**
+     * Récupère la liste des motifs de rejet enregistrés
+     */
+    public function getRejectionReasons(): array
+    {
+        $sql = "SELECT label FROM rejection_reasons ORDER BY label ASC";
+        try {
+            $results = $this->db->selectAll($sql);
+            return array_map(fn($row) => $row['label'], $results);
+        } catch (Exception $e) {
+            error_log("Erreur getRejectionReasons : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Ajoute un nouveau motif de rejet personnalisé
+     */
+    public function addRejectionReason(string $label): bool
+    {
+        $sql = "INSERT IGNORE INTO rejection_reasons (label) VALUES (:label)";
+        try {
+            $this->db->execute($sql, ['label' => $label]);
+            return true;
+        } catch (Exception $e) {
+            error_log("Erreur addRejectionReason : " . $e->getMessage());
+            return false;
+        }
+    }
+
 
 
 }

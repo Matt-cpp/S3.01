@@ -19,6 +19,7 @@ class ProofPresenter
             'redirect' => null,
             'showInfoForm' => false,
             'infoError' => '',
+            'rejectionReasons' => $this->model->getRejectionReasons(),
         ];
 
         if (isset($get['proof_id'])) {
@@ -33,10 +34,27 @@ class ProofPresenter
             } elseif (isset($post['reject']) && isset($post['rejection_reason'])) {
                 $rejectionReason = trim($post['rejection_reason']);
                 $rejectionDetails = trim($post['rejection_details'] ?? '');
+                $newReason = trim($post['new_rejection_reason'] ?? '');
 
                 if ($rejectionReason === '') {
                     $data['showRejectForm'] = true;
                     $data['rejectionError'] = "Veuillez sélectionner un motif de rejet.";
+                } elseif ($rejectionReason === 'Autre' && $newReason !== '') {
+                    // Ajout du nouveau motif
+                    $this->model->addRejectionReason($newReason);
+                    $rejectionReason = $newReason;
+                    $this->model->updateProofStatus($proofId, 'rejected');
+                    $this->model->setRejectionReason($proofId, $rejectionReason, $rejectionDetails);
+                    $this->model->updateAbsencesForProof(
+                        $data['proof']['student_identifier'],
+                        $data['proof']['absence_start_date'],
+                        $data['proof']['absence_end_date'],
+                        'rejected'
+                    );
+                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                } elseif ($rejectionReason === 'Autre' && $newReason === '') {
+                    $data['showRejectForm'] = true;
+                    $data['rejectionError'] = "Veuillez saisir un nouveau motif de rejet.";
                 } else {
                     $this->model->updateProofStatus($proofId, 'rejected');
                     $this->model->setRejectionReason($proofId, $rejectionReason, $rejectionDetails);
@@ -48,6 +66,8 @@ class ProofPresenter
                     );
                     $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
                 }
+                // Mise à jour de la liste des motifs au cas où un nouveau a été ajouté
+                $data['rejectionReasons'] = $this->model->getRejectionReasons();
             } elseif (isset($post['validate'])) {
                 $this->model->updateProofStatus($proofId, 'accepted');
                 $this->model->updateAbsencesForProof(
