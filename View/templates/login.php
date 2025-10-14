@@ -1,5 +1,17 @@
 <?php 
 session_start();
+
+// Vérifier si l'utilisateur est déjà connecté
+if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
+    // Rediriger selon le rôle
+    if ($_SESSION['user_role'] === 'student') {
+        header("Location: historique.php");
+    } else {
+        header("Location: admin_dashboard.php");
+    }
+    exit;
+}
+
 $errors = $_SESSION['login_errors'] ?? [];
 $formData = $_SESSION['form_data'] ?? [];
 unset($_SESSION['login_errors'], $_SESSION['form_data']);

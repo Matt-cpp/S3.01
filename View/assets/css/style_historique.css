@@ -255,6 +255,12 @@ button[type="submit"]:hover {
     border: 1px solid #dc3545;
 }
 
+.status-default {
+    background-color: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+}
+
 
 /* Message pour aucun résultat */
 .no-results {

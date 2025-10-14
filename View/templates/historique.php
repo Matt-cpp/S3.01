@@ -95,7 +95,35 @@ $errorMessage = $presenter->getErrorMessage();
                             <td><?php echo htmlspecialchars($absence['course_type'] ?? 'Non spécifié'); ?></td>
                             <td><?php echo htmlspecialchars($presenter->translateMotif($absence['motif'])); ?></td>
                             <td class="status-cell">
-                                <span class="status-text"><?php echo htmlspecialchars($presenter->getStatus($absence)); ?></span>
+                                <?php 
+                                    $status = $presenter->getStatus($absence);
+                                    $statusClass = '';
+                                    switch($status) {
+                                        case 'En attente':
+                                            $statusClass = 'status-en-attente';
+                                            break;
+                                        case 'Acceptée':
+                                            $statusClass = 'status-acceptee';
+                                            break;
+                                        case 'Rejetée':
+                                            $statusClass = 'status-rejetee';
+                                            break;
+                                        case 'En cours d\'examen':
+                                            $statusClass = 'status-en-cours';
+                                            break;
+                                        case 'Justifiée':
+                                            $statusClass = 'status-justifiee';
+                                            break;
+                                        case 'Non justifiée':
+                                            $statusClass = 'status-non-justifiee';
+                                            break;
+                                        default:
+                                            $statusClass = 'status-default';
+                                    }
+                                ?>
+                                <span class="status-text <?php echo $statusClass; ?>">
+                                    <?php echo htmlspecialchars($status); ?>
+                                </span>
                             </td>
                             <td>
                                 <?php if ($presenter->hasProof($absence)): ?>
@@ -114,45 +142,5 @@ $errorMessage = $presenter->getErrorMessage();
 
     </main>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Applique les classes CSS aux badges de statut selon leur contenu textuel
-        const statusTexts = document.querySelectorAll('.status-text');
-        
-        statusTexts.forEach(function(element) {
-            const text = element.textContent.trim();
-            
-            // Supprime les classes existantes
-            element.className = 'status-text';
-            
-            // Applique la classe appropriée selon le texte
-            switch(text) {
-                case 'En attente':
-                    element.classList.add('status-en-attente');
-                    break;
-                case 'Acceptée':
-                    element.classList.add('status-acceptee');
-                    break;
-                case 'Rejetée':
-                    element.classList.add('status-rejetee');
-                    break;
-                case 'En cours d\'examen':
-                    element.classList.add('status-en-cours');
-                    break;
-                case 'Justifiée':
-                    element.classList.add('status-justifiee');
-                    break;
-                case 'Non justifiée':
-                    element.classList.add('status-non-justifiee');
-                    break;
-                default:
-                    // Classe par défaut pour les statuts non reconnus
-                    element.style.backgroundColor = '#e2e3e5';
-                    element.style.color = '#383d41';
-                    element.style.borderColor = '#d6d8db';
-            }
-        });
-    });
-    </script>
 </body>
 </html>
