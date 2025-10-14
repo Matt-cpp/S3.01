@@ -1,131 +1,96 @@
 <meta charset="UTF-8">
 <?php
 class teacherTable {
-    private $page1;
-    private $page2;
+    private $page;
     private $db;
     private $userId;
-    private $nombrepages1;
-    private $nombrepages2;
+    private $nombrepages;
 
     //constructeur
     public function __construct(int $id) {
-        $this->page1 = 0;
-        $this->page2 = 0;
+        $this->page = 0;
         require_once __DIR__ . '/../Model/database.php';
         $this->db = Database::getInstance();
         $this->userId = $id;
-        $this->nombrepages1 = $this->getTotalPages1();
-        $this->nombrepages2 = $this->getTotalPages2();
+        $this->nombrepages = $this->getTotalPages();
     }
     // sert a faire la requete principale du tableau
-    public function getData($page1) {
-        $offset = $page1 * 5;
-        echo 'test1';
-        
-        // ratrpage sert a modifier la requete pour afficher es étudiants a faire rattraper
-            $query = "SELECT users.first_name,users.last_name,resources.label,course_slots.course_date,absences.status  
-            FROM absences LEFT JOIN users ON absences.student_identifier = users.identifier 
-            LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id
-            LEFT JOIN resources ON course_slots.resource_id=resources.id
-
-            ORDER BY course_slots.course_date DESC, absences.id ASC LIMIT 5 OFFSET :offset";
-            return $this->db->select($query, ['userId' => $this->userId, 'offset' => $offset]);
-        }
+public function getData($page) {
+    $offset = (int)($page * 5);
+    $userId = (int)$this->userId;
     
-    public function rattrapeTable($page2){
-        $offset = $page2 * 5;
-                    // Requête modifiée pour les étudiants à rattraper
-            $query = "SELECT users.first_name,users.last_name,resources.label,course_slots.course_date,absences.status  
-            FROM absences LEFT JOIN users ON absences.student_identifier = users.identifier
-            LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id
-            LEFT JOIN resources ON course_slots.resource_id=resources.id
-            LEFT JOIN teachers ON resources.teacher_id=teachers.id
-            LEFT JOIN makeups ON absences.id = makeups.absence_id
-            WHERE teachers.user_id = :userId AND absences.justified = true and makeups.scheduled = false
-            ORDER BY course_slots.course_date DESC, absences.id ASC LIMIT 5 OFFSET :offset";
-            return $this->db->select($query, ['userId' => $this->userId, 'offset' => $offset]);
-
-    }
- //Gestion des pages du premier tableau
+    $query = "SELECT users.first_name, users.last_name, 
+              resources.label, 
+              course_slots.course_date, 
+              absences.status
+              FROM teachers
+              INNER JOIN resources ON resources.teacher_id = teachers.id
+              INNER JOIN course_slots ON course_slots.resource_id = resources.id
+              INNER JOIN absences ON absences.course_slot_id = course_slots.id
+              LEFT JOIN users ON absences.student_identifier = users.identifier
+              WHERE teachers.user_id = $userId
+              AND absences.justified = 0
+              ORDER BY course_slots.course_date DESC, absences.id ASC
+              LIMIT 5 OFFSET $offset";
+    
+    return $this->db->select($query);
+}
 // renvoie le nombre total de pages
-    public function getTotalPages1() {
-    
-        $result = $this->db->select("SELECT COUNT(*) as count FROM absences");
-        return ceil($result[0]['count'] / 5);   
+public function getTotalPages() {
+try {
+        $query = "SELECT COUNT(*) as count FROM absences";
+        $result = $this->db->select($query);
+        
+        echo "<pre>DEBUG getTotalPages result: ";
+        print_r($result);
+        echo "</pre>";
+        
+        if (empty($result)) {
+            return 1;
+        }
+        
+        return ceil($result[0]['count'] / 5);
+    } catch (Exception $e) {
+        echo "ERREUR dans getTotalPages: " . $e->getMessage();
+        return 1;
     }
+}
     // sert a mettre a jour l'attribut page en posant des limites
-    public function setPage($page1) {
-        if ($page1 >= 0 && $page1 < $this->nombrepages1) {
-            $this->page1 = $page1;
+    public function setPage($page) {
+        if ($page >= 0 && $page < $this->nombrepages) {
+            $this->page = $page;
         }
     }
     // fait avancer la page de 1 si possible
     public function nextPage() {
-        if ($this->page1 < $this->nombrepages1 - 1) {
-            $this->page1++;
+        if ($this->page < $this->nombrepages - 1) {
+            $this->page++;
         }
     }
     // fait reculer la page de 1 si possible
     public function previousPage() {
-        if ($this->page1 > 0) {
-            $this->page1--;
+        if ($this->page > 0) {
+            $this->page--;
         }
+    }
+    //activer le filtre pour rattrapage
+    public function enableRattrapage() {
+        $this->ratrapage = true;
+        $this->page = 0; // Réinitialiser la page à 0
+        $this->nombrepages = $this->getTotalPages(); // Mettre à jour le nombre total de pages
     }
 
     //renvoie le numéro de page actuel
     public function getCurrentPage() {
-        return $this->page1;
+        return $this->page;
     }
     //permet l'accès a la page suivante et précédente en posant des limites
     public function getNextPage() {
-        return min($this->page1 + 1, $this->nombrepages1 - 1);
+        return min($this->page + 1, $this->nombrepages - 1);
     }
     public function getPreviousPage() {
-        return max($this->page1 - 1, 0);
+        return max($this->page - 1, 0);
     }
-
-
-    // gestion du deuxime tabeau
-    // renvoie le nombre total de pages
-    public function getTotalPages2() {
-            $result = $this->db->select("SELECT COUNT(*) as count FROM absences 
-            LeFT JOIN makeups ON absences.id = makeups.absence_id
-            WHERE justified = true and makeups.scheduled = false");
-            return ceil($result[0]['count'] / 5);
-    }
-    // sert a mettre a jour l'attribut page en posant des limites
-    public function setPage2($page2) {
-        if ($page2 >= 0 && $page2 < $this->nombrepages2) {
-            $this->page2 = $page2;
-        }
-    }
-    // fait avancer la page de 1 si possible
-    public function nextPage2() {
-        if ($this->page2 < $this->nombrepages2 - 1) {
-            $this->page2++;
-        }
-    }
-    // fait reculer la page de 1 si possible
-    public function previousPage2() {
-        if ($this->page2 > 0) {
-            $this->page2--;
-        }
-    }
-
-    //renvoie le numéro de page actuel
-    public function getCurrentPage2() {
-        return $this->page2;
-    }
-    //permet l'accès a la page suivante et précédente en posant des limites
-    public function getNextPage2() {
-        return min($this->page2 + 1, $this->nombrepages2 - 1);
-    }
-    public function getPreviousPage2() {
-        return max($this->page2 - 1, 0);
-    }
-
-
     // Statistiques
     public function todayAbs() {
         $query = "SELECT COUNT(*) as count FROM absences WHERE DATE(updated_at) = CURRENT_DATE";
@@ -144,9 +109,8 @@ class teacherTable {
     }
     // Tableau
     public function laTable() {
-        
         // Récupération des données brutes
-        $donnees = $this->getData($this->getCurrentPage1());
+        $donnees = $this->getData($this->getCurrentPage());
         
         // Création du tableau final
         $tableau = [];
@@ -168,19 +132,19 @@ class teacherTable {
     }
 }
 
-$test = new teachertable(5);
+$test = new teacherTable(2);
 
 
-if (isset($_GET['page1'])) {
-    $page1 = intval($_GET['page1']);
-    $test->setPage1($page1);
+
+if (isset($_GET['page'])) {
+    $page = intval($_GET['page']);
+    $test->setPage($page);
 }
-
 ?>
-<a href="?page1=<?php echo $test->getPreviousPage1(); ?>">
+<a href="?page=<?php echo $test->getPreviousPage(); ?>">
     <button type="button">previous</button>
 </a>
-<a href="?page1=<?php echo $test->getNextPage1(); ?>">
+<a href="?page=<?php echo $test->getNextPage(); ?>">
     <button type="button">next</button>
 </a>
 
@@ -196,11 +160,11 @@ echo "<table border='1'>";
 foreach ($tabel as $row) {
     echo "<tr>";
     foreach ($row as $cell) {
-        echo "<td>" . htmlspecialchars($cell) . "</td>";
+        echo "<td>" . htmlspecialchars($cell ?? '') . "</td>";
     }
     echo "</tr>";
 }
-$nbpages1 = $test->getTotalPages1();?>
+$nbpages = $test->getTotalPages();?>
 <br>
-Current Page: <?php echo $test->getCurrentPage1() + 1; ?> /
-<?php echo $nbpages1; ?>
+Current Page: <?php echo $test->getCurrentPage() + 1; ?> /
+<?php echo $nbpages; ?>
