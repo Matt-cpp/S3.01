@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Finaliser l'inscription</title>
     <link rel="stylesheet" href="../assets/css/style_create_acc.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <img src="../img/logoIUT.png" alt="Logo" class="logo">
@@ -45,22 +46,28 @@
                     
                     <div class="form-group">
                         <label for="password">Mot de passe:</label>
-                        <input type="password" 
-                               id="password" 
-                               name="password" 
-                               required 
-                               minlength="8"
-                               placeholder="Au moins 8 caractères">
+                        <div class="password-wrapper">
+                            <input type="password" 
+                                   id="password" 
+                                   name="password" 
+                                   required 
+                                   minlength="8"
+                                   placeholder="Au moins 8 caractères">
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
+                        </div>
                         <small style="color: #666; font-size: 12px;">Minimum 8 caractères</small>
                     </div>
                     
                     <div class="form-group">
                         <label for="confirm_password">Confirmer le mot de passe:</label>
-                        <input type="password" 
-                               id="confirm_password" 
-                               name="confirm_password" 
-                               required 
-                               minlength="8">
+                        <div class="password-wrapper">
+                            <input type="password" 
+                                   id="confirm_password" 
+                                   name="confirm_password" 
+                                   required 
+                                   minlength="8">
+                            <i class="far fa-eye toggle-password" onclick="togglePassword('confirm_password', this)"></i>
+                        </div>
                     </div>
                     
                     <div id="password-match-message" style="margin-top: 10px; font-size: 12px;"></div>
@@ -76,6 +83,19 @@
     </div>
 
     <script>
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('far fa-eye');
+                icon.classList.add('far fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('far fa-eye-slash');
+                icon.classList.add('far fa-eye');
+            }
+        }
+
         const password = document.getElementById('password');
         const confirmPassword = document.getElementById('confirm_password');
         const message = document.getElementById('password-match-message');

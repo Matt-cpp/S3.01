@@ -10,6 +10,7 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
     <meta charset="UTF-8">
     <title>Connection</title>
     <link rel="stylesheet" href="../assets/css/style_create_acc.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <img src="../img/logoIUT.png" alt="Logo" class="logo">
@@ -29,12 +30,15 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
                 <div class="form-group">
                     <label for="email">Email:</label>
                     <input type="email" id="email" name="email" placeholder="prenom.nom@uhpf.fr" 
-                           value="<?php echo htmlspecialchars($formData['email'] ?? ''); ?>" required>
+                        value="<?php echo htmlspecialchars($formData['email'] ?? ''); ?>" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Mot de passe:</label>
-                    <input type="password" id="password" name="password" placeholder="********" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" placeholder="********" required>
+                        <i class="far fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
+                    </div>
                 </div>
                 <button type="submit" class="btn-submit">Se connecter</button>
             </form>
@@ -44,5 +48,20 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
             </div>
         </div>
     </div>
+    
+    <script>
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
 </html>

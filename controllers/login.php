@@ -43,9 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                     
                     // Redirection vers la page principale
                     if ($user['role'] === 'student') {
-                        header("Location: /View/templates/historique.php");
+                        header("Location: ../View/templates/historique.php");
                     } else {
-                        header("Location: /View/templates/admin_dashboard.php");
+                        header("Location: ../View/templates/admin_dashboard.php");
                     }
                     exit;
                 } else {
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
     // En cas d'erreur, sauvegarder pour affichage
     $_SESSION['login_errors'] = $errors;
     $_SESSION['form_data'] = $_POST;
-    header("Location: /View/templates/login.php");
+    header("Location: ../View/templates/login.php");
     exit;
 }
 
@@ -86,6 +86,6 @@ function getCurrentUser() {
 function logout() {
     session_unset();
     session_destroy();
-    header("Location: /View/templates/login.php");
+    header("Location: ../View/templates/login.php");
     exit;
 }

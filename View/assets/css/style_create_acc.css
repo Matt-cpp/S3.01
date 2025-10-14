@@ -191,3 +191,27 @@ input[name="verification_code"] {
         transform: translateY(0);
     }
 }
+
+/* Styles pour le champ mot de passe avec icône d'œil */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 40px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    user-select: none;
+    font-size: 16px;
+}
+
+.toggle-password:hover {
+    color: #333;
+}

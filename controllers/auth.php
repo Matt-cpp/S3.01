@@ -7,7 +7,7 @@ require_once __DIR__ . '/login.php';
 // Vérifier si l'utilisateur est connecté
 function requireAuth() {
     if (!isLoggedIn()) {
-        header("Location: /View/templates/login.php");
+        header("Location: ../View/templates/login.php");
         exit;
     }
     return getCurrentUser();
