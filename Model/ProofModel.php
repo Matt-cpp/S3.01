@@ -114,6 +114,7 @@ class ProofModel
         }
     }
 // revoir la modification de la table proof pour ajouter la colonne rejection_reason
+//fonction qui rajoute une ligne dans la table decision_history avec la raison du rejet et met à jour le commentaire dans proof
     public function setRejectionReason(int $proofId, string $reason, string $comment = '', int $userId = null): bool
     {
         $this->db->beginTransaction();
@@ -182,4 +183,25 @@ class ProofModel
 
 
 
+}
+//methode getter pour les motifs de rejet et de validation et methode pour ajouter un motif de rejet ou de validation directement avec le type (rejet ou validation)
+    public function getRejectionReasons(): array
+    {
+        return $this->getReasons('rejection');
+    }
+
+    public function getValidationReasons(): array
+    {
+        return $this->getReasons('validation');
+    }
+
+    public function addRejectionReason(string $label): bool
+    {
+        return $this->addReason($label, 'rejection');
+    }
+
+    public function addValidationReason(string $label): bool
+    {
+        return $this->addReason($label, 'validation');
+    }
 }
