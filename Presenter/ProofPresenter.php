@@ -19,8 +19,8 @@ class ProofPresenter
             'redirect' => null,
             'showInfoForm' => false,
             'infoError' => '',
-            'rejectionReasons' => $this->model->getReasons('rejection'),
-            'validationReasons' => $this->model->getReasons('validation')
+            'rejectionReasons' => $this->model->getRejectionReasons(),
+            'validationReasons' => $this->model->getValidationReasons()
         ];
 
         if (isset($get['proof_id'])) {
@@ -42,7 +42,7 @@ class ProofPresenter
                     $data['rejectionError'] = "Veuillez sélectionner un motif de rejet.";
                 } elseif ($rejectionReason === 'Autre' && $newReason !== '') {
                     // Ajout du nouveau motif
-                    $this->model->addReason($newReason,'rejection');
+                    $this->model->addRejectionReason($newReason);
                     $rejectionReason = $newReason;
                     $this->model->updateProofStatus($proofId, 'rejected');
                     $this->model->setRejectionReason($proofId, $rejectionReason, $rejectionDetails);
@@ -68,7 +68,7 @@ class ProofPresenter
                     $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
                 }
                 // Mise à jour de la liste des motifs au cas où un nouveau a été ajouté
-                $data['rejectionReasons'] = $this->model->getReasons('rejection');
+                $data['rejectionReasons'] = $this->model->getRejectionReasons();
             } elseif (isset($post['validate'])) {
                 $this->model->updateProofStatus($proofId, 'accepted');
                 $this->model->updateAbsencesForProof(
