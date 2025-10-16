@@ -58,6 +58,13 @@
     color: #111827;
 }
 
+/* Active page link style */
+.nav-link.active {
+    background: #e0e7ff;
+    color: #4338ca;
+    font-weight: 600;
+}
+
 .nav-link.nav-link-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -69,6 +76,12 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     color: white;
+}
+
+/* Override active style for primary button when active */
+.nav-link.nav-link-primary.active {
+    background: linear-gradient(135deg, #5568d3 0%, #6a4193 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
 }
 
 .nav-icon {

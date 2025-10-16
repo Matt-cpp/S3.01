@@ -367,7 +367,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             };
 
             // Send response to user immediately, then handle emails in background
-            header("Location: ../View/templates/validation_student_proof.php");
+            header("Location: ../View/templates/student_proof_validation.php");
 
             // Now handle email operations in background (user already redirected)
             try {
@@ -454,12 +454,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     } catch (Exception $e) {
         $_SESSION['error_message'] = $e->getMessage();
-        header("Location: ../View/templates/student_proof.php?error=1");
+        header("Location: ../View/templates/student_proof_submit.php?error=1");
         exit();
     }
 } else {
     // Redirect if not POST request
-    header("Location: ../View/templates/student_proof.php");
+    header("Location: ../View/templates/student_proof_submit.php");
     exit();
 }
 

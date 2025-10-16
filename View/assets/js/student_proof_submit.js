@@ -26,14 +26,26 @@ function validateDates() {
   var dateEnd = document.getElementById("datetime_end").value;
 
   var realTime = getRealTime();
+  var maxEndDate = new Date(realTime);
+  maxEndDate.setDate(maxEndDate.getDate() + 1);
 
   // Validation of the end date being after the start date
   if (dateStart && dateEnd) {
     var debut = new Date(dateStart);
     var fin = new Date(dateEnd);
+    
     if (fin <= debut) {
       alert(
         "La date/heure de fin doit être postérieure à la date/heure de début."
+      );
+      document.getElementById("datetime_end").value = "";
+      return false;
+    }
+
+    // Check if end date is more than 1 day after current date
+    if (fin > maxEndDate) {
+      alert(
+        "La date/heure de fin ne peut pas être plus d'un jour après la date actuelle."
       );
       document.getElementById("datetime_end").value = "";
       return false;

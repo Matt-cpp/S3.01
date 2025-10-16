@@ -15,12 +15,12 @@ $_SESSION['id_student'] = 1;
 <body>
     <?php 
     include __DIR__ . '/student_navbar.php';
-    require_once __DIR__ . '/../../Model/session_cache.php';
+    require_once __DIR__ . '/../../Presenter/session_cache.php';
     require_once __DIR__ . '/../../Presenter/student_get_info.php';
-    
-    // Utiliser les données en session si disponibles et récentes (< 5 minutes)
+
+    // Utiliser les données en session si disponibles et récentes (défini dans session_cache.php), par défaut 20 minutes
     // sinon les récupérer de la BD
-    if (!isset($_SESSION['stats']) || !isset($_SESSION['proofsByCategory']) || !isset($_SESSION['recentAbsences']) || shouldRefreshCache(10)) {
+    if (!isset($_SESSION['stats']) || !isset($_SESSION['proofsByCategory']) || !isset($_SESSION['recentAbsences']) || shouldRefreshCache(1200)) {
         $_SESSION['stats'] = getAbsenceStatistics($_SESSION['id_student']);
         $_SESSION['proofsByCategory'] = getProofsByCategory($_SESSION['id_student']);
         $_SESSION['recentAbsences'] = getRecentAbsences($_SESSION['id_student'], 5);
@@ -32,6 +32,7 @@ $_SESSION['id_student'] = 1;
     $recentAbsences = $_SESSION['recentAbsences'];
     ?>
 
+    // FIXME stats pas bonne
     <div class="dashboard-container">
     <!-- Statistics Cards -->
     <div class="stats-grid">
@@ -157,7 +158,7 @@ $_SESSION['id_student'] = 1;
         </div>
         <?php if (count($recentAbsences) > 5): ?>
         <div class="section-footer">
-            <a href="#" class="btn-more">Plus</a>
+            <a href="student_absences.php" class="btn-more">Plus</a>
         </div>
         <?php endif; ?>
     </div>
@@ -229,7 +230,7 @@ $_SESSION['id_student'] = 1;
         </div>
         <?php if (count($proofsByCategory['under_review']) > 5): ?>
         <div class="section-footer">
-            <a href="#" class="btn-more">Plus</a>
+            <a href="student_absences.php" class="btn-more">Plus</a>
         </div>
         <?php endif; ?>
     </div>
@@ -292,7 +293,7 @@ $_SESSION['id_student'] = 1;
         </div>
         <?php if (count($proofsByCategory['pending']) > 5): ?>
         <div class="section-footer">
-            <a href="#" class="btn-more">Plus</a>
+            <a href="student_absences.php" class="btn-more">Plus</a>
         </div>
         <?php endif; ?>
     </div>
@@ -357,7 +358,7 @@ $_SESSION['id_student'] = 1;
         </div>
         <?php if (count($proofsByCategory['accepted']) > 5): ?>
         <div class="section-footer">
-            <a href="#" class="btn-more">Plus</a>
+            <a href="student_absences.php" class="btn-more">Plus</a>
         </div>
         <?php endif; ?>
     </div>
@@ -430,7 +431,7 @@ $_SESSION['id_student'] = 1;
         </div>
         <?php if (count($proofsByCategory['rejected']) > 5): ?>
         <div class="section-footer">
-            <a href="#" class="btn-more">Plus</a>
+            <a href="student_absences.php" class="btn-more">Plus</a>
         </div>
         <?php endif; ?>
     </div>

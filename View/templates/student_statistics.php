@@ -10,7 +10,7 @@ $_SESSION['id_student'] = 1;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="../img/logoIUT.ico">
-    <title>Mes Absences</title>
+    <title>Mes Statistiques</title>
 
     <link rel="stylesheet" href="../assets/css/student_proof_submit.css">
 </head>
@@ -18,7 +18,7 @@ $_SESSION['id_student'] = 1;
 <body>
     <?php include __DIR__ . '/student_navbar.php'; ?>
 
-    <h1>Mes Absences</h1>
+    <h1>Mes Statistiques</h1>
 </body>
 
 </html>

@@ -22,7 +22,7 @@ $_SESSION['id_student'] = 1;
 </head>
 
 <body>
-    <?php include __DIR__ . '/navbar.php'; ?>
+    <?php include __DIR__ . '/student_navbar.php'; ?>
 
     <?php
     // Display error message if there's one in session
@@ -41,9 +41,9 @@ $_SESSION['id_student'] = 1;
     }
     ?>
 
-    <h1>Absence</h1>
+    <h1>Création justificatif</h1>
 
-    <form action="../../Presenter/validate_student_proof.php" method="post" enctype="multipart/form-data">
+    <form action="../../Presenter/student_proof_validation.php" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="datetime_start">Date et heure de début d'absence :</label>
             <input type="datetime-local" id="datetime_start" name="datetime_start" required>

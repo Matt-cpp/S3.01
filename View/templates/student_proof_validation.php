@@ -29,7 +29,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
 </head>
 
 <body>
-    <?php include __DIR__ . '/navbar.php'; ?>
+    <?php include __DIR__ . '/student_navbar.php'; ?>
     <div class="container">
         <h1>Votre justificatif a été envoyé</h1>
 
