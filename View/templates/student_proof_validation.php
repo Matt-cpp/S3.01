@@ -29,6 +29,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
 </head>
 
 <body>
+    <?php include __DIR__ . '/navbar.php'; ?>
     <div class="container">
         <h1>Votre justificatif a été envoyé</h1>
 
@@ -47,7 +48,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
         <form class="pdf-download" action="../../Presenter/generate_pdf.php" method="post" target="_blank">
             <input type="hidden" name="action" value="download_pdf_client">
             <button type="submit" class="btn-pdf">
-            Télécharger le récapitulatif PDF
+                Télécharger le récapitulatif PDF
             </button>
         </form>
 

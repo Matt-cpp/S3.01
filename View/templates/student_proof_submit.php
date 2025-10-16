@@ -22,10 +22,7 @@ $_SESSION['id_student'] = 1;
 </head>
 
 <body>
-    <div class="logos-container">
-        <img src="../img/UPHF.png" alt="Logo UPHF" class="logo" width="220" height="80">
-        <img src="../img/logoIUT.png" alt="Logo IUT" class="logo" width="100" height="90">
-    </div>
+    <?php include __DIR__ . '/navbar.php'; ?>
 
     <?php
     // Display error message if there's one in session

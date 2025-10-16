@@ -1,0 +1,84 @@
+/* Navbar Styles - Common across all pages */
+
+.header {
+    background: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    box-sizing: border-box;
+}
+
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#logo {
+    height: auto;
+    width: 150px;
+}
+
+.header-icons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.icon {
+    width: 32px;
+    height: 32px;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.icon:hover {
+    background: #e5e7eb;
+    transform: scale(1.1);
+}
+
+.icon.notification::before {
+    content: '🔔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+}
+
+.icon.settings::before {
+    content: '⚙️';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+}
+
+.icon.profile::before {
+    content: '👤';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 1rem;
+    }
+}

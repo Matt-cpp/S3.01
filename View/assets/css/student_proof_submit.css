@@ -9,10 +9,22 @@
 
 body {
     font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 70px 20px 20px 20px;
+    margin: 0;
+    padding: 0;
     background-color: #f5f5f5;
+}
+
+body > *:not(.header) {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+body > h1 {
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
 
 h1 {
@@ -172,7 +184,7 @@ textarea {
     background-color: #e74c3c;
     color: white;
     right: 41px;
-    top: 44px;
+    top: 15px;
     padding: 4px 8px;
     border-radius: 12px;
     font-size: 10px;
@@ -210,23 +222,7 @@ textarea {
     color: #2c3e50;
 }
 
-.selection-indicator {
-    position: absolute;
-    top: 10px;
-    right: 35px;
-    background-color: #27ae60;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: bold;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
 
-.course-item.selected .selection-indicator {
-    opacity: 1;
-}
 
 .courses-summary {
     margin-top: 12px;
