@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <title>Tableau de bord</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="../assets/css/welcome_teacher.css">
+    </head>
+    <body>
+        <header class="header">
+        <div class="logo">
+            <img id="logo" src="../img/UPHF_logo.png" />
+        </div>
+        <div class="header-icons">
+            <div class="icon notification"></div>
+            <div class="icon settings"></div>
+            <div class="icon profile"></div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Tableau de bord</h1>
+
+        <div class="section">
+            <h2 class="section-title">Vue globale des absences</h2>
+            
+            <div class="filter-section">
+                <div class="filter-title">Étudiants absents</div>
+                <div class="filter-controls">
+                    <select>
+                        <option>Cours</option>
+                        <option>Mathématiques Avancées</option>
+                        <option>Physique Quantique</option>
+                        <option>Chimie Organique</option>
+                        <option>Histoire Contemporaine</option>
+                        <option>Littérature Française</option>
+                    </select>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom / Prénom</th>
+                        <th>Groupe</th>
+                        <th>Date d'absence</th>
+                        <th>Motif</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Éric Dupont</td>
+                        <td>G1</td>
+                        <td>2024-04-15</td>
+                        <td>Maladie</td>
+                    </tr>
+                    <tr>
+                        <td>Marie Dubois</td>
+                        <td>G2</td>
+                        <td>2024-04-14</td>
+                        <td>Rendez-vous médical</td>
+                    </tr>
+                    <tr>
+                        <td>Lucas Martin</td>
+                        <td>G1</td>
+                        <td>2024-04-12</td>
+                        <td>Rendez-vous médical</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+         Gestion des rattrapages 
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Gestion des rattrapages</h2>
+                <button class="btn btn-primary">Planifier un rattrapage</button>
+            </div>
+
+            <div class="filter-title" style="margin-bottom: 1rem;">Étudiants à rattraper</div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Matière</th>
+                        <th>Date prévue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Éric Dupont</td>
+                        <td>Mathématiques</td>
+                        <td>2024-04-20</td>
+                    </tr>
+                    <tr>
+                        <td>Marie Dubois</td>
+                        <td>Physique</td>
+                        <td>2024-04-22</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Actions rapides</h2>
+            
+            <div class="actions-grid">
+                <a href="#" class="action-card">
+                    <div class="action-text">Planifier un rattrapage</div>
+                </a>
+                
+                <a href="#" class="action-card">
+                    <div class="action-text">Accéder aux statistiques</div>
+                </a>
+            </div>
+        </div>
+    </div>
+    </body>
+</html>
