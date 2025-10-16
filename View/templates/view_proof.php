@@ -24,6 +24,7 @@ function formatDateFr($datetimeStr) {
     return strftime('%d/%m/%Y à %Hh%M', $date->getTimestamp());
 }
 ?>
+<?php
 $presenter = new ProofPresenter();
 $viewData = $presenter->handleRequest($_GET, $_POST);
 
