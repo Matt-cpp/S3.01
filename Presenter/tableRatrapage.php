@@ -40,7 +40,7 @@ class tableRatrapage{
 public function getData($page){
     $offset = (int)($page * 5);
     $userId = (int)$this->userId;
-    // select a refaire
+
     $query = "SELECT users.first_name, users.last_name,resources.label, course_slots.course_date
     FROM absences LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
     LEFT JOIN users ON absences.student_identifier = users.identifier
