@@ -85,22 +85,8 @@ public function setPage($page){
     public function getPreviousPage() {
         return max($this->page - 1, 0);
     }
-    // Statistiques
-    public function todayAbs() {
-        $query = "SELECT COUNT(*) as count FROM absences WHERE DATE(updated_at) = CURRENT_DATE";
-        $res = $this->db->select($query);
-        return $res[0]['count'];
-    }
-    public function unjustifiedAbs() {
-        $query = "SELECT COUNT(*) as count FROM absences WHERE justified = false";
-        $res = $this->db->select($query);
-        return $res[0]['count'];
-    }
-    public function thisMonthAbs() {
-        $query = "SELECT COUNT(*) as count FROM absences WHERE EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM created_at) = EXTRACT(MONTH FROM CURRENT_DATE)";
-        $res = $this->db->select($query);
-        return $res[0]['count'];
-    }
+
+
     // Tableau
     public function laTable() {
         // Récupération des données brutes
