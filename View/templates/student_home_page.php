@@ -18,7 +18,7 @@ $_SESSION['id_student'] = 1;
     require_once __DIR__ . '/../../Presenter/session_cache.php';
     require_once __DIR__ . '/../../Presenter/student_get_info.php';
 
-    // Utiliser les données en session si disponibles et récentes (défini dans session_cache.php), par défaut 20 minutes
+    // Utiliser les données en session si disponibles et récentes (défini dans session_cache.php), par défaut 30 minutes
     // sinon les récupérer de la BD
     if (!isset($_SESSION['stats']) || !isset($_SESSION['proofsByCategory']) || !isset($_SESSION['recentAbsences']) || shouldRefreshCache(1200)) {
         $_SESSION['stats'] = getAbsenceStatistics($_SESSION['id_student']);
@@ -32,7 +32,7 @@ $_SESSION['id_student'] = 1;
     $recentAbsences = $_SESSION['recentAbsences'];
     ?>
 
-    // FIXME stats pas bonne
+    <!-- FIXME stats pas bonne -->
     <div class="dashboard-container">
     <!-- Statistics Cards -->
     <div class="stats-grid">
