@@ -267,4 +267,27 @@ class ProofModel
             return false;
         }
     }
+    public function isLocked(int $proofId): bool
+    {
+        $sql = "SELECT locked FROM proof WHERE id = :id";
+        try {
+            $result = $this->db->selectOne($sql, ['id' => $proofId]);
+            return $result && $result['locked'] === 'true';
+        } catch (Exception $e) {
+            error_log("Erreur isLocked : " . $e->getMessage());
+            return false;
+        }
+    }
+    // Fonction pour formater la date au format français
+    function formatDateFr($datetimeStr)
+    {
+        if (!$datetimeStr) return '';
+        $date = new DateTime($datetimeStr);
+        setlocale(LC_TIME, 'fr_FR.UTF-8');
+        return strftime('%d/%m/%Y à %Hh%M', $date->getTimestamp());
+    }
+    //traduction des données en français pour affichage
+    function translate($value, $translations) {
+        return $translations[$value] ?? $value;
+    }
 }

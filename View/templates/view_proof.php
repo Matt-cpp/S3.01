@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../Presenter/ProofPresenter.php';
+require_once __DIR__ . '/../../Model/ProofModel.php';
 $translations = [
     // Statuts
         'pending' => 'En attente',
@@ -11,18 +12,6 @@ $translations = [
         'family_obligations' => 'Obligations familiales',
         'other' => 'Autre',
 ];
-
-function translate($value, $translations) {
-    return $translations[$value] ?? $value;
-}
-
-// Fonction pour formater la date au format français
-function formatDateFr($datetimeStr) {
-    if (!$datetimeStr) return '';
-    $date = new DateTime($datetimeStr);
-    setlocale(LC_TIME, 'fr_FR.UTF-8');
-    return strftime('%d/%m/%Y à %Hh%M', $date->getTimestamp());
-}
 ?>
 <?php
 $presenter = new ProofPresenter();
@@ -37,6 +26,8 @@ $showRejectForm = $viewData['showRejectForm'];
 $rejectionError = $viewData['rejectionError'];
 $showInfoForm = $viewData['showInfoForm'] ?? false;
 $infoError = $viewData['infoError'] ?? '';
+$islocked = isLocked($proof['proof_id'] ?? 0);
+$lockStatus = $islocked ? 'Verrouillé' : 'Déverrouillé';
 
 if (!$proof) {
     echo "<p>Aucun justificatif trouvé pour cet ID.</p>";
@@ -71,6 +62,9 @@ if (!$proof) {
         </div>
         <div class="info-field">
             <strong>Statut:</strong> <?= htmlspecialchars($proof['status'] ?? '') ?>
+        </div>
+        <div class="info-field">
+            <strong>Verrouillage:</strong> <?= htmlspecialchars($lockStatus) ?>
         </div>
     </div>
 
@@ -150,10 +144,19 @@ if (!$proof) {
                         <button type="submit" name="validate" value="1" class="btn btn-validate">
                             <span class="btn-text">Valider</span>
                         </button>
-                        <button type="submit" name="reject" value="1" class="btn btn-reject">
+                        <!-- verrouillage/deverrouillage apres validation de la décision -->
+                        <label for="lock_action_after_validate" style="margin-left:10px; font-weight:normal;">
+                            <select name="lock_action_after_validate" id="lock_action_after_validate">
+                                <option value="none">Aucun changement</option>
+                                <option value="lock" <?= $islocked ? '' : 'selected' ?>>Verrouiller après validation</option>
+                                <option value="unlock" <?= $islocked ? 'selected' : '' ?>>Déverrouiller après validation</option>
+                            </select>
+                        </label>
+
+                        <button type="submit" name="reject" value="1" class="btn btn-reject" style="margin-left:10px;">
                             <span class="btn-text">Refuser</span>
                         </button>
-                        <button type="submit" name="request_info" value="1" class="btn btn-info">
+                        <button type="submit" name="request_info" value="1" class="btn btn-info" style="margin-left:10px;">
                             <span class="btn-text">Demander des informations</span>
                         </button>
                     </div>
