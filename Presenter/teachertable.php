@@ -1,11 +1,10 @@
 <meta charset="UTF-8">
 <?php
-class teacherTable {
+class tableRatrapage{
     private $page;
     private $db;
     private $userId;
     private $nombrepages;
-
     //constructeur
     public function __construct(int $id) {
         $this->page = 0;
@@ -14,53 +13,48 @@ class teacherTable {
         $this->userId = $id;
         $this->nombrepages = $this->getTotalPages();
     }
-    // sert a faire la requete principale du tableau
-public function getData($page) {
-    $offset = (int)($page * 5);
-    $userId = (int)$this->userId;
-    
-    $query = "SELECT users.first_name, users.last_name, 
-              resources.label, 
-              course_slots.course_date, 
-              absences.status
-              FROM teachers
-              INNER JOIN resources ON resources.teacher_id = teachers.id
-              INNER JOIN course_slots ON course_slots.resource_id = resources.id
-              INNER JOIN absences ON absences.course_slot_id = course_slots.id
-              LEFT JOIN users ON absences.student_identifier = users.identifier
-              WHERE teachers.user_id = $userId
-              AND absences.justified = 0
-              ORDER BY course_slots.course_date DESC, absences.id ASC
-              LIMIT 5 OFFSET $offset";
-    
-    return $this->db->select($query);
-}
-// renvoie le nombre total de pages
-public function getTotalPages() {
-try {
-        $query = "SELECT COUNT(*) as count FROM absences";
-        $result = $this->db->select($query);
-        
-        echo "<pre>DEBUG getTotalPages result: ";
-        print_r($result);
-        echo "</pre>";
-        
+    // calcule le nombre de pages totales du tableau
+    public function getTotalPages(){
+        try {
+        $query = "SELECT COUNT(*) as count FROM absences LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
+        WHERE course_slots.teacher_id=".$this->userId." AND absences.status='excused'";
+        $result = $this->db->select($query);    
         if (empty($result)) {
             return 1;
         }
-        
         return ceil($result[0]['count'] / 5);
     } catch (Exception $e) {
         echo "ERREUR dans getTotalPages: " . $e->getMessage();
         return 1;
     }
 }
-    // sert a mettre a jour l'attribut page en posant des limites
-    public function setPage($page) {
-        if ($page >= 0 && $page < $this->nombrepages) {
-            $this->page = $page;
-        }
+// renvoie le nombre de pages totales sans refaire de requete
+    public function getNombrePages(){
+        return $this->nombrepages;
     }
+    // renvoie le numéro de la page actuelle
+    public function getPage(){
+        return $this->page;
+    }
+//reqeuete principale du tableau
+public function getData($page){
+    $offset = (int)($page * 5);
+    $userId = (int)$this->userId;
+    // select a refaire
+    $query = "SELECT users.first_name, users.last_name,resources.label, course_slots.course_date
+    FROM absences LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
+    LEFT JOIN users ON absences.student_identifier = users.identifier
+    LefT JOIN resources ON course_slots.resource_id = resources.id
+    WHERE course_slots.teacher_id=".$this->userId." AND absences.status='excused'
+        ORDER BY course_slots.course_date DESC
+        LIMIT 5 OFFSET $offset";
+    return $this->db->select($query);
+}
+public function setPage($page){
+    if($page>=0 && $page<$this->nombrepages){
+        $this->page=$page;
+    }
+}
     // fait avancer la page de 1 si possible
     public function nextPage() {
         if ($this->page < $this->nombrepages - 1) {
@@ -111,35 +105,35 @@ try {
     public function laTable() {
         // Récupération des données brutes
         $donnees = $this->getData($this->getCurrentPage());
-        
-        // Création du tableau final
-        $tableau = [];
-        
-        // Ajout des en-têtes comme première ligne
-        $tableau[] = ['Prénom', 'Nom', 'Cours', 'Date', 'Status'];
-        
-        // Remplissage des données
+        $tableau=[];
+        // Construction du tableau HTML
+        $tableau = "<table border='1'>  
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Resource</th>
+            <th>Course Date</th>
+        </tr>";
         foreach ($donnees as $ligne) {
-            $tableau[] = [
-                $ligne['first_name'],
-                $ligne['last_name'],
-                $ligne['label'],
-                $ligne['course_date'],
-                $ligne['status']
-            ];
+            $tableau .= "<tr>
+                <td>" . htmlspecialchars($ligne['first_name']) . "</td>
+                <td>" . htmlspecialchars($ligne['last_name']) . "</td>
+                <td>" . htmlspecialchars($ligne['label']) . "</td>
+                <td>" . htmlspecialchars($ligne['course_date']) . "</td>
+            </tr>";
         }
+        $tableau .= "</table>";
         return $tableau;
+
     }
 }
-
-$test = new teacherTable(2);
-
-
+$test = new tableRatrapage(3);
 
 if (isset($_GET['page'])) {
     $page = intval($_GET['page']);
     $test->setPage($page);
 }
+echo $test->laTable();
 ?>
 <a href="?page=<?php echo $test->getPreviousPage(); ?>">
     <button type="button">previous</button>
@@ -149,22 +143,3 @@ if (isset($_GET['page'])) {
 </a>
 
 <br>
-
-
-<?php
-require_once __DIR__ . '/../Model/database.php';
-
-$f=$test->laTable();
-$tabel= json_decode(json_encode($f),true);
-echo "<table border='1'>";
-foreach ($tabel as $row) {
-    echo "<tr>";
-    foreach ($row as $cell) {
-        echo "<td>" . htmlspecialchars($cell ?? '') . "</td>";
-    }
-    echo "</tr>";
-}
-$nbpages = $test->getTotalPages();?>
-<br>
-Current Page: <?php echo $test->getCurrentPage() + 1; ?> /
-<?php echo $nbpages; ?>
