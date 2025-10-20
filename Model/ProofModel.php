@@ -244,4 +244,27 @@ class ProofModel
     {
         return $this->addReason($label, 'validation');
     }
+
+    public function deverouiller(int $proofId): bool
+    {
+        $sql = "UPDATE proof SET locked = 'false' WHERE id = :id";
+        try {
+            $affected = $this->db->execute($sql, ['id' => $proofId]);
+            return $affected > 0;
+        } catch (Exception $e) {
+            error_log("Erreur deverouiller : " . $e->getMessage());
+            return false;
+        }
+    }
+    public function verrouiller(int $proofId): bool
+    {
+        $sql = "UPDATE proof SET locked = 'true' WHERE id = :id";
+        try {
+            $affected = $this->db->execute($sql, ['id' => $proofId]);
+            return $affected > 0;
+        } catch (Exception $e) {
+            error_log("Erreur verrouiller : " . $e->getMessage());
+            return false;
+        }
+    }
 }
