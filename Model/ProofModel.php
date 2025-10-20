@@ -10,9 +10,7 @@ class ProofModel
         $this->db = Database::getInstance();
     }
 
-    /**
-     * Récupère les informations complètes d’un justificatif d’absence
-     */
+    // Récupère les détails d'un justificatif par son ID
     public function getProofDetails(int $proofId): ?array
     {
         $sql = "
@@ -70,6 +68,7 @@ class ProofModel
             return null;
         }
     }
+    // Met à jour le statut du justificatif
     public function updateProofStatus(int $proofId, string $status): bool
     {
         $sql = "UPDATE proof SET status = :status WHERE id = :id";
@@ -82,7 +81,7 @@ class ProofModel
             return false;
         }
     }
-
+    // Met à jour les absences associées au justificatif en fonction de la décision prise
     public function updateAbsencesForProof(string $studentIdentifier, string $startDate, string $endDate, string $decision)
     {
         if ($decision === 'accepted') {
@@ -113,8 +112,7 @@ class ProofModel
             ]);
         }
     }
-// revoir la modification de la table proof pour ajouter la colonne rejection_reason
-//fonction qui rajoute une ligne dans la table decision_history avec la raison du rejet et met à jour le commentaire dans proof
+    // Enregistre la raison de rejet et le commentaire dans decision_history
     public function setRejectionReason(int $proofId, string $reason, string $comment = '', int $userId = null): bool
     {
         $this->db->beginTransaction();
@@ -153,6 +151,48 @@ class ProofModel
         } catch (\Exception $e) {
             $this->db->rollBack();
             error_log("Erreur setRejectionReason : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function setValidationReason(int $proofId, string $reason, string $comment = '', int $userId = null): bool
+    {
+        $this->db->beginTransaction();
+        try {
+            // Mise à jour du commentaire dans proof
+            $sql = "UPDATE proof
+                SET manager_comment = :comment,
+                    updated_at = NOW()
+                WHERE id = :id";
+            $this->db->execute($sql, [
+                'comment' => $comment,
+                'id' => $proofId
+            ]);
+
+            // Récupération de l'ancien statut
+            $proof = $this->getProofDetails($proofId);
+            $oldStatus = $proof ? $proof['status'] : null;
+
+            // Insertion de l'historique de validation
+            $sqlHistory = "INSERT INTO decision_history
+            (proof_id, user_id, action, old_status, new_status, validation_reason, comment, created_at)
+            VALUES
+            (:proof_id, :user_id, :action, :old_status, :new_status, :validation_reason, :comment, NOW())";
+            $this->db->execute($sqlHistory, [
+                'proof_id' => $proofId,
+                'user_id' => $userId,
+                'action' => 'validate',
+                'old_status' => $oldStatus,
+                'new_status' => 'accepted',
+                'validation_reason' => $reason,
+                'comment' => $comment
+            ]);
+
+            $this->db->commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->db->rollBack();
+            error_log("Erreur setValidationReason : " . $e->getMessage());
             return false;
         }
     }
