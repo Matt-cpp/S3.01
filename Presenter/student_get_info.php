@@ -50,13 +50,31 @@ function getAbsenceStatistics($student_identifier)
     $stmt->execute(['student_id' => $student_identifier]);
     $hour_total_justified = $stmt->fetch()['hour_total_justified'];
     
-    // Total heures ratées non justifiées
+    // Total heures ratées non justifiées (sans justificatif soumis ou avec justificatif rejeté)
+    // On utilise DISTINCT ON pour éviter les doublons si une absence a plusieurs justificatifs
     $stmt = $db->prepare("
-        SELECT COALESCE(SUM(cs.duration_minutes / 60.0), 0) as hour_total_unjustified
-        FROM absences a
-        JOIN course_slots cs ON a.course_slot_id = cs.id
-        WHERE a.student_identifier = :student_id
-        AND a.justified = FALSE
+        SELECT COALESCE(SUM(duration_minutes / 60.0), 0) as hour_total_unjustified
+        FROM (
+            SELECT DISTINCT ON (a.id) 
+                a.id,
+                cs.duration_minutes,
+                p.status as proof_status
+            FROM absences a
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            LEFT JOIN proof_absences pa ON a.id = pa.absence_id
+            LEFT JOIN proof p ON pa.proof_id = p.id
+            WHERE a.student_identifier = :student_id
+            AND a.justified = FALSE
+            ORDER BY a.id, 
+                CASE 
+                    WHEN p.status = 'accepted' THEN 1
+                    WHEN p.status = 'under_review' THEN 2
+                    WHEN p.status = 'pending' THEN 3
+                    WHEN p.status = 'rejected' THEN 4
+                    ELSE 5
+                END ASC
+        ) subquery
+        WHERE proof_status IS NULL OR proof_status = 'rejected'
     ");
     $stmt->execute(['student_id' => $student_identifier]);
     $hour_total_unjustified = $stmt->fetch()['hour_total_unjustified'];
@@ -111,11 +129,21 @@ function getAbsenceStatistics($student_identifier)
     $stmt->execute(['student_id' => $student_identifier]);
     $total_hours_absences = $stmt->fetch()['total_hours_absences'];
     
+    // Total nombre d'absences
+    $stmt = $db->prepare("
+        SELECT COUNT(*) as total_absences_count
+        FROM absences a
+        WHERE a.student_identifier = :student_id
+    ");
+    $stmt->execute(['student_id' => $student_identifier]);
+    $total_absences_count = $stmt->fetch()['total_absences_count'];
+    
     return [
         'hour_month' => round($hour_month, 2),
         'hour_total_justified' => round($hour_total_justified, 2),
         'hour_total_unjustified' => round($hour_total_unjustified, 2),
         'total_hours_absences' => round($total_hours_absences, 2),
+        'total_absences_count' => $total_absences_count,
         'under_review_proofs' => $under_review_proofs,
         'pending_proofs' => $pending_proofs,
         'rejected_proofs' => $rejected_proofs,

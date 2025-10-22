@@ -144,16 +144,16 @@ button[type="submit"]:hover {
 }
 
 /* Tableau */
-#absenceTable {
+#proofsTable {
     width: 100%;
     border-collapse: collapse;
 }
 
-#absenceTable thead tr {
+#proofsTable thead tr {
     background-color: #f8f9fa;
 }
 
-#absenceTable th {
+#proofsTable th {
     padding: 12px 15px;
     text-align: left;
     font-weight: 600;
@@ -162,13 +162,17 @@ button[type="submit"]:hover {
     color: #495057;
 }
 
-#absenceTable td {
+#proofsTable td {
     padding: 12px 15px;
     border-bottom: 1px solid #f0f0f0;
     font-size: 0.9rem;
 }
 
-#absenceTable tbody tr:hover {
+#proofsTable tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+#proofsTable tbody tr:hover {
     background-color: #f8f9fa;
 }
 
@@ -209,35 +213,10 @@ button[type="submit"]:hover {
     border: 1px solid #bee5eb;
 }
 
-.badge-rejected {
-    background-color: #ffe5e5;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
-}
-
-/* Badges pour types de cours */
-.badge-cm {
-    background-color: #e0e7ff;
-    color: #4338ca;
-    border: 1px solid #c7d2fe;
-}
-
-.badge-td {
-    background-color: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #bfdbfe;
-}
-
-.badge-tp {
-    background-color: #d1fae5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
-}
-
-.badge-other {
-    background-color: #f3f4f6;
-    color: #4b5563;
-    border: 1px solid #e5e7eb;
+.badge-secondary {
+    background-color: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
 }
 
 /* Badges pour évaluation */
@@ -255,15 +234,48 @@ button[type="submit"]:hover {
     font-weight: 600;
 }
 
+/* Badge pour raison */
+.reason-badge {
+    background-color: #e0e7ff;
+    color: #4338ca;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
 /* Badge pour évaluation */
-.evaluation-badge {
+.eval-badge {
     background-color: #fff3cd;
     color: #856404;
     padding: 0.3rem 0.6rem;
     border-radius: 0.5rem;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    margin-left: 0.5rem;
+}
+
+.no-eval {
+    color: #999;
+    font-style: italic;
+}
+
+/* Comment preview */
+.comment-preview {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-style: italic;
+    display: block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Course code/details style */
+.course-code {
+    color: #6c757d;
+    font-size: 0.8rem;
 }
 
 /* Message pour aucun résultat */
@@ -273,37 +285,6 @@ button[type="submit"]:hover {
     color: #6c757d;
     font-style: italic;
     font-size: 1rem;
-}
-
-/* Bouton de preuve */
-.btn-export {
-    background-color: #e0e7ff;
-    color: #4338ca;
-    border-radius: 6px;
-    cursor: pointer;
-    border: none;
-    padding: 6px 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.btn-export:hover {
-    background-color: #c7d2fe;
-    transform: translateY(-1px);
-}
-
-.export-icon {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
-}
-
-.no-proof {
-    color: #999;
-    font-style: italic;
-    font-size: 0.85rem;
 }
 
 .section-footer {
@@ -331,18 +312,19 @@ button[type="submit"]:hover {
             color: rgba(255, 255, 255, 0.8);
         }
 
+
 /* Responsive */
 @media (max-width: 768px) {
     .filter-grid {
         grid-template-columns: 1fr;
     }
     
-    #absenceTable {
+    #proofsTable {
         font-size: 0.85rem;
     }
     
-    #absenceTable th,
-    #absenceTable td {
+    #proofsTable th,
+    #proofsTable td {
         padding: 8px 10px;
     }
 }

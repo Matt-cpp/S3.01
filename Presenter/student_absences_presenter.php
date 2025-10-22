@@ -141,14 +141,14 @@ class StudentAbsencesPresenter
             $stmt->execute($params);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Trier les résultats par date décroissante après avoir éliminé les doublons
+            // Trier les résultats par date et heure décroissantes (plus récent en premier)
             usort($results, function($a, $b) {
                 $dateCompare = strtotime($b['course_date']) - strtotime($a['course_date']);
                 if ($dateCompare !== 0) {
                     return $dateCompare;
                 }
-                // Si même date, trier par heure de début croissante (8h avant 14h)
-                return strcmp($a['start_time'], $b['start_time']);
+                // Si même date, trier par heure de début décroissante (14h avant 8h)
+                return strcmp($b['start_time'], $a['start_time']);
             });
             
             return $results;
@@ -221,7 +221,8 @@ class StudentAbsencesPresenter
         } elseif ($proofStatus === 'pending') {
             return ['text' => 'En attente', 'class' => 'badge-info', 'icon' => '🕐'];
         } elseif ($proofStatus === 'rejected') {
-            return ['text' => 'Refusé', 'class' => 'badge-danger', 'icon' => '❌'];
+            // Justificatif soumis mais rejeté
+            return ['text' => 'Rejeté', 'class' => 'badge-rejected', 'icon' => '🚫'];
         } else {
             // Pas de justificatif soumis
             return ['text' => 'Non justifiée', 'class' => 'badge-danger', 'icon' => '❌'];
