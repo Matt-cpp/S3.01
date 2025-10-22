@@ -95,7 +95,7 @@ class backendTableauDeBord {
         return $tableau;
     }
 }
-
+/*
 $test = new backendTableauDeBord();
 
 echo "Nombre d'absences aujourd'hui : ";
@@ -140,3 +140,4 @@ $nbpages = $test->getTotalPages();?>
 <br>
 Current Page: <?php echo $test->getCurrentPage() + 1; ?> /
 <?php echo $nbpages; ?>
+*/
