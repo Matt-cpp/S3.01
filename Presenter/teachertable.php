@@ -112,6 +112,7 @@ public function setPage($page){
 
     }
 }
+/*
 $test = new tableRatrapage(3);
 
 if (isset($_GET['page'])) {
@@ -132,3 +133,4 @@ echo $test->laTable();
 echo "Page " . ($test->getCurrentPage() + 1) . " sur " . $test->getNombrePages() . "<br>";
 ?>
 <br>
+*/
