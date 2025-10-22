@@ -3,21 +3,20 @@
 class tableRatrapage{
     private $db;
     private $userId;
-    private $nombrepages;
+    private $data;
     //constructeur
     public function __construct(int $id) {
-        $this->page = 0;
         require_once __DIR__ . '/../Model/database.php';
         $this->db = Database::getInstance();
         $this->userId = $id;
-        $this->nombrepages = $this->getTotalPages();
+        $this->data = $this->getData();
     }
-}
+
 //reqeuete principale du tableau
 public function getData(){
     $userId = (int)$this->userId;
 
-    $query = "SELECT users.first_name, users.last_name,resources.label, course_slots.course_date
+    $query = "SELECT absences.id,course_slots.id,users.identifier,users.first_name, users.last_name,resources.label, course_slots.course_date
     FROM absences LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
     LEFT JOIN users ON absences.student_identifier = users.identifier
     LefT JOIN resources ON course_slots.resource_id = resources.id
@@ -28,23 +27,10 @@ public function getData(){
 }
 
 
-    //renvoie le numéro de page actuel
-    public function getCurrentPage() {
-        return $this->page;
-    }
-    //permet l'accès a la page suivante et précédente en posant des limites
-    public function getNextPage() {
-        return min($this->page + 1, $this->nombrepages - 1);
-    }
-    public function getPreviousPage() {
-        return max($this->page - 1, 0);
-    }
-
-
     // Tableau
     public function laTable() {
         // Récupération des données brutes
-        $donnees = $this->getData($this->getCurrentPage());
+        $donnees = $this->data;
         $tableau=[];
         // Construction du tableau HTML
         $tableau = "<table border='1'>  
@@ -64,24 +50,16 @@ public function getData(){
         }
         $tableau .= "</table>";
         return $tableau;
+    }
 
+    public function creationRattrapage($abs_id, $course_id, $user_id){
+        $query= "INSERT into makeups (id,absence_id,course_slot_id,teacher_id,status) 
+        VALUES (,".$abs_id."','".$course_id."','".$user_id."','pending')";
+        $this->db->execute($query);
     }
 }
-/*
-$test = new tableRatrapage(4);
 
-if (isset($_GET['page'])) {
-    $page = intval($_GET['page']);
-    $test->setPage($page);
-}
+$test = new tableRatrapage(3);
+
 echo $test->laTable();
 ?>
-<a href="?page=<?php echo $test->getPreviousPage(); ?>">
-    <button type="button">previous</button>
-</a>
-<a href="?page=<?php echo $test->getNextPage(); ?>">
-    <button type="button">next</button>
-</a>
-
-<br>
-*/
