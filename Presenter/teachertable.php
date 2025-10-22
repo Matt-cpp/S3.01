@@ -16,9 +16,13 @@ class tableRatrapage{
     // calcule le nombre de pages totales du tableau
     public function getTotalPages(){
         try {
-        $query = "SELECT COUNT(*) as count FROM absences LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
-        WHERE course_slots.teacher_id=".$this->userId." AND absences.status='excused'";
-        $result = $this->db->select($query);    
+        $query = "SELECT COUNT(*) as count 
+        FROM absences LEFT JOIN course_slots 
+        ON absences.course_slot_id = course_slots.id
+        WHERE course_slots.teacher_id=".$this->userId."
+         AND absences.status='excused'";
+        
+         $result = $this->db->select($query);    
         if (empty($result)) {
             return 1;
         }
@@ -40,14 +44,15 @@ class tableRatrapage{
 public function getData($page){
     $offset = (int)($page * 5);
     $userId = (int)$this->userId;
-    // select a refaire
-    $query = "SELECT *
-    FROM absences LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
-    LEFT JOIN users ON absences.student_identifier = users.identifier
-    LefT JOIN resources ON course_slots.resource_id = resources.id
-    WHERE course_slots.teacher_id=".$this->userId." AND absences.status='excused'
+    $query = "SELECT users.first_name,users.last_name,COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date,absences.status,resources.label
+    From absences 
+    Left Join users on absences.student_identifier = users.identifier
+    Left Join course_slots ON absences.course_slot_id = course_slots.id
+    Left Join resources ON course_slots.resource_id = resources.id
+        WHERE course_slots.teacher_id=".$this->userId."
         ORDER BY course_slots.course_date DESC
         LIMIT 5 OFFSET $offset";
+
     return $this->db->select($query);
 }
 public function setPage($page){
@@ -67,13 +72,6 @@ public function setPage($page){
             $this->page--;
         }
     }
-    //activer le filtre pour rattrapage
-    public function enableRattrapage() {
-        $this->ratrapage = true;
-        $this->page = 0; // Réinitialiser la page à 0
-        $this->nombrepages = $this->getTotalPages(); // Mettre à jour le nombre total de pages
-    }
-
     //renvoie le numéro de page actuel
     public function getCurrentPage() {
         return $this->page;
@@ -85,40 +83,32 @@ public function setPage($page){
     public function getPreviousPage() {
         return max($this->page - 1, 0);
     }
-    // Statistiques
-    public function todayAbs() {
-        $query = "SELECT COUNT(*) as count FROM absences WHERE DATE(updated_at) = CURRENT_DATE";
-        $res = $this->db->select($query);
-        return $res[0]['count'];
-    }
-    public function unjustifiedAbs() {
-        $query = "SELECT COUNT(*) as count FROM absences WHERE justified = false";
-        $res = $this->db->select($query);
-        return $res[0]['count'];
-    }
-    public function thisMonthAbs() {
-        $query = "SELECT COUNT(*) as count FROM absences WHERE EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM created_at) = EXTRACT(MONTH FROM CURRENT_DATE)";
-        $res = $this->db->select($query);
-        return $res[0]['count'];
-    }
+    
     // Tableau
     public function laTable() {
         // Récupération des données brutes
         $donnees = $this->getData($this->getCurrentPage());
         $tableau=[];
         // Construction du tableau HTML
-        $tableau = "<table border='1'>  
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Resource</th>
-            <th>Course Date</th>
-        </tr>";
         foreach ($donnees as $ligne) {
-
+            $tableau[] = "<tr>
+            <td>" . htmlspecialchars($ligne['first_name']) . "</td>
+            <td>" . htmlspecialchars($ligne['last_name']) . "</td>
+            <td>" . htmlspecialchars($ligne['degrees']) . "</td>
+            <td>" . htmlspecialchars($ligne['label']) . "</td>
+            <td>" . htmlspecialchars($ligne['course_date']) . "</td>
+            <td>" . htmlspecialchars($ligne['status']) . "</td>
+            </tr>";
         }
-        $tableau .= "</table>";
-        return $tableau;
+        return "<table border='1'>  
+        <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Degrees</th>
+        <th>Resource Label</th>
+        <th>Course Date</th>
+        <th>Status</th>
+        </tr>" . implode("", $tableau) . "</table>";
 
     }
 }
@@ -128,7 +118,8 @@ if (isset($_GET['page'])) {
     $page = intval($_GET['page']);
     $test->setPage($page);
 }
-echo $test->laTable();
+
+echo $test->laTable();  
 ?>
 <a href="?page=<?php echo $test->getPreviousPage(); ?>">
     <button type="button">previous</button>
@@ -136,5 +127,8 @@ echo $test->laTable();
 <a href="?page=<?php echo $test->getNextPage(); ?>">
     <button type="button">next</button>
 </a>
-
+<br>
+<?php
+echo "Page " . ($test->getCurrentPage() + 1) . " sur " . $test->getNombrePages() . "<br>";
+?>
 <br>

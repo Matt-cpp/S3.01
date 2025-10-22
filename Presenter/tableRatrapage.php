@@ -17,7 +17,7 @@ class tableRatrapage{
     public function getTotalPages(){
         try {
         $query = "SELECT COUNT(*) as count FROM absences LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
-        WHERE course_slots.teacher_id=".$this->userId." AND absences.status='excused'";
+        WHERE course_slots.teacher_id=".$this->userId." AND absences.status='excused'AND course_slots.is_evaluation=true";
         $result = $this->db->select($query);    
         if (empty($result)) {
             return 1;
@@ -45,7 +45,8 @@ public function getData($page){
     FROM absences LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
     LEFT JOIN users ON absences.student_identifier = users.identifier
     LefT JOIN resources ON course_slots.resource_id = resources.id
-    WHERE course_slots.teacher_id=".$this->userId." AND absences.status='excused'
+    WHERE course_slots.teacher_id=".$this->userId." AND absences.status='excused' 
+        AND course_slots.is_evaluation=true
         ORDER BY course_slots.course_date DESC
         LIMIT 5 OFFSET $offset";
     return $this->db->select($query);
@@ -113,7 +114,7 @@ public function setPage($page){
 
     }
 }
-$test = new tableRatrapage(3);
+$test = new tableRatrapage(4);
 
 if (isset($_GET['page'])) {
     $page = intval($_GET['page']);
