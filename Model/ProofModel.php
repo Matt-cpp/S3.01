@@ -47,14 +47,14 @@ class ProofModel
                 WHERE a.student_identifier = :student_identifier
                   AND cs.course_date BETWEEN :start_date AND :end_date
                 ORDER BY cs.course_date ASC, cs.start_time ASC";
-            $absences = $this->db->selectAll($sqlAbs, [
+            $absences = $this->db->select($sqlAbs, [
                 'student_identifier' => $result['student_identifier'],
                 'start_date' => $result['absence_start_date'],
                 'end_date' => $result['absence_end_date']
             ]);
             if ($absences && count($absences) > 0) {
                 $first = $absences[0];
-                $last = $absences[count($absences)-1];
+                $last = $absences[count($absences) - 1];
                 $result['absence_start_datetime'] = $first['course_date'] . ' ' . $first['start_time'];
                 $result['absence_end_datetime'] = $last['course_date'] . ' ' . $last['end_time'];
             } else {
@@ -68,6 +68,7 @@ class ProofModel
             return null;
         }
     }
+
     // Met à jour le statut du justificatif
     public function updateProofStatus(int $proofId, string $status): bool
     {
@@ -81,6 +82,7 @@ class ProofModel
             return false;
         }
     }
+
     // Met à jour les absences associées au justificatif en fonction de la décision prise
     public function updateAbsencesForProof(string $studentIdentifier, string $startDate, string $endDate, string $decision)
     {
@@ -112,8 +114,9 @@ class ProofModel
             ]);
         }
     }
+
     // Enregistre la raison de rejet et le commentaire dans decision_history
-    public function setRejectionReason(int $proofId, string $reason, string $comment = '', int $userId = null): bool
+    public function setRejectionReason(int $proofId, string $reason, string $comment = '', ?int $userId = null): bool
     {
         $this->db->beginTransaction();
         try {
@@ -155,7 +158,7 @@ class ProofModel
         }
     }
 
-    public function setValidationReason(int $proofId, string $reason, string $comment = '', int $userId = null): bool
+    public function setValidationReason(int $proofId, string $reason, string $comment = '', ?int $userId = null): bool
     {
         $this->db->beginTransaction();
         try {
@@ -202,17 +205,23 @@ class ProofModel
     {
         $sql = "SELECT label FROM rejection_validation_reasons WHERE type_of_reason = :type ORDER BY label ASC";
         try {
-            $results = $this->db->selectAll($sql, ['type' => $type]);
+            $results = $this->db->select($sql, ['type' => $type]);
             return array_map(fn($row) => $row['label'], $results);
         } catch (Exception $e) {
             error_log("Erreur getReasons : " . $e->getMessage());
             return [];
         }
     }
-// Ajoute un nouveau motif de rejet ou de validation dans la table rejection_validation_reasons en fonction du type
+
+    // Ajoute un nouveau motif de rejet ou de validation dans la table rejection_validation_reasons en fonction du type
     public function addReason(string $label, string $type): bool
     {
-        $sql = "INSERT IGNORE INTO rejection_validation_reasons (label, type_of_reason) VALUES (:label, :type)";
+        // Requête compatible PostgreSQL : insère seulement si le couple (label, type_of_reason) n'existe pas
+        $sql = "INSERT INTO rejection_validation_reasons (label, type_of_reason)
+                SELECT :label, :type
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM rejection_validation_reasons WHERE label = :label AND type_of_reason = :type
+                )";
         try {
             $this->db->execute($sql, ['label' => $label, 'type' => $type]);
             return true;
@@ -220,11 +229,9 @@ class ProofModel
             error_log("Erreur addReason : " . $e->getMessage());
             return false;
         }
+    }
 
-
-
-}
-//methode getter pour les motifs de rejet et de validation et methode pour ajouter un motif de rejet ou de validation directement avec le type (rejet ou validation)
+    // méthodes getter pour les motifs de rejet et de validation et méthodes pour ajouter un motif de rejet ou de validation directement avec le type (rejet ou validation)
     public function getRejectionReasons(): array
     {
         return $this->getReasons('rejection');
@@ -256,6 +263,7 @@ class ProofModel
             return false;
         }
     }
+
     public function verrouiller(int $proofId): bool
     {
         $sql = "UPDATE proof SET locked = 'true' WHERE id = :id";
@@ -267,27 +275,75 @@ class ProofModel
             return false;
         }
     }
+
     public function isLocked(int $proofId): bool
     {
         $sql = "SELECT locked FROM proof WHERE id = :id";
         try {
             $result = $this->db->selectOne($sql, ['id' => $proofId]);
-            return $result && $result['locked'] === 'true';
+            return $result && ($result['locked'] === 'true' || $result['locked'] === true);
         } catch (Exception $e) {
             error_log("Erreur isLocked : " . $e->getMessage());
             return false;
         }
     }
+
     // Fonction pour formater la date au format français
-    function formatDateFr($datetimeStr)
+    public function formatDateFr($datetimeStr)
     {
         if (!$datetimeStr) return '';
-        $date = new DateTime($datetimeStr);
-        setlocale(LC_TIME, 'fr_FR.UTF-8');
-        return strftime('%d/%m/%Y à %Hh%M', $date->getTimestamp());
+        try {
+            $date = new DateTime($datetimeStr);
+            // Utiliser IntlDateFormatter si disponible (recommandé depuis PHP 8.1)
+            if (class_exists('\IntlDateFormatter')) {
+                // pattern : 02/01/2025 à 14h30
+                $pattern = "dd/MM/yyyy 'à' HH'h'mm";
+                $formatter = new \IntlDateFormatter(
+                    'fr_FR',
+                    \IntlDateFormatter::NONE,
+                    \IntlDateFormatter::NONE,
+                    $date->getTimezone()->getName(),
+                    \IntlDateFormatter::GREGORIAN,
+                    $pattern
+                );
+                $formatted = $formatter->format($date);
+                if ($formatted === false) {
+                    // fallback
+                    return $date->format('d/m/Y \à H\hi');
+                }
+                return $formatted;
+            }
+
+            // Fallback simple si Intl non disponible
+            return $date->format('d/m/Y \à H\hi');
+        } catch (Exception $e) {
+            error_log("Erreur formatDateFr: " . $e->getMessage());
+            return '';
+        }
     }
-    //traduction des données en français pour affichage
-    function translate($value, $translations) {
-        return $translations[$value] ?? $value;
+
+    // Traduction simple
+    public function translate(string $category, string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        $value = (string)$value;
+        $maps = [
+            'status' => [
+                'pending' => 'En attente',
+                'approved' => 'Validé',
+                'accepted' => 'Validé',
+                'rejected' => 'Refusé',
+            ],
+            'reason' => [
+                'illness' => 'Maladie',
+                'death' => 'Décès',
+                'family_obligations' => 'Obligations familiales',
+                'other' => 'Autre',
+            ],
+        ];
+        return $maps[$category][$value] ?? $value;
     }
 }

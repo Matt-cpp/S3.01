@@ -29,10 +29,13 @@ class ProofPresenter
             // Demande d'info
             'showInfoForm' => false,
             'infoError' => '',
+
+            // Verrouillage
             'is_locked' => false,
             'lock_status' => 'Déverrouillé'
         ];
 
+        // Affichage par GET
         if (isset($get['proof_id'])) {
             $proofId = (int)$get['proof_id'];
             $data['proof'] = $this->model->getProofDetails($proofId);
@@ -40,23 +43,26 @@ class ProofPresenter
                 $data['is_locked'] = $this->model->isLocked($proofId);
                 $data['lock_status'] = $data['is_locked'] ? 'Verrouillé' : 'Déverrouillé';
             }
+            $this->enrichViewData($data);
             return $data;
         }
 
+        // Actions POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($post['proof_id'])) {
             $proofId = (int)$post['proof_id'];
             $data['proof'] = $this->model->getProofDetails($proofId);
             if (!$data['proof']) {
                 $data['rejectionError'] = "Justificatif introuvable.";
                 $data['validationError'] = "Justificatif introuvable.";
+                $this->enrichViewData($data);
                 return $data;
             }
 
-            // injecter état de verrouillage pour la vue
+            // État de verrouillage pour la vue
             $data['is_locked'] = $this->model->isLocked($proofId);
             $data['lock_status'] = $data['is_locked'] ? 'Verrouillé' : 'Déverrouillé';
 
-            // --- TOGGLE LOCK depuis le bouton de la vue ---
+            // Verrouiller / Déverrouiller
             if (isset($post['toggle_lock']) && isset($post['lock_action'])) {
                 $action = (string)$post['lock_action'];
                 if ($action === 'lock') {
@@ -65,13 +71,15 @@ class ProofPresenter
                     $this->model->deverouiller($proofId);
                 }
                 $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                $this->enrichViewData($data);
                 return $data;
             }
 
-            // --- REJET ---
+            // Rejet
             if (isset($post['reject']) && !isset($post['rejection_reason'])) {
                 $data['showRejectForm'] = true;
-
+                $this->enrichViewData($data);
+                return $data;
             } elseif (isset($post['reject']) && isset($post['rejection_reason'])) {
                 $rejectionReason  = trim((string)$post['rejection_reason']);
                 $rejectionDetails = trim((string)($post['rejection_details'] ?? ''));
@@ -80,91 +88,113 @@ class ProofPresenter
                 if ($rejectionReason === '') {
                     $data['showRejectForm'] = true;
                     $data['rejectionError'] = "Veuillez sélectionner un motif de rejet.";
-                } elseif (mb_strtolower($rejectionReason, 'UTF-8') === mb_strtolower('Autre', 'UTF-8') && $newReason === '') {
+                    $this->enrichViewData($data);
+                    return $data;
+                }
+                if (mb_strtolower($rejectionReason, 'UTF-8') === mb_strtolower('Autre', 'UTF-8') && $newReason === '') {
                     $data['showRejectForm'] = true;
                     $data['rejectionError'] = "Veuillez saisir un nouveau motif de rejet.";
-                } else {
-                    if (mb_strtolower($rejectionReason, 'UTF-8') === mb_strtolower('Autre', 'UTF-8') && $newReason !== '') {
-                        $this->model->addRejectionReason($newReason);
-                        $rejectionReason = $newReason;
-                        // Rafraîchir la liste après ajout
-                        $data['rejectionReasons'] = $this->model->getRejectionReasons();
-                    }
-
-                    $this->model->updateProofStatus($proofId, 'rejected');
-                    $this->model->setRejectionReason($proofId, $rejectionReason, $rejectionDetails);
-                    $this->model->updateAbsencesForProof(
-                        $data['proof']['student_identifier'],
-                        $data['proof']['absence_start_date'],
-                        $data['proof']['absence_end_date'],
-                        'rejected'
-                    );
-
-                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                    $this->enrichViewData($data);
+                    return $data;
+                }
+                if (mb_strtolower($rejectionReason, 'UTF-8') === mb_strtolower('Autre', 'UTF-8') && $newReason !== '') {
+                    $this->model->addRejectionReason($newReason);
+                    $rejectionReason = $newReason;
+                    $data['rejectionReasons'] = $this->model->getRejectionReasons();
                 }
 
-                // --- VALIDATION ---
-            } elseif (isset($post['validate']) && !isset($post['validation_reason'])) {
+                $this->model->updateProofStatus($proofId, 'rejected');
+                $this->model->setRejectionReason($proofId, $rejectionReason, $rejectionDetails);
+                $this->model->updateAbsencesForProof(
+                    $data['proof']['student_identifier'],
+                    $data['proof']['absence_start_date'],
+                    $data['proof']['absence_end_date'],
+                    'rejected'
+                );
+
+                $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                $this->enrichViewData($data);
+                return $data;
+            }
+
+            // Validation (motif optionnel)
+            if (isset($post['validate']) && !isset($post['validation_reason'])) {
+                // Clic initial sur le bouton "Valider" : afficher le formulaire de validation
                 $data['showValidateForm'] = true;
-
+                $this->enrichViewData($data);
+                return $data;
             } elseif (isset($post['validate']) && isset($post['validation_reason'])) {
-                $validationReason      = trim((string)$post['validation_reason']);
-                $validationDetails     = trim((string)($post['validation_details'] ?? ''));
-                $newValidationReason   = trim((string)($post['new_validation_reason'] ?? ''));
+                // Soumission du formulaire de validation (le motif est optionnel)
+                $validationReason    = trim((string)($post['validation_reason'] ?? ''));
+                $validationDetails   = trim((string)($post['validation_details'] ?? ''));
+                $newValidationReason = trim((string)($post['new_validation_reason'] ?? ''));
 
-                if ($validationReason === '') {
-                    $data['showValidateForm'] = true;
-                    $data['validationError'] = "Veuillez sélectionner un motif de validation.";
-                } elseif (mb_strtolower($validationReason, 'UTF-8') === mb_strtolower('Autre', 'UTF-8') && $newValidationReason === '') {
-                    $data['showValidateForm'] = true;
-                    $data['validationError'] = "Veuillez saisir un nouveau motif de validation.";
-                } else {
-                    if (mb_strtolower($validationReason, 'UTF-8') === mb_strtolower('Autre', 'UTF-8') && $newValidationReason !== '') {
-                        $this->model->addValidationReason($newValidationReason);
-                        $validationReason = $newValidationReason;
-                        // Rafraîchir la liste après ajout
-                        $data['validationReasons'] = $this->model->getValidationReasons();
-                    }
-
-                    $this->model->updateProofStatus($proofId, 'accepted');
-                    $this->model->setValidationReason($proofId, $validationReason, $validationDetails);
-                    $this->model->updateAbsencesForProof(
-                        $data['proof']['student_identifier'],
-                        $data['proof']['absence_start_date'],
-                        $data['proof']['absence_end_date'],
-                        'accepted'
-                    );
-
-                    // Appliquer action de verrouillage après validation si demandée
-                    if (isset($post['lock_action_after_validate'])) {
-                        $after = (string)$post['lock_action_after_validate'];
-                        if ($after === 'lock') {
-                            $this->model->verrouiller($proofId);
-                        } elseif ($after === 'unlock') {
-                            $this->model->deverouiller($proofId);
-                        }
-                    }
-
-                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                if (mb_strtolower($validationReason, 'UTF-8') === mb_strtolower('Autre', 'UTF-8') && $newValidationReason !== '') {
+                    $this->model->addValidationReason($newValidationReason);
+                    $validationReason = $newValidationReason;
+                    $data['validationReasons'] = $this->model->getValidationReasons();
                 }
 
-                // --- DEMANDE D'INFO ---
-            } elseif (isset($post['request_info']) && !isset($post['info_message'])) {
+                // Accepter même si $validationReason est vide
+                $this->model->updateProofStatus($proofId, 'accepted');
+                $this->model->setValidationReason($proofId, $validationReason, $validationDetails);
+                $this->model->updateAbsencesForProof(
+                    $data['proof']['student_identifier'],
+                    $data['proof']['absence_start_date'],
+                    $data['proof']['absence_end_date'],
+                    'accepted'
+                );
+
+                $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                $this->enrichViewData($data);
+                return $data;
+            }
+
+            // Demande d'info
+            if (isset($post['request_info']) && !isset($post['info_message'])) {
                 $data['showInfoForm'] = true;
                 $data['infoError'] = '';
-
+                $this->enrichViewData($data);
+                return $data;
             } elseif (isset($post['request_info']) && isset($post['info_message'])) {
                 $infoMessage = trim((string)$post['info_message']);
                 if ($infoMessage === '') {
                     $data['showInfoForm'] = true;
                     $data['infoError'] = "Veuillez saisir un message.";
-                } else {
-                    // À implémenter si besoin : enregistrement du message
-                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                    $this->enrichViewData($data);
+                    return $data;
                 }
+                $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                $this->enrichViewData($data);
+                return $data;
             }
         }
 
+        $this->enrichViewData($data);
         return $data;
+    }
+
+    private function enrichViewData(&$data)
+    {
+        $rejectionReasons = $data['rejectionReasons'] ?? $this->model->getRejectionReasons();
+        $data['rejectionReasonsTranslated'] = array_map(fn($r) => $this->model->translate('reason', $r), $rejectionReasons);
+        $data['rejectionReasons'] = $rejectionReasons;
+
+        $validationReasons = $data['validationReasons'] ?? $this->model->getValidationReasons();
+        $data['validationReasonsTranslated'] = array_map(fn($r) => $this->model->translate('reason', $r), $validationReasons);
+        $data['validationReasons'] = $validationReasons;
+
+        if (!empty($data['proof']) && is_array($data['proof'])) {
+            $p = &$data['proof'];
+            $p['status_label'] = $this->model->translate('status', $p['status'] ?? '');
+            $mainReason = $p['main_reason'] ?? $p['reason'] ?? $p['rejection_reason'] ?? $p['validation_reason'] ?? '';
+            $p['main_reason_label'] = $this->model->translate('reason', $mainReason);
+            $p['custom_reason_label'] = $p['custom_reason'] ?? '';
+            $p['formatted_start'] = $this->model->formatDateFr($p['absence_start_date'] ?? $p['absence_start_datetime'] ?? null);
+            $p['formatted_end'] = $this->model->formatDateFr($p['absence_end_date'] ?? $p['absence_end_datetime'] ?? null);
+            $p['formatted_submission'] = $this->model->formatDateFr($p['submission_date'] ?? null);
+            $p['is_locked'] = $this->model->isLocked($p['proof_id'] ?? $p['id'] ?? 0);
+            $p['lock_status'] = $p['is_locked'] ? 'Verrouillé' : 'Déverrouillé';
+        }
     }
 }
