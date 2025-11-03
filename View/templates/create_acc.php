@@ -1,3 +1,17 @@
+<?php 
+session_start();
+
+// Vérifier si l'utilisateur est déjà connecté
+if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
+    // Rediriger selon le rôle
+    if ($_SESSION['user_role'] === 'student') {
+        header("Location: historique.php");
+    } else {
+        header("Location: admin_dashboard.php");
+    }
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -14,21 +28,7 @@
                 Entrez votre adresse email pour commencer l'inscription
             </p>
             
-            <?php 
-            session_start();
-            
-            // Vérifier si l'utilisateur est déjà connecté
-            if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
-                // Rediriger selon le rôle
-                if ($_SESSION['user_role'] === 'student') {
-                    header("Location: historique.php");
-                } else {
-                    header("Location: admin_dashboard.php");
-                }
-                exit;
-            }
-            
-            if (isset($_SESSION['success'])): ?>
+            <?php if (isset($_SESSION['success'])): ?>
                 <div class="success-message">
                     <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
                 </div>
