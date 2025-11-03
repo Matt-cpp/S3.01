@@ -91,14 +91,17 @@ class ProofPresenter
                     $this->enrichViewData($data);
                     return $data;
                 }
-                if (mb_strtolower($rejectionReason, 'UTF-8') === mb_strtolower('Autre', 'UTF-8') && $newReason === '') {
+                if ($this->equalsIgnoreCase($rejectionReason, 'Autre') && $newReason === '') {
                     $data['showRejectForm'] = true;
                     $data['rejectionError'] = "Veuillez saisir un nouveau motif de rejet.";
                     $this->enrichViewData($data);
                     return $data;
                 }
-                if (mb_strtolower($rejectionReason, 'UTF-8') === mb_strtolower('Autre', 'UTF-8') && $newReason !== '') {
-                    $this->model->addRejectionReason($newReason);
+                if ($this->equalsIgnoreCase($rejectionReason, 'Autre') && $newReason !== '') {
+                    $inserted = $this->model->addRejectionReason($newReason);
+                    if (!$inserted) {
+                        error_log("Échec insertion motif de rejet: {$newReason}");
+                    }
                     $rejectionReason = $newReason;
                     $data['rejectionReasons'] = $this->model->getRejectionReasons();
                 }
@@ -129,8 +132,11 @@ class ProofPresenter
                 $validationDetails   = trim((string)($post['validation_details'] ?? ''));
                 $newValidationReason = trim((string)($post['new_validation_reason'] ?? ''));
 
-                if (mb_strtolower($validationReason, 'UTF-8') === mb_strtolower('Autre', 'UTF-8') && $newValidationReason !== '') {
-                    $this->model->addValidationReason($newValidationReason);
+                if ($this->equalsIgnoreCase($validationReason, 'Autre') && $newValidationReason !== '') {
+                    $inserted = $this->model->addValidationReason($newValidationReason);
+                    if (!$inserted) {
+                        error_log("Échec insertion motif de validation: {$newValidationReason}");
+                    }
                     $validationReason = $newValidationReason;
                     $data['validationReasons'] = $this->model->getValidationReasons();
                 }
@@ -196,5 +202,12 @@ class ProofPresenter
             $p['is_locked'] = $this->model->isLocked($p['proof_id'] ?? $p['id'] ?? 0);
             $p['lock_status'] = $p['is_locked'] ? 'Verrouillé' : 'Déverrouillé';
         }
+    }
+    private function equalsIgnoreCase(string $a, string $b): bool
+    {
+        if (function_exists('mb_strtolower')) {
+            return mb_strtolower($a, 'UTF-8') === mb_strtolower($b, 'UTF-8');
+        }
+        return strtolower($a) === strtolower($b);
     }
 }

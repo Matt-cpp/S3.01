@@ -199,9 +199,9 @@ ALTER TABLE users ALTER COLUMN email DROP NOT NULL;
 --rollback ALTER TABLE users ALTER COLUMN email SET NOT NULL;
 
 --changeset navrez.louis:add-rejection-validations-reasons-table labels:Enhancement context:post-initial
-CREATE TABLE rejection_validation_reasons (id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE rejection_validation_reasons (id Serial PRIMARY KEY,
                                 label VARCHAR(255) NOT NULL UNIQUE,
-type_of_reason VARCHAR(50) NOT NULL CHECK (type_of_reason IN ('rejection', 'validation')),);
+type_of_reason VARCHAR(50) NOT NULL CHECK (type_of_reason IN ('rejection', 'validation')));
 
 --rollback DROP TABLE IF EXISTS rejection_reasons CASCADE;
 

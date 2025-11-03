@@ -216,15 +216,22 @@ class ProofModel
     // Ajoute un nouveau motif de rejet ou de validation dans la table rejection_validation_reasons en fonction du type
     public function addReason(string $label, string $type): bool
     {
-        // Requête compatible PostgreSQL : insère seulement si le couple (label, type_of_reason) n'existe pas
+        // insère seulement si le couple (label, type_of_reason) n'existe pas
         $sql = "INSERT INTO rejection_validation_reasons (label, type_of_reason)
-                SELECT :label, :type
-                WHERE NOT EXISTS (
-                    SELECT 1 FROM rejection_validation_reasons WHERE label = :label AND type_of_reason = :type
-                )";
+                VALUES (:label, :type)
+                ON CONFLICT (label, type_of_reason) DO NOTHING
+                RETURNING id";
         try {
-            $this->db->execute($sql, ['label' => $label, 'type' => $type]);
-            return true;
+            $conn = $this->db->getConnection();
+            $stmt = $conn->prepare($sql);
+            $stmt->execute(['label' => $label, 'type' => $type]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row && isset($row['id'])) {
+                return true;
+            }
+            $checkSql = "SELECT id FROM rejection_validation_reasons WHERE label = :label AND type_of_reason = :type LIMIT 1";
+            $exists = $this->db->select($checkSql, ['label' => $label, 'type' => $type]);
+            return !empty($exists);
         } catch (Exception $e) {
             error_log("Erreur addReason : " . $e->getMessage());
             return false;
