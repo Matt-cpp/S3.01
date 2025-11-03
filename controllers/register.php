@@ -69,7 +69,7 @@ class RegistrationController {
         }
     }
 
-    public function createAccount($email, $password, $confirmPassword, $studentIdentifier = null) {
+    public function createAccount($email, $password, $confirmPassword) {
         try {
             // Vérifier que les mots de passe correspondent
             if ($password !== $confirmPassword) {
@@ -94,69 +94,29 @@ class RegistrationController {
             // Vérifier si l'email existe déjà dans users
             $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$email]);
-            $existingEmailUser = $stmt->fetch();
+            $existingUser = $stmt->fetch();
             
             $successMessage = '';
             
-            if ($existingEmailUser) {
-                // Mettre à jour le mot de passe du compte existant avec cet email
+            if ($existingUser) {
+                // L'email existe déjà, mettre à jour le mot de passe
                 $stmt = $this->pdo->prepare("
                     UPDATE users 
                     SET password_hash = ?, email_verified = TRUE, updated_at = CURRENT_TIMESTAMP
-                    WHERE id = ?
+                    WHERE email = ?
                 ");
-                $stmt->execute([$passwordHash, $existingEmailUser['id']]);
+                $stmt->execute([$passwordHash, $email]);
                 
                 $successMessage = 'Mot de passe mis à jour avec succès !';
             } else {
-                // Chercher s'il existe déjà un utilisateur avec le même identifier (prioritaire)
-                $existingUser = null;
-                if (!empty($studentIdentifier)) {
-                    $stmt = $this->pdo->prepare("
-                        SELECT id, identifier FROM users 
-                        WHERE identifier = ? AND email IS NULL
-                        LIMIT 1
-                    ");
-                    $stmt->execute([$studentIdentifier]);
-                    $existingUser = $stmt->fetch();
-                }
+                // L'email n'existe pas, créer un nouveau compte
+                $stmt = $this->pdo->prepare("
+                    INSERT INTO users (email, password_hash, role, email_verified, last_name, first_name) 
+                    VALUES (?, ?, 'student', TRUE, ?, ?)
+                ");
+                $stmt->execute([$email, $passwordHash, $lastName, $firstName]);
                 
-                // Si pas trouvé par identifier, chercher par prénom/nom
-                if (!$existingUser) {
-                    $stmt = $this->pdo->prepare("
-                        SELECT id, identifier FROM users 
-                        WHERE LOWER(first_name) = LOWER(?) AND LOWER(last_name) = LOWER(?) 
-                        AND email IS NULL
-                        ORDER BY id ASC 
-                        LIMIT 1
-                    ");
-                    $stmt->execute([$firstName, $lastName]);
-                    $existingUser = $stmt->fetch();
-                }
-                
-                if ($existingUser) {
-                    // Mettre à jour le compte existant avec les informations d'email et mot de passe
-                    $stmt = $this->pdo->prepare("
-                        UPDATE users 
-                        SET email = ?, password_hash = ?, email_verified = TRUE, updated_at = CURRENT_TIMESTAMP
-                        WHERE id = ?
-                    ");
-                    $stmt->execute([$email, $passwordHash, $existingUser['id']]);
-                    
-                    $successMessage = 'Compte lié avec succès à votre profil existant !';
-                } else {
-                    // Utiliser l'identifier fourni ou générer un temporaire
-                    $finalIdentifier = $studentIdentifier;
-                    
-                    // Créer un nouveau compte
-                    $stmt = $this->pdo->prepare("
-                        INSERT INTO users (email, password_hash, role, email_verified, last_name, first_name, identifier) 
-                        VALUES (?, ?, 'student', TRUE, ?, ?, ?)
-                    ");
-                    $stmt->execute([$email, $passwordHash, $lastName, $firstName, $finalIdentifier]);
-                    
-                    $successMessage = 'Nouveau compte créé avec succès !';
-                }
+                $successMessage = 'Nouveau compte créé avec succès !';
             }
 
             // Supprimer les codes de vérification utilisés
@@ -246,22 +206,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     switch ($action) {
         case 'send_code':
             $email = trim($_POST['email'] ?? '');
-            $identifier = trim($_POST['identifier'] ?? '');
             
             if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $_SESSION['error'] = 'Email invalide.';
                 header('Location: ../View/templates/create_acc.php');
                 exit;
             }
-            
-            if (empty($identifier)) {
-                $_SESSION['error'] = 'Identifiant étudiant requis.';
-                header('Location: ../View/templates/create_acc.php');
-                exit;
-            }
-
-            // Stocker l'identifier pour l'utiliser plus tard
-            $_SESSION['student_identifier'] = $identifier;
             
             $result = $controller->sendVerificationCode($email);
             if ($result['success']) {
@@ -300,7 +250,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = $_SESSION['email_verified'] ?? '';
             $password = $_POST['password'] ?? '';
             $confirmPassword = $_POST['confirm_password'] ?? '';
-            $identifier = $_SESSION['student_identifier'] ?? '';
             
             if (empty($email) || empty($password) || empty($confirmPassword)) {
                 $_SESSION['error'] = 'Tous les champs sont requis.';
@@ -308,11 +257,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
             
-            $result = $controller->createAccount($email, $password, $confirmPassword, $identifier);
+            $result = $controller->createAccount($email, $password, $confirmPassword);
             if ($result['success']) {
                 $_SESSION['success'] = $result['message'];
                 unset($_SESSION['email_verified']);
-                unset($_SESSION['student_identifier']);
                 header('Location: ../View/templates/login.php');
             } else {
                 $_SESSION['error'] = $result['message'];

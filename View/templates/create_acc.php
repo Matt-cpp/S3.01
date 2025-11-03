@@ -43,10 +43,6 @@
             <form action="../../controllers/register.php" method="POST" class="register-form">
                 <input type="hidden" name="action" value="send_code">
                 <div class="form-group">
-                    <label for="identifier">Identifiant étudiant:</label>
-                    <input type="text" id="identifier" name="identifier" placeholder="XXXXXXXX" required>
-                </div>
-                <div class="form-group">
                     <label for="email">Email universitaire:</label>
                     <input type="email" id="email" name="email" required placeholder="votre.email@uphf.fr">
                     <small style="color: #666; font-size: 12px;">Un code de vérification sera envoyé à cette adresse</small>
