@@ -138,7 +138,24 @@ $errorMessage = $presenter->getErrorMessage();
                         </tr>
                     <?php else: ?>
                         <?php foreach ($proofs as $proof): ?>
-                            <tr>
+                            <?php 
+                            $status = $presenter->getStatusBadge($proof['status']);
+                            ?>
+                            <tr class="proof-row" data-proof-id="<?php echo $proof['proof_id']; ?>" 
+                                data-status="<?php echo $proof['status']; ?>"
+                                data-period="<?php echo htmlspecialchars($presenter->formatPeriod($proof['absence_start_date'], $proof['absence_end_date'])); ?>"
+                                data-reason="<?php echo htmlspecialchars($presenter->translateReason($proof['main_reason'], $proof['custom_reason'])); ?>"
+                                data-custom-reason="<?php echo htmlspecialchars($proof['custom_reason'] ?? ''); ?>"
+                                data-hours="<?php echo number_format($proof['total_hours_missed'], 1); ?>"
+                                data-absences="<?php echo $proof['absence_count']; ?>"
+                                data-submission="<?php echo htmlspecialchars($presenter->formatDateTime($proof['submission_date'])); ?>"
+                                data-processing="<?php echo $proof['processing_date'] ? htmlspecialchars($presenter->formatDateTime($proof['processing_date'])) : '-'; ?>"
+                                data-status-text="<?php echo $status['text']; ?>"
+                                data-status-icon="<?php echo $status['icon']; ?>"
+                                data-status-class="<?php echo $status['class']; ?>"
+                                data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
+                                data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>"
+                                style="cursor: pointer;">
                                 <td>
                                     <strong><?php echo $presenter->formatPeriod($proof['absence_start_date'], $proof['absence_end_date']); ?></strong>
                                 </td>
@@ -169,9 +186,6 @@ $errorMessage = $presenter->getErrorMessage();
                                     ?>
                                 </td>
                                 <td>
-                                    <?php 
-                                    $status = $presenter->getStatusBadge($proof['status']);
-                                    ?>
                                     <span class="badge <?php echo $status['class']; ?>">
                                         <?php echo $status['icon'] . ' ' . $status['text']; ?>
                                     </span>
@@ -202,6 +216,70 @@ $errorMessage = $presenter->getErrorMessage();
             </table>
         </div>
     </main>
+
+    <!-- Modal pour afficher les détails du justificatif -->
+    <div id="proofModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div id="modalContent" class="modal-content">
+            <button class="modal-close" id="closeModal">&times;</button>
+            <h2 class="modal-title">Détails du Justificatif</h2>
+            <div class="modal-body">
+                <div class="modal-info-group">
+                    <div class="modal-info-item">
+                        <span class="modal-label">📅 Période d'absence :</span>
+                        <span class="modal-value" id="modalPeriod"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📝 Motif :</span>
+                        <span class="modal-value" id="modalReason"></span>
+                    </div>
+                    <div class="modal-info-item" id="customReasonItem" style="display: none;">
+                        <span class="modal-label">ℹ️ Précision :</span>
+                        <span class="modal-value" id="modalCustomReason"></span>
+                    </div>
+                </div>
+
+                <div class="modal-info-group">
+                    <div class="modal-info-item">
+                        <span class="modal-label">⏱️ Heures ratées :</span>
+                        <span class="modal-value" id="modalHours"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📊 Absences concernées :</span>
+                        <span class="modal-value" id="modalAbsences"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📝 Évaluation manquée :</span>
+                        <span class="modal-value" id="modalExam"></span>
+                    </div>
+                </div>
+
+                <div class="modal-info-group">
+                    <div class="modal-info-item">
+                        <span class="modal-label">📤 Date de soumission :</span>
+                        <span class="modal-value" id="modalSubmission"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">✅ Date de traitement :</span>
+                        <span class="modal-value" id="modalProcessing"></span>
+                    </div>
+                </div>
+
+                <div class="modal-status-section">
+                    <span class="modal-label">🏷️ Statut :</span>
+                    <span id="modalStatus" class="badge"></span>
+                </div>
+
+                <div class="modal-comment-section" id="commentSection" style="display: none;">
+                    <span class="modal-label">💬 Commentaire du responsable :</span>
+                    <div class="modal-comment-box" id="modalComment"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/proof_modal.js"></script>
+
     <footer class="footer">
         <div class="footer-content">
             <div class="team-section">

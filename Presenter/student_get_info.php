@@ -40,44 +40,49 @@ function getAbsenceStatistics($student_identifier)
     $hour_month = $stmt->fetch()['hour_month'];
     
     // Total heures ratées justifiées
+    // Somme des durées des absences distinctes qui sont soit marquées justified = TRUE,
+    // soit liées à un justificatif accepté (p.status = 'accepted').
+    // Utilisation de DISTINCT ON pour éviter les doublons si plusieurs proofs sont liés à la même absence.
+    $sql = <<<SQL
+    SELECT COALESCE(SUM(duration_minutes / 60.0), 0) as hour_total_justified
+    FROM (
+        SELECT DISTINCT ON (a.id)
+            a.id,
+            cs.duration_minutes,
+            p.status as proof_status,
+            a.justified as absence_justified
+        FROM absences a
+        JOIN course_slots cs ON a.course_slot_id = cs.id
+        LEFT JOIN proof_absences pa ON a.id = pa.absence_id
+        LEFT JOIN proof p ON pa.proof_id = p.id
+        WHERE a.student_identifier = :student_id
+        ORDER BY a.id,
+            CASE
+                WHEN p.status = 'accepted' THEN 1
+                WHEN a.justified = TRUE THEN 2
+                ELSE 3
+            END ASC
+    ) sub
+    WHERE absence_justified = TRUE OR proof_status = 'accepted'
+    SQL;
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute(['student_id' => $student_identifier]);
+    $hour_total_justified = $stmt->fetch()['hour_total_justified'];
+
+    // Total heures absences
     $stmt = $db->prepare("
-        SELECT COALESCE(SUM(cs.duration_minutes / 60.0), 0) as hour_total_justified
+        SELECT COALESCE(SUM(cs.duration_minutes / 60.0), 0) as total_hours_absences
         FROM absences a
         JOIN course_slots cs ON a.course_slot_id = cs.id
         WHERE a.student_identifier = :student_id
-        AND a.justified = TRUE
     ");
     $stmt->execute(['student_id' => $student_identifier]);
-    $hour_total_justified = $stmt->fetch()['hour_total_justified'];
+    $total_hours_absences = $stmt->fetch()['total_hours_absences'];
     
-    // Total heures ratées non justifiées (sans justificatif soumis ou avec justificatif rejeté)
-    // On utilise DISTINCT ON pour éviter les doublons si une absence a plusieurs justificatifs
-    $stmt = $db->prepare("
-        SELECT COALESCE(SUM(duration_minutes / 60.0), 0) as hour_total_unjustified
-        FROM (
-            SELECT DISTINCT ON (a.id) 
-                a.id,
-                cs.duration_minutes,
-                p.status as proof_status
-            FROM absences a
-            JOIN course_slots cs ON a.course_slot_id = cs.id
-            LEFT JOIN proof_absences pa ON a.id = pa.absence_id
-            LEFT JOIN proof p ON pa.proof_id = p.id
-            WHERE a.student_identifier = :student_id
-            AND a.justified = FALSE
-            ORDER BY a.id, 
-                CASE 
-                    WHEN p.status = 'accepted' THEN 1
-                    WHEN p.status = 'under_review' THEN 2
-                    WHEN p.status = 'pending' THEN 3
-                    WHEN p.status = 'rejected' THEN 4
-                    ELSE 5
-                END ASC
-        ) subquery
-        WHERE proof_status IS NULL OR proof_status = 'rejected'
-    ");
-    $stmt->execute(['student_id' => $student_identifier]);
-    $hour_total_unjustified = $stmt->fetch()['hour_total_unjustified'];
+    // Calcul simple : heures non justifiées = total - heures justifiées
+    // On s'assure d'avoir une valeur >= 0 et on arrondit
+    $hour_total_unjustified = max(0, round($total_hours_absences - $hour_total_justified, 4));
     
     // Demandes d'infos supplémentaires (statut "under_review")
     $stmt = $db->prepare("
@@ -119,16 +124,6 @@ function getAbsenceStatistics($student_identifier)
     $stmt->execute(['student_id' => $student_identifier]);
     $accepted_proofs = $stmt->fetch()['accepted_proofs'];
     
-    // Total heures absences
-    $stmt = $db->prepare("
-        SELECT COALESCE(SUM(cs.duration_minutes / 60.0), 0) as total_hours_absences
-        FROM absences a
-        JOIN course_slots cs ON a.course_slot_id = cs.id
-        WHERE a.student_identifier = :student_id
-    ");
-    $stmt->execute(['student_id' => $student_identifier]);
-    $total_hours_absences = $stmt->fetch()['total_hours_absences'];
-    
     // Total nombre d'absences
     $stmt = $db->prepare("
         SELECT COUNT(*) as total_absences_count
@@ -140,7 +135,7 @@ function getAbsenceStatistics($student_identifier)
     
     return [
         'hour_month' => round($hour_month, 2),
-        'hour_total_justified' => round($hour_total_justified, 2),
+        'hour_total_justified' => round($hour_total_justified, 4),
         'hour_total_unjustified' => round($hour_total_unjustified, 2),
         'total_hours_absences' => round($total_hours_absences, 2),
         'total_absences_count' => $total_absences_count,
@@ -156,28 +151,44 @@ function getRecentAbsences($student_identifier, $limit = 5)
     $student_identifier = getStudentIdentifier($student_identifier);
     $db = Database::getInstance()->getConnection();
     
+    // Utiliser une sous-requête pour d'abord obtenir les absences les plus récentes,
+    // puis appliquer la logique de priorité des preuves
     $stmt = $db->prepare("
-        SELECT 
-            a.id as absence_id,
-            cs.course_date,
-            cs.start_time,
-            cs.end_time,
-            cs.duration_minutes,
-            cs.course_type,
-            cs.is_evaluation,
-            a.justified,
-            r.code as course_code,
-            r.label as course_name,
-            t.first_name as teacher_first_name,
-            t.last_name as teacher_last_name,
-            rm.code as room_name
-        FROM absences a
-        JOIN course_slots cs ON a.course_slot_id = cs.id
-        LEFT JOIN resources r ON cs.resource_id = r.id
-        LEFT JOIN teachers t ON cs.teacher_id = t.id
-        LEFT JOIN rooms rm ON cs.room_id = rm.id
-        WHERE a.student_identifier = :student_id
-        ORDER BY cs.course_date DESC, cs.start_time DESC
+        WITH recent_absences AS (
+            SELECT DISTINCT ON (a.id)
+                a.id as absence_id,
+                cs.course_date,
+                cs.start_time,
+                cs.end_time,
+                cs.duration_minutes,
+                cs.course_type,
+                cs.is_evaluation,
+                a.justified,
+                r.code as course_code,
+                r.label as course_name,
+                t.first_name as teacher_first_name,
+                t.last_name as teacher_last_name,
+                rm.code as room_name,
+                p.status as proof_status,
+                CASE 
+                    WHEN p.status = 'accepted' THEN 1
+                    WHEN p.status = 'under_review' THEN 2
+                    WHEN p.status = 'pending' THEN 3
+                    WHEN p.status = 'rejected' THEN 4
+                    ELSE 5
+                END as status_priority
+            FROM absences a
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            LEFT JOIN resources r ON cs.resource_id = r.id
+            LEFT JOIN teachers t ON cs.teacher_id = t.id
+            LEFT JOIN rooms rm ON cs.room_id = rm.id
+            LEFT JOIN proof_absences pa ON a.id = pa.absence_id
+            LEFT JOIN proof p ON pa.proof_id = p.id
+            WHERE a.student_identifier = :student_id
+            ORDER BY a.id, status_priority ASC
+        )
+        SELECT * FROM recent_absences
+        ORDER BY course_date DESC, start_time DESC
         LIMIT :limit
     ");
     $stmt->bindValue(':student_id', $student_identifier, PDO::PARAM_STR);
