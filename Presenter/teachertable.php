@@ -5,6 +5,8 @@ class tableRatrapage{
     private $db;
     private $userId;
     private $nombrepages;
+    private $filtreBool;
+    private $filtre;
     //constructeur
     public function __construct(int $id) {
         $this->page = 0;
@@ -12,17 +14,27 @@ class tableRatrapage{
         $this->db = Database::getInstance();
         $this->userId = $id;
         $this->nombrepages = $this->getTotalPages();
+        $this->filtreBool=false;
+        $this->filtre="";
     }
     // calcule le nombre de pages totales du tableau
     public function getTotalPages(){
+        ;
         try {
+            if ($this->filtreBool==false){
         $query = "SELECT COUNT(*) as count 
         FROM absences LEFT JOIN course_slots 
         ON absences.course_slot_id = course_slots.id
-        WHERE course_slots.teacher_id=".$this->userId."
-         AND absences.status='excused'";
+        WHERE course_slots.teacher_id=".$this->userId."";}
+        else{
+            $query = "SELECT COUNT(*) as count 
+            FROM absences LEFT JOIN course_slots 
+            ON absences.course_slot_id = course_slots.id
+            Left Join resources ON course_slots.resource_id = resources.id
+            WHERE course_slots.teacher_id=".$this->userId."
+             AND resources.label='".$this->filtre."'";}
         
-         $result = $this->db->select($query);    
+        $result = $this->db->select($query);    
         if (empty($result)) {
             return 1;
         }
@@ -44,6 +56,17 @@ class tableRatrapage{
 public function getData($page){
     $offset = (int)($page * 5);
     $userId = (int)$this->userId;
+    if ($this->filtreBool==true){
+    $query = "SELECT users.first_name,users.last_name,COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date,absences.status,resources.label
+    From absences 
+    Left Join users on absences.student_identifier = users.identifier
+    Left Join course_slots ON absences.course_slot_id = course_slots.id
+    Left Join resources ON course_slots.resource_id = resources.id
+        WHERE course_slots.teacher_id=".$this->userId."
+        AND resources.label='".$this->filtre."'
+        ORDER BY course_slots.course_date DESC
+        LIMIT 5 OFFSET $offset";}
+    else{
     $query = "SELECT users.first_name,users.last_name,COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date,absences.status,resources.label
     From absences 
     Left Join users on absences.student_identifier = users.identifier
@@ -51,7 +74,8 @@ public function getData($page){
     Left Join resources ON course_slots.resource_id = resources.id
         WHERE course_slots.teacher_id=".$this->userId."
         ORDER BY course_slots.course_date DESC
-        LIMIT 5 OFFSET $offset";
+        LIMIT 5 OFFSET $offset";}
+
 
     return $this->db->select($query);
 }
@@ -111,9 +135,41 @@ public function setPage($page){
         </tr>" . implode("", $tableau) . "</table>";
 
     }
+    public function activerUnFiltre($nom){
+        $this->filtreBool=true;
+        $this->filtre=$nom;
+        $this->nombrepages = $this->getTotalPages();
+        $this->page=0;
+
+    }
+    public function desactiverUnFiltre(){
+        $this->filtreBool=false;
+        $this->filtre="";
+        $this->nombrepages = $this->getTotalPages();
+        $this->page=0;
+        }
+    public function getRessourcesLabels(){
+        $query = "SELECT DISTINCT resources.label
+        From course_slots 
+        Left Join resources ON course_slots.resource_id = resources.id
+        WHERE course_slots.teacher_id=".$this->userId;
+        $result = $this->db->select($query);    
+        $labels=[];
+        foreach ($result as $ligne) {
+            $labels[]=$ligne['label'];
+        }
+        return $labels;
+    }
+
+
 }
 /*
+Test de la classe
+
 $test = new tableRatrapage(3);
+$test->activerUnFiltre('INFFIS4-ARCHITECTURE LOGICIELLE (T3BUTINFFI-R4.01)');
+
+
 
 if (isset($_GET['page'])) {
     $page = intval($_GET['page']);
