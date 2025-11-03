@@ -3,6 +3,41 @@
 class tableRatrapage{
     private $db;
     private $userId;
+    private $lesDs;
+
+
+    //constructeur
+    public function __construct(int $id) {
+        require_once __DIR__ . '/../Model/database.php';
+        $this->db = Database::getInstance();
+        $this->userId = $id;
+        $this->lesDs = $this->getLesDs();
+    }
+    // fonction pour recuperer les ds non rattrapés
+    public function getLesDs(){
+        $userId = (int)$this->userId;
+        //query peut etre mauvaise a cause du exists
+        $query = "SELECT *
+        FROM course_slots
+        WHERE course_slots.teacher_id=".$this->userId." AND course_slots.is_evaluation=true
+            AND EXISTS (
+                SELECT 1 FROM absences
+                WHERE absences.course_slot_id = course_slots.id
+                AND absences.status='excused' 
+                AND NOT EXISTS (
+                    SELECT 1 FROM makeups
+                    WHERE makeups.absence_id = absences.id
+                )
+            )
+            ORDER BY course_slots.course_date";
+        return $this->db->select($query);
+    }
+    
+    }
+/*
+class tableRatrapage{
+    private $db;
+    private $userId;
     private $data;
     //constructeur
     public function __construct(int $id) {
@@ -77,9 +112,12 @@ public function getData(){
             }
             echo "abs id recu: ".$abs_id;
     }
-        }
-        
-
+    public function majBDD($abs_id,$date){
+        require_once __DIR__ . '/../Model/database.php';
+        $db = Database::getInstance();
+        //$query = "INSERT INTO makeups 
+    }
+}
 
 $test = new tableRatrapage(3);
 echo $test->laTable();
@@ -118,3 +156,4 @@ if (isset($_POST['id'])) {
     }
 }
 ?>
+*/
