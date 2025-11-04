@@ -114,7 +114,7 @@ public function setPage($page){
 
     }
 }
-
+/*s
 $test = new tableRatrapage(2);
 
 if (isset($_GET['page'])) {
@@ -131,3 +131,4 @@ echo $test->laTable();
 </a>
 
 <br>
+*/
