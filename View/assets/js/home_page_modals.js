@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     proofRows.forEach(row => {
         row.addEventListener('click', function() {
             const status = this.dataset.status;
+            const proofId = this.dataset.proofId;
             const period = this.dataset.period;
             const reason = this.dataset.reason;
             const customReason = this.dataset.customReason;
@@ -123,6 +124,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('proofModalComment').textContent = comment;
             } else {
                 document.getElementById('proofCommentSection').style.display = 'none';
+            }
+
+            // Afficher le bouton "Compléter" uniquement pour les justificatifs en révision
+            const actionSection = document.getElementById('proofActionSection');
+            const completeBtn = document.getElementById('proofModalCompleteBtn');
+            if (status === 'under_review' && proofId) {
+                actionSection.style.display = 'block';
+                completeBtn.href = 'student_proof_add_info.php?proof_id=' + proofId;
+            } else {
+                actionSection.style.display = 'none';
             }
 
             // Appliquer la couleur de bordure selon le statut

@@ -106,11 +106,20 @@
     cursor: pointer;
     position: relative;
     transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .icon:hover {
     background: #e5e7eb;
     transform: scale(1.1);
+}
+
+.icon.info-icon span {
+    font-size: 18px;
+    color: white;
 }
 
 .icon.notification::before {

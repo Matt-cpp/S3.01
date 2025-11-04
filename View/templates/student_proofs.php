@@ -16,7 +16,7 @@ $presenter = new StudentProofsPresenter($student_identifier);
 // Ne pas utiliser le cache si on a des paramètres GET (filtres depuis la page d'accueil)
 $useCache = empty($_GET['status']);
 
-// Utiliser les données en session si disponibles et récentes (défini dans session_cache.php), par défaut 30 minutes
+// Utiliser les données en session si disponibles et récentes (défini dans session_cache.php), par défaut 2 minutes
 // sinon les récupérer de la BD
 if (!$useCache || !isset($_SESSION['Proofs']) || !isset($_SESSION['Reasons']) || !isset($_SESSION['ProofsFilters']) || !isset($_SESSION['ProofsErrorMessage']) || shouldRefreshCache(30)) {
     $proofs = $presenter->getProofs();
@@ -273,6 +273,13 @@ $errorMessage = $presenter->getErrorMessage();
                 <div class="modal-comment-section" id="commentSection" style="display: none;">
                     <span class="modal-label">💬 Commentaire du responsable :</span>
                     <div class="modal-comment-box" id="modalComment"></div>
+                </div>
+
+                <!-- Bouton Compléter (visible uniquement pour les justificatifs en révision) -->
+                <div class="modal-action-section" id="actionSection" style="display: none; margin-top: 20px; text-align: center;">
+                    <a href="#" id="modalCompleteBtn" class="btn-add-info" style="display: inline-block; padding: 12px 24px; text-decoration: none;">
+                        📝 Compléter le justificatif
+                    </a>
                 </div>
             </div>
         </div>

@@ -129,8 +129,16 @@ class StudentProofsPresenter
             }
         }
         
-        // Tri par date de soumission décroissante (plus récent en premier)
-        $query .= " ORDER BY p.submission_date DESC";
+        // Tri : justificatifs en révision d'abord, puis par date de soumission décroissante (plus récent en premier)
+        $query .= " ORDER BY 
+            CASE 
+                WHEN p.status = 'under_review' THEN 1
+                WHEN p.status = 'pending' THEN 2
+                WHEN p.status = 'rejected' THEN 3
+                WHEN p.status = 'accepted' THEN 4
+                ELSE 5
+            END,
+            p.submission_date DESC";
         
         try {
             $stmt = $db->prepare($query);
@@ -154,9 +162,12 @@ class StudentProofsPresenter
         // Retourner tous les motifs standards
         return [
             ['reason' => 'illness', 'label' => 'Maladie'],
-            ['reason' => 'death', 'label' => 'Décès'],
+            ['reason' => 'death', 'label' => 'Décès dans la famille'],
             ['reason' => 'family_obligations', 'label' => 'Obligations familiales'],
-            ['reason' => 'other', 'label' => 'Autre']
+            ['reason' => 'medical_appointment', 'label' => 'Rendez-vous médical'],
+            ['reason' => 'official_summons', 'label' => 'Convocation officielle (permis, TOIC, etc.)'],
+            ['reason' => 'transport_issue', 'label' => 'Problème de transport'],
+            ['reason' => 'other', 'label' => 'Autre (préciser)']
         ];
     }
 
@@ -178,9 +189,10 @@ class StudentProofsPresenter
         
         $translations = [
             'illness' => 'Maladie',
-            'death' => 'Décès',
+            'death' => 'Décès dans la famille',
             'family_obligations' => 'Obligations familiales',
             'medical_appointment' => 'Rendez-vous médical',
+            'official_summons' => 'Convocation officielle (permis, TOIC, etc.)',
             'transport_issue' => 'Problème de transport',
             'personal_reasons' => 'Raisons personnelles',
             'other' => $customReason ? htmlspecialchars($customReason) : 'Autre'

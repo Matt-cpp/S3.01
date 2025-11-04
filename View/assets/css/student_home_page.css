@@ -112,6 +112,372 @@
             padding: 2rem;
         }
 
+        .dashboard-title {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: #1f2937;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Overview Section - Cartes principales */
+        .overview-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .overview-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .overview-card.primary {
+            border-left-color: #667eea;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
+        }
+
+        .overview-card.success {
+            border-left-color: #22c55e;
+            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+        }
+
+        .overview-card.warning {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
+        }
+
+        .overview-card.info {
+            border-left-color: #3b82f6;
+            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        .card-content {
+            flex: 1;
+        }
+
+        .card-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1f2937;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-description {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        /* Section Headings */
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+        }
+
+        .heading-icon {
+            font-size: 1.75rem;
+        }
+
+        /* Justification Progress Section */
+        .justification-progress-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .progress-container {
+            margin-top: 1rem;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-label {
+            font-size: 1rem;
+            color: #4b5563;
+        }
+
+        .progress-percentage {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 40px;
+            background: #e5e7eb;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.6s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 1rem;
+            font-weight: 600;
+            color: white;
+            position: relative;
+        }
+
+        .progress-fill.good {
+            background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+        }
+
+        .progress-fill.medium {
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .progress-fill.low {
+            background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .progress-legend {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-color.good {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+
+        .legend-color.medium {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .legend-color.low {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        /* Proofs Status Section */
+        .proofs-status-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .proofs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .proof-card {
+            background: white;
+            border: 2px solid;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        .proof-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .proof-card.proof-accepted {
+            border-color: #22c55e;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+
+        .proof-card.proof-accepted:hover {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        }
+
+        .proof-card.proof-pending {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        }
+
+        .proof-card.proof-pending:hover {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        }
+
+        .proof-card.proof-review {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        }
+
+        .proof-card.proof-review:hover {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+
+        .proof-card.proof-rejected {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        }
+
+        .proof-card.proof-rejected:hover {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        }
+
+        .proof-icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .proof-count {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .proof-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+
+        .proof-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        /* Alert Boxes */
+        .alert-box {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1.25rem;
+            border-left: 5px solid;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .alert-box.alert-warning {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        }
+
+        .alert-box.alert-info {
+            border-left-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        }
+
+        .alert-icon {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-message {
+            font-size: 0.95rem;
+            color: #4b5563;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .alert-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+        }
+
+        .alert-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .alert-action span {
+            font-size: 1.125rem;
+        }
+
         /* Layout en colonnes - ajoutez cette classe pour une mise en page 2 colonnes */
         .two-column-layout {
             display: grid;
@@ -448,6 +814,95 @@
                 padding: 1rem;
             }
             
+            .dashboard-container {
+                padding: 1rem;
+            }
+
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+            
+            .overview-section {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .overview-card {
+                padding: 1.25rem;
+            }
+
+            .card-icon {
+                font-size: 2.5rem;
+            }
+
+            .card-value {
+                font-size: 2rem;
+            }
+
+            .section-heading {
+                font-size: 1.25rem;
+            }
+
+            .justification-progress-section,
+            .proofs-status-section {
+                padding: 1.5rem;
+            }
+
+            .progress-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .progress-percentage {
+                font-size: 1.5rem;
+            }
+
+            .progress-bar {
+                height: 30px;
+            }
+
+            .progress-legend {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: flex-start;
+            }
+
+            .proofs-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+
+            .proof-card {
+                padding: 1.25rem;
+            }
+
+            .proof-icon {
+                font-size: 2.5rem;
+            }
+
+            .proof-count {
+                font-size: 2rem;
+            }
+
+            .alert-box {
+                padding: 1.25rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .alert-icon {
+                font-size: 2rem;
+            }
+
+            .alert-title {
+                font-size: 1rem;
+            }
+
+            .alert-message {
+                font-size: 0.875rem;
+            }
+            
             .stats-grid {
                 grid-template-columns: 1fr 1fr;
                 gap: 1rem;
@@ -496,6 +951,33 @@
         .absences-table td strong {
             color: #0ea5e9;
             font-size: 14px;
+        }
+
+        /* Bouton pour ajouter des informations */
+        .btn-add-info {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .btn-add-info:hover {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(251, 191, 36, 0.4);
+        }
+
+        .btn-add-info:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
         }
 
         /* Effet hover sur les lignes cliquables */

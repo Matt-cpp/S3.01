@@ -289,6 +289,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </ul>
             <p>Vous recevrez une notification par email une fois que votre justificatif aura été traité par l\'administration.</p>
             <br>
+            <p style="font-size:0.85em;color:#6c757d;margin-top:10px;"><small>Ce message est automatique — merci de ne pas y répondre.</small></p>
             <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
             <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
             ';

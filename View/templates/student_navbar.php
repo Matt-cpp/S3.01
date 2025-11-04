@@ -20,7 +20,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <span class="nav-icon">📄</span>
             <span>Mes justificatifs</span>
         </a>
-                <a href="student_statistics.php" class="nav-link <?php echo ($current_page == 'student_statistics.php') ? 'active' : ''; ?>">
+        <a href="student_statistics.php" class="nav-link <?php echo ($current_page == 'student_statistics.php') ? 'active' : ''; ?>">
             <span class="nav-icon">📈</span>
             <span>Statistiques</span>
         </a>
@@ -30,7 +30,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </a>
     </nav>
     <div class="header-icons">
-        <div class="icon notification"></div>
+        <a href="student_info.php" class="icon info-icon" title="Informations et procédure">
+            <span>❓</span>
+        </a>
         <div class="icon settings"></div>
         <div class="icon profile"></div>
     </div>

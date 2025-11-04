@@ -13,9 +13,9 @@ $student_identifier = getStudentIdentifier($_SESSION['id_student']);
 
 $presenter = new StudentAbsencesPresenter($student_identifier);
 
-// Utiliser les données en session si disponibles et récentes (défini dans session_cache.php), par défaut 30 minutes
-// sinon les récupérer de la BD
-if (!isset($_SESSION['Absences']) || (!isset($_SESSION['CourseTypes']) || !isset($_SESSION['Filters']) || !isset($_SESSION['ErrorMessage'])) || shouldRefreshCache(1)) {
+// Utiliser les données en session si disponibles et récentes (cache de 30 secondes pour meilleures performances)
+// Les absences ne changent pas en temps réel, un cache de 30 secondes est suffisant
+if (!isset($_SESSION['Absences']) || (!isset($_SESSION['CourseTypes']) || !isset($_SESSION['Filters']) || !isset($_SESSION['ErrorMessage'])) || shouldRefreshCache(30)) {
     
     $absences = $presenter->getAbsences();
     $courseTypes = $presenter->getCourseTypes();

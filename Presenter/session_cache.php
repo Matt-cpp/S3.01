@@ -11,7 +11,7 @@ function clearStudentCache() {
 }
 
 // Vérifie si le cache doit être rafraîchi
-function shouldRefreshCache($cache_duration = 1800) {
+function shouldRefreshCache($cache_duration = 60) {
     if (!isset($_SESSION['cache_timestamp'])) {
         return true;
     }

@@ -27,122 +27,80 @@ function getAbsenceStatistics($student_identifier)
     $student_identifier = getStudentIdentifier($student_identifier);
     $db = Database::getInstance()->getConnection();
     
-    // Heures ratées ce mois
+    // OPTIMISATION: Requête unique pour obtenir toutes les statistiques d'absences en une fois
+    // Utilisation de DISTINCT ON pour éviter les doublons si plusieurs proofs sont liés à la même absence
     $stmt = $db->prepare("
-        SELECT COALESCE(SUM(cs.duration_minutes / 60.0), 0) as hour_month
-        FROM absences a
-        JOIN course_slots cs ON a.course_slot_id = cs.id
-        WHERE a.student_identifier = :student_id
-        AND EXTRACT(MONTH FROM cs.course_date) = EXTRACT(MONTH FROM CURRENT_DATE)
-        AND EXTRACT(YEAR FROM cs.course_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+        WITH absence_stats AS (
+            SELECT DISTINCT ON (a.id)
+                a.id,
+                cs.duration_minutes,
+                cs.course_date,
+                a.justified as absence_justified,
+                p.status as proof_status
+            FROM absences a
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            LEFT JOIN proof_absences pa ON a.id = pa.absence_id
+            LEFT JOIN proof p ON pa.proof_id = p.id
+            WHERE a.student_identifier = :student_id
+            ORDER BY a.id,
+                CASE
+                    WHEN p.status = 'accepted' THEN 1
+                    WHEN a.justified = TRUE THEN 2
+                    ELSE 3
+                END ASC
+        )
+        SELECT 
+            -- Heures ratées ce mois
+            COALESCE(SUM(CASE 
+                WHEN EXTRACT(MONTH FROM course_date) = EXTRACT(MONTH FROM CURRENT_DATE)
+                AND EXTRACT(YEAR FROM course_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+                THEN duration_minutes / 60.0 
+                ELSE 0 
+            END), 0) as hour_month,
+            
+            -- Total heures absences
+            COALESCE(SUM(duration_minutes / 60.0), 0) as total_hours_absences,
+            
+            -- Total heures justifiées
+            COALESCE(SUM(CASE 
+                WHEN absence_justified = TRUE OR proof_status = 'accepted'
+                THEN duration_minutes / 60.0 
+                ELSE 0 
+            END), 0) as hour_total_justified,
+            
+            -- Total nombre d'absences
+            COUNT(id) as total_absences_count
+        FROM absence_stats
     ");
     $stmt->execute(['student_id' => $student_identifier]);
-    $hour_month = $stmt->fetch()['hour_month'];
+    $stats = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Total heures ratées justifiées
-    // Somme des durées des absences distinctes qui sont soit marquées justified = TRUE,
-    // soit liées à un justificatif accepté (p.status = 'accepted').
-    // Utilisation de DISTINCT ON pour éviter les doublons si plusieurs proofs sont liés à la même absence.
-    $sql = <<<SQL
-    SELECT COALESCE(SUM(duration_minutes / 60.0), 0) as hour_total_justified
-    FROM (
-        SELECT DISTINCT ON (a.id)
-            a.id,
-            cs.duration_minutes,
-            p.status as proof_status,
-            a.justified as absence_justified
-        FROM absences a
-        JOIN course_slots cs ON a.course_slot_id = cs.id
-        LEFT JOIN proof_absences pa ON a.id = pa.absence_id
-        LEFT JOIN proof p ON pa.proof_id = p.id
-        WHERE a.student_identifier = :student_id
-        ORDER BY a.id,
-            CASE
-                WHEN p.status = 'accepted' THEN 1
-                WHEN a.justified = TRUE THEN 2
-                ELSE 3
-            END ASC
-    ) sub
-    WHERE absence_justified = TRUE OR proof_status = 'accepted'
-    SQL;
-
-    $stmt = $db->prepare($sql);
-    $stmt->execute(['student_id' => $student_identifier]);
-    $hour_total_justified = $stmt->fetch()['hour_total_justified'];
-
-    // Total heures absences
+    // OPTIMISATION: Requête unique pour tous les compteurs de justificatifs
     $stmt = $db->prepare("
-        SELECT COALESCE(SUM(cs.duration_minutes / 60.0), 0) as total_hours_absences
-        FROM absences a
-        JOIN course_slots cs ON a.course_slot_id = cs.id
-        WHERE a.student_identifier = :student_id
+        SELECT 
+            COUNT(CASE WHEN status = 'under_review' THEN 1 END) as under_review_proofs,
+            COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_proofs,
+            COUNT(CASE WHEN status = 'rejected' THEN 1 END) as rejected_proofs,
+            COUNT(CASE WHEN status = 'accepted' THEN 1 END) as accepted_proofs
+        FROM proof
+        WHERE student_identifier = :student_id
     ");
     $stmt->execute(['student_id' => $student_identifier]);
-    $total_hours_absences = $stmt->fetch()['total_hours_absences'];
+    $proof_counts = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Calcul simple : heures non justifiées = total - heures justifiées
-    // On s'assure d'avoir une valeur >= 0 et on arrondit
-    $hour_total_unjustified = max(0, round($total_hours_absences - $hour_total_justified, 4));
-    
-    // Demandes d'infos supplémentaires (statut "under_review")
-    $stmt = $db->prepare("
-        SELECT COUNT(DISTINCT p.id) as under_review_proofs
-        FROM proof p
-        WHERE p.student_identifier = :student_id
-        AND p.status = 'under_review'
-    ");
-    $stmt->execute(['student_id' => $student_identifier]);
-    $under_review_proofs = $stmt->fetch()['under_review_proofs'];
-    
-    // En attente de validation (statut "pending")
-    $stmt = $db->prepare("
-        SELECT COUNT(DISTINCT p.id) as pending_proofs
-        FROM proof p
-        WHERE p.student_identifier = :student_id
-        AND p.status = 'pending'
-    ");
-    $stmt->execute(['student_id' => $student_identifier]);
-    $pending_proofs = $stmt->fetch()['pending_proofs'];
-    
-    // Justificatifs refusés (statut "rejected")
-    $stmt = $db->prepare("
-        SELECT COUNT(DISTINCT p.id) as rejected_proofs
-        FROM proof p
-        WHERE p.student_identifier = :student_id
-        AND p.status = 'rejected'
-    ");
-    $stmt->execute(['student_id' => $student_identifier]);
-    $rejected_proofs = $stmt->fetch()['rejected_proofs'];
-    
-    // Justificatifs acceptés (statut "accepted")
-    $stmt = $db->prepare("
-        SELECT COUNT(DISTINCT p.id) as accepted_proofs
-        FROM proof p
-        WHERE p.student_identifier = :student_id
-        AND p.status = 'accepted'
-    ");
-    $stmt->execute(['student_id' => $student_identifier]);
-    $accepted_proofs = $stmt->fetch()['accepted_proofs'];
-    
-    // Total nombre d'absences
-    $stmt = $db->prepare("
-        SELECT COUNT(*) as total_absences_count
-        FROM absences a
-        WHERE a.student_identifier = :student_id
-    ");
-    $stmt->execute(['student_id' => $student_identifier]);
-    $total_absences_count = $stmt->fetch()['total_absences_count'];
+    // Calcul heures non justifiées
+    $hour_total_unjustified = max(0, $stats['total_hours_absences'] - $stats['hour_total_justified']);
     
     return [
-        'hour_month' => round($hour_month, 2),
-        'hour_total_justified' => round($hour_total_justified, 4),
+        'hour_month' => round($stats['hour_month'], 2),
+        'hour_total_justified' => round($stats['hour_total_justified'], 4),
         'hour_total_unjustified' => round($hour_total_unjustified, 2),
-        'total_hours_absences' => round($total_hours_absences, 2),
-        'total_absences_count' => $total_absences_count,
-        'under_review_proofs' => $under_review_proofs,
-        'pending_proofs' => $pending_proofs,
-        'rejected_proofs' => $rejected_proofs,
-        'accepted_proofs' => $accepted_proofs
+        'total_hours_absences' => round($stats['total_hours_absences'], 2),
+        'total_absences_count' => (int)$stats['total_absences_count'],
+        'under_review_proofs' => (int)$proof_counts['under_review_proofs'],
+        'pending_proofs' => (int)$proof_counts['pending_proofs'],
+        'rejected_proofs' => (int)$proof_counts['rejected_proofs'],
+        'accepted_proofs' => (int)$proof_counts['accepted_proofs']
     ];
 }
 

@@ -18,9 +18,12 @@ $_SESSION['id_student'] = 1;
     require_once __DIR__ . '/../../Presenter/session_cache.php';
     require_once __DIR__ . '/../../Presenter/student_get_info.php';
 
-    // Utiliser les données en session si disponibles et récentes (défini dans session_cache.php), par défaut 30 minutes
-    // sinon les récupérer de la BD
-    if (!isset($_SESSION['stats']) || !isset($_SESSION['proofsByCategory']) || !isset($_SESSION['recentAbsences']) || !isset($_SESSION['stats']['total_absences_count']) || shouldRefreshCache(10)) {
+    // Forcer le rafraîchissement du cache si demandé via ?refresh=1
+    $forceRefresh = isset($_GET['refresh']) && $_GET['refresh'] == '1';
+    
+    // Utiliser les données en session si disponibles et récentes (cache de 60 secondes pour meilleures performances)
+    // Les statistiques ne changent pas en temps réel, un cache de 1 minute est suffisant
+    if ($forceRefresh || !isset($_SESSION['stats']) || !isset($_SESSION['proofsByCategory']) || !isset($_SESSION['recentAbsences']) || !isset($_SESSION['stats']['total_absences_count']) || shouldRefreshCache(1)) {
         $_SESSION['stats'] = getAbsenceStatistics($_SESSION['id_student']);
         $_SESSION['proofsByCategory'] = getProofsByCategory($_SESSION['id_student']);
         $_SESSION['recentAbsences'] = getRecentAbsences($_SESSION['id_student'], 5);
@@ -30,54 +33,170 @@ $_SESSION['id_student'] = 1;
     $stats = $_SESSION['stats'];
     $proofsByCategory = $_SESSION['proofsByCategory'];
     $recentAbsences = $_SESSION['recentAbsences'];
+    
+    // Calculer le pourcentage de justification
+    $justification_percentage = $stats['total_hours_absences'] > 0 
+        ? round(($stats['hour_total_justified'] / $stats['total_hours_absences']) * 100, 1) 
+        : 0;
     ?>
 
-    <!-- FIXME stats pas bonne -->
     <div class="dashboard-container">
-    <!-- Statistics Cards -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h3>Heures manquées ce mois</h3>
-            <div class="stat-number"><?php echo $stats['hour_month']; ?></div>
-        </div>
+        <h1 class="dashboard-title">Tableau de Bord - Suivi des Absences</h1>
         
-        <div class="stat-card">
-            <h3>Total heures manquées justifiées</h3>
-            <div class="stat-number"><?php echo $stats['hour_total_justified']; ?></div>
-        </div>
-        
-        <div class="stat-card">
-            <h3>Total heures manquées non justifiées</h3>
-            <div class="stat-number"><?php echo $stats['hour_total_unjustified']; ?></div>
-        </div>
-        
-        <div class="stat-card">
-            <h3>Total heures absences</h3>
-            <div class="stat-number"><?php echo $stats['total_hours_absences']; ?></div>
-        </div>
-        
-        <div class="stat-card">
-            <h3>Nombre total d'absences</h3>
-            <div class="stat-number"><?php echo $stats['total_absences_count']; ?></div>
-        </div>
-        
-        <div class="stat-card">
-            <h3>Justificatifs en révision</h3>
-            <div class="stat-number"><?php echo $stats['under_review_proofs']; ?></div>
-        </div>
-        
-        <div class="stat-card">
-            <h3>Justificatifs en attente</h3>
-            <div class="stat-number"><?php echo $stats['pending_proofs']; ?></div>
+        <!-- Vue d'ensemble principale -->
+        <div class="overview-section">
+            <div class="overview-card primary">
+                <div class="card-icon">📅</div>
+                <div class="card-content">
+                    <div class="card-label">Total d'absences</div>
+                    <div class="card-value"><?php echo $stats['total_absences_count']; ?></div>
+                    <div class="card-description">cours manqués au total</div>
+                </div>
+            </div>
+            
+            <div class="overview-card success">
+                <div class="card-icon">✅</div>
+                <div class="card-content">
+                    <div class="card-label">Heures justifiées</div>
+                    <div class="card-value"><?php echo $stats['hour_total_justified']; ?>h</div>
+                    <div class="card-description">sur <?php echo $stats['total_hours_absences']; ?>h d'absence</div>
+                </div>
+            </div>
+            
+            <div class="overview-card warning">
+                <div class="card-icon">⚠️</div>
+                <div class="card-content">
+                    <div class="card-label">Heures non justifiées</div>
+                    <div class="card-value"><?php echo $stats['hour_total_unjustified']; ?>h</div>
+                    <div class="card-description"><?php echo $stats['hour_total_unjustified'] > 0 ? 'À justifier rapidement !' : 'Aucune heure à justifier'; ?></div>
+                </div>
+            </div>
+            
+            <div class="overview-card info">
+                <div class="card-icon">📆</div>
+                <div class="card-content">
+                    <div class="card-label">Ce mois-ci</div>
+                    <div class="card-value"><?php echo $stats['hour_month']; ?>h</div>
+                    <div class="card-description">heures manquées en <?php echo date('F Y'); ?></div>
+                </div>
+            </div>
         </div>
 
-        <div class="stat-card">
-            <h3>Justificatifs acceptés</h3>
-            <div class="stat-number"><?php echo $stats['accepted_proofs']; ?></div>
+        <!-- Barre de progression de justification -->
+        <div class="justification-progress-section">
+            <h2 class="section-heading">
+                <span class="heading-icon">📊</span>
+                Taux de justification des absences
+            </h2>
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span class="progress-label">
+                        <strong><?php echo $stats['hour_total_justified']; ?>h justifiées</strong> 
+                        sur <?php echo $stats['total_hours_absences']; ?>h d'absence totales
+                    </span>
+                    <span class="progress-percentage"><?php echo $justification_percentage; ?>%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill <?php echo $justification_percentage >= 80 ? 'good' : ($justification_percentage >= 50 ? 'medium' : 'low'); ?>" 
+                         style="width: <?php echo $justification_percentage; ?>%">
+                    </div>
+                </div>
+                <div class="progress-legend">
+                    <span class="legend-item">
+                        <span class="legend-color good"></span>
+                        Bon (≥80%)
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-color medium"></span>
+                        Moyen (50-79%)
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-color low"></span>
+                        Faible (<50%)
+                    </span>
+                </div>
+            </div>
         </div>
 
-    </div>
+        <!-- Statut des justificatifs -->
+        <div class="proofs-status-section">
+            <h2 class="section-heading">
+                <span class="heading-icon">📄</span>
+                État de vos justificatifs
+            </h2>
+            <div class="proofs-grid">
+                <a href="student_proofs.php?status=accepted" class="proof-card proof-accepted">
+                    <div class="proof-icon">✅</div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['accepted_proofs']; ?></div>
+                        <div class="proof-label">Acceptés</div>
+                        <div class="proof-description">Justificatifs validés</div>
+                    </div>
+                </a>
+                
+                <a href="student_proofs.php?status=pending" class="proof-card proof-pending">
+                    <div class="proof-icon">🕐</div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['pending_proofs']; ?></div>
+                        <div class="proof-label">En attente</div>
+                        <div class="proof-description">En cours d'examen</div>
+                    </div>
+                </a>
+                
+                <a href="student_proofs.php?status=under_review" class="proof-card proof-review">
+                    <div class="proof-icon">⚠️</div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['under_review_proofs']; ?></div>
+                        <div class="proof-label">En révision</div>
+                        <div class="proof-description">Infos complémentaires demandées</div>
+                    </div>
+                </a>
+                
+                <a href="student_proofs.php?status=rejected" class="proof-card proof-rejected">
+                    <div class="proof-icon">❌</div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['rejected_proofs']; ?></div>
+                        <div class="proof-label">Refusés</div>
+                        <div class="proof-description">Non acceptés</div>
+                    </div>
+                </a>
+            </div>
+        </div>
 
+        <!-- Alerte si heures non justifiées -->
+        <?php if ($stats['hour_total_unjustified'] > 0): ?>
+        <div class="alert-box alert-warning">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-content">
+                <div class="alert-title">Action requise : Absences non justifiées</div>
+                <div class="alert-message">
+                    Vous avez <strong><?php echo $stats['hour_total_unjustified']; ?> heures d'absence non justifiées</strong>. 
+                    Pensez à soumettre vos justificatifs dans les 48h suivant votre retour en cours pour éviter des pénalités.
+                </div>
+                <a href="student_proof_submit.php" class="alert-action">
+                    <span>➕</span> Soumettre un justificatif
+                </a>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Alerte si justificatifs en révision -->
+        <?php if ($stats['under_review_proofs'] > 0): ?>
+        <div class="alert-box alert-info">
+            <div class="alert-icon">💬</div>
+            <div class="alert-content">
+                <div class="alert-title">Informations complémentaires requises</div>
+                <div class="alert-message">
+                    Vous avez <strong><?php echo $stats['under_review_proofs']; ?> justificatif(s) en révision</strong>. 
+                    L'équipe pédagogique a besoin d'informations supplémentaires.
+                </div>
+                <a href="student_proofs.php?status=under_review" class="alert-action">
+                    <span>👁️</span> Consulter mes justificatifs
+                </a>
+            </div>
+        </div>
+        <?php endif; ?>
+    
     <!-- Recent Absences Section -->
     <?php if (count($recentAbsences) > 0): ?>
     <div class="absences-section">
@@ -248,6 +367,7 @@ $_SESSION['id_student'] = 1;
                         <th>Date soumission</th>
                         <th>Évaluation</th>
                         <th>Commentaire</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -267,13 +387,13 @@ $_SESSION['id_student'] = 1;
                     ?>
                     <tr class="clickable-row proof-row" style="cursor: pointer;"
                         data-status="under_review"
+                        data-proof-id="<?php echo $proof['proof_id']; ?>"
                         data-period="<?php echo htmlspecialchars($period); ?>"
                         data-reason="<?php echo htmlspecialchars($reasonText); ?>"
                         data-custom-reason="<?php echo htmlspecialchars($proof['custom_reason'] ?? ''); ?>"
                         data-hours="<?php echo number_format($proof['total_hours_missed'], 1); ?>"
                         data-absences="<?php echo $proof['absence_count'] ?? 0; ?>"
                         data-submission="<?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?>"
-                        data-processing="<?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : '-'; ?>"
                         data-status-text="En révision"
                         data-status-icon="⚠️"
                         data-status-class="badge-warning"
@@ -315,7 +435,15 @@ $_SESSION['id_student'] = 1;
                             <?php else: ?>
                                 <span class="course-code">-</span>
                             <?php endif; ?>
-                        </td>   
+                        </td>
+                        <td>
+                            <a href="student_proof_add_info.php?proof_id=<?php echo $proof['proof_id']; ?>" 
+                               class="btn-add-info" 
+                               onclick="event.stopPropagation();"
+                               title="Ajouter des informations">
+                                📝 Compléter
+                            </a>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -727,6 +855,13 @@ $_SESSION['id_student'] = 1;
                 <div class="modal-comment-section" id="proofCommentSection" style="display: none;">
                     <span class="modal-label">💬 Commentaire du responsable :</span>
                     <div class="modal-comment-box" id="proofModalComment"></div>
+                </div>
+
+                <!-- Bouton Compléter (visible uniquement pour les justificatifs en révision) -->
+                <div class="modal-action-section" id="proofActionSection" style="display: none; margin-top: 20px; text-align: center;">
+                    <a href="#" id="proofModalCompleteBtn" class="btn-add-info" style="display: inline-block; padding: 12px 24px; text-decoration: none;">
+                        📝 Compléter le justificatif
+                    </a>
                 </div>
             </div>
         </div>
