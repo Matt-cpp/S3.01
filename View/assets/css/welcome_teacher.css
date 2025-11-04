@@ -233,11 +233,12 @@
             padding: 2rem;
             margin-top: auto;
             text-align: center;
+            width: 100%;
         }
 
         .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
+            width: 100%;
+            margin: 0;
         }
 
         .team-section {
