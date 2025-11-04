@@ -12,6 +12,12 @@ class ProofPresenter
 
     public function handleRequest($get, $post)
     {
+        // S'assurer que la session est démarrée pour récupérer l'id utilisateur
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+        $currentUserId = $_SESSION['user_id'] ?? $_SESSION['id'] ?? $_SESSION['id_user'] ?? null;
+
         $data = [
             'proof' => null,
             'redirect' => null,
@@ -106,16 +112,28 @@ class ProofPresenter
                     $data['rejectionReasons'] = $this->model->getRejectionReasons();
                 }
 
-                $this->model->updateProofStatus($proofId, 'rejected');
-                $this->model->setRejectionReason($proofId, $rejectionReason, $rejectionDetails);
-                $this->model->updateAbsencesForProof(
-                    $data['proof']['student_identifier'],
-                    $data['proof']['absence_start_date'],
-                    $data['proof']['absence_end_date'],
-                    'rejected'
-                );
-
-                $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                // setRejectionReason met à jour le statut et insère l'historique dans la même transaction
+                $ok = $this->model->setRejectionReason($proofId, $rejectionReason, $rejectionDetails, $currentUserId);
+                if ($ok) {
+                    $this->model->updateAbsencesForProof(
+                        $data['proof']['student_identifier'],
+                        $data['proof']['absence_start_date'],
+                        $data['proof']['absence_end_date'],
+                        'rejected'
+                    );
+                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                } else {
+                    $data['showRejectForm'] = true;
+                    // Récupérer le message d'erreur détaillé mis en session par le modèle (si présent)
+                    if (session_status() === PHP_SESSION_NONE) {@session_start();}
+                    $err = $_SESSION['last_model_error'] ?? null;
+                    if ($err) {
+                        $data['rejectionError'] = 'Impossible d\'enregistrer la décision : ' . $err;
+                        unset($_SESSION['last_model_error']);
+                    } else {
+                        $data['rejectionError'] = 'Impossible d\'enregistrer la décision, voir les logs.';
+                    }
+                }
                 $this->enrichViewData($data);
                 return $data;
             }
@@ -141,17 +159,27 @@ class ProofPresenter
                     $data['validationReasons'] = $this->model->getValidationReasons();
                 }
 
-                // Accepter même si $validationReason est vide
-                $this->model->updateProofStatus($proofId, 'accepted');
-                $this->model->setValidationReason($proofId, $validationReason, $validationDetails);
-                $this->model->updateAbsencesForProof(
-                    $data['proof']['student_identifier'],
-                    $data['proof']['absence_start_date'],
-                    $data['proof']['absence_end_date'],
-                    'accepted'
-                );
-
-                $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                // setValidationReason met à jour le statut et insère l'historique dans la même transaction
+                $ok = $this->model->setValidationReason($proofId, $validationReason, $validationDetails, $currentUserId);
+                if ($ok) {
+                    $this->model->updateAbsencesForProof(
+                        $data['proof']['student_identifier'],
+                        $data['proof']['absence_start_date'],
+                        $data['proof']['absence_end_date'],
+                        'accepted'
+                    );
+                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                } else {
+                    $data['showValidateForm'] = true;
+                    if (session_status() === PHP_SESSION_NONE) {@session_start();}
+                    $err = $_SESSION['last_model_error'] ?? null;
+                    if ($err) {
+                        $data['validationError'] = 'Impossible d\'enregistrer la décision : ' . $err;
+                        unset($_SESSION['last_model_error']);
+                    } else {
+                        $data['validationError'] = 'Impossible d\'enregistrer la décision, voir les logs.';
+                    }
+                }
                 $this->enrichViewData($data);
                 return $data;
             }
@@ -170,7 +198,22 @@ class ProofPresenter
                     $this->enrichViewData($data);
                     return $data;
                 }
-                $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+
+                // Appel du modèle pour sauvegarder la demande d'information
+                $ok = $this->model->setRequestInfo($proofId, $infoMessage, $currentUserId);
+                if ($ok) {
+                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                } else {
+                    $data['showInfoForm'] = true;
+                    if (session_status() === PHP_SESSION_NONE) {@session_start();}
+                    $err = $_SESSION['last_model_error'] ?? null;
+                    if ($err) {
+                        $data['infoError'] = 'Impossible d\'enregistrer la demande d\'information : ' . $err;
+                        unset($_SESSION['last_model_error']);
+                    } else {
+                        $data['infoError'] = 'Impossible d\'enregistrer la demande d\'information, voir les logs.';
+                    }
+                }
                 $this->enrichViewData($data);
                 return $data;
             }

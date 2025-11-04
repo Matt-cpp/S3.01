@@ -109,7 +109,7 @@ class ProofModel
               AND a.justified = TRUE";
             $this->db->execute($sql, [
                 'student_identifier' => $studentIdentifier,
-                'start_date' => $startDate,
+                'start_date' => $StartDate,
                 'end_date' => $endDate
             ]);
         }
@@ -120,27 +120,63 @@ class ProofModel
     {
         $this->db->beginTransaction();
         try {
-            // Mise à jour du commentaire dans proof
+            // Récupération de l'ancien statut avant modification
+            $proof = $this->getProofDetails($proofId);
+            $oldStatus = $proof ? $proof['status'] : null;
+
+            // Si aucun userId fourni, essayer d'utiliser processed_by_user_id du justificatif
+            if ($userId === null) {
+                try {
+                    $row = $this->db->selectOne("SELECT processed_by_user_id FROM proof WHERE id = :id", ['id' => $proofId]);
+                    if ($row && !empty($row['processed_by_user_id'])) {
+                        $userId = $row['processed_by_user_id'];
+                    }
+                } catch (Exception $e) {
+                    // ignore, userId restera null
+                }
+            }
+
+            // Si toujours aucun user_id après tentative, utiliser un fallback configurable (SYSTEM_USER_ID) ou 1
+            if ($userId === null) {
+                $fallback = (int) (env('SYSTEM_USER_ID', '1') ?? 1);
+                error_log("setRejectionReason: aucun user_id trouvé, utilisation du fallback SYSTEM_USER_ID={$fallback}");
+                $userId = $fallback;
+            }
+            // Vérifier que le userId existe dans la table users ; sinon, essayer de récupérer le premier user existant
+            try {
+                $exists = $this->db->selectOne("SELECT id FROM users WHERE id = :id", ['id' => $userId]);
+                if (!$exists) {
+                    $first = $this->db->selectOne("SELECT id FROM users ORDER BY id LIMIT 1");
+                    if ($first && isset($first['id'])) {
+                        error_log("setRejectionReason: user_id {$userId} introuvable, fallback vers user_id {$first['id']}");
+                        $userId = $first['id'];
+                    } else {
+                        throw new \Exception('Aucun utilisateur trouvé dans la table users ; créer au moins un utilisateur avant d\'enregistrer une décision');
+                    }
+                }
+            } catch (Exception $e) {
+                throw $e; // sera capturé par le catch de la transaction
+            }
+            // Mise à jour du statut et du commentaire dans proof (dans la même transaction)
             $sql = "UPDATE proof
-            SET manager_comment = :comment,
+            SET status = :status,
+                manager_comment = :comment,
+                processing_date = NOW(),
                 updated_at = NOW()
             WHERE id = :id";
             $this->db->execute($sql, [
+                'status' => 'rejected',
                 'comment' => $comment,
                 'id' => $proofId
             ]);
 
-            // Récupération de l'ancien statut
-            $proof = $this->getProofDetails($proofId);
-            $oldStatus = $proof ? $proof['status'] : null;
-
-            // Insertion dans decision_history avec la raison et le commentaire
+            // Insertion dans decision_history : stocker le motif dans la colonne rejection_reason
             $sqlHistory = "INSERT INTO decision_history
-            (proof_id, user_id, action, old_status, new_status, rejection_reason, comment, created_at)
+            (justification_id, user_id, action, old_status, new_status, rejection_reason, comment, created_at)
             VALUES
-            (:proof_id, :user_id, :action, :old_status, :new_status, :rejection_reason, :comment, NOW())";
+            (:justification_id, :user_id, :action, :old_status, :new_status, :rejection_reason, :comment, NOW())";
             $this->db->execute($sqlHistory, [
-                'proof_id' => $proofId,
+                'justification_id' => $proofId,
                 'user_id' => $userId,
                 'action' => 'reject',
                 'old_status' => $oldStatus,
@@ -154,6 +190,11 @@ class ProofModel
         } catch (\Exception $e) {
             $this->db->rollBack();
             error_log("Erreur setRejectionReason : " . $e->getMessage());
+            // Stocker le message d'erreur en session pour affichage côté presenter (dev)
+            if (session_status() === PHP_SESSION_NONE) {
+                @session_start();
+            }
+            $_SESSION['last_model_error'] = "setRejectionReason: " . $e->getMessage();
             return false;
         }
     }
@@ -162,40 +203,160 @@ class ProofModel
     {
         $this->db->beginTransaction();
         try {
-            // Mise à jour du commentaire dans proof
+            // Récupération de l'ancien statut avant modification
+            $proof = $this->getProofDetails($proofId);
+            $oldStatus = $proof ? $proof['status'] : null;
+
+            // Si aucun userId fourni, essayer d'utiliser processed_by_user_id du justificatif
+            if ($userId === null) {
+                try {
+                    $row = $this->db->selectOne("SELECT processed_by_user_id FROM proof WHERE id = :id", ['id' => $proofId]);
+                    if ($row && !empty($row['processed_by_user_id'])) {
+                        $userId = $row['processed_by_user_id'];
+                    }
+                } catch (Exception $e) {
+                    // ignore, userId restera null
+                }
+            }
+
+            // Si toujours aucun user_id après tentative, utiliser un fallback configurable (SYSTEM_USER_ID) ou 1
+            if ($userId === null) {
+                $fallback = (int) (env('SYSTEM_USER_ID', '1') ?? 1);
+                error_log("setValidationReason: aucun user_id trouvé, utilisation du fallback SYSTEM_USER_ID={$fallback}");
+                $userId = $fallback;
+            }
+            // Vérifier que le userId existe dans la table users ; sinon, essayer de récupérer le premier user existant
+            try {
+                $exists = $this->db->selectOne("SELECT id FROM users WHERE id = :id", ['id' => $userId]);
+                if (!$exists) {
+                    $first = $this->db->selectOne("SELECT id FROM users ORDER BY id LIMIT 1");
+                    if ($first && isset($first['id'])) {
+                        error_log("setValidationReason: user_id {$userId} introuvable, fallback vers user_id {$first['id']}");
+                        $userId = $first['id'];
+                    } else {
+                        throw new \Exception('Aucun utilisateur trouvé dans la table users ; créer au moins un utilisateur avant d\'enregistrer une décision');
+                    }
+                }
+            } catch (Exception $e) {
+                throw $e; // sera capturé par le catch de la transaction
+            }
+            // Mise à jour du statut et du commentaire dans proof (dans la même transaction)
             $sql = "UPDATE proof
-                SET manager_comment = :comment,
+                SET status = :status,
+                    manager_comment = :comment,
+                    processing_date = NOW(),
                     updated_at = NOW()
                 WHERE id = :id";
             $this->db->execute($sql, [
+                'status' => 'accepted',
                 'comment' => $comment,
                 'id' => $proofId
             ]);
 
-            // Récupération de l'ancien statut
-            $proof = $this->getProofDetails($proofId);
-            $oldStatus = $proof ? $proof['status'] : null;
-
-            // Insertion de l'historique de validation
+            // Insertion dans decision_history : stocker le motif de validation dans la colonne rejection_reason
             $sqlHistory = "INSERT INTO decision_history
-            (proof_id, user_id, action, old_status, new_status, validation_reason, comment, created_at)
+            (justification_id, user_id, action, old_status, new_status, rejection_reason, comment, created_at)
             VALUES
-            (:proof_id, :user_id, :action, :old_status, :new_status, :validation_reason, :comment, NOW())";
+            (:justification_id, :user_id, :action, :old_status, :new_status, :rejection_reason, :comment, NOW())";
             $this->db->execute($sqlHistory, [
-                'proof_id' => $proofId,
+                'justification_id' => $proofId,
                 'user_id' => $userId,
-                'action' => 'validate',
+                'action' => 'accept',
                 'old_status' => $oldStatus,
                 'new_status' => 'accepted',
-                'validation_reason' => $reason,
+                'rejection_reason' => $reason,
                 'comment' => $comment
             ]);
 
             $this->db->commit();
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->rollBack();
             error_log("Erreur setValidationReason : " . $e->getMessage());
+            if (session_status() === PHP_SESSION_NONE) {
+                @session_start();
+            }
+            $_SESSION['last_model_error'] = "setValidationReason: " . $e->getMessage();
+            return false;
+         }
+    }
+
+    // Enregistre une demande d'information (commentaire obligatoire) et insère une ligne dans decision_history
+    public function setRequestInfo(int $proofId, string $message, ?int $userId = null): bool
+    {
+        $this->db->beginTransaction();
+        try {
+            $proof = $this->getProofDetails($proofId);
+            $oldStatus = $proof ? $proof['status'] : null;
+
+            if ($userId === null) {
+                try {
+                    $row = $this->db->selectOne("SELECT processed_by_user_id FROM proof WHERE id = :id", ['id' => $proofId]);
+                    if ($row && !empty($row['processed_by_user_id'])) {
+                        $userId = $row['processed_by_user_id'];
+                    }
+                } catch (Exception $e) {
+                    // ignore
+                }
+            }
+
+            if ($userId === null) {
+                $fallback = (int) (env('SYSTEM_USER_ID', '1') ?? 1);
+                error_log("setRequestInfo: aucun user_id trouvé, utilisation du fallback SYSTEM_USER_ID={$fallback}");
+                $userId = $fallback;
+            }
+
+            // Vérifier existence user
+            try {
+                $exists = $this->db->selectOne("SELECT id FROM users WHERE id = :id", ['id' => $userId]);
+                if (!$exists) {
+                    $first = $this->db->selectOne("SELECT id FROM users ORDER BY id LIMIT 1");
+                    if ($first && isset($first['id'])) {
+                        error_log("setRequestInfo: user_id {$userId} introuvable, fallback vers user_id {$first['id']}");
+                        $userId = $first['id'];
+                    } else {
+                        throw new \Exception('Aucun utilisateur trouvé dans la table users ; créer au moins un utilisateur avant d\'enregistrer une décision');
+                    }
+                }
+            } catch (Exception $e) {
+                throw $e;
+            }
+
+            // Mise à jour du commentaire et du statut en under_review
+            $sql = "UPDATE proof
+                SET status = :status,
+                    manager_comment = :comment,
+                    processing_date = NOW(),
+                    updated_at = NOW()
+                WHERE id = :id";
+            $this->db->execute($sql, [
+                'status' => 'under_review',
+                'comment' => $message,
+                'id' => $proofId
+            ]);
+
+            // Insertion dans decision_history avec action request_info
+            $sqlHistory = "INSERT INTO decision_history
+            (justification_id, user_id, action, old_status, new_status, rejection_reason, comment, created_at)
+            VALUES
+            (:justification_id, :user_id, :action, :old_status, :new_status, :rejection_reason, :comment, NOW())";
+            $this->db->execute($sqlHistory, [
+                'justification_id' => $proofId,
+                'user_id' => $userId,
+                'action' => 'request_info',
+                'old_status' => $oldStatus,
+                'new_status' => 'under_review',
+                'rejection_reason' => null,
+                'comment' => $message
+            ]);
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log("Erreur setRequestInfo : " . $e->getMessage());
+            if (session_status() === PHP_SESSION_NONE) {@session_start();}
+            $_SESSION['last_model_error'] = "setRequestInfo: " . $e->getMessage();
             return false;
         }
     }
@@ -217,18 +378,16 @@ class ProofModel
     public function addReason(string $label, string $type): bool
     {
         // insère seulement si le couple (label, type_of_reason) n'existe pas
+        // ON CONFLICT doit correspondre à un index existant: le schéma a une contrainte UNIQUE(label)
+        // on utilise ON CONFLICT (label) DO NOTHING pour éviter une erreur si aucun index composite n'existe
         $sql = "INSERT INTO rejection_validation_reasons (label, type_of_reason)
                 VALUES (:label, :type)
-                ON CONFLICT (label, type_of_reason) DO NOTHING
-                RETURNING id";
+                ON CONFLICT (label) DO NOTHING";
         try {
             $conn = $this->db->getConnection();
             $stmt = $conn->prepare($sql);
             $stmt->execute(['label' => $label, 'type' => $type]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($row && isset($row['id'])) {
-                return true;
-            }
+            // Si la requête a réussi, vérifier si l'enregistrement existe (fallback)
             $checkSql = "SELECT id FROM rejection_validation_reasons WHERE label = :label AND type_of_reason = :type LIMIT 1";
             $exists = $this->db->select($checkSql, ['label' => $label, 'type' => $type]);
             return !empty($exists);
@@ -236,7 +395,7 @@ class ProofModel
             error_log("Erreur addReason : " . $e->getMessage());
             return false;
         }
-    }
+     }
 
     // méthodes getter pour les motifs de rejet et de validation et méthodes pour ajouter un motif de rejet ou de validation directement avec le type (rejet ou validation)
     public function getRejectionReasons(): array
@@ -343,6 +502,7 @@ class ProofModel
                 'approved' => 'Validé',
                 'accepted' => 'Validé',
                 'rejected' => 'Refusé',
+                'under_review' => 'En cours d\'examen',
             ],
             'reason' => [
                 'illness' => 'Maladie',

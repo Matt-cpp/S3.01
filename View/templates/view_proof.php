@@ -99,8 +99,9 @@ if (!$proof) {
         </div>
     </div>
 
-    <a href="../Presenter/download.php?proof_id=<?= urlencode($proof['proof_id']) ?>" class="download-btn">
-        <img src="download-icon.png" alt="Télécharger le justificatif">
+    <!-- Lien vers le presenter de prévisualisation (ouvre dans un nouvel onglet) -->
+    <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>" class="download-btn" target="_blank" rel="noopener">
+        <img src="download-icon.png" alt="Consulter le justificatif">
     </a>
 
     <div class="actions">
