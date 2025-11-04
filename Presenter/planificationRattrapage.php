@@ -1,6 +1,6 @@
 <meta charset="UTF-8">
 <?php
-class tableRatrapage{
+class planificationRattrapage{
     private $db;
     private $userId;
     private $lesDs;

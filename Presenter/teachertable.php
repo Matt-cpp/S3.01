@@ -1,6 +1,6 @@
 <meta charset="UTF-8">
 <?php
-class tableRatrapage{
+class teacherTable{
     private $page;
     private $db;
     private $userId;
@@ -163,8 +163,8 @@ public function setPage($page){
 
 
 }
-/*
-Test de la classe
+
+//Test de la classe
 
 $test = new tableRatrapage(3);
 $test->activerUnFiltre('INFFIS4-ARCHITECTURE LOGICIELLE (T3BUTINFFI-R4.01)');
@@ -189,4 +189,4 @@ echo $test->laTable();
 echo "Page " . ($test->getCurrentPage() + 1) . " sur " . $test->getNombrePages() . "<br>";
 ?>
 <br>
-*/
+
