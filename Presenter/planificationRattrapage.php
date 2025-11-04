@@ -12,10 +12,7 @@ class tableRatrapage{
         $this->userId = $id;
     }
     
-    // Fonction pour récupérer les DS non rattrapés - VERSION OPTIMISÉE
     public function getLesDs(){
-        $start = microtime(true);
-        error_log("=== DEBUT getLesDs - userId: " . $this->userId);
         $query = "SELECT DISTINCT cs.*
         FROM course_slots cs
         INNER JOIN absences a ON a.course_slot_id = cs.id
@@ -27,10 +24,7 @@ class tableRatrapage{
         ORDER BY cs.course_date";
         
         $result = $this->db->select($query, [':userId' => $this->userId]);
-        
-        $duration = microtime(true) - $start;
-        error_log("=== FIN getLesDs - Durée: " . round($duration, 2) . "s - Lignes: " . count($result));
-        
+
         return $result;
     }
     
@@ -52,67 +46,26 @@ class tableRatrapage{
     
         return $result;
     }
-    
-    public function majBdd($idAbs, $evalId, $studentId, $dateRattrapage){
-        $query = "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, is_completed, makeup_date) 
-                  VALUES (:absence_id, :evaluation_slot_id, :student_identifier, false, :makeup_date)";
-        $params = [
+    public function insererRattrapage($idAbs, $evalId, $studentId, $dateRattrapage, $comment = null) {
+        // Insérer le nouveau rattrapage
+        $insertQuery = "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, is_completed, makeup_date, comment) 
+                        VALUES (:absence_id, :evaluation_slot_id, :student_identifier, false, :makeup_date, :comment)";
+        $insertParams = [
             ':absence_id' => $idAbs,
             ':evaluation_slot_id' => $evalId,
             ':student_identifier' => $studentId,
-            ':makeup_date' => $dateRattrapage
+            ':makeup_date' => $dateRattrapage,
+            ':comment' => $comment
         ];
-        $this->db->execute($query, $params);
-    }
-    public function creerRattrapagesPourDs($dsId, $makeupDate, $comment = null) {
-    // Récupérer tous les élèves absents non rattrapés
-    $elevesAbsents = $this->getLesEleves($dsId);
-    
-    if (empty($elevesAbsents)) {
-        return ['success' => 0, 'errors' => 0, 'details' => ['Aucun élève absent à rattraper']];
-    }
-    
-    $this->db->execute("BEGIN");
-    $success = 0;
-    $errors = 0;
-    $details = [];
-    
-    try {
-        foreach ($elevesAbsents as $eleve) {
-            $result = $this->insererRattrapage(
-                $eleve['id'],              // absence_id
-                $dsId,                     // evaluation_slot_id
-                $eleve['identifier'],      // student_identifier
-                $makeupDate,
-                $comment
-            );
-            
-            if ($result) {
-                $success++;
-                $details[] = "✅ {$eleve['first_name']} {$eleve['last_name']}";
-            } else {
-                $errors++;
-                $details[] = "❌ {$eleve['first_name']} {$eleve['last_name']} (déjà rattrapé ?)";
-            }
-        }
         
-        $this->db->execute("COMMIT");
-        
-    } catch (Exception $e) {
-        $this->db->execute("ROLLBACK");
-        $details[] = "ERREUR CRITIQUE : " . $e->getMessage();
-        error_log("ERREUR creerRattrapagesPourDs: " . $e->getMessage());
+        $this->db->execute($insertQuery, $insertParams);
+        return true;
     }
-    
-    return [
-        'success' => $success,
-        'errors' => $errors,
-        'details' => $details
-    ];
-}
-}
+    }
 
-// Test
+
+
+/*Test
 try {
     $test = new tableRatrapage(2);
     
@@ -128,7 +81,7 @@ try {
     }
     
     echo "<h3>Élèves absents pour le DS #2 :</h3>";
-    $lesEleves = $test->getLesEleves(92);
+    $lesEleves = $test->getLesEleves(2);
     
     if (empty($lesEleves)) {
         echo "Aucun élève absent non rattrapé<br>";
@@ -142,4 +95,4 @@ try {
     error_log("ERREUR : " . $e->getMessage());
     echo "Une erreur est survenue. Consultez les logs.";
 }
-?>
+?>*/
