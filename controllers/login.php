@@ -51,9 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                     
                     // Redirection vers la page principale
                     if ($user['role'] === 'student') {
-                        header("Location: ../View/templates/historique.php");
-                    } else {
-                        header("Location: ../View/templates/admin_dashboard.php");
+                        header("Location: ../View/templates/student_home_page.php");
+                    } elseif ($user['role'] === 'academic_manager') {
+                        header("Location: ../View/templates/accueil.php");
+                    } elseif ($user['role'] === 'teacher') {
+                        header("Location: ../View/templates/teacher_dashboard.php");
                     }
                     exit;
                 } else {
