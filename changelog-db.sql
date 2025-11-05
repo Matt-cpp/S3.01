@@ -370,3 +370,31 @@ CREATE INDEX idx_absence_monitoring_notifications ON absence_monitoring(return_n
 --rollback DROP INDEX IF EXISTS idx_absence_monitoring_return_detected;
 --rollback DROP INDEX IF EXISTS idx_absence_monitoring_student;
 --rollback DROP TABLE IF EXISTS absence_monitoring CASCADE;
+--changeset navrez.louis:add-rejection-validations-reasons-table labels:Enhancement context:post-initial
+CREATE TABLE rejection_validation_reasons (id Serial PRIMARY KEY,
+                                label VARCHAR(255) NOT NULL UNIQUE,
+type_of_reason VARCHAR(50) NOT NULL CHECK (type_of_reason IN ('rejection', 'validation')));
+
+--rollback DROP TABLE IF EXISTS rejection_reasons CASCADE;
+
+--changeset navrez.louis:insert-rejection-validation-reasons labels:Data context:post-initial
+--comment: Insert initial rejection and validation reasons
+
+INSERT INTO rejection_validation_reasons (label, type_of_reason) VALUES
+    ('Certificat médical', 'validation'),
+    ('Urgence familiale', 'validation'),
+    ('Erreur administrative', 'validation'),
+    ('Séance de rattrapage accordée', 'validation'),
+    ('Maladie avec justificatif', 'validation'),
+    ('Autre (validation)', 'validation')
+    ON CONFLICT (label) DO NOTHING;
+
+INSERT INTO rejection_validation_reasons (label, type_of_reason) VALUES
+    ('Pas de justificatif', 'rejection'),
+    ('Soumission trop tardive', 'rejection'),
+    ('Preuve insuffisante', 'rejection'),
+    ('Suspicion de fraude', 'rejection'),
+    ('Hors délai autorisé', 'rejection'),
+('Autre (rejet)', 'rejection')
+    ON CONFLICT (label) DO NOTHING;
+

@@ -8,11 +8,30 @@ if ($viewData['redirect']) {
     header('Location: ' . $viewData['redirect']);
     exit;
 }
+
 $proof = $viewData['proof'];
-$showRejectForm = $viewData['showRejectForm'];
-$rejectionError = $viewData['rejectionError'];
+$showRejectForm = $viewData['showRejectForm'] ?? false;
+$rejectionError = $viewData['rejectionError'] ?? '';
+$showValidateForm = $viewData['showValidateForm'] ?? false;
+$validationError = $viewData['validationError'] ?? '';
 $showInfoForm = $viewData['showInfoForm'] ?? false;
 $infoError = $viewData['infoError'] ?? '';
+$rejectionReasons = $viewData['rejectionReasons'] ?? [];
+$validationReasons = $viewData['validationReasons'] ?? [];
+$islocked = $viewData['is_locked'] ?? false;
+$lockStatus = $viewData['lock_status'] ?? ($islocked ? 'Verrouillé' : 'Déverrouillé');
+
+// Dates formatées: priorité aux champs fournis par le presenter
+$formattedStart = $proof['formatted_start'] ?? '';
+$formattedEnd = $proof['formatted_end'] ?? '';
+if (!$formattedStart && !empty($proof['absence_start_datetime'])) {
+    $dt = new DateTime($proof['absence_start_datetime']);
+    $formattedStart = $dt->format('d/m/Y \à H\hi');
+}
+if (!$formattedEnd && !empty($proof['absence_end_datetime'])) {
+    $dt2 = new DateTime($proof['absence_end_datetime']);
+    $formattedEnd = $dt2->format('d/m/Y \à H\hi');
+}
 
 if (!$proof) {
     echo "<p>Aucun justificatif trouvé pour cet ID.</p>";
@@ -20,7 +39,6 @@ if (!$proof) {
     exit;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -43,35 +61,48 @@ if (!$proof) {
             <strong>Classe:</strong> <?= htmlspecialchars($proof['group_label'] ?? 'Non attribuée') ?>
         </div>
         <div class="info-field">
-            <strong>Date de soumission:</strong> <?= htmlspecialchars($proof['submission_date'] ?? '') ?>
+            <strong>Date de soumission:</strong> <?= htmlspecialchars($proof['formatted_submission'] ?? $proof['submission_date'] ?? '') ?>
         </div>
         <div class="info-field">
-            <strong>Statut:</strong> <?= htmlspecialchars($proof['status'] ?? '') ?>
+            <strong>Statut:</strong> <?= htmlspecialchars($proof['status_label'] ?? $proof['status'] ?? '') ?>
+        </div>
+        <div class="info-field">
+            <strong>Verrouillage:</strong> <?= htmlspecialchars($lockStatus) ?>
+            <form method="POST" action="view_proof.php" style="display:inline-block; margin-left:10px;">
+                <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
+                <?php if ($islocked): ?>
+                    <input type="hidden" name="lock_action" value="unlock">
+                    <button type="submit" name="toggle_lock" value="1" class="btn btn-unlock">Déverrouiller</button>
+                <?php else: ?>
+                    <input type="hidden" name="lock_action" value="lock">
+                    <button type="submit" name="toggle_lock" value="1" class="btn btn-lock">Verrouiller</button>
+                <?php endif; ?>
+            </form>
         </div>
     </div>
 
     <div class="dates-container">
         <div class="info-field">
-            <strong>Date de début:</strong> <?= htmlspecialchars($proof['absence_start_date'] ?? '') ?>
+            <strong>Date de début :</strong> <?= htmlspecialchars($formattedStart) ?>
         </div>
         <div class="info-field">
-            <strong>Date de fin:</strong> <?= htmlspecialchars($proof['absence_end_date'] ?? '') ?>
+            <strong>Date de fin :</strong> <?= htmlspecialchars($formattedEnd) ?>
         </div>
     </div>
 
     <div class="reason-container">
         <div class="info-field">
-            <strong>Motif:</strong> <?= htmlspecialchars($proof['main_reason'] ?? '') ?>
+            <strong>Motif :</strong> <?= htmlspecialchars($proof['main_reason_label'] ?? $proof['main_reason'] ?? $proof['reason'] ?? '') ?>
         </div>
         <div class="info-field">
-            <strong>Détails:</strong> <?= htmlspecialchars($proof['custom_reason'] ?? '') ?>
+            <strong>Détails:</strong> <?= htmlspecialchars($proof['custom_reason_label'] ?? $proof['custom_reason'] ?? '') ?>
         </div>
     </div>
 
-    <a href="../Presenter/download.php?proof_id=<?= urlencode($proof['proof_id']) ?>" class="download-btn">
-        <img src="download-icon.png" alt="Télécharger le justificatif">
+    <!-- Lien vers le presenter de prévisualisation (ouvre dans un nouvel onglet) -->
+    <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>" class="download-btn" target="_blank" rel="noopener">
+        <img src="download-icon.png" alt="Consulter le justificatif">
     </a>
-
 
     <div class="actions">
         <?php if ($showInfoForm): ?>
@@ -79,7 +110,7 @@ if (!$proof) {
                 <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
                 <div class="form-group">
                     <label for="info_message">Message à l'étudiant :</label>
-                    <textarea name="info_message" id="info_message" rows="3" required></textarea>
+                    <textarea name="info_message" id="info_message" rows="3" required><?= htmlspecialchars($_POST['info_message'] ?? '') ?></textarea>
                 </div>
                 <?php if ($infoError): ?>
                     <div class="error"><?= htmlspecialchars($infoError) ?></div>
@@ -89,6 +120,7 @@ if (!$proof) {
                     <a href="view_proof.php?proof_id=<?= htmlspecialchars($proof['proof_id'] ?? '') ?>" class="btn btn-cancel">Annuler</a>
                 </div>
             </form>
+
         <?php elseif ($showRejectForm): ?>
             <form method="POST" class="rejection-form">
                 <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
@@ -96,16 +128,21 @@ if (!$proof) {
                     <label for="rejection_reason">Motif du rejet :</label>
                     <select name="rejection_reason" id="rejection_reason" required>
                         <option value="">-- Sélectionner un motif --</option>
-                        <option value="Justificatif illisible">Justificatif illisible</option>
-                        <option value="Justificatif non valable">Justificatif non valable</option>
-                        <option value="Dates non cohérentes">Dates non cohérentes</option>
-                        <option value="Absence non concernée">Absence non concernée</option>
-                        <option value="Autre">Autre</option>
+                        <?php foreach (($rejectionReasons ?? []) as $reason): ?>
+                            <option value="<?= htmlspecialchars($reason) ?>" <?= (isset($_POST['rejection_reason']) && $_POST['rejection_reason'] === $reason) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($reason) ?>
+                            </option>
+                        <?php endforeach; ?>
+                        <option value="Autre" <?= (isset($_POST['rejection_reason']) && $_POST['rejection_reason'] === 'Autre') ? 'selected' : '' ?>>Autre</option>
                     </select>
+                </div>
+                <div class="form-group" id="new-reason-group" style="display: none;">
+                    <label for="new_rejection_reason">Nouveau motif :</label>
+                    <input type="text" name="new_rejection_reason" id="new_rejection_reason" value="<?= htmlspecialchars($_POST['new_rejection_reason'] ?? '') ?>">
                 </div>
                 <div class="form-group">
                     <label for="rejection_details">Détails du rejet :</label>
-                    <textarea name="rejection_details" id="rejection_details" rows="3"></textarea>
+                    <textarea name="rejection_details" id="rejection_details" rows="3"><?= htmlspecialchars($_POST['rejection_details'] ?? '') ?></textarea>
                 </div>
                 <?php if ($rejectionError): ?>
                     <div class="error"><?= htmlspecialchars($rejectionError) ?></div>
@@ -115,6 +152,39 @@ if (!$proof) {
                     <a href="view_proof.php?proof_id=<?= htmlspecialchars($proof['proof_id'] ?? '') ?>" class="btn btn-cancel">Annuler</a>
                 </div>
             </form>
+
+        <?php elseif ($showValidateForm): ?>
+            <form method="POST" class="validation-form">
+                <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
+                <div class="form-group">
+                    <label for="validation_reason">Motif de validation :</label>
+                    <select name="validation_reason" id="validation_reason" >
+                        <option value="">-- Sélectionner un motif --</option>
+                        <?php foreach (($validationReasons ?? []) as $reason): ?>
+                            <option value="<?= htmlspecialchars($reason) ?>" <?= (isset($_POST['validation_reason']) && $_POST['validation_reason'] === $reason) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($reason) ?>
+                            </option>
+                        <?php endforeach; ?>
+                        <option value="Autre" <?= (isset($_POST['validation_reason']) && $_POST['validation_reason'] === 'Autre') ? 'selected' : '' ?>>Autre</option>
+                    </select>
+                </div>
+                <div class="form-group" id="new-validation-reason-group" style="display: none;">
+                    <label for="new_validation_reason">Nouveau motif :</label>
+                    <input type="text" name="new_validation_reason" id="new_validation_reason" value="<?= htmlspecialchars($_POST['new_validation_reason'] ?? '') ?>">
+                </div>
+                <div class="form-group">
+                    <label for="validation_details">Détails :</label>
+                    <textarea name="validation_details" id="validation_details" rows="3"><?= htmlspecialchars($_POST['validation_details'] ?? '') ?></textarea>
+                </div>
+                <?php if (!empty($validationError)): ?>
+                    <div class="error"><?= htmlspecialchars($validationError) ?></div>
+                <?php endif; ?>
+                <div class="button-group">
+                    <button type="submit" name="validate" value="1" class="btn btn-validate">Confirmer la validation</button>
+                    <a href="view_proof.php?proof_id=<?= htmlspecialchars($proof['proof_id'] ?? '') ?>" class="btn btn-cancel">Annuler</a>
+                </div>
+            </form>
+
         <?php else: ?>
             <div class="decision-buttons">
                 <form method="POST" action="view_proof.php" class="action-form">
@@ -123,10 +193,10 @@ if (!$proof) {
                         <button type="submit" name="validate" value="1" class="btn btn-validate">
                             <span class="btn-text">Valider</span>
                         </button>
-                        <button type="submit" name="reject" value="1" class="btn btn-reject">
+                        <button type="submit" name="reject" value="1" class="btn btn-reject" style="margin-left:10px;">
                             <span class="btn-text">Refuser</span>
                         </button>
-                        <button type="submit" name="request_info" value="1" class="btn btn-info">
+                        <button type="submit" name="request_info" value="1" class="btn btn-info" style="margin-left:10px;">
                             <span class="btn-text">Demander des informations</span>
                         </button>
                     </div>
@@ -135,5 +205,40 @@ if (!$proof) {
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+    (function() {
+        const rejSel = document.getElementById('rejection_reason');
+        const rejGrp = document.getElementById('new-reason-group');
+        if (rejSel && rejGrp) {
+            const toggle = () => rejGrp.style.display = (rejSel.value === 'Autre') ? 'block' : 'none';
+            rejSel.addEventListener('change', toggle);
+            toggle();
+        }
+        const valSel = document.getElementById('validation_reason');
+        const valGrp = document.getElementById('new-validation-reason-group');
+        if (valSel && valGrp) {
+            const toggleV = () => valGrp.style.display = (valSel.value === 'Autre') ? 'block' : 'none';
+            valSel.addEventListener('change', toggleV);
+            toggleV();
+        }
+    })();
+</script>
+
+<footer class="footer">
+    <div class="footer-content">
+        <div class="team-section">
+            <h3 class="team-title">Équipe de développement</h3>
+            <div class="team-names">
+                <p>CIPOLAT Matteo • BOLTZ Louis • NAVREZ Louis • COLLARD Yony • BISIAUX Ambroise • FOURNIER
+                    Alexandre</p>
+            </div>
+        </div>
+        <div class="footer-info">
+            <p>&copy; 2025 UPHF - Système de gestion des absences</p>
+        </div>
+    </div>
+</footer>
+
 </body>
 </html>
