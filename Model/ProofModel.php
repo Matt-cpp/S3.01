@@ -1,18 +1,19 @@
 <?php
 require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/AbsenceMonitoringModel.php';
 
 class ProofModel
 {
     private $db;
+    private $monitoringModel;
 
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->monitoringModel = new AbsenceMonitoringModel();
     }
 
-    /**
-     * Récupère les informations complètes d’un justificatif d’absence
-     */
+    //Récupère les informations complètes d’un justificatif d’absence
     public function getProofDetails(int $proofId): ?array
     {
         $sql = "
@@ -50,10 +51,45 @@ class ProofModel
     }
     public function updateProofStatus(int $proofId, string $status): bool
     {
-        $sql = "UPDATE proof SET status = :status WHERE id = :id";
         try {
+            // First, get the proof details to update monitoring
+            $proofDetails = $this->getProofDetails($proofId);
+
+            // Update proof status
+            $sql = "UPDATE proof SET status = :status WHERE id = :id";
             $affected = $this->db->execute($sql, ['status' => $status, 'id' => $proofId]);
             echo "<pre>Résultat update : lignes affectées = " . var_export($affected, true) . "</pre>";
+
+            // Update absence monitoring based on proof status
+            if ($proofDetails && in_array($status, ['accepted', 'pending', 'under_review'])) {
+                // Mark as justified
+                $this->monitoringModel->markAsJustifiedByProof(
+                    $proofDetails['student_identifier'],
+                    $proofDetails['absence_start_date'],
+                    $proofDetails['absence_end_date']
+                );
+            } elseif ($proofDetails && $status === 'rejected') {
+                // If rejected, we need to reset the justified flag
+                // so the student can receive reminders again
+                $resetQuery = "
+                    UPDATE absence_monitoring
+                    SET is_justified = FALSE,
+                        justified_at = NULL,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE student_identifier = :student_identifier
+                    AND (
+                        (absence_period_start <= :proof_end AND absence_period_end >= :proof_start)
+                        OR (absence_period_start >= :proof_start AND absence_period_end <= :proof_end)
+                        OR (:proof_start >= absence_period_start AND :proof_end <= absence_period_end)
+                    )
+                ";
+                $this->db->execute($resetQuery, [
+                    ':student_identifier' => $proofDetails['student_identifier'],
+                    ':proof_start' => $proofDetails['absence_start_date'],
+                    ':proof_end' => $proofDetails['absence_end_date']
+                ]);
+            }
+
             return true;
         } catch (Exception $e) {
             error_log("Erreur updateProofStatus : " . $e->getMessage());
@@ -91,7 +127,7 @@ class ProofModel
             ]);
         }
     }
-// revoir la modification de la table proof pour ajouter la colonne rejection_reason
+    // revoir la modification de la table proof pour ajouter la colonne rejection_reason
     public function setRejectionReason(int $proofId, string $reason, string $comment = ''): bool
     {
         $sql = "UPDATE proof

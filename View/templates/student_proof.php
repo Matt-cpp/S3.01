@@ -3,7 +3,7 @@
 <?php
 session_start();
 // FIXME Force student ID to 1 POUR LINSTANT
-$_SESSION['id_student'] = 1;
+$_SESSION['id_student'] = 666;
 ?>
 
 <head>

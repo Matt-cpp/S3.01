@@ -162,7 +162,7 @@ function displayCourses(courses) {
   if (courses.length === 0) {
     placeholderEl.innerHTML =
       '<div style="background-color: #f8d7da; color: #721c24; padding: 15px; border: 1px solid #f1aeb5; border-radius: 4px; margin: 10px 0;">' +
-      "<strong>⚠️ Erreur:</strong> Aucune absence non justifiée trouvée pour cette période. " +
+      "Aucune absence non justifiée trouvée pour cette période. " +
       "Vous ne pouvez soumettre un justificatif que pour des absences déjà enregistrées dans le système." +
       "</div>";
     placeholderEl.style.display = "block";

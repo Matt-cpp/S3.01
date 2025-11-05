@@ -58,6 +58,7 @@ try {
     $student_identifier = $user['identifier'];
 
     // Query to get non-justified absences with course information
+    // Excludes absences already linked to a proof in proof_absences table
     $sql = "
         SELECT DISTINCT
             cs.course_date,
@@ -82,6 +83,11 @@ try {
             AND a.status = 'absent'
             AND (cs.course_date + cs.start_time)::timestamp >= :datetime_start::timestamp
             AND (cs.course_date + cs.start_time)::timestamp <= :datetime_end::timestamp
+            AND NOT EXISTS (
+                SELECT 1 
+                FROM proof_absences pa 
+                WHERE pa.absence_id = a.id
+            )
         ORDER BY cs.course_date, cs.start_time
     ";
 

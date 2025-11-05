@@ -257,3 +257,69 @@ ALTER TABLE proof DROP COLUMN IF EXISTS rejection_reason;
 
 --rollback ALTER TABLE proof ADD COLUMN rejection_reason TEXT;
 --rollback ALTER TABLE decision_history DROP COLUMN IF EXISTS rejection_reason;
+
+--changeset collard.yony:add-import-jobs-table labels:Import tracking context:secretary-dashboard
+--comment: Add tables for tracking CSV imports and import history
+
+-- Import jobs table for background import tracking
+CREATE TABLE IF NOT EXISTS import_jobs (
+    id VARCHAR(255) PRIMARY KEY,
+    filename VARCHAR(255) NOT NULL,
+    filepath VARCHAR(500) NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
+    total_rows INTEGER DEFAULT 0,
+    processed_rows INTEGER DEFAULT 0,
+    message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Import history table for action logging
+CREATE TABLE IF NOT EXISTS import_history (
+    id SERIAL PRIMARY KEY,
+    action_type VARCHAR(100) NOT NULL,
+    description TEXT NOT NULL,
+    status VARCHAR(50) DEFAULT 'info',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add index for better performance
+CREATE INDEX idx_import_jobs_status ON import_jobs(status);
+CREATE INDEX idx_import_history_created_at ON import_history(created_at DESC);
+
+--rollback DROP INDEX IF EXISTS idx_import_history_created_at;
+--rollback DROP INDEX IF EXISTS idx_import_jobs_status;
+--rollback DROP TABLE IF EXISTS import_history CASCADE;
+--rollback DROP TABLE IF EXISTS import_jobs CASCADE;
+
+--changeset collard.yony:add-absence-tracking-table labels:Absence monitoring context:automated-notifications
+--comment: Add table to track student return to class and notification status for automated emails
+
+-- Absence monitoring table for tracking student returns and notifications
+CREATE TABLE absence_monitoring (
+    id SERIAL PRIMARY KEY,
+    student_identifier VARCHAR(50) NOT NULL REFERENCES users(identifier),
+    absence_period_start DATE NOT NULL,
+    absence_period_end DATE NOT NULL,
+    last_absence_date DATE NOT NULL,
+    return_detected_at TIMESTAMP,
+    return_notification_sent BOOLEAN DEFAULT FALSE,
+    return_notification_sent_at TIMESTAMP,
+    reminder_notification_sent BOOLEAN DEFAULT FALSE,
+    reminder_notification_sent_at TIMESTAMP,
+    is_justified BOOLEAN DEFAULT FALSE,
+    justified_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(student_identifier, absence_period_start, absence_period_end)
+);
+
+-- Add index for better performance
+CREATE INDEX idx_absence_monitoring_student ON absence_monitoring(student_identifier);
+CREATE INDEX idx_absence_monitoring_return_detected ON absence_monitoring(return_detected_at);
+CREATE INDEX idx_absence_monitoring_notifications ON absence_monitoring(return_notification_sent, reminder_notification_sent);
+
+--rollback DROP INDEX IF EXISTS idx_absence_monitoring_notifications;
+--rollback DROP INDEX IF EXISTS idx_absence_monitoring_return_detected;
+--rollback DROP INDEX IF EXISTS idx_absence_monitoring_student;
+--rollback DROP TABLE IF EXISTS absence_monitoring CASCADE;
