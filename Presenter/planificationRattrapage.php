@@ -48,8 +48,8 @@ class planificationRattrapage{
     }
     public function insererRattrapage($idAbs, $evalId, $studentId, $dateRattrapage, $comment = null) {
         // Insérer le nouveau rattrapage
-        $insertQuery = "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, is_completed, makeup_date, comment) 
-                        VALUES (:absence_id, :evaluation_slot_id, :student_identifier, false, :makeup_date, :comment)";
+        $insertQuery = "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, scheduled, makeup_date, comment) 
+                        VALUES (:absence_id, :evaluation_slot_id, :student_identifier, true, :makeup_date, :comment)";
         $insertParams = [
             ':absence_id' => $idAbs,
             ':evaluation_slot_id' => $evalId,
