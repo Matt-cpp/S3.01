@@ -151,7 +151,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Rediriger avec un message de succès
         $_SESSION['success_message'] = 'Votre justificatif a été modifié avec succès et repassé en attente de validation.';
-        header('Location: ../View/templates/student_absences.php?success=1');
+        header('Location: ../View/templates/student_proofs.php');
         exit();
 
     } catch (Exception $e) {
@@ -162,13 +162,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_SESSION['edit_proof'])) {
             header('Location: ../View/templates/student_proof_edit.php');
         } else {
-            header('Location: ../View/templates/student_absences.php');
+            header('Location: ../View/templates/student_proofs.php');
         }
         exit();
     }
 } else {
     // Si la requête n'est pas POST, rediriger
-    header('Location: ../View/templates/student_absences.php');
+    header('Location: ../View/templates/student_proofs.php');
     exit();
 }
 

@@ -6,7 +6,7 @@ require_once __DIR__ . '/../Model/database.php';
 // Vérifier si l'ID du justificatif est fourni
 if (!isset($_GET['proof_id'])) {
     $_SESSION['error_message'] = "Aucun justificatif spécifié.";
-    header('Location: ../View/templates/student_absences.php');
+    header('Location: ../View/templates/student_proofs.php');
     exit();
 }
 
@@ -37,14 +37,14 @@ try {
 
     if (!$proof) {
         $_SESSION['error_message'] = "Justificatif non trouvé.";
-        header('Location: ../View/templates/student_absences.php');
+        header('Location: ../View/templates/student_proofs.php');
         exit();
     }
 
     // Vérifier que le justificatif est bien en révision
     if ($proof['status'] !== 'under_review') {
         $_SESSION['error_message'] = "Seuls les justificatifs en révision peuvent être modifiés.";
-        header('Location: ../View/templates/student_absences.php');
+        header('Location: ../View/templates/student_proofs.php');
         exit();
     }
 
@@ -55,7 +55,7 @@ try {
 
     if (!$studentInfo || $proof['student_identifier'] !== $studentInfo['identifier']) {
         $_SESSION['error_message'] = "Vous n'êtes pas autorisé à modifier ce justificatif.";
-        header('Location: ../View/templates/student_absences.php');
+        header('Location: ../View/templates/student_proofs.php');
         exit();
     }
 
@@ -96,7 +96,7 @@ try {
 } catch (Exception $e) {
     error_log("Erreur dans get_proof_for_edit.php : " . $e->getMessage());
     $_SESSION['error_message'] = "Une erreur est survenue lors du chargement du justificatif.";
-    header('Location: ../View/templates/student_absences.php');
+    header('Location: ../View/templates/student_proofs.php');
     exit();
 }
 
