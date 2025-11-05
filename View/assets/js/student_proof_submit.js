@@ -648,6 +648,15 @@ window.addEventListener("DOMContentLoaded", function () {
   // Check submission delay on page load
   checkSubmissionDelay();
 
+  // Si nous sommes en mode édition et que les dates sont déjà remplies, charger les cours automatiquement
+  if (window.isEditing) {
+    var dateStart = document.getElementById("datetime_start").value;
+    var dateEnd = document.getElementById("datetime_end").value;
+    if (dateStart && dateEnd) {
+      fetchAbsences();
+    }
+  }
+
   document
     .getElementById("datetime_start")
     .addEventListener("change", function () {

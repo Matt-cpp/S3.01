@@ -64,9 +64,9 @@ class StudentAbsencesPresenter
     {
         $db = Database::getInstance()->getConnection();
         
-        // Requête avec priorité des statuts : accepted > under_review > pending > rejected > null
+        // Requête simple pour récupérer toutes les absences
         $query = "
-            SELECT DISTINCT ON (a.id)
+            SELECT 
                 a.id as absence_id,
                 cs.course_date,
                 cs.start_time,
@@ -80,17 +80,12 @@ class StudentAbsencesPresenter
                 t.first_name as teacher_first_name,
                 t.last_name as teacher_last_name,
                 rm.code as room_name,
+                p.id as proof_id,
                 p.main_reason as motif,
                 p.custom_reason as custom_motif,
                 p.file_path as file_path,
                 p.status as proof_status,
-                CASE 
-                    WHEN p.status = 'accepted' THEN 1
-                    WHEN p.status = 'under_review' THEN 2
-                    WHEN p.status = 'pending' THEN 3
-                    WHEN p.status = 'rejected' THEN 4
-                    ELSE 5
-                END as status_priority
+                p.manager_comment
             FROM absences a
             JOIN course_slots cs ON a.course_slot_id = cs.id
             LEFT JOIN resources r ON cs.resource_id = r.id
@@ -132,10 +127,8 @@ class StudentAbsencesPresenter
             $params[':course_type'] = $this->filters['course_type'];
         }
         
-        // Ordre : d'abord par absence_id puis par priorité de statut pour éliminer les doublons
-        // Ensuite, on trie par date décroissante (plus récent en premier)
-        $query .= " ORDER BY a.id, status_priority ASC";
-        
+        $query .= " ORDER BY cs.course_date DESC, cs.start_time DESC";
+
         try {
             $stmt = $db->prepare($query);
             $stmt->execute($params);
@@ -143,6 +136,25 @@ class StudentAbsencesPresenter
             
             // Trier les résultats par date et heure décroissantes (plus récent en premier)
             usort($results, function($a, $b) {
+                // Définir la priorité des statuts (1 = plus important)
+                $statusPriority = [
+                    'accepted' => 1,
+                    'under_review' => 2,
+                    'pending' => 3,
+                    'rejected' => 4,
+                    null => 5,  // Non justifiée
+                    '' => 5     // Non justifiée
+                ];
+
+                $priorityA = $statusPriority[$a['proof_status'] ?? null] ?? 5;
+                $priorityB = $statusPriority[$b['proof_status'] ?? null] ?? 5;
+
+                // D'abord trier par priorité de statut
+                if ($priorityA !== $priorityB) {
+                    return $priorityA - $priorityB;
+                }
+
+                // Ensuite par date décroissante (plus récent en premier)
                 $dateCompare = strtotime($b['course_date']) - strtotime($a['course_date']);
                 if ($dateCompare !== 0) {
                     return $dateCompare;
