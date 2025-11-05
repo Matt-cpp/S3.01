@@ -25,11 +25,11 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/logoIUT.ico">
     <title>Validé</title>
-    <link rel="stylesheet" href="../assets/css/validation-student-proof.css">
+    <link rel="stylesheet" href="../assets/css/student_proof_validation.css">
 </head>
 
 <body>
-    <?php include __DIR__ . '/navbar.php'; ?>
+    <?php include __DIR__ . '/student_navbar.php'; ?>
     <div class="container">
         <h1>Votre justificatif a été envoyé</h1>
 

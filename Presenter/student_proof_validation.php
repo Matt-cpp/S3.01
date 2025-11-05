@@ -289,6 +289,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </ul>
             <p>Vous recevrez une notification par email une fois que votre justificatif aura été traité par l\'administration.</p>
             <br>
+            <p style="font-size:0.85em;color:#6c757d;margin-top:10px;"><small>Ce message est automatique — merci de ne pas y répondre.</small></p>
             <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
             <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
             ';
@@ -367,7 +368,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             };
 
             // Send response to user immediately, then handle emails in background
-            header("Location: ../View/templates/validation_student_proof.php");
+            header("Location: ../View/templates/student_proof_validation.php");
 
             // Now handle email operations in background (user already redirected)
             try {
@@ -454,12 +455,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     } catch (Exception $e) {
         $_SESSION['error_message'] = $e->getMessage();
-        header("Location: ../View/templates/student_proof.php?error=1");
+        header("Location: ../View/templates/student_proof_submit.php?error=1");
         exit();
     }
 } else {
     // Redirect if not POST request
-    header("Location: ../View/templates/student_proof.php");
+    header("Location: ../View/templates/student_proof_submit.php");
     exit();
 }
 

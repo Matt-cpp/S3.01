@@ -26,14 +26,26 @@ function validateDates() {
   var dateEnd = document.getElementById("datetime_end").value;
 
   var realTime = getRealTime();
+  var maxEndDate = new Date(realTime);
+  maxEndDate.setDate(maxEndDate.getDate() + 1);
 
   // Validation of the end date being after the start date
   if (dateStart && dateEnd) {
     var debut = new Date(dateStart);
     var fin = new Date(dateEnd);
+    
     if (fin <= debut) {
       alert(
         "La date/heure de fin doit être postérieure à la date/heure de début."
+      );
+      document.getElementById("datetime_end").value = "";
+      return false;
+    }
+
+    // Check if end date is more than 1 day after current date
+    if (fin > maxEndDate) {
+      alert(
+        "La date/heure de fin ne peut pas être plus d'un jour après la date actuelle."
       );
       document.getElementById("datetime_end").value = "";
       return false;
@@ -563,7 +575,79 @@ function showCoursesError(message) {
   document.getElementById("absence_stats_evaluation_details").value = "[]";
 }
 
+// Function to check 48h delay warning
+function checkSubmissionDelay() {
+  var warningContainer = document.getElementById("delay_warning_container");
+  if (!warningContainer) {
+    // Create the warning container if it doesn't exist
+    var main = document.querySelector("main");
+    if (main) {
+      warningContainer = document.createElement("div");
+      warningContainer.id = "delay_warning_container";
+      warningContainer.style.marginBottom = "20px";
+      // Insert after the page title
+      var pageTitle = document.querySelector(".page-title");
+      if (pageTitle && pageTitle.nextSibling) {
+        main.insertBefore(warningContainer, pageTitle.nextSibling);
+      } else {
+        main.insertBefore(warningContainer, main.firstChild);
+      }
+    }
+  }
+
+  // Make AJAX request to check delay
+  var xhr = new XMLHttpRequest();
+  var url = "../../Presenter/check_proof_submission_delay.php?student_id=" + (window.studentId || 1);
+
+  xhr.open("GET", url, true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      try {
+        var response = JSON.parse(xhr.responseText);
+        
+        if (response.success && response.show_warning && response.warning_message) {
+          displayDelayWarning(response.warning_message);
+        } else {
+          // Hide warning if not needed
+          if (warningContainer) {
+            warningContainer.style.display = "none";
+          }
+        }
+      } catch (e) {
+        console.error("Error parsing delay check response:", e);
+      }
+    }
+  };
+
+  xhr.onerror = function () {
+    console.error("Network error while checking submission delay");
+  };
+
+  xhr.send();
+}
+
+// Function to display delay warning
+function displayDelayWarning(message) {
+  var warningContainer = document.getElementById("delay_warning_container");
+  if (!warningContainer) return;
+
+  warningContainer.innerHTML = 
+    '<div style="background-color: #fff3cd; color: #856404; padding: 20px; border: 2px solid #ffc107; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">' +
+    '<div style="display: flex; align-items: start; gap: 15px;">' +
+    '<div style="font-size: 32px; flex-shrink: 0;">⚠️</div>' +
+    '<div style="flex-grow: 1;">' +
+    message +
+    '</div>' +
+    '</div>' +
+    '</div>';
+  
+  warningContainer.style.display = "block";
+}
+
 window.addEventListener("DOMContentLoaded", function () {
+  // Check submission delay on page load
+  checkSubmissionDelay();
+
   document
     .getElementById("datetime_start")
     .addEventListener("change", function () {

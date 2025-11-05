@@ -12,38 +12,39 @@ $_SESSION['id_student'] = 1;
     <link rel="icon" type="image/x-icon" href="../img/logoIUT.ico">
     <title>Soumission Justificatif Élève</title>
 
-    <link rel="stylesheet" href="../assets/css/student-proof.css">
+    <link rel="stylesheet" href="../assets/css/student_proof_submit.css">
     <script>
         // Pass PHP session data to JavaScript
         window.studentId = <?php echo $_SESSION['id_student'] ?? 1; ?>;
     </script>
-    <script src="../assets/js/student-proof.js"></script>
+    <script src="../assets/js/student_proof_submit.js"></script>
 
 </head>
 
 <body>
-    <?php include __DIR__ . '/navbar.php'; ?>
+    <?php include __DIR__ . '/student_navbar.php'; ?>
 
-    <?php
-    // Display error message if there's one in session
-    if (isset($_SESSION['error_message'])) {
-        echo '<div style="background-color: #f8d7da; color: #721c24; padding: 15px; border: 1px solid #f1aeb5; border-radius: 4px; margin: 20px; text-align: center;">';
-        echo '<strong>⚠️ Erreur:</strong> ' . htmlspecialchars($_SESSION['error_message']);
-        echo '</div>';
-        unset($_SESSION['error_message']); // Clear the message after displaying
-    }
+    <main>
+        <?php
+        // Display error message if there's one in session
+        if (isset($_SESSION['error_message'])) {
+            echo '<div class="error-message">';
+            echo '<strong>⚠️ Erreur:</strong> ' . htmlspecialchars($_SESSION['error_message']);
+            echo '</div>';
+            unset($_SESSION['error_message']); // Clear the message after displaying
+        }
 
-    // Display success message if redirected from successful submission
-    if (isset($_GET['success'])) {
-        echo '<div style="background-color: #d4edda; color: #155724; padding: 15px; border: 1px solid #c3e6cb; border-radius: 4px; margin: 20px; text-align: center;">';
-        echo '<strong>✅ Succès:</strong> Votre justificatif a été soumis avec succès !';
-        echo '</div>';
-    }
-    ?>
+        // Display success message if redirected from successful submission
+        if (isset($_GET['success'])) {
+            echo '<div class="success-message">';
+            echo '<strong>✅ Succès:</strong> Votre justificatif a été soumis avec succès !';
+            echo '</div>';
+        }
+        ?>
 
-    <h1>Absence</h1>
+        <h1 class="page-title">Création de justificatif</h1>
 
-    <form action="../../Presenter/validate_student_proof.php" method="post" enctype="multipart/form-data">
+        <form action="../../Presenter/student_proof_validation.php" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="datetime_start">Date et heure de début d'absence :</label>
             <input type="datetime-local" id="datetime_start" name="datetime_start" required>
@@ -121,9 +122,8 @@ $_SESSION['id_student'] = 1;
         <div class="form-group">
             <button type="submit" class="submit-btn">Soumettre le justificatif</button>
         </div>
-
-
-    </form>
+        </form>
+    </main>
 </body>
 
 </html>
