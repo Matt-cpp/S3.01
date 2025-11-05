@@ -13,9 +13,8 @@ $student_identifier = getStudentIdentifier($_SESSION['id_student']);
 
 $presenter = new StudentAbsencesPresenter($student_identifier);
 
-// Utiliser les données en session si disponibles et récentes (cache de 30 secondes pour meilleures performances)
-// Les absences ne changent pas en temps réel, un cache de 30 secondes est suffisant
-if (!isset($_SESSION['Absences']) || (!isset($_SESSION['CourseTypes']) || !isset($_SESSION['Filters']) || !isset($_SESSION['ErrorMessage'])) || shouldRefreshCache(30)) {
+// Utiliser les données en session si disponibles et récentes
+if (!isset($_SESSION['Absences']) || (!isset($_SESSION['CourseTypes']) || !isset($_SESSION['Filters']) || !isset($_SESSION['ErrorMessage'])) || shouldRefreshCache(15)) {
     
     $absences = $presenter->getAbsences();
     $courseTypes = $presenter->getCourseTypes();
@@ -127,26 +126,21 @@ $errorMessage = $presenter->getErrorMessage();
                     <?php else: ?>
                         <?php foreach ($absences as $absence): ?>
                             <?php 
-                            $courseType = $absence['course_type'] ?? 'Non spécifié';
+                            $courseType = strtoupper($absence['course_type'] ?? 'Autre');
                             $badge_class = '';
-                            $emoji = '';
                             
                             switch($courseType) {
                                 case 'CM':
                                     $badge_class = 'badge-cm';
-                                    $emoji = '📚';
                                     break;
                                 case 'TD':
                                     $badge_class = 'badge-td';
-                                    $emoji = '✏️';
                                     break;
                                 case 'TP':
                                     $badge_class = 'badge-tp';
-                                    $emoji = '💻';
                                     break;
                                 default:
                                     $badge_class = 'badge-other';
-                                    $emoji = '📖';
                             }
                             
                             $status = $presenter->getProofStatus($absence);
@@ -170,7 +164,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-teacher="<?php echo $teacher; ?>"
                                 data-room="<?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?>"
                                 data-duration="<?php echo number_format($absence['duration_minutes'] / 60, 1); ?>"
-                                data-type="<?php echo $emoji . ' ' . htmlspecialchars($courseType); ?>"
+                                data-type="<?php echo htmlspecialchars($courseType); ?>"
                                 data-type-badge="<?php echo $badge_class; ?>"
                                 data-evaluation="<?php echo $absence['is_evaluation'] ? 'Oui' : 'Non'; ?>"
                                 data-motif="<?php echo htmlspecialchars($presenter->translateMotif($absence['motif'], $absence['custom_motif'])); ?>"
@@ -188,15 +182,15 @@ $errorMessage = $presenter->getErrorMessage();
                                 <td><?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?></td>
                                 <td><strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong></td>
                                 <td>
-                                    <span class="badge <?php echo $badge_class; ?>">
-                                        <?php echo $emoji . ' ' . htmlspecialchars($courseType); ?>
+                                    <span class="course-type-badge <?php echo $badge_class; ?>">
+                                        <?php echo htmlspecialchars($courseType); ?>
                                     </span>
                                 </td>
                                 <td>
                                     <?php if ($absence['is_evaluation']): ?>
-                                        <span class="badge badge-evaluation-yes">Oui</span>
+                                        <span class="eval-badge">⚠️ Oui</span>
                                     <?php else: ?>
-                                        <span class="badge badge-evaluation-no">Non</span>
+                                        <span class="no-eval">Non</span>
                                     <?php endif; ?>
                                 </td>
                                 <td><?php echo $presenter->translateMotif($absence['motif'], $absence['custom_motif']); ?></td>
