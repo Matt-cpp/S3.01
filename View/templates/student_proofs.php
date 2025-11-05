@@ -275,10 +275,10 @@ $errorMessage = $presenter->getErrorMessage();
                     <div class="modal-comment-box" id="modalComment"></div>
                 </div>
 
-                <!-- Bouton Compléter (visible uniquement pour les justificatifs en révision) -->
+                <!-- Bouton Modifier (visible uniquement pour les justificatifs en révision) -->
                 <div class="modal-action-section" id="actionSection" style="display: none; margin-top: 20px; text-align: center;">
-                    <a href="#" id="modalCompleteBtn" class="btn-add-info" style="display: inline-block; padding: 12px 24px; text-decoration: none;">
-                        📝 Compléter le justificatif
+                    <a href="#" id="modalEditBtn" class="btn-add-info" style="display: inline-block; padding: 12px 24px; text-decoration: none; background-color: #ffc107; color: #000; font-weight: bold;">
+                        ✏️ Modifier le justificatif
                     </a>
                 </div>
             </div>

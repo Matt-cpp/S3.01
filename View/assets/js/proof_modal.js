@@ -61,12 +61,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('commentSection').style.display = 'none';
             }
 
-            // Afficher le bouton "Compléter" uniquement pour les justificatifs en révision
+            // Afficher le bouton "Modifier" uniquement pour les justificatifs en révision
             const actionSection = document.getElementById('actionSection');
-            const completeBtn = document.getElementById('modalCompleteBtn');
+            const editBtn = document.getElementById('modalEditBtn');
             if (status === 'under_review' && proofId) {
                 actionSection.style.display = 'block';
-                completeBtn.href = 'student_proof_add_info.php?proof_id=' + proofId;
+                editBtn.href = '../../Presenter/get_proof_for_edit.php?proof_id=' + proofId;
             } else {
                 actionSection.style.display = 'none';
             }

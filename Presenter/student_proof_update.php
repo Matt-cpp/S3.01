@@ -117,7 +117,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 status = 'pending',
                 processing_date = NULL,
                 manager_comment = NULL,
-                rejection_reason = NULL,
                 updated_at = NOW()
             WHERE id = :proof_id
         ";
