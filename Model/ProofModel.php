@@ -148,7 +148,7 @@ class ProofModel
               AND a.justified = TRUE";
             $this->db->execute($sql, [
                 'student_identifier' => $studentIdentifier,
-                'start_date' => $StartDate,
+                'start_date' => $startDate,
                 'end_date' => $endDate
             ]);
         }

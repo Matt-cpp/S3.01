@@ -2,13 +2,18 @@
 <html lang="fr">
 
 <head>
-    <title>Tableau de bord</title>
+    <title>Tableau de bord - Responsable Pédagogique</title>
     <meta charset="UTF-8">
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
     <link rel="stylesheet" href="../assets/css/accueil.css">
 </head>
 
 <body>
     <?php
+    require_once __DIR__ . '/../../controllers/auth_guard.php';
+    $user = requireRole('academic_manager');
+
     require_once __DIR__ . '/../../Presenter/tableauDeBord.php';
     $donnes = new backendTableauDeBord();
     ?>
@@ -93,6 +98,7 @@
             </div>
         </div>
     </footer>
+    <?php renderThemeScript(); ?>
 </body>
 
 </html>

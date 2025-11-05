@@ -15,27 +15,26 @@ class AbsenceModel
     public function getAllAbsences($filters = [])
     {
         $query = "
-            WITH absence_data AS (
-                SELECT DISTINCT ON (a.id)
-                    a.id as absence_id,
-                    CONCAT(u.first_name, ' ', u.last_name) as student_name,
-                    u.identifier as student_identifier,
-                    COALESCE(r.label, 'Non spécifié') as course,
-                    cs.course_date as date,
-                    cs.start_time::text as start_time,
-                    cs.end_time::text as end_time,
-                    cs.course_type,
-                    a.justified as status,
-                    p.main_reason as motif,
-                    p.file_path as file_path,
-                    p.status as justification_status
-                FROM absences a
-                JOIN users u ON a.student_identifier = u.identifier
-                JOIN course_slots cs ON a.course_slot_id = cs.id
-                LEFT JOIN resources r ON cs.resource_id = r.id
-                LEFT JOIN proof_absences pa ON a.id = pa.absence_id
-                LEFT JOIN proof p ON pa.proof_id = p.id
-                WHERE 1=1
+            SELECT DISTINCT ON (a.id)
+                a.id as absence_id,
+                CONCAT(u.first_name, ' ', u.last_name) as student_name,
+                u.identifier as student_identifier,
+                COALESCE(r.label, 'Non spécifié') as course,
+                cs.course_date as date,
+                cs.start_time::text as start_time,
+                cs.end_time::text as end_time,
+                cs.course_type,
+                a.justified as status,
+                p.main_reason as motif,
+                p.file_path as file_path,
+                p.status as justification_status
+            FROM absences a
+            JOIN users u ON a.student_identifier = u.identifier
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            LEFT JOIN resources r ON cs.resource_id = r.id
+            LEFT JOIN proof_absences pa ON a.id = pa.absence_id
+            LEFT JOIN proof p ON pa.proof_id = p.id
+            WHERE 1=1
         ";
 
         $params = [];
@@ -55,7 +54,7 @@ class AbsenceModel
             $conditions[] = "cs.course_date <= :end_date";
             $params[':end_date'] = $filters['end_date'];
         }
-        
+
         if (!empty($filters['JustificationStatus'])) {
             if ($filters['JustificationStatus'] === 'En attente') {
                 $conditions[] = "p.status = 'pending'";
@@ -67,6 +66,8 @@ class AbsenceModel
                 $conditions[] = "p.status = 'under_review'";
             } elseif ($filters['JustificationStatus'] === 'Non justifiée') {
                 $conditions[] = "p.status IS NULL";
+            }
+        }
 
         if (!empty($filters['status'])) {
             if ($filters['status'] === 'justifiée') {
@@ -94,6 +95,7 @@ class AbsenceModel
             return [];
         }
     }
+
 
     //Récupère tous les types de cours disponibles
     public function getCourseTypes()

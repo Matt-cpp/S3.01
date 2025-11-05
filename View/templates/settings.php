@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paramètres - UPHF</title>
+    <?php include __DIR__ . '/../includes/theme-helper.php'; renderThemeSupport(); ?>
     <link rel="stylesheet" href="/View/assets/css/navbar.css">
     <link rel="stylesheet" href="/View/assets/css/settings.css">
 </head>
 <body>
     <?php
+    require_once __DIR__ . '/../../controllers/auth_guard.php';
+    $authUser = requireAuth(); // Available to all authenticated users
+    
     require_once __DIR__ . '/../../Presenter/settings-presenter.php';
     $presenter = new SettingsPresenter();
     $user = $presenter->getCurrentUser();

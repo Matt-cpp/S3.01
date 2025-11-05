@@ -355,11 +355,11 @@ SELECT is(
 -- =============================================
 -- Test: Insert import history
 -- =============================================
-INSERT INTO import_history (action, details, status)
+INSERT INTO import_history (action_type, description, status)
 VALUES ('csv_import', 'Imported 100 students', 'success');
 
 SELECT is(
-    (SELECT COUNT(*) FROM import_history WHERE action = 'csv_import'),
+    (SELECT COUNT(*) FROM import_history WHERE action_type = 'csv_import'),
     1::bigint,
     'Should insert import history successfully'
 );

@@ -18,6 +18,7 @@ try {
     $datetime_start = $_GET['datetime_start'] ?? '';
     $datetime_end = $_GET['datetime_end'] ?? '';
     $student_id = $_GET['student_id'] ?? 1; // Default to 1 as requested
+    $proof_id = $_GET['proof_id'] ?? null; // For editing mode
 
     // Validate required parameters
     if (empty($datetime_start) || empty($datetime_end)) {
@@ -59,6 +60,7 @@ try {
 
     // Query to get non-justified absences with course information
     // Excludes absences already linked to a proof in proof_absences table
+    // EXCEPT if we're editing and the proof_id is provided (then include absences for that proof)
     $sql = "
         SELECT DISTINCT
             cs.course_date,
@@ -83,10 +85,17 @@ try {
             AND a.status = 'absent'
             AND (cs.course_date + cs.start_time)::timestamp >= :datetime_start::timestamp
             AND (cs.course_date + cs.start_time)::timestamp <= :datetime_end::timestamp
-            AND NOT EXISTS (
-                SELECT 1 
-                FROM proof_absences pa 
-                WHERE pa.absence_id = a.id
+            AND (
+                NOT EXISTS (
+                    SELECT 1 
+                    FROM proof_absences pa 
+                    WHERE pa.absence_id = a.id
+                )
+                " . ($proof_id ? "OR EXISTS (
+                    SELECT 1 
+                    FROM proof_absences pa 
+                    WHERE pa.absence_id = a.id AND pa.proof_id = :proof_id
+                )" : "") . "
             )
         ORDER BY cs.course_date, cs.start_time
     ";
@@ -96,6 +105,10 @@ try {
         'datetime_start' => $start_date,
         'datetime_end' => $end_date
     ];
+
+    if ($proof_id) {
+        $params['proof_id'] = $proof_id;
+    }
 
     $absences = $db->select($sql, $params);
 

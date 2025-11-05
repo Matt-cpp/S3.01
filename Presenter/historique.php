@@ -1,6 +1,6 @@
 <?php
 // Protection de la page avec authentification simple
-require_once __DIR__ . '/../controllers/auth.php';
+require_once __DIR__ . '/../controllers/auth_guard.php';
 $user = requireAuth();
 
 require_once __DIR__ . '/../Model/AbsenceModel.php';
@@ -131,12 +131,12 @@ class HistoriquePresenter
         return date('d/m/Y', strtotime($date));
     }
 
-        public function formatTime($startTime, $endTime)
-        {
-            $start = date('H:i', strtotime($startTime));
-            $end = date('H:i', strtotime($endTime));
-            return $start . '-' . $end;
-        }
+    public function formatTime($startTime, $endTime)
+    {
+        $start = date('H:i', strtotime($startTime));
+        $end = date('H:i', strtotime($endTime));
+        return $start . '-' . $end;
+    }
 }
 
 $presenter = new HistoriquePresenter();

@@ -1,0 +1,370 @@
+/**
+ * Global Dark Mode Styles
+ * Apply consistent dark mode across all pages
+ */
+
+/* Light mode (default) variables */
+:root {
+  /* Primary colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --bg-card: #ffffff;
+  
+  /* Text colors */
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-tertiary: #adb5bd;
+  --text-inverse: #ffffff;
+  
+  /* Border colors */
+  --border-color: #dee2e6;
+  --border-light: #e9ecef;
+  --border-dark: #adb5bd;
+  
+  /* UI colors */
+  --primary: #007bff;
+  --primary-hover: #0056b3;
+  --success: #28a745;
+  --success-hover: #218838;
+  --warning: #ffc107;
+  --warning-hover: #e0a800;
+  --danger: #dc3545;
+  --danger-hover: #c82333;
+  --info: #17a2b8;
+  --info-hover: #138496;
+  
+  /* Shadow */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Input colors */
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+  --input-focus-border: #80bdff;
+  --input-placeholder: #6c757d;
+  
+  /* Table colors */
+  --table-header-bg: #f8f9fa;
+  --table-row-hover: #f8f9fa;
+  --table-border: #dee2e6;
+  
+  /* Footer */
+  --footer-bg: #343a40;
+  --footer-text: #ffffff;
+  
+  /* Navbar */
+  --navbar-bg: #ffffff;
+  --navbar-text: #212529;
+  --navbar-border: #dee2e6;
+}
+
+/* Dark mode variables */
+.dark-mode,
+html.dark-mode,
+body.dark-mode {
+  /* Primary colors */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #3a3a3a;
+  --bg-card: #2d2d2d;
+  
+  /* Text colors */
+  --text-primary: #e9ecef;
+  --text-secondary: #adb5bd;
+  --text-tertiary: #6c757d;
+  --text-inverse: #212529;
+  
+  /* Border colors */
+  --border-color: #495057;
+  --border-light: #3a3a3a;
+  --border-dark: #6c757d;
+  
+  /* UI colors - slightly adjusted for dark mode */
+  --primary: #0d6efd;
+  --primary-hover: #0a58ca;
+  --success: #198754;
+  --success-hover: #146c43;
+  --warning: #ffc107;
+  --warning-hover: #ffca2c;
+  --danger: #dc3545;
+  --danger-hover: #bb2d3b;
+  --info: #0dcaf0;
+  --info-hover: #31d2f2;
+  
+  /* Shadow - lighter for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  
+  /* Input colors */
+  --input-bg: #2d2d2d;
+  --input-border: #495057;
+  --input-focus-border: #0d6efd;
+  --input-placeholder: #6c757d;
+  
+  /* Table colors */
+  --table-header-bg: #3a3a3a;
+  --table-row-hover: #3a3a3a;
+  --table-border: #495057;
+  
+  /* Footer */
+  --footer-bg: #0d0d0d;
+  --footer-text: #e9ecef;
+  
+  /* Navbar */
+  --navbar-bg: #2d2d2d;
+  --navbar-text: #e9ecef;
+  --navbar-border: #495057;
+}
+
+/* Apply dark mode to body and html */
+.dark-mode,
+html.dark-mode body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Global element styles */
+.dark-mode * {
+  border-color: var(--border-color);
+}
+
+/* Cards */
+.dark-mode .card,
+.dark-mode .settings-section,
+.dark-mode .stat-card,
+.dark-mode .overview-card,
+.dark-mode .absences-section,
+.dark-mode .section,
+.dark-mode .modal-content {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+/* Inputs */
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border-color: var(--input-border);
+}
+
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+  color: var(--input-placeholder);
+}
+
+.dark-mode input:focus,
+.dark-mode textarea:focus,
+.dark-mode select:focus {
+  border-color: var(--input-focus-border);
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* Tables */
+.dark-mode table,
+.dark-mode .table {
+  color: var(--text-primary);
+  border-color: var(--table-border);
+}
+
+.dark-mode thead,
+.dark-mode .table thead {
+  background-color: var(--table-header-bg);
+  color: var(--text-primary);
+}
+
+.dark-mode tbody tr:hover,
+.dark-mode .table tbody tr:hover {
+  background-color: var(--table-row-hover);
+}
+
+.dark-mode th,
+.dark-mode td {
+  border-color: var(--table-border);
+}
+
+/* Navbar */
+.dark-mode .header,
+.dark-mode nav,
+.dark-mode .navbar {
+  background-color: var(--navbar-bg);
+  color: var(--navbar-text);
+  border-color: var(--navbar-border);
+}
+
+.dark-mode .header a,
+.dark-mode nav a,
+.dark-mode .navbar a {
+  color: var(--navbar-text);
+}
+
+.dark-mode .icon {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+.dark-mode .icon:hover {
+  background: var(--bg-secondary);
+}
+
+/* Nav links for students */
+.dark-mode .nav-link {
+  color: var(--navbar-text);
+}
+
+.dark-mode .nav-link:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.dark-mode .nav-link.active {
+  background: #3730a3;
+  color: #e0e7ff;
+}
+
+/* Footer */
+.dark-mode footer,
+.dark-mode .footer {
+  background-color: var(--footer-bg);
+  color: var(--footer-text);
+}
+
+/* Buttons - maintain their colors but adjust for dark mode */
+.dark-mode .btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.dark-mode .btn-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.dark-mode .btn-success {
+  background-color: var(--success);
+  border-color: var(--success);
+}
+
+.dark-mode .btn-warning {
+  background-color: var(--warning);
+  border-color: var(--warning);
+  color: var(--text-inverse);
+}
+
+.dark-mode .btn-danger {
+  background-color: var(--danger);
+  border-color: var(--danger);
+}
+
+.dark-mode .btn-secondary {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Badges and status indicators */
+.dark-mode .badge,
+.dark-mode .status-badge {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Links */
+.dark-mode a {
+  color: var(--primary);
+}
+
+.dark-mode a:hover {
+  color: var(--primary-hover);
+}
+
+/* Modals */
+.dark-mode .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Scrollbar */
+.dark-mode ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.dark-mode ::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: #4a4a4a;
+}
+
+/* Progress bars */
+.dark-mode .progress-bar {
+  background-color: var(--bg-tertiary);
+}
+
+/* Alerts */
+.dark-mode .alert,
+.dark-mode .alert-box {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Code blocks */
+.dark-mode code,
+.dark-mode pre {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* HR */
+.dark-mode hr {
+  border-color: var(--border-color);
+}
+
+/* Profile dropdown */
+.dark-mode .profile-dropdown {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+.dark-mode .dropdown-item {
+  color: var(--text-primary);
+}
+
+.dark-mode .dropdown-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.dark-mode .dropdown-item.logout {
+  color: var(--danger);
+}
+
+.dark-mode .dropdown-item.logout:hover {
+  background: rgba(220, 53, 69, 0.1);
+}
+
+/* Smooth transition for theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Disable transitions for immediate theme application on page load */
+.no-transition * {
+  transition: none !important;
+}

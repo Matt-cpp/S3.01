@@ -1,5 +1,8 @@
 <?php
-// dashboard-secretary.php
+// secretary_home.php (formerly dashboard-secretary.php)
+require_once __DIR__ . '/../../controllers/auth_guard.php';
+$user = requireRole('secretary');
+
 require_once __DIR__ . '/../../Presenter/dashboard-secretary-presenter.php';
 ?>
 <!DOCTYPE html>
@@ -9,6 +12,8 @@ require_once __DIR__ . '/../../Presenter/dashboard-secretary-presenter.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de Bord - Secrétariat</title>
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
     <link rel="stylesheet" href="/View/assets/css/dashboard-secretary.css">
 </head>
 
@@ -239,6 +244,7 @@ require_once __DIR__ . '/../../Presenter/dashboard-secretary-presenter.php';
     </div>
 
     <script src="/View/assets/js/dashboard-secretary.js"></script>
+    <?php renderThemeScript(); ?>
 </body>
 
 </html>

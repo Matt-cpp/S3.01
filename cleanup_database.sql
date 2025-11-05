@@ -21,6 +21,17 @@ DROP TABLE IF EXISTS decision_history CASCADE;
 DROP TABLE IF EXISTS proof_absences CASCADE;
 DROP TABLE IF EXISTS proof CASCADE;
 DROP TABLE IF EXISTS absences CASCADE;
+DROP TABLE IF EXISTS absence_monitoring CASCADE;
+
+-- Drop import tracking tables
+DROP TABLE IF EXISTS import_jobs CASCADE;
+DROP TABLE IF EXISTS import_history CASCADE;
+
+-- Drop email verification table
+DROP TABLE IF EXISTS email_verifications CASCADE;
+
+-- Drop rejection/validation reasons table
+DROP TABLE IF EXISTS rejection_validation_reasons CASCADE;
 
 -- Drop tables with dependencies
 DROP TABLE IF EXISTS course_slots CASCADE;
@@ -31,9 +42,6 @@ DROP TABLE IF EXISTS teachers CASCADE;
 DROP TABLE IF EXISTS rooms CASCADE;
 DROP TABLE IF EXISTS groups CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
-
--- Drop any potential remaining tables that might exist (error in original schema)
-DROP TABLE IF EXISTS justifications CASCADE;
 
 -- =============================================
 -- DROP CUSTOM TYPES
@@ -64,7 +72,10 @@ DROP SEQUENCE IF EXISTS proof_absences_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS decision_history_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS notifications_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS makeups_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS justifications_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS email_verifications_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS import_history_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS absence_monitoring_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS rejection_validation_reasons_id_seq CASCADE;
 
 -- =============================================
 -- DROP LIQUIBASE TRACKING TABLES
@@ -73,6 +84,24 @@ DROP SEQUENCE IF EXISTS justifications_id_seq CASCADE;
 -- Drop Liquibase metadata tables to reset changeset history
 DROP TABLE IF EXISTS databasechangelog CASCADE;
 DROP TABLE IF EXISTS databasechangeloglock CASCADE;
+
+-- =============================================
+-- DROP INDEXES (if any remain)
+-- =============================================
+
+-- Drop any remaining standalone indexes
+DROP INDEX IF EXISTS users_identifier_unique CASCADE;
+DROP INDEX IF EXISTS idx_proof_absences_proof_id CASCADE;
+DROP INDEX IF EXISTS idx_proof_absences_absence_id CASCADE;
+DROP INDEX IF EXISTS idx_course_slots_group_id CASCADE;
+DROP INDEX IF EXISTS idx_email_verifications_email CASCADE;
+DROP INDEX IF EXISTS idx_email_verifications_code CASCADE;
+DROP INDEX IF EXISTS idx_users_email_verified CASCADE;
+DROP INDEX IF EXISTS idx_import_jobs_status CASCADE;
+DROP INDEX IF EXISTS idx_import_history_created_at CASCADE;
+DROP INDEX IF EXISTS idx_absence_monitoring_student CASCADE;
+DROP INDEX IF EXISTS idx_absence_monitoring_return_detected CASCADE;
+DROP INDEX IF EXISTS idx_absence_monitoring_notifications CASCADE;
 
 -- =============================================
 -- VERIFY CLEANUP

@@ -33,7 +33,7 @@ function validateDates() {
   if (dateStart && dateEnd) {
     var debut = new Date(dateStart);
     var fin = new Date(dateEnd);
-    
+
     if (fin <= debut) {
       alert(
         "La date/heure de fin doit être postérieure à la date/heure de début."
@@ -106,6 +106,11 @@ function fetchAbsences() {
     encodeURIComponent(dateEnd) +
     "&student_id=" +
     (window.studentId || 1);
+
+  // Add proof_id if we're in editing mode
+  if (window.isEditing && window.editProofId) {
+    url += "&proof_id=" + window.editProofId;
+  }
 
   xhr.open("GET", url, true);
   xhr.onreadystatechange = function () {
@@ -597,15 +602,21 @@ function checkSubmissionDelay() {
 
   // Make AJAX request to check delay
   var xhr = new XMLHttpRequest();
-  var url = "../../Presenter/check_proof_submission_delay.php?student_id=" + (window.studentId || 1);
+  var url =
+    "../../Presenter/check_proof_submission_delay.php?student_id=" +
+    (window.studentId || 1);
 
   xhr.open("GET", url, true);
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
       try {
         var response = JSON.parse(xhr.responseText);
-        
-        if (response.success && response.show_warning && response.warning_message) {
+
+        if (
+          response.success &&
+          response.show_warning &&
+          response.warning_message
+        ) {
           displayDelayWarning(response.warning_message);
         } else {
           // Hide warning if not needed
@@ -631,16 +642,16 @@ function displayDelayWarning(message) {
   var warningContainer = document.getElementById("delay_warning_container");
   if (!warningContainer) return;
 
-  warningContainer.innerHTML = 
+  warningContainer.innerHTML =
     '<div style="background-color: #fff3cd; color: #856404; padding: 20px; border: 2px solid #ffc107; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">' +
     '<div style="display: flex; align-items: start; gap: 15px;">' +
     '<div style="font-size: 32px; flex-shrink: 0;">⚠️</div>' +
     '<div style="flex-grow: 1;">' +
     message +
-    '</div>' +
-    '</div>' +
-    '</div>';
-  
+    "</div>" +
+    "</div>" +
+    "</div>";
+
   warningContainer.style.display = "block";
 }
 

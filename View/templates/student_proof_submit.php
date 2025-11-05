@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
 <?php
-session_start();
-// FIXME Force student ID to 1 POUR LINSTANT
-$_SESSION['id_student'] = 666;
+require_once __DIR__ . '/../../controllers/auth_guard.php';
+$user = requireRole('student');
+
+// Use the authenticated user's ID
+if (!isset($_SESSION['id_student'])) {
+    $_SESSION['id_student'] = $user['id'];
+}
 ?>
 
 <head>
@@ -15,14 +19,14 @@ $_SESSION['id_student'] = 666;
     <link rel="stylesheet" href="../assets/css/student_proof_submit.css">
     <script>
         // Pass PHP session data to JavaScript
-        window.studentId = <?php echo $_SESSION['id_student'] ?? 1; ?>;
+        window.studentId = <?php echo $_SESSION['id_student']; ?>;
     </script>
     <script src="../assets/js/student_proof_submit.js"></script>
 
 </head>
 
 <body>
-    <?php include __DIR__ . '/student_navbar.php'; ?>
+    <?php include __DIR__ . '/navbar.php'; ?>
 
     <main>
         <?php
@@ -45,83 +49,83 @@ $_SESSION['id_student'] = 666;
         <h1 class="page-title">Création de justificatif</h1>
 
         <form action="../../Presenter/student_proof_validation.php" method="post" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="datetime_start">Date et heure de début d'absence :</label>
-            <input type="datetime-local" id="datetime_start" name="datetime_start" required>
-        </div>
-
-
-        <div class="form-group">
-            <label for="datetime_end">Date et heure de fin d'absence :</label>
-            <input type="datetime-local" id="datetime_end" name="datetime_end" required>
-            <p class="help-text">Sélectionnez la même date si l'absence ne dure qu'une journée</p>
-        </div>
-
-        <div class="form-group">
-            <label for="class_involved">Cours concerné(s) :</label>
-            <div id="courses_loading" style="display: none; color: #666; font-style: italic;">
-                Chargement des cours...
+            <div class="form-group">
+                <label for="datetime_start">Date et heure de début d'absence :</label>
+                <input type="datetime-local" id="datetime_start" name="datetime_start" required>
             </div>
-            <div id="courses_container">
-                <p id="courses_placeholder" style="color: #666; font-style: italic;">
-                    Sélectionnez les dates de début et fin pour voir les cours concernés
+
+
+            <div class="form-group">
+                <label for="datetime_end">Date et heure de fin d'absence :</label>
+                <input type="datetime-local" id="datetime_end" name="datetime_end" required>
+                <p class="help-text">Sélectionnez la même date si l'absence ne dure qu'une journée</p>
+            </div>
+
+            <div class="form-group">
+                <label for="class_involved">Cours concerné(s) :</label>
+                <div id="courses_loading" style="display: none; color: #666; font-style: italic;">
+                    Chargement des cours...
+                </div>
+                <div id="courses_container">
+                    <p id="courses_placeholder" style="color: #666; font-style: italic;">
+                        Sélectionnez les dates de début et fin pour voir les cours concernés
+                    </p>
+                    <div id="courses_list" style="display: none;"></div>
+                </div>
+                <div id="absence_recap" style="display: none;"></div>
+                <input type="hidden" name="class_involved" id="class_involved_hidden" value="">
+                <!-- Hidden fields for statistics data -->
+                <input type="hidden" name="absence_stats_hours" id="absence_stats_hours" value="0">
+                <input type="hidden" name="absence_stats_halfdays" id="absence_stats_halfdays" value="0">
+                <input type="hidden" name="absence_stats_evaluations" id="absence_stats_evaluations" value="0">
+                <input type="hidden" name="absence_stats_course_types" id="absence_stats_course_types" value="{}">
+                <input type="hidden" name="absence_stats_evaluation_details" id="absence_stats_evaluation_details"
+                    value="[]">
+            </div>
+
+
+            <div class="form-group">
+                <label for="absence_reason">Motif de l'absence :</label>
+                <select id="absence_reason" name="absence_reason" onchange="toggleCustomReason()" required>
+                    <option value="">-- Sélectionnez un motif --</option>
+                    <option value="maladie">Maladie</option>
+                    <option value="deces">Décès dans la famille</option>
+                    <option value="obligations_familiales">Obligations familiales</option>
+                    <option value="rdv_medical">Rendez-vous médical</option>
+                    <option value="convocation_officielle">Convocation officielle (permis, TOIC, etc.)</option>
+                    <option value="transport">Problème de transport</option>
+                    <option value="autre">Autre (préciser)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="custom_reason" style="display: none;">
+                <label for="other_reason">Précisez le motif :</label>
+                <input type="text" id="other_reason" name="other_reason"
+                    placeholder="Veuillez préciser votre motif d'absence">
+            </div>
+
+            <div class="form-group">
+                <label for="proof_file">Fichier justificatif :</label>
+                <input type="file" id="proof_file" name="proof_file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+                <p class="help-text" style="color: #e36153ff; font-weight: bold; margin-top: 8px;">
+                    <strong>ATTENTION :</strong> Taille maximale autorisée : <strong>5MB</strong><br>
+                    Formats acceptés : PDF (recommandé), JPG, JPEG, PNG, DOC, DOCX
                 </p>
-                <div id="courses_list" style="display: none;"></div>
+                <div id="file_size_warning"
+                    style="display: none; color: #e74c3c; font-weight: bold; margin-top: 5px; padding: 8px; background-color: #ffe6e6; border: 1px solid #e74c3c; border-radius: 4px;">
+                    Fichier trop volumineux ! Veuillez sélectionner un fichier de moins de 5MB.
+                </div>
             </div>
-            <div id="absence_recap" style="display: none;"></div>
-            <input type="hidden" name="class_involved" id="class_involved_hidden" value="">
-            <!-- Hidden fields for statistics data -->
-            <input type="hidden" name="absence_stats_hours" id="absence_stats_hours" value="0">
-            <input type="hidden" name="absence_stats_halfdays" id="absence_stats_halfdays" value="0">
-            <input type="hidden" name="absence_stats_evaluations" id="absence_stats_evaluations" value="0">
-            <input type="hidden" name="absence_stats_course_types" id="absence_stats_course_types" value="{}">
-            <input type="hidden" name="absence_stats_evaluation_details" id="absence_stats_evaluation_details"
-                value="[]">
-        </div>
 
-
-        <div class="form-group">
-            <label for="absence_reason">Motif de l'absence :</label>
-            <select id="absence_reason" name="absence_reason" onchange="toggleCustomReason()" required>
-                <option value="">-- Sélectionnez un motif --</option>
-                <option value="maladie">Maladie</option>
-                <option value="deces">Décès dans la famille</option>
-                <option value="obligations_familiales">Obligations familiales</option>
-                <option value="rdv_medical">Rendez-vous médical</option>
-                <option value="convocation_officielle">Convocation officielle (permis, TOIC, etc.)</option>
-                <option value="transport">Problème de transport</option>
-                <option value="autre">Autre (préciser)</option>
-            </select>
-        </div>
-
-        <div class="form-group" id="custom_reason" style="display: none;">
-            <label for="other_reason">Précisez le motif :</label>
-            <input type="text" id="other_reason" name="other_reason"
-                placeholder="Veuillez préciser votre motif d'absence">
-        </div>
-
-        <div class="form-group">
-            <label for="proof_file">Fichier justificatif :</label>
-            <input type="file" id="proof_file" name="proof_file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
-            <p class="help-text" style="color: #e36153ff; font-weight: bold; margin-top: 8px;">
-                <strong>ATTENTION :</strong> Taille maximale autorisée : <strong>5MB</strong><br>
-                Formats acceptés : PDF (recommandé), JPG, JPEG, PNG, DOC, DOCX
-            </p>
-            <div id="file_size_warning"
-                style="display: none; color: #e74c3c; font-weight: bold; margin-top: 5px; padding: 8px; background-color: #ffe6e6; border: 1px solid #e74c3c; border-radius: 4px;">
-                Fichier trop volumineux ! Veuillez sélectionner un fichier de moins de 5MB.
+            <div class="form-group">
+                <label for="comments">Commentaires (facultatif) :</label>
+                <textarea id="comments" name="comments" rows="4" cols="50"
+                    placeholder="Ajoutez des informations complémentaires si nécessaire..."></textarea>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="comments">Commentaires (facultatif) :</label>
-            <textarea id="comments" name="comments" rows="4" cols="50"
-                placeholder="Ajoutez des informations complémentaires si nécessaire..."></textarea>
-        </div>
-
-        <div class="form-group">
-            <button type="submit" class="submit-btn">Soumettre le justificatif</button>
-        </div>
+            <div class="form-group">
+                <button type="submit" class="submit-btn">Soumettre le justificatif</button>
+            </div>
         </form>
     </main>
 </body>

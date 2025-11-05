@@ -1,9 +1,12 @@
 <?php
+require_once __DIR__ . '/../../controllers/auth_guard.php';
+$user = requireRole('teacher');
+
 require_once __DIR__ . '/../../Presenter/teachertable.php';
 require_once __DIR__ . '/../../Presenter/tableRatrapage.php';
 
-// ID du professeur (à remplacer par la session utilisateur réelle)
-$teacherId = 2; // TODO: Remplacer par $_SESSION['user_id'] ou similaire
+// ID du professeur from session
+$teacherId = $user['id'];
 $table = new teacherTable($teacherId);
 $tableRattrapage = new tableRatrapage($teacherId);
 
@@ -33,25 +36,20 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
 ?>
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <title>Tableau de bord</title>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="<?php echo __DIR__ . '/../assets/css/welcome_teacher.css'; ?>">
-        <style>
-            <?php include __DIR__ . '/../assets/css/welcome_teacher.css'; ?>
-        </style>
-    </head>
-    <body>
-        <header class="header">
-        <div class="logo">
-            <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents(__DIR__ . '/../img/UPHF_logo.png')); ?>" alt="UPHF Logo" />
-        </div>
-        <div class="header-icons">
-            <div class="icon notification"></div>
-            <div class="icon settings"></div>
-            <div class="icon profile"></div>
-        </div>
-    </header>
+
+<head>
+    <title>Tableau de bord - Enseignant</title>
+    <meta charset="UTF-8">
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
+    <link rel="stylesheet" href="<?php echo __DIR__ . '/../assets/css/welcome_teacher.css'; ?>">
+    <style>
+        <?php include __DIR__ . '/../assets/css/welcome_teacher.css'; ?>
+    </style>
+</head>
+
+<body>
+    <?php include __DIR__ . '/navbar.php'; ?>
 
     <div class="main-content">
         <h1 class="page-title">Tableau de bord - Professeur</h1>
@@ -59,20 +57,20 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
         <!-- Vue globale des absences -->
         <div class="section">
             <h2 class="section-title">Vue globale des absences</h2>
-            
+
             <form method="GET" class="filter-group">
                 <span class="filter-label">Étudiants absents</span>
                 <select class="select-input" name="filtre" onchange="this.form.submit()">
                     <option value="">Tous les cours</option>
                     <?php foreach ($ressourcesLabels as $label): ?>
-                        <option value="<?php echo htmlspecialchars($label); ?>" 
-                                <?php echo (isset($_GET['filtre']) && $_GET['filtre'] === $label) ? 'selected' : ''; ?>>
+                        <option value="<?php echo htmlspecialchars($label); ?>" <?php echo (isset($_GET['filtre']) && $_GET['filtre'] === $label) ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($label); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
                 <?php if (isset($_GET['filtre']) && !empty($_GET['filtre'])): ?>
-                    <a href="?reset_filtre=1" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 12px; text-decoration: none;">Réinitialiser</a>
+                    <a href="?reset_filtre=1" class="btn-primary"
+                        style="padding: 0.5rem 1rem; font-size: 12px; text-decoration: none;">Réinitialiser</a>
                 <?php endif; ?>
             </form>
 
@@ -110,17 +108,17 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
             <!-- Pagination -->
             <?php if ($table->getNombrePages() > 1): ?>
                 <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.5rem;">
-                    <a href="?page=<?php echo $table->getPreviousPage(); ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>" 
-                       class="btn-primary" 
-                       style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($table->getCurrentPage() == 0) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>">
+                    <a href="?page=<?php echo $table->getPreviousPage(); ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
+                        class="btn-primary"
+                        style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($table->getCurrentPage() == 0) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>">
                         Précédent
                     </a>
                     <span style="font-weight: 500; color: #333;">
                         Page <?php echo ($table->getCurrentPage() + 1); ?> sur <?php echo $table->getNombrePages(); ?>
                     </span>
-                    <a href="?page=<?php echo $table->getNextPage(); ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>" 
-                       class="btn-primary" 
-                       style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($table->getCurrentPage() >= $table->getNombrePages() - 1) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>">
+                    <a href="?page=<?php echo $table->getNextPage(); ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
+                        class="btn-primary"
+                        style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($table->getCurrentPage() >= $table->getNombrePages() - 1) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>">
                         Suivant
                     </a>
                 </div>
@@ -131,7 +129,8 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
         <div class="section">
             <div class="section-header">
                 <h2 class="section-title">Gestion des rattrapages</h2>
-                <a href="planifier_rattrapage.html" class="btn-primary" style="text-decoration: none;">Planifier un rattrapage</a>
+                <a href="planifier_rattrapage.html" class="btn-primary" style="text-decoration: none;">Planifier un
+                    rattrapage</a>
             </div>
 
             <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Étudiants à rattraper</h3>
@@ -166,17 +165,18 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
             <!-- Pagination rattrapages -->
             <?php if ($tableRattrapage->getNombrePages() > 1): ?>
                 <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.5rem;">
-                    <a href="?page_rattrapage=<?php echo $tableRattrapage->getPreviousPage(); ?><?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>" 
-                       class="btn-primary" 
-                       style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($tableRattrapage->getCurrentPage() == 0) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>">
+                    <a href="?page_rattrapage=<?php echo $tableRattrapage->getPreviousPage(); ?><?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
+                        class="btn-primary"
+                        style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($tableRattrapage->getCurrentPage() == 0) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>">
                         Précédent
                     </a>
                     <span style="font-weight: 500; color: #333;">
-                        Page <?php echo ($tableRattrapage->getCurrentPage() + 1); ?> sur <?php echo $tableRattrapage->getNombrePages(); ?>
+                        Page <?php echo ($tableRattrapage->getCurrentPage() + 1); ?> sur
+                        <?php echo $tableRattrapage->getNombrePages(); ?>
                     </span>
-                    <a href="?page_rattrapage=<?php echo $tableRattrapage->getNextPage(); ?><?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>" 
-                       class="btn-primary" 
-                       style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($tableRattrapage->getCurrentPage() >= $tableRattrapage->getNombrePages() - 1) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>">
+                    <a href="?page_rattrapage=<?php echo $tableRattrapage->getNextPage(); ?><?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
+                        class="btn-primary"
+                        style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($tableRattrapage->getCurrentPage() >= $tableRattrapage->getNombrePages() - 1) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>">
                         Suivant
                     </a>
                 </div>
@@ -186,8 +186,9 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
         <!-- Actions rapides -->
         <div class="section">
             <h2 class="section-title">Actions rapides</h2>
-            
-            <a href="planifier_rattrapage.html" class="btn-primary" style="display: block; width: 100%; padding: 1.5rem; text-align: center; text-decoration: none; font-size: 1.1rem; font-weight: 600;">
+
+            <a href="planifier_rattrapage.html" class="btn-primary"
+                style="display: block; width: 100%; padding: 1.5rem; text-align: center; text-decoration: none; font-size: 1.1rem; font-weight: 600;">
                 📅 Planifier un rattrapage
             </a>
         </div>
@@ -198,7 +199,8 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
             <div class="team-section">
                 <h3 class="team-title">Équipe de développement</h3>
                 <div class="team-names">
-                    <p>CIPOLAT Matteo • BOLTZ Louis • NAVREZ Louis • COLLARD Yony • BISIAUX Ambroise • FOURNIER Alexandre</p>
+                    <p>CIPOLAT Matteo • BOLTZ Louis • NAVREZ Louis • COLLARD Yony • BISIAUX Ambroise • FOURNIER
+                        Alexandre</p>
                 </div>
             </div>
             <div class="footer-info">
@@ -206,5 +208,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
             </div>
         </div>
     </footer>
-    </body>
+    <?php renderThemeScript(); ?>
+</body>
+
 </html>

@@ -8,27 +8,26 @@ document.addEventListener("DOMContentLoaded", function () {
 //Initialize theme functionality
 function initializeTheme() {
   const themeInputs = document.querySelectorAll('input[name="theme"]');
-  const body = document.body;
-
-  // Load saved theme
-  const savedTheme = getCookie("theme") || "light";
-  if (savedTheme === "dark") {
-    body.classList.add("dark-mode");
-  }
 
   // Listen for theme changes
   themeInputs.forEach((input) => {
     input.addEventListener("change", function () {
       const theme = this.value;
 
-      if (theme === "dark") {
-        body.classList.add("dark-mode");
+      // Use the global theme manager if available
+      if (window.themeManager) {
+        window.themeManager.set(theme);
       } else {
-        body.classList.remove("dark-mode");
+        // Fallback if theme manager not loaded
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark-mode");
+          document.body.classList.add("dark-mode");
+        } else {
+          document.documentElement.classList.remove("dark-mode");
+          document.body.classList.remove("dark-mode");
+        }
+        setCookie("theme", theme, 365);
       }
-
-      // Save theme preference
-      setCookie("theme", theme, 365);
 
       // Show success message
       showMessage("Theme changed successfully!", "success", 2000);

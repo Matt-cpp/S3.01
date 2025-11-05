@@ -7,13 +7,15 @@
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    width: 100%;
+    width: 100vw;
     position: relative;
     left: 50%;
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
     box-sizing: border-box;
+    gap: 2rem;
+    z-index: 1000;
 }
 
 
@@ -21,6 +23,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 #logo {
@@ -28,10 +31,71 @@
     width: 150px;
 }
 
+/* Navigation Menu (for students) */
+.nav-menu {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    text-decoration: none;
+    color: #374151;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: transparent;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+/* Active page link style */
+.nav-link.active {
+    background: #e0e7ff;
+    color: #4338ca;
+    font-weight: 600;
+}
+
+.nav-link.nav-link-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.nav-link.nav-link-primary:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #6a4193 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+/* Override active style for primary button when active */
+.nav-link.nav-link-primary.active {
+    background: linear-gradient(135deg, #5568d3 0%, #6a4193 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.nav-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
 .header-icons {
     display: flex;
     gap: 1rem;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .icon-link {
@@ -48,6 +112,10 @@
     cursor: pointer;
     position: relative;
     transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .icon:hover {
@@ -55,8 +123,27 @@
     transform: scale(1.1);
 }
 
+.icon.info-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.icon.info-icon span {
+    font-size: 18px;
+    color: white;
+}
+
 .icon.notification::before {
     content: '🔔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+}
+
+.icon.home::before {
+    content: '🏠';
     position: absolute;
     top: 50%;
     left: 50%;
@@ -75,6 +162,7 @@
 
 .icon.profile {
     position: relative;
+    z-index: 10000;
 }
 
 .icon.profile::before {
@@ -99,7 +187,7 @@
     visibility: hidden;
     transform: translateY(-10px);
     transition: all 0.3s ease;
-    z-index: 1000;
+    z-index: 9999;
 }
 
 .profile-dropdown.show {
@@ -187,5 +275,29 @@
     .profile-dropdown {
         right: -1rem;
         min-width: 200px;
+    }
+    
+    .nav-menu {
+        gap: 0.25rem;
+    }
+    
+    #logo {
+        width: 100px;
+    }
+}
+
+/* Responsive for student navigation */
+@media (max-width: 1024px) {
+    .nav-link span:not(.nav-icon) {
+        display: none;
+    }
+    
+    .nav-link {
+        padding: 0.6rem;
+        justify-content: center;
+    }
+    
+    .nav-icon {
+        font-size: 1.3rem;
     }
 }

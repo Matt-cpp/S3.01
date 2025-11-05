@@ -1,5 +1,12 @@
 <?php 
+require_once __DIR__ . '/../../controllers/auth_guard.php';
+$user = requireRole('academic_manager');
+
 require_once __DIR__ . '/../../Presenter/historique.php';
+
+// Instantiate the presenter
+$presenter = new HistoriquePresenter();
+
 $absences = $presenter->getAbsences();
 $courseTypes = $presenter->getCourseTypes();
 $filters = $presenter->getFilters();

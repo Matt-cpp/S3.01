@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
 <?php
-session_start();
-// FIXME Force student ID to 1 POUR LINSTANT
-$_SESSION['id_student'] = 1;
+require_once __DIR__ . '/../../controllers/auth_guard.php';
+$user = requireRole('student');
+
+// Use the authenticated user's ID
+if (!isset($_SESSION['id_student'])) {
+    $_SESSION['id_student'] = $user['id'];
+}
 ?>
 
 <head>
@@ -16,8 +20,8 @@ $_SESSION['id_student'] = 1;
 </head>
 
 <body>
-    <?php include __DIR__ . '/student_navbar.php'; ?>
-    
+    <?php include __DIR__ . '/navbar.php'; ?>
+
     <main>
         <h1 class="page-title">Informations et Procédure de Justification</h1>
 
@@ -33,15 +37,17 @@ $_SESSION['id_student'] = 1;
                         <strong>L'assiduité aux cours est OBLIGATOIRE</strong> pour tous les étudiants inscrits à l'IUT.
                     </p>
                     <p>
-                        Conformément au <strong>règlement intérieur de l'établissement</strong>, la présence à l'ensemble 
-                        des cours (CM, TD, TP) et évaluations est impérative. Toute absence doit être justifiée selon 
+                        Conformément au <strong>règlement intérieur de l'établissement</strong>, la présence à
+                        l'ensemble
+                        des cours (CM, TD, TP) et évaluations est impérative. Toute absence doit être justifiée selon
                         les modalités décrites ci-dessous.
                     </p>
                     <div class="link-box">
                         <span class="link-icon">📄</span>
                         <div>
                             <strong>Règlement intérieur :</strong><br>
-                            <a href="https://www.uphf.fr/scolarite/reglement-interieur" target="_blank" class="external-link">
+                            <a href="https://www.uphf.fr/scolarite/reglement-interieur" target="_blank"
+                                class="external-link">
                                 Consultez le règlement intérieur complet de l'UPHF
                             </a>
                         </div>
@@ -59,11 +65,12 @@ $_SESSION['id_student'] = 1;
                     <div class="deadline-box">
                         <h3>📅 Délai impératif : 48 heures ouvrées</h3>
                         <p>
-                            Vous disposez de <strong>48 heures ouvrées (2 jours ouvrés)</strong> après votre retour en cours 
+                            Vous disposez de <strong>48 heures ouvrées (2 jours ouvrés)</strong> après votre retour en
+                            cours
                             pour soumettre votre justificatif d'absence.
                         </p>
                     </div>
-                    
+
                     <div class="example-box">
                         <h4>💡 Exemple de calcul du délai :</h4>
                         <ul>
@@ -99,8 +106,8 @@ $_SESSION['id_student'] = 1;
                     <div class="warning-box">
                         <span class="warning-icon">⚠️</span>
                         <div>
-                            <strong>Important :</strong> Au-delà de ce délai, votre justificatif risque fortement 
-                            de ne pas être pris en compte. Un message d'avertissement vous sera affiché lors 
+                            <strong>Important :</strong> Au-delà de ce délai, votre justificatif risque fortement
+                            de ne pas être pris en compte. Un message d'avertissement vous sera affiché lors
                             de la soumission si le délai est dépassé.
                         </div>
                     </div>
@@ -117,29 +124,33 @@ $_SESSION['id_student'] = 1;
                     <div class="consequence-box">
                         <h3>📝 Remplacement de la mention "ABS" par un "0"</h3>
                         <p>
-                            Si vous êtes absent(e) à une <strong>évaluation notée</strong> (contrôle continu, examen, TP noté, etc.) 
+                            Si vous êtes absent(e) à une <strong>évaluation notée</strong> (contrôle continu, examen, TP
+                            noté, etc.)
                             et que votre absence n'est pas justifiée dans les délais :
                         </p>
                         <ul>
-                            <li>La mention "ABS" (Absent) sera <strong>automatiquement remplacée par la note 0/20</strong></li>
+                            <li>La mention "ABS" (Absent) sera <strong>automatiquement remplacée par la note
+                                    0/20</strong></li>
                             <li>Cette note de 0 sera comptabilisée dans votre moyenne</li>
-                            <li>Cela peut avoir un impact significatif sur votre moyenne générale et celle du module concerné</li>
+                            <li>Cela peut avoir un impact significatif sur votre moyenne générale et celle du module
+                                concerné</li>
                         </ul>
                     </div>
 
                     <div class="warning-box danger">
                         <span class="warning-icon">🚨</span>
                         <div>
-                            <strong>Attention :</strong> Une absence justifiée après le délai de 48h peut également 
-                            être considérée comme non justifiée et entraîner un 0 selon l'appréciation de l'équipe pédagogique.
+                            <strong>Attention :</strong> Une absence justifiée après le délai de 48h peut également
+                            être considérée comme non justifiée et entraîner un 0 selon l'appréciation de l'équipe
+                            pédagogique.
                         </div>
                     </div>
 
                     <div class="info-box">
                         <span class="info-icon">ℹ️</span>
                         <div>
-                            <strong>Bon à savoir :</strong> Si votre justificatif est accepté, la mention "ABS" 
-                            sera conservée sans pénalité. La note ne sera pas comptabilisée dans votre moyenne 
+                            <strong>Bon à savoir :</strong> Si votre justificatif est accepté, la mention "ABS"
+                            sera conservée sans pénalité. La note ne sera pas comptabilisée dans votre moyenne
                             (absence justifiée neutralisée).
                         </div>
                     </div>
@@ -154,33 +165,33 @@ $_SESSION['id_student'] = 1;
                 </div>
                 <div class="section-content">
                     <p>Les motifs suivants sont généralement acceptés avec les pièces justificatives appropriées :</p>
-                    
+
                     <div class="motifs-grid">
                         <div class="motif-card">
                             <h4>Maladie</h4>
                             <p>Certificat médical obligatoire précisant les dates d'arrêt</p>
                         </div>
-                        
+
                         <div class="motif-card">
                             <h4>Décès dans la famille</h4>
                             <p>Acte de décès ou faire-part avec justificatif de lien de parenté</p>
                         </div>
-                        
+
                         <div class="motif-card">
                             <h4>Obligations familiales</h4>
                             <p>Justificatif approprié selon la situation</p>
                         </div>
-                        
+
                         <div class="motif-card">
                             <h4>Rendez-vous médical</h4>
                             <p>Convocation ou attestation du praticien avec date et horaire</p>
                         </div>
-                        
+
                         <div class="motif-card">
                             <h4>Convocation officielle</h4>
                             <p>Convocation pour permis de conduire, TOIC, tribunal, etc.</p>
                         </div>
-                        
+
                         <div class="motif-card">
                             <h4>Problème de transport</h4>
                             <p>Attestation de retard ou incident de transport en commun</p>
@@ -190,8 +201,8 @@ $_SESSION['id_student'] = 1;
                     <div class="info-box">
                         <span class="info-icon">📄</span>
                         <div>
-                            <strong>Documents requis :</strong> Tous les justificatifs doivent être des documents 
-                            officiels (certificats, attestations, convocations, etc.) mentionnant clairement 
+                            <strong>Documents requis :</strong> Tous les justificatifs doivent être des documents
+                            officiels (certificats, attestations, convocations, etc.) mentionnant clairement
                             les dates et heures concernées.
                         </div>
                     </div>
@@ -271,8 +282,9 @@ $_SESSION['id_student'] = 1;
                     <h2>Suivi de Votre Justificatif</h2>
                 </div>
                 <div class="section-content">
-                    <p>Une fois votre justificatif soumis, vous pouvez suivre son traitement dans la section "Mes justificatifs".</p>
-                    
+                    <p>Une fois votre justificatif soumis, vous pouvez suivre son traitement dans la section "Mes
+                        justificatifs".</p>
+
                     <div class="status-grid">
                         <div class="status-card status-pending">
                             <span class="status-badge">🕐</span>
@@ -283,7 +295,8 @@ $_SESSION['id_student'] = 1;
                         <div class="status-card status-review">
                             <span class="status-badge">⚠️</span>
                             <h4>En révision</h4>
-                            <p>Votre justificatif est en cours d'examen. Des informations complémentaires peuvent être demandées</p>
+                            <p>Votre justificatif est en cours d'examen. Des informations complémentaires peuvent être
+                                demandées</p>
                         </div>
 
                         <div class="status-card status-accepted">
@@ -295,7 +308,8 @@ $_SESSION['id_student'] = 1;
                         <div class="status-card status-rejected">
                             <span class="status-badge">❌</span>
                             <h4>Refusé</h4>
-                            <p>Votre justificatif n'a pas été accepté. Consultez le commentaire pour plus d'informations</p>
+                            <p>Votre justificatif n'a pas été accepté. Consultez le commentaire pour plus d'informations
+                            </p>
                         </div>
                     </div>
 
@@ -316,7 +330,7 @@ $_SESSION['id_student'] = 1;
                 </div>
                 <div class="section-content">
                     <p>Pour toute question concernant les absences et justificatifs, vous pouvez contacter :</p>
-                    
+
                     <div class="contact-grid">
                         <div class="contact-card">
                             <h4>Votre responsable de formation</h4>
@@ -333,8 +347,8 @@ $_SESSION['id_student'] = 1;
                     <div class="info-box success">
                         <span class="info-icon">💡</span>
                         <div>
-                            <strong>Conseil :</strong> En cas de doute sur l'acceptabilité d'un motif ou sur 
-                            la procédure à suivre, n'hésitez pas à contacter votre responsable de formation 
+                            <strong>Conseil :</strong> En cas de doute sur l'acceptabilité d'un motif ou sur
+                            la procédure à suivre, n'hésitez pas à contacter votre responsable de formation
                             <strong>avant</strong> l'expiration du délai de 48h.
                         </div>
                     </div>
@@ -343,4 +357,5 @@ $_SESSION['id_student'] = 1;
         </div>
     </main>
 </body>
+
 </html>

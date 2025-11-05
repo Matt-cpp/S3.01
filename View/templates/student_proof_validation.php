@@ -1,5 +1,11 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../controllers/auth_guard.php';
+$user = requireRole('student');
+
+// Use the authenticated user's ID
+if (!isset($_SESSION['id_student'])) {
+    $_SESSION['id_student'] = $user['id'];
+}
 
 date_default_timezone_set('Europe/Paris');
 require_once __DIR__ . '/../../Model/database.php';
@@ -29,7 +35,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
 </head>
 
 <body>
-    <?php include __DIR__ . '/student_navbar.php'; ?>
+    <?php include __DIR__ . '/navbar.php'; ?>
     <div class="container">
         <h1>Votre justificatif a été envoyé</h1>
 

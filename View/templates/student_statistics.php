@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
 <?php
-session_start();
-// FIXME Force student ID to 1 POUR LINSTANT
-$_SESSION['id_student'] = 1;
+require_once __DIR__ . '/../../controllers/auth_guard.php';
+$user = requireRole('student');
+
+// Use the authenticated user's ID
+if (!isset($_SESSION['id_student'])) {
+    $_SESSION['id_student'] = $user['id'];
+}
 ?>
 
 <head>
@@ -16,7 +20,7 @@ $_SESSION['id_student'] = 1;
 </head>
 
 <body>
-    <?php include __DIR__ . '/student_navbar.php'; ?>
+    <?php include __DIR__ . '/navbar.php'; ?>
 
     <h1>Mes Statistiques</h1>
 </body>

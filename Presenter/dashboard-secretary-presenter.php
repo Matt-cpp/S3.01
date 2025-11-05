@@ -173,7 +173,7 @@ class DashboardSecretaryPresenter
     //Log import history
     public function logImportHistory($action, $details, $status = 'success')
     {
-        $sql = "INSERT INTO import_history (action, details, status, created_at) 
+        $sql = "INSERT INTO import_history (action_type, description, status, created_at) 
                 VALUES (:action, :details, :status, NOW())";
 
         try {
@@ -197,7 +197,7 @@ class DashboardSecretaryPresenter
     //Get import history
     public function getImportHistory($limit = 50)
     {
-        $sql = "SELECT action, details, status, created_at 
+        $sql = "SELECT action_type as action, description as details, status, created_at 
                 FROM import_history 
                 ORDER BY created_at DESC 
                 LIMIT :limit";
