@@ -10,6 +10,7 @@ $_SESSION['id_student'] = 1;
     <title>Accueil</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="../assets/css/student_home_page.css">
+    <link rel="icon" type="image/x-icon" href="../img/logoIUT.ico">
 </head>
 
 <body>
@@ -21,9 +22,8 @@ $_SESSION['id_student'] = 1;
     // Forcer le rafraîchissement du cache si demandé via ?refresh=1
     $forceRefresh = isset($_GET['refresh']) && $_GET['refresh'] == '1';
     
-    // Utiliser les données en session si disponibles et récentes (cache de 60 secondes pour meilleures performances)
-    // Les statistiques ne changent pas en temps réel, un cache de 1 minute est suffisant
-    if ($forceRefresh || !isset($_SESSION['stats']) || !isset($_SESSION['proofsByCategory']) || !isset($_SESSION['recentAbsences']) || !isset($_SESSION['stats']['total_absences_count']) || shouldRefreshCache(1)) {
+    // Utiliser les données en session si disponibles et récentes
+    if ($forceRefresh || !isset($_SESSION['stats']) || !isset($_SESSION['proofsByCategory']) || !isset($_SESSION['recentAbsences']) || !isset($_SESSION['stats']['total_absences_count']) || shouldRefreshCache(15)) {
         $_SESSION['stats'] = getAbsenceStatistics($_SESSION['id_student']);
         $_SESSION['proofsByCategory'] = getProofsByCategory($_SESSION['id_student']);
         $_SESSION['recentAbsences'] = getRecentAbsences($_SESSION['id_student'], 5);
@@ -191,7 +191,7 @@ $_SESSION['id_student'] = 1;
                     L'équipe pédagogique a besoin d'informations supplémentaires.
                 </div>
                 <a href="student_proofs.php?status=under_review" class="alert-action">
-                    <span>👁️</span> Consulter mes justificatifs
+                    Consulter mes justificatifs
                 </a>
             </div>
         </div>
@@ -215,6 +215,7 @@ $_SESSION['id_student'] = 1;
                         <th>Salle</th>
                         <th>Durée</th>
                         <th>Type</th>
+                        <th>Évaluation</th>
                         <th>Statut</th>
                     </tr>
                 </thead>
@@ -256,24 +257,19 @@ $_SESSION['id_student'] = 1;
                     
                     $courseType = strtoupper($absence['course_type'] ?? 'Autre');
                     $badge_class = '';
-                    $emoji = '';
                     
                     switch($courseType) {
                         case 'CM':
                             $badge_class = 'badge-cm';
-                            $emoji = '📚';
                             break;
                         case 'TD':
                             $badge_class = 'badge-td';
-                            $emoji = '✏️';
                             break;
                         case 'TP':
                             $badge_class = 'badge-tp';
-                            $emoji = '💻';
                             break;
                         default:
                             $badge_class = 'badge-other';
-                            $emoji = '📖';
                     }
                     ?>
                     <tr class="clickable-row absence-row" style="cursor: pointer;"
@@ -317,21 +313,14 @@ $_SESSION['id_student'] = 1;
                         <td><?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?></td>
                         <td><strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong></td>
                         <td>
+                            <span class="course-type-badge <?php echo $badge_class; ?>">
+                                <?php echo$courseType; ?>
+                            </span>
+                        <td>
                             <?php if ($absence['is_evaluation']): ?>
-                                <span class="eval-badge">⚠️ Éval</span>
+                                <span class="eval-badge">⚠️ Oui</span>
                             <?php else: ?>
-                                <span class="course-type-badge">
-                                    <?php 
-                                    $types = [
-                                        'cm' => 'CM',
-                                        'td' => 'TD',
-                                        'tp' => 'TP',
-                                        'exam' => 'Examen',
-                                        'other' => 'Autre'
-                                    ];
-                                    echo $types[$absence['course_type']] ?? strtoupper($absence['course_type']);
-                                    ?>
-                                </span>
+                                <span class="no-eval">Non</span>
                             <?php endif; ?>
                         </td>
                         <td>

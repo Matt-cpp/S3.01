@@ -15,6 +15,8 @@
             color: #333;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
+            max-width: 100vw;
         }
 
         .header {
@@ -563,6 +565,7 @@
         .absences-table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         .absences-table thead {
@@ -571,17 +574,32 @@
 
         .absences-table th {
             text-align: left;
-            padding: 1rem;
+            padding: 0.75rem;
             font-weight: 600;
             color: #333;
             border-bottom: 2px solid #e5e7eb;
-            font-size: 14px;
+            font-size: 13px;
+            white-space: nowrap;
         }
 
+        /* Largeurs optimisées des colonnes pour le tableau des absences */
+        .absences-table th:nth-child(1) { width: 8%; }  /* Date */
+        .absences-table th:nth-child(2) { width: 9%; }  /* Horaire */
+        .absences-table th:nth-child(3) { width: 16%; } /* Cours */
+        .absences-table th:nth-child(4) { width: 12%; } /* Enseignant */
+        .absences-table th:nth-child(5) { width: 8%; }  /* Salle */
+        .absences-table th:nth-child(6) { width: 6%; }  /* Durée */
+        .absences-table th:nth-child(7) { width: 10%; } /* Type */
+        .absences-table th:nth-child(8) { width: 8%; }  /* Évaluation */
+        .absences-table th:nth-child(9) { width: 12%; } /* Statut */
+        .absences-table th:nth-child(10) { width: 11%; } /* Action (pour les justificatifs) */
+
         .absences-table td {
-            padding: 1rem;
+            padding: 0.75rem;
             border-bottom: 1px solid #f3f4f6;
-            font-size: 14px;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .absences-table tbody tr:hover {
@@ -931,8 +949,9 @@
         }
 
         .no-eval {
-            color: #9ca3af;
-            font-size: 14px;
+            color: #6c757d;
+            font-size: 0.875rem;
+            font-weight: 500;
         }
 
         /* Badge type de cours */
@@ -1164,29 +1183,29 @@
             word-wrap: break-word;
         }
 
-        /* Badges pour types de cours dans le modal */
+        /* Badges pour types de cours */
         .badge-cm {
-            background-color: #e0e7ff;
-            color: #4338ca;
-            border: 1px solid #c7d2fe;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
         }
 
         .badge-td {
-            background-color: #dbeafe;
-            color: #1e40af;
-            border: 1px solid #bfdbfe;
+            background-color: #f3e5f5;
+            color: #6a1b9a;
+            border: 1px solid #e1bee7;
         }
 
         .badge-tp {
-            background-color: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
         }
 
         .badge-other {
-            background-color: #f3f4f6;
-            color: #4b5563;
-            border: 1px solid #e5e7eb;
+            background-color: #f5f5f5;
+            color: #616161;
+            border: 1px solid #e0e0e0;
         }
 
         /* Badges de statut génériques */

@@ -16,9 +16,9 @@ $presenter = new StudentProofsPresenter($student_identifier);
 // Ne pas utiliser le cache si on a des paramètres GET (filtres depuis la page d'accueil)
 $useCache = empty($_GET['status']);
 
-// Utiliser les données en session si disponibles et récentes (défini dans session_cache.php), par défaut 2 minutes
+// Utiliser les données en session si disponibles et récentes (défini dans session_cache.php), par défaut 1 minutes
 // sinon les récupérer de la BD
-if (!$useCache || !isset($_SESSION['Proofs']) || !isset($_SESSION['Reasons']) || !isset($_SESSION['ProofsFilters']) || !isset($_SESSION['ProofsErrorMessage']) || shouldRefreshCache(30)) {
+if (!$useCache || !isset($_SESSION['Proofs']) || !isset($_SESSION['Reasons']) || !isset($_SESSION['ProofsFilters']) || !isset($_SESSION['ProofsErrorMessage']) || shouldRefreshCache(15)) {
     $proofs = $presenter->getProofs();
     $reasons = $presenter->getReasons();
     if ($useCache) {
@@ -118,21 +118,20 @@ $errorMessage = $presenter->getErrorMessage();
             <table id="proofsTable">
                 <thead>
                     <tr>
-                        <th>Période d'absence</th>
+                        <th>Période</th>
                         <th>Motif</th>
                         <th>Heures ratées</th>
-                        <th>Absences concernées</th>
-                        <th>Date de soumission</th>
-                        <th>Date de traitement</th>
-                        <th>Statut</th>
+                        <th>Date soumission</th>
+                        <th>Date traitement</th>
                         <th>Évaluation</th>
+                        <th>Statut</th>
                         <th>Commentaire</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($proofs)): ?>
                         <tr>
-                            <td colspan="9" class="no-results">
+                            <td colspan="8" class="no-results">
                                 Aucun justificatif trouvé avec les critères sélectionnés.
                             </td>
                         </tr>
@@ -171,9 +170,6 @@ $errorMessage = $presenter->getErrorMessage();
                                     <strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong>
                                 </td>
                                 <td>
-                                    <strong><?php echo $proof['absence_count']; ?></strong> absence<?php echo $proof['absence_count'] > 1 ? 's' : ''; ?>
-                                </td>
-                                <td>
                                     <?php echo $presenter->formatDateTime($proof['submission_date']); ?>
                                 </td>
                                 <td>
@@ -186,16 +182,16 @@ $errorMessage = $presenter->getErrorMessage();
                                     ?>
                                 </td>
                                 <td>
+                                    <?php if ($proof['has_exam']): ?>
+                                        <span class="eval-badge">⚠️ Oui</span>
+                                    <?php else: ?>
+                                        <span class="no-eval">Non</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
                                     <span class="badge <?php echo $status['class']; ?>">
                                         <?php echo $status['icon'] . ' ' . $status['text']; ?>
                                     </span>
-                                </td>
-                                <td>
-                                    <?php if ($proof['has_exam']): ?>
-                                        <span class="badge badge-evaluation-yes">Oui</span>
-                                    <?php else: ?>
-                                        <span class="badge badge-evaluation-no">Non</span>
-                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if ($proof['manager_comment']): ?>
