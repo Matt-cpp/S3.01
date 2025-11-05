@@ -15,13 +15,16 @@ $user_email = $_SESSION['user_email'] ?? 'email@example.com';
         <img id="logo" src="../img/UPHF_logo.png" alt="Logo UPHF" />
     </div>
     <div class="header-icons">
-        <div class="icon notification"></div>
-        <div class="icon settings"></div>
-        <div class="icon profile" id="profileIcon">
+        <div class="icon notification" title="Notifications"></div>
+        <a href="/View/templates/settings.php" class="icon-link">
+            <div class="icon settings" title="Paramètres"></div>
+        </a>
+        <div class="icon profile" title="Profil" id="profileIcon">
             <div class="profile-dropdown" id="profileDropdown">
                 <div class="dropdown-header">
                     <div class="dropdown-user-info">
-                        <span class="user-name"><?php echo htmlspecialchars(trim($user_first_name . ' ' . $user_last_name)); ?></span>
+                        <span
+                            class="user-name"><?php echo htmlspecialchars(trim($user_first_name . ' ' . $user_last_name)); ?></span>
                         <span class="user-email"><?php echo htmlspecialchars($user_email); ?></span>
                     </div>
                 </div>
@@ -37,24 +40,24 @@ $user_email = $_SESSION['user_email'] ?? 'email@example.com';
 
 <script>
     // Toggle du menu déroulant du profil
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const profileIcon = document.getElementById('profileIcon');
         const profileDropdown = document.getElementById('profileDropdown');
-        
-        profileIcon.addEventListener('click', function(e) {
+
+        profileIcon.addEventListener('click', function (e) {
             e.stopPropagation();
             profileDropdown.classList.toggle('show');
         });
-        
+
         // Fermer le menu si on clique ailleurs
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (!profileIcon.contains(e.target)) {
                 profileDropdown.classList.remove('show');
             }
         });
-        
+
         // Empêcher la fermeture si on clique dans le menu
-        profileDropdown.addEventListener('click', function(e) {
+        profileDropdown.addEventListener('click', function (e) {
             e.stopPropagation();
         });
     });

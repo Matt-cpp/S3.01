@@ -1,0 +1,5 @@
+# Imports Directory
+
+This directory stores uploaded CSV files during import operations.
+
+Files are automatically named with a unique identifier: `import_[timestamp]_[random].csv`

@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../Model/database.php';
 require_once __DIR__ . '/../Model/email.php';
+require_once __DIR__ . '/../Model/AbsenceMonitoringModel.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     session_start();
@@ -275,6 +276,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             $db->commit();
+
+            // Update absence monitoring to mark as justified
+            // This prevents reminder emails from being sent
+            try {
+                $monitoringModel = new AbsenceMonitoringModel();
+                $monitoringModel->markAsJustifiedByProof(
+                    $student_identifier,
+                    date('Y-m-d', strtotime($datetime_start)),
+                    date('Y-m-d', strtotime($datetime_end))
+                );
+            } catch (Exception $e) {
+                // Log but don't fail the proof submission
+                error_log("Failed to update absence monitoring: " . $e->getMessage());
+            }
 
             // Send the email of validation to the student
             $emailService = new EmailService();

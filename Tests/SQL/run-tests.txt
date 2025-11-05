@@ -1,0 +1,5 @@
+psql "host=188.245.222.176 port=55432 dbname=GestionAbsence user=gestion_user password=strongpassword123" -f Tests/SQL/00-setup.sql
+psql "host=188.245.222.176 port=55432 dbname=GestionAbsence user=gestion_user password=strongpassword123" -f Tests/SQL/01-schema-tests.sql
+psql "host=188.245.222.176 port=55432 dbname=GestionAbsence user=gestion_user password=strongpassword123" -f Tests/SQL/02-data-integrity-tests.sql
+psql "host=188.245.222.176 port=55432 dbname=GestionAbsence user=gestion_user password=strongpassword123" -f Tests/SQL/03-insert-tests.sql
+psql "host=188.245.222.176 port=55432 dbname=GestionAbsence user=gestion_user password=strongpassword123" -f Tests/SQL/04-cascade-tests.sql
