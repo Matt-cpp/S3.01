@@ -56,6 +56,16 @@ $errorMessage = $presenter->getErrorMessage();
             </div>
         <?php endif; ?>
 
+        <?php
+        // Display success message if there's one in session
+        if (isset($_SESSION['success_message'])) {
+            echo '<div class="success-message" style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 20px;">';
+            echo '<strong>✅ Succès:</strong> ' . htmlspecialchars($_SESSION['success_message']);
+            echo '</div>';
+            unset($_SESSION['success_message']); // Clear the message after displaying
+        }
+        ?>
+
         <form method="POST" class="filter-form">
             <div class="filter-grid">
                 <div class="filter-input">
@@ -271,10 +281,10 @@ $errorMessage = $presenter->getErrorMessage();
                     <div class="modal-comment-box" id="modalComment"></div>
                 </div>
 
-                <!-- Bouton Compléter (visible uniquement pour les justificatifs en révision) -->
+                <!-- Bouton Modifier (visible uniquement pour les justificatifs en révision) -->
                 <div class="modal-action-section" id="actionSection" style="display: none; margin-top: 20px; text-align: center;">
-                    <a href="#" id="modalCompleteBtn" class="btn-add-info" style="display: inline-block; padding: 12px 24px; text-decoration: none;">
-                        📝 Compléter le justificatif
+                    <a href="#" id="modalEditBtn" class="btn-add-info" style="display: inline-block; padding: 12px 24px; text-decoration: none; background-color: #ffc107; color: #000; font-weight: bold;">
+                        ✏️ Modifier le justificatif
                     </a>
                 </div>
             </div>

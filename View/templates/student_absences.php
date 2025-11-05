@@ -50,6 +50,23 @@ $errorMessage = $presenter->getErrorMessage();
             </div>
         <?php endif; ?>
 
+        <?php
+        // Display success message if there's one in session
+        if (isset($_SESSION['success_message'])) {
+            echo '<div class="success-message" style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 20px;">';
+            echo '<strong>✅ Succès:</strong> ' . htmlspecialchars($_SESSION['success_message']);
+            echo '</div>';
+            unset($_SESSION['success_message']); // Clear the message after displaying
+        }
+
+        // Display success message from URL parameter
+        if (isset($_GET['success'])) {
+            echo '<div class="success-message" style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 20px;">';
+            echo '<strong>✅ Succès:</strong> Votre justificatif a été modifié avec succès et repassé en attente de validation !';
+            echo '</div>';
+        }
+        ?>
+
         <form method="POST" class="filter-form">
             <div class="filter-grid">
                 <div class="filter-input">
