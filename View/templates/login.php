@@ -5,9 +5,11 @@ session_start();
 if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
     // Rediriger selon le rôle
     if ($_SESSION['user_role'] === 'student') {
-        header("Location: historique.php");
-    } else {
-        header("Location: admin_dashboard.php");
+        header("Location: student_home_page.php");
+    } elseif ($_SESSION['user_role'] === 'academic_manager') {
+        header("Location: accueil.php");
+    } elseif ($_SESSION['user_role'] === 'teacher') {
+        header("Location: welcome_teacher.php");
     }
     exit;
 }

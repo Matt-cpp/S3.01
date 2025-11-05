@@ -55,10 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                     } elseif ($user['role'] === 'academic_manager') {
                         header("Location: ../View/templates/accueil.php");
                     } elseif ($user['role'] === 'teacher') {
-                        header("Location: ../View/templates/teacher_dashboard.php");
+                        header("Location: ../View/templates/welcome_teacher.php");
                     }
                     exit;
-                } else {
+                } else {    
                     $errors[] = "Email ou mot de passe incorrect.";
                 }
             }

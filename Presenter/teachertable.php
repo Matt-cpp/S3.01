@@ -166,7 +166,7 @@ public function setPage($page){
 
 //Test de la classe
 
-$test = new tableRatrapage(3);
+$test = new teacherTable(3);
 $test->activerUnFiltre('INFFIS4-ARCHITECTURE LOGICIELLE (T3BUTINFFI-R4.01)');
 
 
