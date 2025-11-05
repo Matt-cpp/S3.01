@@ -68,12 +68,6 @@ public function setPage($page){
             $this->page--;
         }
     }
-    //activer le filtre pour rattrapage
-    public function enableRattrapage() {
-        $this->ratrapage = true;
-        $this->page = 0; // Réinitialiser la page à 0
-        $this->nombrepages = $this->getTotalPages(); // Mettre à jour le nombre total de pages
-    }
 
     //renvoie le numéro de page actuel
     public function getCurrentPage() {
