@@ -345,7 +345,8 @@ CREATE INDEX idx_import_history_created_at ON import_history(created_at DESC);
 -- Absence monitoring table for tracking student returns and notifications
 CREATE TABLE absence_monitoring (
     id SERIAL PRIMARY KEY,
-    student_identifier VARCHAR(50) NOT NULL REFERENCES users(identifier),
+    student_id INTEGER NOT NULL REFERENCES users(id),
+    student_identifier VARCHAR(50) NOT NULL,
     absence_period_start DATE NOT NULL,
     absence_period_end DATE NOT NULL,
     last_absence_date DATE NOT NULL,
@@ -358,17 +359,19 @@ CREATE TABLE absence_monitoring (
     justified_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(student_identifier, absence_period_start, absence_period_end)
+    UNIQUE(student_id, absence_period_start, absence_period_end)
 );
 
 -- Add index for better performance
-CREATE INDEX idx_absence_monitoring_student ON absence_monitoring(student_identifier);
+CREATE INDEX idx_absence_monitoring_student_id ON absence_monitoring(student_id);
+CREATE INDEX idx_absence_monitoring_student_identifier ON absence_monitoring(student_identifier);
 CREATE INDEX idx_absence_monitoring_return_detected ON absence_monitoring(return_detected_at);
 CREATE INDEX idx_absence_monitoring_notifications ON absence_monitoring(return_notification_sent, reminder_notification_sent);
 
 --rollback DROP INDEX IF EXISTS idx_absence_monitoring_notifications;
 --rollback DROP INDEX IF EXISTS idx_absence_monitoring_return_detected;
---rollback DROP INDEX IF EXISTS idx_absence_monitoring_student;
+--rollback DROP INDEX IF EXISTS idx_absence_monitoring_student_identifier;
+--rollback DROP INDEX IF EXISTS idx_absence_monitoring_student_id;
 --rollback DROP TABLE IF EXISTS absence_monitoring CASCADE;
 --changeset navrez.louis:add-rejection-validations-reasons-table labels:Enhancement context:post-initial
 CREATE TABLE rejection_validation_reasons (id Serial PRIMARY KEY,

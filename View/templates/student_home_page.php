@@ -171,13 +171,13 @@ if (!isset($_SESSION['id_student'])) {
         </div>
 
         <!-- Alerte si heures non justifiées -->
-        <?php if ($stats['hour_total_unjustified'] > 0): ?>
+        <?php if ($stats['hour_no_proof'] > 0): ?>
             <div class="alert-box alert-warning">
                 <div class="alert-icon">⚠️</div>
                 <div class="alert-content">
                     <div class="alert-title">Action requise : Absences non justifiées</div>
                     <div class="alert-message">
-                        Vous avez <strong><?php echo $stats['hour_total_unjustified']; ?> heures d'absence non
+                        Vous avez <strong><?php echo $stats['hour_no_proof']; ?> heures d'absence non
                             justifiées</strong>.
                         Pensez à soumettre vos justificatifs dans les 48h suivant votre retour en cours pour éviter des
                         pénalités.
@@ -291,8 +291,7 @@ if (!isset($_SESSION['id_student'])) {
                                     data-teacher="<?php echo $teacher; ?>"
                                     data-room="<?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?>"
                                     data-duration="<?php echo number_format($absence['duration_minutes'] / 60, 1); ?>"
-                                    data-type="<?php echo $emoji . ' ' . $courseType; ?>"
-                                    data-type-badge="<?php echo $badge_class; ?>"
+                                    data-type="<?php echo $courseType; ?>" data-type-badge="<?php echo $badge_class; ?>"
                                     data-evaluation="<?php echo $absence['is_evaluation'] ? 'Oui' : 'Non'; ?>"
                                     data-motif="Aucun motif spécifié" data-status-text="<?php echo $statusText; ?>"
                                     data-status-icon="<?php echo $statusIcon; ?>"

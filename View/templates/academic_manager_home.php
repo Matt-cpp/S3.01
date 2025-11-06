@@ -15,7 +15,10 @@
     $user = requireRole('academic_manager');
 
     require_once __DIR__ . '/../../Presenter/tableauDeBord.php';
+    require_once __DIR__ . '/../../Model/ProofModel.php';
     $donnes = new backendTableauDeBord();
+    $proofModel = new ProofModel();
+    $recentProofs = $proofModel->getRecentProofs(5); // Get 5 most recent proofs
     ?>
     <?php include __DIR__ . '/navbar.php'; ?>
 
@@ -80,6 +83,82 @@
 
             <div class="history-section">
                 <a href="historique.php" class="btn-history">Consulter l'historique</a>
+            </div>
+        </div>
+
+        <!-- Justificatifs Récents Section -->
+        <div class="absences-section">
+            <h2 class="section-title">Justificatifs Récents</h2>
+            <p class="section-subtitle">Derniers justificatifs soumis dans le système</p>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Étudiant</th>
+                        <th>Groupe</th>
+                        <th>Date de début</th>
+                        <th>Date de fin</th>
+                        <th>Motif</th>
+                        <th>Statut</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($recentProofs)): ?>
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 20px; color: #6c757d;">
+                                Aucun justificatif récent
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($recentProofs as $proof): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars(($proof['last_name'] ?? '') . ' ' . ($proof['first_name'] ?? '')); ?>
+                                </td>
+                                <td><?php echo htmlspecialchars($proof['group_label'] ?? 'N/A'); ?></td>
+                                <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_start_date']))); ?></td>
+                                <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_end_date']))); ?></td>
+                                <td><?php echo htmlspecialchars($proofModel->translate('reason', $proof['main_reason'])); ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $statusText = $proofModel->translate('status', $proof['status']);
+                                    $statusClass = '';
+                                    switch ($proof['status']) {
+                                        case 'pending':
+                                            $statusClass = 'badge-warning';
+                                            break;
+                                        case 'accepted':
+                                            $statusClass = 'badge-success';
+                                            break;
+                                        case 'rejected':
+                                            $statusClass = 'badge-danger';
+                                            break;
+                                        case 'under_review':
+                                            $statusClass = 'badge-info';
+                                            break;
+                                    }
+                                    ?>
+                                    <span class="badge <?php echo $statusClass; ?>"
+                                        style="padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                        <?php echo htmlspecialchars($statusText); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="view_proof.php?proof_id=<?php echo urlencode($proof['proof_id']); ?>"
+                                        class="btn btn-sm"
+                                        style="padding: 6px 12px; background-color: #4338ca; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; display: inline-block;">
+                                        Voir
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+
+            <div class="history-section">
+                <a href="historique_proof.php" class="btn-history">Consulter l'historique des justificatifs</a>
             </div>
         </div>
     </div>

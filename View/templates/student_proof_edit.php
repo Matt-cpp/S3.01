@@ -170,9 +170,10 @@ $editData = $_SESSION['edit_proof'];
             </div>
 
             <div class="form-group">
-                <button type="submit" class="submit-btn">Mettre à jour le justificatif</button>
-                <a href="student_absences.php" class="submit-btn"
-                    style="background-color: #6c757d; text-decoration: none; display: inline-block; text-align: center; margin-left: 10px;">Annuler</a>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="submit" class="submit-btn">Mettre à jour le justificatif</button>
+                    <a href="student_absences.php" class="submit-btn" style="background-color: #6c757d;">Annuler</a>
+                </div>
             </div>
         </form>
     </main>

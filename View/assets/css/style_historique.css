@@ -297,3 +297,126 @@ button[type="submit"]:hover {
 
 }
 
+
+/* View button styles */
+.btn-view {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #4338ca;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-view:hover {
+    background-color: #3730a3;
+}
+
+.no-proof {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Footer styles */
+.footer {
+    background-color: rgb(0, 139, 172);
+    color: white;
+    padding: 2rem;
+    margin-top: 3rem;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.team-section {
+    margin-bottom: 1rem;
+}
+
+.team-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.team-names {
+    font-size: 0.95rem;
+}
+
+.team-names p {
+    margin: 0;
+}
+
+.footer-info {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.footer-info p {
+    margin: 0;
+}
+
+/* Additional table styling for proof history */
+#proofTable {
+    margin-top: 20px;
+}
+
+#proofTable thead {
+    background-color: #f8f9fa;
+}
+
+#proofTable th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+#proofTable td {
+    padding: 12px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#proofTable tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Status badge styles for proof table */
+.status-text {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-en-attente {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-acceptee {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-rejetee {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-en-cours {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-default {
+    background-color: #e2e3e5;
+    color: #383d41;
+}

@@ -43,7 +43,7 @@ class ProofPresenter
 
         // Affichage par GET
         if (isset($get['proof_id'])) {
-            $proofId = (int)$get['proof_id'];
+            $proofId = (int) $get['proof_id'];
             $data['proof'] = $this->model->getProofDetails($proofId);
             if ($data['proof']) {
                 $data['is_locked'] = $this->model->isLocked($proofId);
@@ -55,7 +55,7 @@ class ProofPresenter
 
         // Actions POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($post['proof_id'])) {
-            $proofId = (int)$post['proof_id'];
+            $proofId = (int) $post['proof_id'];
             $data['proof'] = $this->model->getProofDetails($proofId);
             if (!$data['proof']) {
                 $data['rejectionError'] = "Justificatif introuvable.";
@@ -70,7 +70,7 @@ class ProofPresenter
 
             // Verrouiller / Déverrouiller
             if (isset($post['toggle_lock']) && isset($post['lock_action'])) {
-                $action = (string)$post['lock_action'];
+                $action = (string) $post['lock_action'];
                 if ($action === 'lock') {
                     $this->model->verrouiller($proofId);
                 } elseif ($action === 'unlock') {
@@ -87,9 +87,9 @@ class ProofPresenter
                 $this->enrichViewData($data);
                 return $data;
             } elseif (isset($post['reject']) && isset($post['rejection_reason'])) {
-                $rejectionReason  = trim((string)$post['rejection_reason']);
-                $rejectionDetails = trim((string)($post['rejection_details'] ?? ''));
-                $newReason        = trim((string)($post['new_rejection_reason'] ?? ''));
+                $rejectionReason = trim((string) $post['rejection_reason']);
+                $rejectionDetails = trim((string) ($post['rejection_details'] ?? ''));
+                $newReason = trim((string) ($post['new_rejection_reason'] ?? ''));
 
                 if ($rejectionReason === '') {
                     $data['showRejectForm'] = true;
@@ -125,7 +125,9 @@ class ProofPresenter
                 } else {
                     $data['showRejectForm'] = true;
                     // Récupérer le message d'erreur détaillé mis en session par le modèle (si présent)
-                    if (session_status() === PHP_SESSION_NONE) {@session_start();}
+                    if (session_status() === PHP_SESSION_NONE) {
+                        @session_start();
+                    }
                     $err = $_SESSION['last_model_error'] ?? null;
                     if ($err) {
                         $data['rejectionError'] = 'Impossible d\'enregistrer la décision : ' . $err;
@@ -146,9 +148,9 @@ class ProofPresenter
                 return $data;
             } elseif (isset($post['validate']) && isset($post['validation_reason'])) {
                 // Soumission du formulaire de validation (le motif est optionnel)
-                $validationReason    = trim((string)($post['validation_reason'] ?? ''));
-                $validationDetails   = trim((string)($post['validation_details'] ?? ''));
-                $newValidationReason = trim((string)($post['new_validation_reason'] ?? ''));
+                $validationReason = trim((string) ($post['validation_reason'] ?? ''));
+                $validationDetails = trim((string) ($post['validation_details'] ?? ''));
+                $newValidationReason = trim((string) ($post['new_validation_reason'] ?? ''));
 
                 if ($this->equalsIgnoreCase($validationReason, 'Autre') && $newValidationReason !== '') {
                     $inserted = $this->model->addValidationReason($newValidationReason);
@@ -171,7 +173,9 @@ class ProofPresenter
                     $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
                 } else {
                     $data['showValidateForm'] = true;
-                    if (session_status() === PHP_SESSION_NONE) {@session_start();}
+                    if (session_status() === PHP_SESSION_NONE) {
+                        @session_start();
+                    }
                     $err = $_SESSION['last_model_error'] ?? null;
                     if ($err) {
                         $data['validationError'] = 'Impossible d\'enregistrer la décision : ' . $err;
@@ -191,7 +195,7 @@ class ProofPresenter
                 $this->enrichViewData($data);
                 return $data;
             } elseif (isset($post['request_info']) && isset($post['info_message'])) {
-                $infoMessage = trim((string)$post['info_message']);
+                $infoMessage = trim((string) $post['info_message']);
                 if ($infoMessage === '') {
                     $data['showInfoForm'] = true;
                     $data['infoError'] = "Veuillez saisir un message.";
@@ -202,10 +206,19 @@ class ProofPresenter
                 // Appel du modèle pour sauvegarder la demande d'information
                 $ok = $this->model->setRequestInfo($proofId, $infoMessage, $currentUserId);
                 if ($ok) {
+                    // Reset absences to 'absent' and 'justified=false' when requesting info
+                    $this->model->updateAbsencesForProof(
+                        $data['proof']['student_identifier'],
+                        $data['proof']['absence_start_date'],
+                        $data['proof']['absence_end_date'],
+                        'request_info'
+                    );
                     $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
                 } else {
                     $data['showInfoForm'] = true;
-                    if (session_status() === PHP_SESSION_NONE) {@session_start();}
+                    if (session_status() === PHP_SESSION_NONE) {
+                        @session_start();
+                    }
                     $err = $_SESSION['last_model_error'] ?? null;
                     if ($err) {
                         $data['infoError'] = 'Impossible d\'enregistrer la demande d\'information : ' . $err;
@@ -239,8 +252,20 @@ class ProofPresenter
             $mainReason = $p['main_reason'] ?? $p['reason'] ?? $p['rejection_reason'] ?? $p['validation_reason'] ?? '';
             $p['main_reason_label'] = $this->model->translate('reason', $mainReason);
             $p['custom_reason_label'] = $p['custom_reason'] ?? '';
-            $p['formatted_start'] = $this->model->formatDateFr($p['absence_start_date'] ?? $p['absence_start_datetime'] ?? null);
-            $p['formatted_end'] = $this->model->formatDateFr($p['absence_end_date'] ?? $p['absence_end_datetime'] ?? null);
+
+            // Format dates with time if available
+            if (!empty($p['absence_start_datetime'])) {
+                $p['formatted_start'] = $this->model->formatDateFr($p['absence_start_datetime']);
+            } elseif (!empty($p['absence_start_date'])) {
+                $p['formatted_start'] = $this->model->formatDateFr($p['absence_start_date']);
+            }
+
+            if (!empty($p['absence_end_datetime'])) {
+                $p['formatted_end'] = $this->model->formatDateFr($p['absence_end_datetime']);
+            } elseif (!empty($p['absence_end_date'])) {
+                $p['formatted_end'] = $this->model->formatDateFr($p['absence_end_date']);
+            }
+
             $p['formatted_submission'] = $this->model->formatDateFr($p['submission_date'] ?? null);
             $p['is_locked'] = $this->model->isLocked($p['proof_id'] ?? $p['id'] ?? 0);
             $p['lock_status'] = $p['is_locked'] ? 'Verrouillé' : 'Déverrouillé';

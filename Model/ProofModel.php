@@ -25,6 +25,7 @@ class ProofModel
         p.absence_end_date,
         p.main_reason,
         p.custom_reason,
+        p.student_comment,
         p.status,
         p.submission_date,
         u.last_name,
@@ -137,15 +138,13 @@ class ProofModel
                 'start_date' => $startDate,
                 'end_date' => $endDate
             ]);
-        } elseif ($decision === 'rejected') {
+        } elseif ($decision === 'rejected' || $decision === 'request_info') {
             $sql = "UPDATE absences a
             SET status = 'absent', justified = FALSE, updated_at = NOW()
             FROM course_slots cs
             WHERE a.course_slot_id = cs.id
               AND a.student_identifier = :student_identifier
-              AND cs.course_date BETWEEN :start_date AND :end_date
-              AND a.status = 'excused'
-              AND a.justified = TRUE";
+              AND cs.course_date BETWEEN :start_date AND :end_date";
             $this->db->execute($sql, [
                 'student_identifier' => $studentIdentifier,
                 'start_date' => $startDate,
@@ -555,5 +554,130 @@ class ProofModel
             ],
         ];
         return $maps[$category][$value] ?? $value;
+    }
+
+    // Get recent proofs for dashboard (limit to recent submissions)
+    public function getRecentProofs(int $limit = 10): array
+    {
+        $sql = "
+            SELECT 
+                p.id AS proof_id,
+                p.student_identifier,
+                p.absence_start_date,
+                p.absence_end_date,
+                p.main_reason,
+                p.custom_reason,
+                p.status,
+                p.submission_date,
+                u.last_name,
+                u.first_name,
+                g.label AS group_label
+            FROM proof p
+            JOIN users u ON LOWER(u.identifier) = LOWER(p.student_identifier)
+            LEFT JOIN user_groups ug ON ug.user_id = u.id
+            LEFT JOIN groups g ON g.id = ug.group_id
+            ORDER BY p.submission_date DESC
+            LIMIT :limit
+        ";
+
+        try {
+            return $this->db->select($sql, ['limit' => $limit]);
+        } catch (Exception $e) {
+            error_log("Erreur getRecentProofs : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    // Get all proofs with filters for history page
+    public function getAllProofs(array $filters = []): array
+    {
+        $sql = "
+            SELECT 
+                p.id AS proof_id,
+                p.student_identifier,
+                p.absence_start_date,
+                p.absence_end_date,
+                p.main_reason,
+                p.custom_reason,
+                p.student_comment,
+                p.status,
+                p.submission_date,
+                p.file_path,
+                u.last_name,
+                u.first_name,
+                g.label AS group_label
+            FROM proof p
+            JOIN users u ON LOWER(u.identifier) = LOWER(p.student_identifier)
+            LEFT JOIN user_groups ug ON ug.user_id = u.id
+            LEFT JOIN groups g ON g.id = ug.group_id
+            WHERE 1=1
+        ";
+
+        $params = [];
+
+        // Filter by student name
+        if (!empty($filters['name'])) {
+            $sql .= " AND (LOWER(u.last_name) LIKE LOWER(:name) OR LOWER(u.first_name) LIKE LOWER(:name))";
+            $params['name'] = '%' . $filters['name'] . '%';
+        }
+
+        // Filter by start date
+        if (!empty($filters['start_date'])) {
+            $sql .= " AND p.absence_start_date >= :start_date";
+            $params['start_date'] = $filters['start_date'];
+        }
+
+        // Filter by end date
+        if (!empty($filters['end_date'])) {
+            $sql .= " AND p.absence_end_date <= :end_date";
+            $params['end_date'] = $filters['end_date'];
+        }
+
+        // Filter by status
+        if (!empty($filters['status'])) {
+            $statusMap = [
+                'En attente' => 'pending',
+                'Acceptée' => 'accepted',
+                'Rejetée' => 'rejected',
+                'En cours d\'examen' => 'under_review'
+            ];
+            $dbStatus = $statusMap[$filters['status']] ?? $filters['status'];
+            $sql .= " AND p.status = :status";
+            $params['status'] = $dbStatus;
+        }
+
+        // Filter by reason
+        if (!empty($filters['reason'])) {
+            $reasonMap = [
+                'Maladie' => 'illness',
+                'Décès' => 'death',
+                'Obligations familiales' => 'family_obligations',
+                'Autre' => 'other'
+            ];
+            $dbReason = $reasonMap[$filters['reason']] ?? $filters['reason'];
+            $sql .= " AND p.main_reason = :reason";
+            $params['reason'] = $dbReason;
+        }
+
+        $sql .= " ORDER BY p.submission_date DESC";
+
+        try {
+            return $this->db->select($sql, $params);
+        } catch (Exception $e) {
+            error_log("Erreur getAllProofs : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    // Get list of unique reasons for filter dropdown
+    public function getProofReasons(): array
+    {
+        $sql = "SELECT DISTINCT main_reason FROM proof WHERE main_reason IS NOT NULL ORDER BY main_reason";
+        try {
+            return $this->db->select($sql);
+        } catch (Exception $e) {
+            error_log("Erreur getProofReasons : " . $e->getMessage());
+            return [];
+        }
     }
 }
