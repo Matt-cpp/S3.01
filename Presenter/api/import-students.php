@@ -110,7 +110,7 @@ try {
                 $skippedCount++;
                 continue;
             }
-
+            $email = strtolower($email);
             // Insert new student
             $sql = "INSERT INTO users (identifier, last_name, first_name, email, role, created_at) 
                     VALUES (:identifier, :last_name, :first_name, :email, 'student', NOW())";
