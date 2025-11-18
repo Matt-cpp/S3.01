@@ -14,10 +14,17 @@ class teacherTable
         $this->page = 0;
         require_once __DIR__ . '/../Model/database.php';
         $this->db = Database::getInstance();
-        $this->userId = $id;
+        $this->userId = $this->linkUserId($id);
         $this->nombrepages = $this->getTotalPages();
         $this->filtreBool = false;
         $this->filtre = "";
+    }
+    public function linkUserId(int $id)
+    {
+       $query = "SELECT teacher.id FROM teachers left JOIN users ON teachers.email=users.email
+       WHERE users.id=" . $id . ""; 
+       $result = $this->db->select($query);
+       return $result[0]['id'];
     }
     // calcule le nombre de pages totales du tableau
     public function getTotalPages()
