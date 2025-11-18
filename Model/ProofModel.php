@@ -40,26 +40,45 @@ class ProofModel
                 return null;
             }
 
-            // récupération heure de début et de fin
+            // récupération heure de début et de fin via la table proof_absences
             $sqlAbs = "SELECT cs.course_date, cs.start_time, cs.end_time
-                FROM absences a
+                FROM proof_absences pa
+                JOIN absences a ON pa.absence_id = a.id
                 JOIN course_slots cs ON a.course_slot_id = cs.id
-                WHERE a.student_identifier = :student_identifier
-                  AND cs.course_date BETWEEN :start_date AND :end_date
+                WHERE pa.proof_id = :proof_id
                 ORDER BY cs.course_date ASC, cs.start_time ASC";
             $absences = $this->db->select($sqlAbs, [
-                'student_identifier' => $result['student_identifier'],
-                'start_date' => $result['absence_start_date'],
-                'end_date' => $result['absence_end_date']
+                'proof_id' => $proofId
             ]);
+            
             if ($absences && count($absences) > 0) {
                 $first = $absences[0];
                 $last = $absences[count($absences) - 1];
                 $result['absence_start_datetime'] = $first['course_date'] . ' ' . $first['start_time'];
                 $result['absence_end_datetime'] = $last['course_date'] . ' ' . $last['end_time'];
             } else {
-                $result['absence_start_datetime'] = $result['absence_start_date'];
-                $result['absence_end_datetime'] = $result['absence_end_date'];
+                // Fallback: chercher par étudiant et dates
+                $sqlAbsFallback = "SELECT cs.course_date, cs.start_time, cs.end_time
+                    FROM absences a
+                    JOIN course_slots cs ON a.course_slot_id = cs.id
+                    WHERE a.student_identifier = :student_identifier
+                      AND cs.course_date BETWEEN :start_date AND :end_date
+                    ORDER BY cs.course_date ASC, cs.start_time ASC";
+                $absences = $this->db->select($sqlAbsFallback, [
+                    'student_identifier' => $result['student_identifier'],
+                    'start_date' => $result['absence_start_date'],
+                    'end_date' => $result['absence_end_date']
+                ]);
+                
+                if ($absences && count($absences) > 0) {
+                    $first = $absences[0];
+                    $last = $absences[count($absences) - 1];
+                    $result['absence_start_datetime'] = $first['course_date'] . ' ' . $first['start_time'];
+                    $result['absence_end_datetime'] = $last['course_date'] . ' ' . $last['end_time'];
+                } else {
+                    $result['absence_start_datetime'] = $result['absence_start_date'] . ' 00:00:00';
+                    $result['absence_end_datetime'] = $result['absence_end_date'] . ' 00:00:00';
+                }
             }
 
             return $result;
@@ -109,7 +128,7 @@ class ProofModel
               AND a.justified = TRUE";
             $this->db->execute($sql, [
                 'student_identifier' => $studentIdentifier,
-                'start_date' => $StartDate,
+                'start_date' => $startDate,
                 'end_date' => $endDate
             ]);
         }

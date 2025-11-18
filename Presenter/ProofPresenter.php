@@ -239,8 +239,8 @@ class ProofPresenter
             $mainReason = $p['main_reason'] ?? $p['reason'] ?? $p['rejection_reason'] ?? $p['validation_reason'] ?? '';
             $p['main_reason_label'] = $this->model->translate('reason', $mainReason);
             $p['custom_reason_label'] = $p['custom_reason'] ?? '';
-            $p['formatted_start'] = $this->model->formatDateFr($p['absence_start_date'] ?? $p['absence_start_datetime'] ?? null);
-            $p['formatted_end'] = $this->model->formatDateFr($p['absence_end_date'] ?? $p['absence_end_datetime'] ?? null);
+            $p['formatted_start'] = $this->model->formatDateFr($p['absence_start_datetime'] ?? $p['absence_start_date'] ?? null);
+            $p['formatted_end'] = $this->model->formatDateFr($p['absence_end_datetime'] ?? $p['absence_end_date'] ?? null);
             $p['formatted_submission'] = $this->model->formatDateFr($p['submission_date'] ?? null);
             $p['is_locked'] = $this->model->isLocked($p['proof_id'] ?? $p['id'] ?? 0);
             $p['lock_status'] = $p['is_locked'] ? 'Verrouillé' : 'Déverrouillé';
