@@ -11,15 +11,14 @@ class pageEvalProf
         $this->userId = $this->linkTeacherUser($id);
     }
     
-    public function linkTeacherUser(int $id)
+    private function linkTeacherUser(int $id)
     {
-
         $query = "SELECT teachers.id as id
         FROM users LEFT JOIN teachers ON teachers.email = users.email
         WHERE users.id = " . $id; 
 
         $result = $this->db->select($query);
-        return $result[0]['id']; // Changé ici
+        return $result[0]['id'];
     }
     
     public function lesEvaluations()
@@ -36,7 +35,4 @@ class pageEvalProf
         return $result;
     }
 }
-
-$a = new pageEvalProf(13);
-$b = $a->lesEvaluations();
-var_dump($b);
+?>
