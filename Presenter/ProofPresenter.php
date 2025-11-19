@@ -1,13 +1,16 @@
 <?php
 require_once __DIR__ . '/../Model/ProofModel.php';
+require_once __DIR__ . '/../Model/email.php';
 
 class ProofPresenter
 {
     private $model;
+    private $emailService;
 
     public function __construct()
     {
         $this->model = new ProofModel();
+        $this->emailService = new EmailService();
     }
 
     public function handleRequest($get, $post)
@@ -121,6 +124,10 @@ class ProofPresenter
                         $data['proof']['absence_end_date'],
                         'rejected'
                     );
+
+                    // Send email notification to student
+                    $this->sendProofRejectionEmail($data['proof'], $rejectionReason, $rejectionDetails);
+
                     $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
                 } else {
                     $data['showRejectForm'] = true;
@@ -170,6 +177,10 @@ class ProofPresenter
                         $data['proof']['absence_end_date'],
                         'accepted'
                     );
+
+                    // Send email notification to student
+                    $this->sendProofAcceptedEmail($data['proof'], $validationReason, $validationDetails);
+
                     $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
                 } else {
                     $data['showValidateForm'] = true;
@@ -213,6 +224,10 @@ class ProofPresenter
                         $data['proof']['absence_end_date'],
                         'request_info'
                     );
+
+                    // Send email notification to student
+                    $this->sendProofInfoRequestEmail($data['proof'], $infoMessage);
+
                     $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
                 } else {
                     $data['showInfoForm'] = true;
@@ -277,5 +292,275 @@ class ProofPresenter
             return mb_strtolower($a, 'UTF-8') === mb_strtolower($b, 'UTF-8');
         }
         return strtolower($a) === strtolower($b);
+    }
+
+    /**
+     * Send email notification when proof is rejected
+     */
+    private function sendProofRejectionEmail($proof, $reason, $details)
+    {
+        if (!$proof || empty($proof['first_name'])) {
+            error_log("Cannot send rejection email: invalid proof data");
+            return;
+        }
+
+        $studentEmail = $this->getStudentEmail($proof['student_identifier']);
+        if (!$studentEmail) {
+            error_log("Cannot send rejection email: no email found for student " . $proof['student_identifier']);
+            return;
+        }
+
+        $firstName = htmlspecialchars($proof['first_name']);
+        $lastName = htmlspecialchars($proof['last_name']);
+        $formattedStart = $proof['formatted_start'] ?? $proof['absence_start_date'];
+        $formattedEnd = $proof['formatted_end'] ?? $proof['absence_end_date'];
+        $reasonText = htmlspecialchars($reason);
+        $detailsText = htmlspecialchars($details);
+
+        $subject = "Justificatif refusé - Action requise";
+        $body = $this->generateRejectionEmailBody($firstName, $lastName, $formattedStart, $formattedEnd, $reasonText, $detailsText);
+
+        $result = $this->emailService->sendEmail($studentEmail, $subject, $body, true);
+
+        if (!$result['success']) {
+            error_log("Failed to send rejection email to {$studentEmail}: " . $result['message']);
+        }
+    }
+
+    /**
+     * Send email notification when proof is accepted
+     */
+    private function sendProofAcceptedEmail($proof, $reason, $details)
+    {
+        if (!$proof || empty($proof['first_name'])) {
+            error_log("Cannot send acceptance email: invalid proof data");
+            return;
+        }
+
+        $studentEmail = $this->getStudentEmail($proof['student_identifier']);
+        if (!$studentEmail) {
+            error_log("Cannot send acceptance email: no email found for student " . $proof['student_identifier']);
+            return;
+        }
+
+        $firstName = htmlspecialchars($proof['first_name']);
+        $lastName = htmlspecialchars($proof['last_name']);
+        $formattedStart = $proof['formatted_start'] ?? $proof['absence_start_date'];
+        $formattedEnd = $proof['formatted_end'] ?? $proof['absence_end_date'];
+        $reasonText = $reason ? htmlspecialchars($reason) : '';
+        $detailsText = $details ? htmlspecialchars($details) : '';
+
+        $subject = "Justificatif accepté";
+        $body = $this->generateAcceptanceEmailBody($firstName, $lastName, $formattedStart, $formattedEnd, $reasonText, $detailsText);
+
+        $result = $this->emailService->sendEmail($studentEmail, $subject, $body, true);
+
+        if (!$result['success']) {
+            error_log("Failed to send acceptance email to {$studentEmail}: " . $result['message']);
+        }
+    }
+
+    /**
+     * Send email notification when additional information is requested
+     */
+    private function sendProofInfoRequestEmail($proof, $message)
+    {
+        if (!$proof || empty($proof['first_name'])) {
+            error_log("Cannot send info request email: invalid proof data");
+            return;
+        }
+
+        $studentEmail = $this->getStudentEmail($proof['student_identifier']);
+        if (!$studentEmail) {
+            error_log("Cannot send info request email: no email found for student " . $proof['student_identifier']);
+            return;
+        }
+
+        $firstName = htmlspecialchars($proof['first_name']);
+        $lastName = htmlspecialchars($proof['last_name']);
+        $formattedStart = $proof['formatted_start'] ?? $proof['absence_start_date'];
+        $formattedEnd = $proof['formatted_end'] ?? $proof['absence_end_date'];
+        $requestMessage = htmlspecialchars($message);
+
+        $subject = "Informations complémentaires requises pour votre justificatif";
+        $body = $this->generateInfoRequestEmailBody($firstName, $lastName, $formattedStart, $formattedEnd, $requestMessage);
+
+        $result = $this->emailService->sendEmail($studentEmail, $subject, $body, true);
+
+        if (!$result['success']) {
+            error_log("Failed to send info request email to {$studentEmail}: " . $result['message']);
+        }
+    }
+
+    /**
+     * Get student email from database
+     */
+    private function getStudentEmail($studentIdentifier)
+    {
+        require_once __DIR__ . '/../Model/database.php';
+        $db = getDatabase();
+
+        try {
+            $result = $db->selectOne(
+                "SELECT email FROM users WHERE LOWER(identifier) = LOWER(:identifier)",
+                ['identifier' => $studentIdentifier]
+            );
+            return $result ? $result['email'] : null;
+        } catch (Exception $e) {
+            error_log("Error fetching student email: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Generate HTML email body for rejection notification
+     */
+    private function generateRejectionEmailBody($firstName, $lastName, $start, $end, $reason, $details)
+    {
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #d32f2f; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }
+        .footer { background-color: #333; color: white; padding: 15px; text-align: center; font-size: 0.9em; border-radius: 0 0 5px 5px; }
+        .info-box { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; }
+        .button { display: inline-block; padding: 12px 24px; background-color: #1976d2; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Justificatif Refusé</h1>
+        </div>
+        <div class="content">
+            <p>Bonjour {$firstName} {$lastName},</p>
+            
+            <p>Votre justificatif d'absence pour la période du <strong>{$start}</strong> au <strong>{$end}</strong> a été <strong style="color: #d32f2f;">refusé</strong>.</p>
+            
+            <div class="info-box">
+                <strong>Motif du refus :</strong> {$reason}
+HTML;
+        if ($details) {
+            $body .= "<br><br><strong>Détails :</strong> {$details}";
+        }
+        $body .= <<<HTML
+            </div>
+            
+            <p>Veuillez soumettre un nouveau justificatif avec les corrections nécessaires dans les plus brefs délais.</p>
+            
+            <p>Si vous avez des questions concernant cette décision, n'hésitez pas à contacter le service de scolarité.</p>
+        </div>
+        <div class="footer">
+            <p>Gestion des Absences - UPHF</p>
+            <p>Cet email est envoyé automatiquement, merci de ne pas y répondre.</p>
+        </div>
+    </div>
+</body>
+</html>
+HTML;
+    }
+
+    /**
+     * Generate HTML email body for acceptance notification
+     */
+    private function generateAcceptanceEmailBody($firstName, $lastName, $start, $end, $reason, $details)
+    {
+        $reasonSection = $reason ? "<p><strong>Motif :</strong> {$reason}</p>" : "";
+        $detailsSection = $details ? "<p><strong>Détails :</strong> {$details}</p>" : "";
+
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #4caf50; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }
+        .footer { background-color: #333; color: white; padding: 15px; text-align: center; font-size: 0.9em; border-radius: 0 0 5px 5px; }
+        .success-box { background-color: #d4edda; border-left: 4px solid #4caf50; padding: 15px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Justificatif Accepté</h1>
+        </div>
+        <div class="content">
+            <p>Bonjour {$firstName} {$lastName},</p>
+            
+            <p>Votre justificatif d'absence pour la période du <strong>{$start}</strong> au <strong>{$end}</strong> a été <strong style="color: #4caf50;">accepté</strong>.</p>
+            
+            <div class="success-box">
+                <p>✓ Vos absences ont été justifiées avec succès.</p>
+                {$reasonSection}
+                {$detailsSection}
+            </div>
+            
+            <p>Votre dossier a été mis à jour. Aucune action supplémentaire n'est requise de votre part.</p>
+        </div>
+        <div class="footer">
+            <p>Gestion des Absences - UPHF</p>
+            <p>Cet email est envoyé automatiquement, merci de ne pas y répondre.</p>
+        </div>
+    </div>
+</body>
+</html>
+HTML;
+    }
+
+    /**
+     * Generate HTML email body for information request
+     */
+    private function generateInfoRequestEmailBody($firstName, $lastName, $start, $end, $message)
+    {
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #ff9800; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }
+        .footer { background-color: #333; color: white; padding: 15px; text-align: center; font-size: 0.9em; border-radius: 0 0 5px 5px; }
+        .warning-box { background-color: #fff3cd; border-left: 4px solid #ff9800; padding: 15px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Informations Complémentaires Requises</h1>
+        </div>
+        <div class="content">
+            <p>Bonjour {$firstName} {$lastName},</p>
+            
+            <p>Votre justificatif d'absence pour la période du <strong>{$start}</strong> au <strong>{$end}</strong> est en cours d'examen.</p>
+            
+            <div class="warning-box">
+                <strong>Message du responsable pédagogique :</strong>
+                <p style="margin-top: 10px; white-space: pre-wrap;">{$message}</p>
+            </div>
+            
+            <p>Merci de fournir les informations demandées dans les plus brefs délais en soumettant un nouveau justificatif ou en contactant le service de scolarité.</p>
+        </div>
+        <div class="footer">
+            <p>Gestion des Absences - UPHF</p>
+            <p>Cet email est envoyé automatiquement, merci de ne pas y répondre.</p>
+        </div>
+    </div>
+</body>
+</html>
+HTML;
     }
 }

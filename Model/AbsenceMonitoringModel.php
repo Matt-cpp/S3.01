@@ -368,4 +368,92 @@ class AbsenceMonitoringModel
             return 0;
         }
     }
+
+    /**
+     * Calculate the number of half-days of absences for a student during a period
+     * A half-day is defined as:
+     * - Morning: 8h00 to 12h30 (any absence during this period = 1 half-day)
+     * - Afternoon: 12h30 onwards (any absence during this period = 1 half-day)
+     * 
+     * @param string $studentIdentifier Student identifier
+     * @param string $startDate Start date of the period (YYYY-MM-DD)
+     * @param string $endDate End date of the period (YYYY-MM-DD)
+     * @return int Number of half-days
+     */
+    public function calculateHalfDays($studentIdentifier, $startDate, $endDate)
+    {
+        $query = "
+            SELECT 
+                cs.course_date,
+                cs.start_time,
+                cs.end_time
+            FROM absences a
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            WHERE a.student_identifier = :student_identifier
+            AND cs.course_date BETWEEN :start_date AND :end_date
+            AND a.status IN ('absent', 'unjustified')
+            AND a.justified = FALSE
+            AND EXTRACT(DOW FROM cs.course_date) BETWEEN 1 AND 5
+            ORDER BY cs.course_date ASC, cs.start_time ASC
+        ";
+
+        try {
+            $absences = $this->db->select($query, [
+                ':student_identifier' => $studentIdentifier,
+                ':start_date' => $startDate,
+                ':end_date' => $endDate
+            ]);
+
+            // Group absences by date and determine which half-days are affected
+            $halfDaysByDate = [];
+
+            foreach ($absences as $absence) {
+                $date = $absence['course_date'];
+                $startTime = $absence['start_time'];
+
+                // Parse start time (format: HH:MM:SS)
+                $timeParts = explode(':', $startTime);
+                $hour = (int) $timeParts[0];
+                $minute = (int) $timeParts[1];
+
+                // Convert to minutes since midnight for easier comparison
+                $timeInMinutes = ($hour * 60) + $minute;
+
+                // 12:30 = 12*60 + 30 = 750 minutes
+                $afternoonThreshold = 750;
+
+                if (!isset($halfDaysByDate[$date])) {
+                    $halfDaysByDate[$date] = [
+                        'morning' => false,
+                        'afternoon' => false
+                    ];
+                }
+
+                // Determine if this absence affects morning or afternoon
+                if ($timeInMinutes < $afternoonThreshold) {
+                    // Absence starts before 12:30 = morning half-day
+                    $halfDaysByDate[$date]['morning'] = true;
+                } else {
+                    // Absence starts at or after 12:30 = afternoon half-day
+                    $halfDaysByDate[$date]['afternoon'] = true;
+                }
+            }
+
+            // Count total half-days
+            $totalHalfDays = 0;
+            foreach ($halfDaysByDate as $date => $periods) {
+                if ($periods['morning']) {
+                    $totalHalfDays++;
+                }
+                if ($periods['afternoon']) {
+                    $totalHalfDays++;
+                }
+            }
+
+            return $totalHalfDays;
+        } catch (Exception $e) {
+            error_log("Error calculating half-days: " . $e->getMessage());
+            return 0;
+        }
+    }
 }
