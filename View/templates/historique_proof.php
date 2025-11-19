@@ -139,10 +139,19 @@ $errorMessage = $presenter->getErrorMessage();
                             </td>
                             <td><?php echo htmlspecialchars($presenter->formatDate($proof['submission_date'])); ?></td>
                             <td>
-                                <?php if ($presenter->hasProof($proof)): ?>
-                                    <button onclick="window.open('<?php echo htmlspecialchars($presenter->getProofPath($proof)); ?>', '_blank')" class="btn_export">
-                                        <img src="../img/export.png" alt="export-icon" class="export">
-                                    </button>
+                                <?php 
+                                $files = $presenter->getProofFiles($proof);
+                                if (!empty($files)): ?>
+                                    <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                        <?php foreach ($files as $index => $file): ?>
+                                            <a href="../../Presenter/view_upload_proof.php?proof_id=<?php echo $proof['proof_id']; ?>&file_index=<?php echo $index; ?>" 
+                                               target="_blank"
+                                               title="<?php echo htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)); ?>"
+                                               style="padding: 4px 8px; background: #4338ca; color: white; text-decoration: none; border-radius: 3px; font-size: 12px;">
+                                                📄 <?php echo ($index + 1); ?>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
                                 <?php else: ?>
                                     <span class="no-proof">-</span>
                                 <?php endif; ?>

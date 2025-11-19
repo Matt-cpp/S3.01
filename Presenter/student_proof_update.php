@@ -13,11 +13,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             throw new Exception('Aucun justificatif spécifié.');
         }
 
-        $proofId = (int)$_POST['proof_id'];
+        $proofId = (int) $_POST['proof_id'];
 
         // Récupérer le justificatif existant
         $existingProof = $db->selectOne(
-            "SELECT id, student_identifier, file_path, status FROM proof WHERE id = :proof_id",
+            "SELECT id, student_identifier, file_path, proof_files, status FROM proof WHERE id = :proof_id",
             ['proof_id' => $proofId]
         );
 
@@ -38,50 +38,119 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             throw new Exception('Vous n\'êtes pas autorisé à modifier ce justificatif.');
         }
 
-        // Gérer le fichier si un nouveau fichier est téléchargé
-        $saved_file_path = $existingProof['file_path']; // Conserver le fichier actuel par défaut
+        // Gérer les fichiers (multiples)
+        $upload_dir = __DIR__ . '/../uploads/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
 
-        if (isset($_FILES['proof_file']) && $_FILES['proof_file']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = __DIR__ . '/../uploads/';
-
-            // Create upload directory if it doesn't exist
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0755, true);
+        // Récupérer les fichiers existants depuis la colonne JSONB
+        $currentFiles = [];
+        if (!empty($existingProof['proof_files'])) {
+            if (is_array($existingProof['proof_files'])) {
+                $currentFiles = $existingProof['proof_files'];
+            } else {
+                $decoded = json_decode($existingProof['proof_files'], true);
+                $currentFiles = is_array($decoded) ? $decoded : [];
             }
+        }
 
-            $allowed_extensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx'];
-            $max_file_size = 5 * 1024 * 1024; // 5MB
-
-            $file_extension = strtolower(pathinfo($_FILES['proof_file']['name'], PATHINFO_EXTENSION));
-            $file_size = $_FILES['proof_file']['size'];
-
-            if (!in_array($file_extension, $allowed_extensions)) {
-                throw new Exception('Type de fichier non autorisé. Types acceptés: ' . implode(', ', $allowed_extensions));
-            }
-
-            if ($file_size > $max_file_size || $file_size === 0) {
-                throw new Exception('Fichier trop volumineux (max 5MB) ou fichier vide.');
-            }
-
-            // Create unique filename
-            date_default_timezone_set('Europe/Paris');
-            $unique_name = uniqid() . '_' . date('Y-m-d_H-i-s') . '.' . $file_extension;
-            $file_path = $upload_dir . $unique_name;
-
-            if (!move_uploaded_file($_FILES['proof_file']['tmp_name'], $file_path)) {
-                throw new Exception('Erreur lors de la sauvegarde du fichier.');
-            }
-
-            // Supprimer l'ancien fichier si un nouveau est téléchargé
-            if (!empty($existingProof['file_path'])) {
-                $old_file = __DIR__ . '/../' . $existingProof['file_path'];
-                if (file_exists($old_file)) {
-                    unlink($old_file);
+        // Gérer les suppressions de fichiers
+        if (isset($_POST['delete_files']) && is_array($_POST['delete_files'])) {
+            foreach ($_POST['delete_files'] as $deleteIndex) {
+                $deleteIndex = (int) $deleteIndex;
+                if (isset($currentFiles[$deleteIndex])) {
+                    // Supprimer le fichier physique
+                    $fileToDelete = $currentFiles[$deleteIndex];
+                    if (!empty($fileToDelete['path'])) {
+                        $fullPath = __DIR__ . '/../' . $fileToDelete['path'];
+                        if (file_exists($fullPath)) {
+                            unlink($fullPath);
+                        }
+                    }
+                    // Retirer du tableau
+                    unset($currentFiles[$deleteIndex]);
                 }
             }
-
-            $saved_file_path = 'uploads/' . $unique_name; // Relative path for storage
+            // Réindexer le tableau
+            $currentFiles = array_values($currentFiles);
         }
+
+        // Ajouter les nouveaux fichiers
+        $allowed_extensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx'];
+        $max_file_size = 5 * 1024 * 1024; // 5MB
+        $max_total_size = 20 * 1024 * 1024; // 20MB
+
+        if (isset($_FILES['proof_files']) && !empty($_FILES['proof_files']['name'][0])) {
+            $files_count = count($_FILES['proof_files']['name']);
+            $total_size = array_sum(array_map(function ($f) {
+                return !empty($f['size']) ? $f['size'] : 0;
+            }, $currentFiles));
+
+            for ($i = 0; $i < $files_count; $i++) {
+                if ($_FILES['proof_files']['error'][$i] === UPLOAD_ERR_OK) {
+                    $file_extension = strtolower(pathinfo($_FILES['proof_files']['name'][$i], PATHINFO_EXTENSION));
+                    $file_size = $_FILES['proof_files']['size'][$i];
+                    $original_name = $_FILES['proof_files']['name'][$i];
+
+                    if (!in_array($file_extension, $allowed_extensions)) {
+                        throw new Exception("Type de fichier non autorisé pour {$original_name}. Types acceptés: " . implode(', ', $allowed_extensions));
+                    }
+
+                    if ($file_size > $max_file_size || $file_size === 0) {
+                        throw new Exception("Fichier {$original_name} trop volumineux (max 5MB) ou vide.");
+                    }
+
+                    $total_size += $file_size;
+                    if ($total_size > $max_total_size) {
+                        throw new Exception('Taille totale des fichiers trop importante (max 20MB au total).');
+                    }
+
+                    // Create unique filename
+                    date_default_timezone_set('Europe/Paris');
+                    $unique_name = uniqid() . '_' . date('Y-m-d_H-i-s') . '.' . $file_extension;
+                    $file_path = $upload_dir . $unique_name;
+
+                    if (!move_uploaded_file($_FILES['proof_files']['tmp_name'][$i], $file_path)) {
+                        throw new Exception("Erreur lors de la sauvegarde du fichier {$original_name}.");
+                    }
+
+                    // Déterminer le type MIME
+                    $mime_type = 'application/octet-stream';
+                    if (function_exists('mime_content_type')) {
+                        $mime_type = mime_content_type($file_path);
+                    } elseif (function_exists('finfo_open')) {
+                        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                        $mime_type = finfo_file($finfo, $file_path);
+                        finfo_close($finfo);
+                    } else {
+                        // Fallback: déterminer par extension
+                        $mime_types = [
+                            'pdf' => 'application/pdf',
+                            'jpg' => 'image/jpeg',
+                            'jpeg' => 'image/jpeg',
+                            'png' => 'image/png',
+                            'gif' => 'image/gif',
+                            'doc' => 'application/msword',
+                            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                        ];
+                        $mime_type = $mime_types[$file_extension] ?? 'application/octet-stream';
+                    }
+
+                    $currentFiles[] = [
+                        'original_name' => $original_name,
+                        'saved_name' => $unique_name,
+                        'path' => 'uploads/' . $unique_name,
+                        'size' => $file_size,
+                        'type' => $mime_type,
+                        'uploaded_at' => date('Y-m-d H:i:s')
+                    ];
+                }
+            }
+        }
+
+        // Encoder les fichiers en JSON pour la base de données
+        $files_json = json_encode($currentFiles, JSON_UNESCAPED_UNICODE);
 
         // Récupérer et traiter les données du formulaire
         $datetime_start = $_POST['datetime_start'] ?? '';
@@ -111,7 +180,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             SET 
                 main_reason = :main_reason,
                 custom_reason = :custom_reason,
-                file_path = :file_path,
+                proof_files = :proof_files::jsonb,
                 student_comment = :student_comment,
                 concerned_courses = :concerned_courses,
                 status = 'pending',
@@ -124,7 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $params_update = [
             'main_reason' => $main_reason,
             'custom_reason' => $custom_reason,
-            'file_path' => $saved_file_path,
+            'proof_files' => $files_json,
             'student_comment' => $comments,
             'concerned_courses' => $class_involved,
             'proof_id' => $proofId

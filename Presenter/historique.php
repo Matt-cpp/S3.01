@@ -100,9 +100,24 @@ class HistoriquePresenter
 
     public function hasProof($absence)
     {
-        return !empty($absence['motif']);
+        if (!empty($absence['proof_files'])) {
+            $files = is_array($absence['proof_files']) ? $absence['proof_files'] : json_decode($absence['proof_files'], true);
+            return is_array($files) && count($files) > 0;
+        }
+        return !empty($absence['motif']) || !empty($absence['file_path']);
     }
 
+    public function getProofFiles($absence)
+    {
+        if (!empty($absence['proof_files'])) {
+            if (is_array($absence['proof_files'])) {
+                return $absence['proof_files'];
+            }
+            $decoded = json_decode($absence['proof_files'], true);
+            return is_array($decoded) ? $decoded : [];
+        }
+        return [];
+    }
 
     public function getProofPath($absence)
     {

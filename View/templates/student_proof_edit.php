@@ -32,7 +32,10 @@ $editData = $_SESSION['edit_proof'];
         window.isEditing = true;
         window.editProofId = <?php echo $editData['proof_id'] ?? 'null'; ?>;
     </script>
+    <!-- Load student_proof_submit.js for course loading and date validation -->
     <script src="../assets/js/student_proof_submit.js"></script>
+    <!-- Load student_proof_edit.js for file management in edit mode -->
+    <script src="../assets/js/student_proof_edit.js"></script>
 
 </head>
 
@@ -140,27 +143,73 @@ $editData = $_SESSION['edit_proof'];
             </div>
 
             <div class="form-group">
-                <label for="proof_file">Fichier justificatif :</label>
-                <?php if (!empty($editData['existing_file_path'])): ?>
-                    <div
-                        style="margin-bottom: 10px; padding: 10px; background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px;">
-                        <strong>📎 Fichier actuel :</strong>
-                        <a href="../../<?php echo htmlspecialchars($editData['existing_file_path']); ?>" target="_blank"
-                            style="color: #0056b3;">
-                            <?php echo htmlspecialchars(basename($editData['existing_file_path'])); ?>
-                        </a>
+                <label>Fichiers justificatifs actuels :</label>
+                <?php
+                $existingFiles = $editData['existing_files'] ?? [];
+                if (!empty($existingFiles)): ?>
+                    <div id="existing-files-list" style="margin-bottom: 15px;">
+                        <?php foreach ($existingFiles as $index => $file): ?>
+                            <div class="existing-file-item" data-file-size="<?php echo $file['size'] ?? 0; ?>"
+                                style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 8px;">
+                                <span style="font-size: 24px;">
+                                    <?php
+                                    $ext = strtolower(pathinfo($file['original_name'] ?? '', PATHINFO_EXTENSION));
+                                    $icons = ['pdf' => '📄', 'jpg' => '🖼️', 'jpeg' => '🖼️', 'png' => '🖼️', 'gif' => '🖼️', 'doc' => '📝', 'docx' => '📝'];
+                                    echo $icons[$ext] ?? '📎';
+                                    ?>
+                                </span>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-weight: 500; word-break: break-all; font-size: 14px;">
+                                        <?php echo htmlspecialchars($file['original_name'] ?? $file['saved_name'] ?? 'Fichier ' . ($index + 1)); ?>
+                                    </div>
+                                    <?php if (!empty($file['size'])): ?>
+                                        <div style="font-size: 12px; color: #666;">
+                                            <?php echo number_format($file['size'] / 1024, 1); ?> Ko
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <a href="../../Presenter/view_upload_proof.php?proof_id=<?php echo $editData['proof_id']; ?>&file_index=<?php echo $index; ?>"
+                                    target="_blank"
+                                    style="padding: 6px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 13px; white-space: nowrap;">
+                                    👁️ Voir
+                                </a>
+                                <label
+                                    style="display: flex; align-items: center; gap: 5px; cursor: pointer; margin: 0; padding: 6px 12px; background: #dc3545; color: white; border-radius: 4px; font-size: 13px; white-space: nowrap;">
+                                    <input type="checkbox" name="delete_files[]" value="<?php echo $index; ?>"
+                                        onchange="toggleDeleteExistingFile(this, <?php echo $index; ?>)"
+                                        style="margin: 0; cursor: pointer;">
+                                    <span>🗑️ Supprimer</span>
+                                </label>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
+                <?php else: ?>
+                    <p style="color: #666; font-style: italic; margin-bottom: 10px;">Aucun fichier actuellement</p>
                 <?php endif; ?>
-                <input type="file" id="proof_file" name="proof_file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.gif">
-                <p class="help-text">Laissez vide pour conserver le fichier actuel</p>
-                <p class="help-text" style="color: #e36153ff; font-weight: bold; margin-top: 8px;">
-                    <strong>ATTENTION :</strong> Taille maximale autorisée : <strong>5MB</strong><br>
-                    Formats acceptés : PDF (recommandé), JPG, JPEG, PNG, DOC, DOCX
-                </p>
-                <div id="file_size_warning"
-                    style="display: none; color: #e74c3c; font-weight: bold; margin-top: 5px; padding: 8px; background-color: #ffe6e6; border: 1px solid #e74c3c; border-radius: 4px;">
-                    Fichier trop volumineux ! Veuillez sélectionner un fichier de moins de 5MB.
+
+                <div
+                    style="margin-top: 15px; padding: 12px; background: #e7f3ff; border: 1px solid #0066cc; border-radius: 5px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #0066cc;">
+                        📎 Ajouter de nouveaux fichiers :
+                    </label>
+                    <input type="file" id="proof_files" name="proof_files[]" multiple
+                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.gif" style="display: none;">
+                    <button type="button" onclick="addNewFiles()"
+                        style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                        ➕ Sélectionner des fichiers
+                    </button>
+                    <p class="help-text" style="margin-top: 8px; margin-bottom: 0; font-size: 13px;">
+                        Max 5MB par fichier, 20MB au total - Formats : PDF, JPG, PNG, DOC, DOCX, GIF
+                    </p>
                 </div>
+
+                <div id="new-files-container" style="display: none;"></div>
+
+                <div id="file_size_warning"
+                    style="display: none; color: #721c24; font-weight: bold; margin-top: 10px; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;">
+                </div>
+
+                <div id="files-summary"></div>
             </div>
 
             <div class="form-group">

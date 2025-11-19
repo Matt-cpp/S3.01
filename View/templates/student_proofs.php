@@ -153,6 +153,11 @@ $errorMessage = $presenter->getErrorMessage();
                         <?php foreach ($proofs as $proof): ?>
                             <?php 
                             $status = $presenter->getStatusBadge($proof['status']);
+                            $proofFiles = [];
+                            if (!empty($proof['proof_files'])) {
+                                $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
+                                $proofFiles = is_array($proofFiles) ? $proofFiles : [];
+                            }
                             ?>
                             <tr class="proof-row" data-proof-id="<?php echo $proof['proof_id']; ?>" 
                                 data-status="<?php echo $proof['status']; ?>"
@@ -168,6 +173,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-status-class="<?php echo $status['class']; ?>"
                                 data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
                                 data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>"
+                                data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>"
                                 style="cursor: pointer;">
                                 <td>
                                     <strong><?php echo $presenter->formatPeriod($proof['absence_start_date'], $proof['absence_end_date']); ?></strong>
@@ -278,6 +284,11 @@ $errorMessage = $presenter->getErrorMessage();
                 <div class="modal-status-section">
                     <span class="modal-label">🏷️ Statut :</span>
                     <span id="modalStatus" class="badge"></span>
+                </div>
+
+                <div class="modal-files-section" id="filesSection" style="display: none; margin-top: 20px;">
+                    <span class="modal-label">📎 Fichiers justificatifs :</span>
+                    <div id="modalFiles" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
                 </div>
 
                 <div class="modal-comment-section" id="commentSection" style="display: none;">

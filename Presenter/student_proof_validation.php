@@ -81,11 +81,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
                 ];
                 $mime_type = $mime_types[$extension] ?? 'application/octet-stream';
-                
+
                 $uploaded_files[] = [
                     'original_name' => $original_name,
                     'saved_name' => $unique_name,
-                    'saved_path' => 'uploads/' . $unique_name,
+                    'path' => 'uploads/' . $unique_name,
                     'file_size' => $file_size,
                     'mime_type' => $mime_type,
                     'uploaded_at' => date('Y-m-d H:i:s')
@@ -118,11 +118,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'class_involved' => $_POST['class_involved'] ?? '',
             'absence_reason' => $_POST['absence_reason'] ?? '',
             'other_reason' => $_POST['other_reason'] ?? '',
-            
+
             // Gestion de multiples fichiers
             'proof_files' => $uploaded_files,  // Array de fichiers
             'proof_files_json' => $files_json,  // JSON pour la BD
-            
+
             'comments' => $_POST['comments'] ?? '',
             'submission_date' => date('Y-m-d H:i:s'),
             'stats_hours' => $_POST['absence_stats_hours'] ?? '0',
@@ -304,7 +304,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'concerned_courses' => $_SESSION['reason_data']['class_involved'],
                 'main_reason' => $absence_reason_mapped,
                 'custom_reason' => $_SESSION['reason_data']['other_reason'],
-                'file_path' => !empty($uploaded_files) ? $uploaded_files[0]['saved_path'] : null, // Garder pour compatibilité
+                'file_path' => !empty($uploaded_files) ? $uploaded_files[0]['path'] : null, // Garder pour compatibilité
                 'proof_files' => $files_json, // NOUVEAU : JSON des fichiers
                 'student_comment' => $_SESSION['reason_data']['comments'],
                 'submission_date' => $_SESSION['reason_data']['submission_date']
@@ -383,7 +383,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Ajouter tous les fichiers justificatifs uploadés
             foreach ($uploaded_files as $file_info) {
-                $file_path = __DIR__ . '/../' . $file_info['saved_path'];
+                $file_path = __DIR__ . '/../' . $file_info['path'];
                 if (file_exists($file_path)) {
                     $attachments[] = [
                         'path' => $file_path,
@@ -411,13 +411,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p>Vous trouverez ci-joint :</p>
             <ul>
                 <li>📄 Le récapitulatif PDF de votre demande</li>';
-            
+
             if (count($uploaded_files) > 0) {
                 $htmlBody .= '<li>📎 ' . count($uploaded_files) . ' fichier(s) justificatif(s) que vous avez soumis</li>';
             } else {
                 $htmlBody .= '<li>⚠️ Aucun fichier justificatif fourni</li>';
             }
-            
+
             $htmlBody .= '
             </ul>
             <p>Vous recevrez une notification par email une fois que votre justificatif aura été traité par l\'administration.</p>
@@ -542,15 +542,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($db->inTransaction()) {
                 $db->rollBack();
             }
-            
+
             // ===== MODIFIÉ : Nettoyer tous les fichiers en cas d'erreur =====
             foreach ($uploaded_files as $file_info) {
-                $file_to_delete = __DIR__ . '/../' . $file_info['saved_path'];
+                $file_to_delete = __DIR__ . '/../' . $file_info['path'];
                 if (file_exists($file_to_delete)) {
                     unlink($file_to_delete);
                 }
             }
-            
+
             throw new Exception("Erreur lors de l'enregistrement: " . $e->getMessage());
         }
 
