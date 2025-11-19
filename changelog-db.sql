@@ -291,6 +291,18 @@ CREATE INDEX idx_users_email_verified ON users(email_verified);
 --rollback DROP INDEX IF EXISTS idx_users_email_verified;
 --rollback ALTER TABLE users DROP COLUMN IF EXISTS email_verified;
 
+--changeset bisiaux.ambroise:add-multiple-files-support labels:Multiple files context:proof-files
+--comment: Add support for multiple files per proof using JSON storage
+
+-- Add new column for multiple files
+ALTER TABLE proof ADD COLUMN proof_files JSONB DEFAULT '[]'::jsonb;
+
+-- Add index for better JSON query performance
+CREATE INDEX idx_proof_files ON proof USING GIN (proof_files);
+
+--rollback DROP INDEX IF EXISTS idx_proof_files;
+--rollback ALTER TABLE proof DROP COLUMN IF EXISTS proof_files;
+
 --changeset fournier.alexandre:make-identifier-optional labels:User registration context:user-registration
 --comment: Make identifier column optional for user registration without student ID
 

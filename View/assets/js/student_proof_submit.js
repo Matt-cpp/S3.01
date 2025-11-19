@@ -1,3 +1,21 @@
+// Configuration pour la gestion des fichiers multiples
+const FILE_CONFIG = {
+    maxFileSize: 5 * 1024 * 1024,      // 5MB par fichier
+    maxTotalSize: 20 * 1024 * 1024,    // 20MB au total
+    allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'],
+    mimeTypes: {
+        'pdf': 'application/pdf',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'doc': 'application/msword',
+        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    }
+};
+
+// Variable globale pour stocker les fichiers sélectionnés
+let selectedFiles = [];
+
 function toggleCustomReason() {
   var select = document.getElementById("absence_reason");
   var customdiv = document.getElementById("custom_reason");
@@ -55,31 +73,188 @@ function validateDates() {
   return true;
 }
 
-function validateFileSize() {
-  const fileInput = document.getElementById("proof_file");
-  const file = fileInput.files[0];
-  const warningDiv = document.getElementById("file_size_warning");
-
-  if (warningDiv) {
-    warningDiv.style.display = "none";
-  }
-
-  if (file) {
-    const maxSize = 5 * 1024 * 1024; // 5MB
-
-    if (file.size > maxSize || file.size === 0) {
-      if (warningDiv) {
-        warningDiv.innerHTML = `Fichier trop volumineux !`;
-        warningDiv.style.display = "block";
-      }
-
-      alert(`Le fichier sélectionné est trop volumineux !`);
-      fileInput.value = "";
-      return false;
-    } else {
+/**
+ * Valide et affiche les fichiers sélectionnés
+ */
+function handleFileSelection(event) {
+    const fileInput = event.target;
+    const files = Array.from(fileInput.files);
+    
+    // Réinitialiser la liste des fichiers
+    selectedFiles = [];
+    
+    // Valider chaque fichier
+    let totalSize = 0;
+    let errors = [];
+    
+    files.forEach((file, index) => {
+        // Vérifier l'extension
+        const extension = file.name.split('.').pop().toLowerCase();
+        if (!FILE_CONFIG.allowedExtensions.includes(extension)) {
+            errors.push(`${file.name} : format non autorisé`);
+            return;
+        }
+        
+        // Vérifier la taille du fichier
+        if (file.size === 0) {
+            errors.push(`${file.name} : fichier vide`);
+            return;
+        }
+        
+        if (file.size > FILE_CONFIG.maxFileSize) {
+            errors.push(`${file.name} : dépasse 5MB (${formatFileSize(file.size)})`);
+            return;
+        }
+        
+        totalSize += file.size;
+        selectedFiles.push(file);
+    });
+    
+    // Vérifier la taille totale
+    if (totalSize > FILE_CONFIG.maxTotalSize) {
+        errors.push(`Taille totale (${formatFileSize(totalSize)}) dépasse 20MB`);
     }
-  }
+    
+    // Afficher les erreurs
+    const warningDiv = document.getElementById('file_size_warning');
+    if (errors.length > 0) {
+        warningDiv.innerHTML = '<strong>Erreurs détectées :</strong><br>' + errors.join('<br>');
+        warningDiv.style.display = 'block';
+        
+        // Si erreur critique, vider la sélection
+        if (totalSize > FILE_CONFIG.maxTotalSize || selectedFiles.length === 0) {
+            fileInput.value = '';
+            selectedFiles = [];
+            document.getElementById('files_preview').style.display = 'none';
+            return;
+        }
+    } else {
+        warningDiv.style.display = 'none';
+    }
+    
+    // Afficher l'aperçu des fichiers valides
+    displayFilesPreview(selectedFiles, totalSize);
+}
 
+/**
+ * Affiche l'aperçu des fichiers sélectionnés
+ */
+function displayFilesPreview(files, totalSize) {
+    const previewDiv = document.getElementById('files_preview');
+    const filesListDiv = document.getElementById('files_list');
+    const totalSizeDiv = document.getElementById('total_size');
+    
+    if (files.length === 0) {
+        previewDiv.style.display = 'none';
+        return;
+    }
+    
+    // Construire la liste des fichiers
+    let filesHtml = '';
+    files.forEach((file, index) => {
+        const extension = file.name.split('.').pop().toLowerCase();
+        const icon = getFileIcon(extension);
+        
+        filesHtml += `
+            <div class="file-item" data-file-index="${index}">
+                <div class="file-info">
+                    <span class="file-icon">${icon}</span>
+                    <div class="file-details">
+                        <span class="file-name">${escapeHtml(file.name)}</span>
+                        <span class="file-size">${formatFileSize(file.size)}</span>
+                    </div>
+                </div>
+                <button type="button" class="file-remove" onclick="removeFile(${index})">
+                    🗑️ Supprimer
+                </button>
+            </div>
+        `;
+    });
+    
+    filesListDiv.innerHTML = filesHtml;
+    
+    // Afficher la taille totale
+    const sizePercent = (totalSize / FILE_CONFIG.maxTotalSize) * 100;
+    let sizeClass = '';
+    if (sizePercent > 90) {
+        sizeClass = 'error';
+    } else if (sizePercent > 70) {
+        sizeClass = 'warning';
+    }
+    
+    totalSizeDiv.className = sizeClass;
+    totalSizeDiv.innerHTML = `
+        Taille totale : <strong>${formatFileSize(totalSize)}</strong> / ${formatFileSize(FILE_CONFIG.maxTotalSize)}
+        (${sizePercent.toFixed(1)}%)
+    `;
+    
+    previewDiv.style.display = 'block';
+}
+
+/**
+ * Supprime un fichier de la sélection
+ */
+function removeFile(index) {
+    const fileInput = document.getElementById('proof_files');
+    const dt = new DataTransfer();
+    
+    // Recréer la FileList sans le fichier supprimé
+    selectedFiles.forEach((file, i) => {
+        if (i !== index) {
+            dt.items.add(file);
+        }
+    });
+    
+    fileInput.files = dt.files;
+    
+    // Re-déclencher la validation
+    handleFileSelection({ target: fileInput });
+}
+
+/**
+ * Obtient l'icône correspondant au type de fichier
+ */
+function getFileIcon(extension) {
+    const icons = {
+        'pdf': '📄',
+        'jpg': '🖼️',
+        'jpeg': '🖼️',
+        'png': '🖼️',
+        'doc': '📝',
+        'docx': '📝'
+    };
+    return icons[extension] || '📎';
+}
+
+/**
+ * Formate la taille du fichier
+ */
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+}
+
+/**
+ * Échappe le HTML pour éviter les injections XSS
+ */
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Modifier la fonction de validation existante
+function validateFileSize() {
+  // Cette fonction n'est plus nécessaire car la validation
+  // est faite dans handleFileSelection
   return true;
 }
 
@@ -690,10 +865,11 @@ window.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-  // File size validation on file selection
-  document.getElementById("proof_file").addEventListener("change", function () {
-    validateFileSize();
-  });
+  // Remplacer l'ancien écouteur de fichier par le nouveau pour fichiers multiples
+  const fileInput = document.getElementById('proof_files');
+  if (fileInput) {
+      fileInput.addEventListener('change', handleFileSelection);
+  }
 
   // Validate dates, file size, and selected courses on form submission
   document.querySelector("form").addEventListener("submit", function (e) {
@@ -701,9 +877,22 @@ window.addEventListener("DOMContentLoaded", function () {
       "class_involved_hidden"
     ).value;
 
-    if (!validateDates() || !validateFileSize()) {
+    if (!validateDates()) {
       e.preventDefault();
       return;
+    }
+
+    // Vérifier qu'au moins un fichier est sélectionné si désiré
+    // (ou permettre 0 fichier si c'est acceptable)
+    if (selectedFiles.length === 0) {
+        const confirmSubmit = confirm(
+            "Aucun fichier justificatif n'a été sélectionné. " +
+            "Voulez-vous quand même soumettre votre demande ?"
+        );
+        if (!confirmSubmit) {
+            e.preventDefault();
+            return;
+        }
     }
 
     // Check if any courses are selected

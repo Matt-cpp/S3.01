@@ -131,6 +131,7 @@
 .icon.info-icon span {
     font-size: 18px;
     color: white;
+    line-height: 1;
 }
 
 .icon.notification::before {

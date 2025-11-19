@@ -1,3 +1,5 @@
+<!-- Backend de validation des justificatifs étudiants avec upload des fichiers, envoie de l'email et vérification des conditions d'envoie du justificatif -->
+
 <?php
 
 require_once __DIR__ . '/../Model/database.php';
@@ -10,46 +12,89 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         $db = getDatabase();
 
-        // Handle file upload first
-        $uploaded_file_name = '';
-        $saved_file_path = '';
+        // Gestion de multiples fichiers
+        $uploaded_files = [];
+        $max_file_size = 5 * 1024 * 1024; // 5MB
+        $max_total_size = 20 * 1024 * 1024; // 20MB
+        $allowed_extensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx'];
+        $upload_dir = __DIR__ . '/../uploads/';
 
-        if (isset($_FILES['proof_file']) && $_FILES['proof_file']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = __DIR__ . '/../uploads/';
-
-            // Create upload directory if it doesn't exist
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0755, true);
-            }
-
-            $allowed_extensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx'];
-            $max_file_size = 5 * 1024 * 1024; // 5MB
-
-            $file_extension = strtolower(pathinfo($_FILES['proof_file']['name'], PATHINFO_EXTENSION));
-            $file_size = $_FILES['proof_file']['size'];
-
-            if (!in_array($file_extension, $allowed_extensions)) {
-                throw new Exception('Type de fichier non autorisé. Types acceptés: ' . implode(', ', $allowed_extensions));
-            }
-
-            if ($file_size > $max_file_size || $file_size === 0) {
-                throw new Exception('Fichier trop volumineux (max 5MB) ou fichier vide.');
-            }
-
-            // Create unique filename
-            date_default_timezone_set('Europe/Paris');
-            $unique_name = uniqid() . '_' . date('Y-m-d_H-i-s') . '.' . $file_extension;
-            $file_path = $upload_dir . $unique_name;
-
-            if (!move_uploaded_file($_FILES['proof_file']['tmp_name'], $file_path)) {
-                throw new Exception('Erreur lors de la sauvegarde du fichier.');
-            }
-
-            $uploaded_file_name = $_FILES['proof_file']['name'];
-            $saved_file_path = 'uploads/' . $unique_name; // Relative path for storage
-        } else {
-            throw new Exception('Aucun fichier justificatif fourni ou erreur lors du téléchargement.');
+        // Créer le dossier d'upload si nécessaire
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
         }
+
+        // Vérifier si des fichiers ont été uploadés
+        if (isset($_FILES['proof_files']) && !empty($_FILES['proof_files']['name'][0])) {
+            $files_count = count($_FILES['proof_files']['name']);
+            $total_size = 0;
+
+            // Parcourir tous les fichiers
+            for ($i = 0; $i < $files_count; $i++) {
+                // Vérifier les erreurs d'upload
+                if ($_FILES['proof_files']['error'][$i] !== UPLOAD_ERR_OK) {
+                    continue; // Ignorer les fichiers avec erreurs
+                }
+
+                $original_name = $_FILES['proof_files']['name'][$i];
+                $tmp_name = $_FILES['proof_files']['tmp_name'][$i];
+                $file_size = $_FILES['proof_files']['size'][$i];
+                $file_extension = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
+
+                // Validation de l'extension
+                if (!in_array($file_extension, $allowed_extensions)) {
+                    throw new Exception("Format de fichier non autorisé : $original_name");
+                }
+
+                // Validation de la taille
+                if ($file_size > $max_file_size || $file_size === 0) {
+                    throw new Exception("Taille de fichier invalide : $original_name");
+                }
+
+                $total_size += $file_size;
+
+                // Vérifier la taille totale
+                if ($total_size > $max_total_size) {
+                    throw new Exception("La taille totale des fichiers dépasse 20MB");
+                }
+
+                // Créer un nom unique pour le fichier
+                date_default_timezone_set('Europe/Paris');
+                $unique_name = uniqid() . '_' . date('Y-m-d_H-i-s') . '.' . $file_extension;
+                $file_path = $upload_dir . $unique_name;
+
+                // Déplacer le fichier uploadé
+                if (!move_uploaded_file($tmp_name, $file_path)) {
+                    throw new Exception("Erreur lors de l'upload de : $original_name");
+                }
+
+                // Ajouter les informations du fichier au tableau
+                // Déterminer le type MIME basé sur l'extension
+                // MIME = id de format de fichier
+                $extension = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
+                $mime_types = [
+                    'pdf' => 'application/pdf',
+                    'jpg' => 'image/jpeg',
+                    'jpeg' => 'image/jpeg',
+                    'png' => 'image/png',
+                    'doc' => 'application/msword',
+                    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                ];
+                $mime_type = $mime_types[$extension] ?? 'application/octet-stream';
+                
+                $uploaded_files[] = [
+                    'original_name' => $original_name,
+                    'saved_name' => $unique_name,
+                    'saved_path' => 'uploads/' . $unique_name,
+                    'file_size' => $file_size,
+                    'mime_type' => $mime_type,
+                    'uploaded_at' => date('Y-m-d H:i:s')
+                ];
+            }
+        }
+
+        // Stocker les informations des fichiers en JSON pour la session
+        $files_json = json_encode($uploaded_files, JSON_UNESCAPED_UNICODE);
 
         // Retrieve student information from database
         if (isset($_SESSION['id_student'])) {
@@ -73,9 +118,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'class_involved' => $_POST['class_involved'] ?? '',
             'absence_reason' => $_POST['absence_reason'] ?? '',
             'other_reason' => $_POST['other_reason'] ?? '',
-            'proof_file' => $uploaded_file_name,
-            'saved_file_path' => $saved_file_path,
-            'saved_file_name' => $unique_name,
+            
+            // Gestion de multiples fichiers
+            'proof_files' => $uploaded_files,  // Array de fichiers
+            'proof_files_json' => $files_json,  // JSON pour la BD
+            
             'comments' => $_POST['comments'] ?? '',
             'submission_date' => date('Y-m-d H:i:s'),
             'stats_hours' => $_POST['absence_stats_hours'] ?? '0',
@@ -230,6 +277,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     main_reason, 
                     custom_reason, 
                     file_path, 
+                    proof_files,
                     student_comment, 
                     status, 
                     submission_date
@@ -242,6 +290,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     :main_reason, 
                     :custom_reason, 
                     :file_path, 
+                    :proof_files::jsonb,
                     :student_comment, 
                     'pending', 
                     :submission_date
@@ -255,7 +304,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'concerned_courses' => $_SESSION['reason_data']['class_involved'],
                 'main_reason' => $absence_reason_mapped,
                 'custom_reason' => $_SESSION['reason_data']['other_reason'],
-                'file_path' => $saved_file_path,
+                'file_path' => !empty($uploaded_files) ? $uploaded_files[0]['saved_path'] : null, // Garder pour compatibilité
+                'proof_files' => $files_json, // NOUVEAU : JSON des fichiers
                 'student_comment' => $_SESSION['reason_data']['comments'],
                 'submission_date' => $_SESSION['reason_data']['submission_date']
             ];
@@ -328,14 +378,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Continue with email sending even if PDF generation fails
             }
 
+            // ===== MODIFIÉ : Préparation des pièces jointes pour l'email =====
             $attachments = [];
 
-            // Add original file if it exists
-            $original_file_path = __DIR__ . '/../' . $_SESSION['reason_data']['saved_file_path'];
-            if (file_exists($original_file_path)) {
-                $attachments[] = ['path' => $original_file_path, 'name' => $_SESSION['reason_data']['proof_file']];
-            } else {
-                error_log("Background email script: Original file not found: " . $original_file_path);
+            // Ajouter tous les fichiers justificatifs uploadés
+            foreach ($uploaded_files as $file_info) {
+                $file_path = __DIR__ . '/../' . $file_info['saved_path'];
+                if (file_exists($file_path)) {
+                    $attachments[] = [
+                        'path' => $file_path,
+                        'name' => $file_info['original_name']
+                    ];
+                } else {
+                    error_log("Fichier non trouvé : " . $file_path);
+                }
             }
 
             // Add PDF if it was generated successfully
@@ -347,6 +403,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'logoUPHF' => __DIR__ . '/../View/img/UPHF.png',
                 'logoIUT' => __DIR__ . '/../View/img/logoIUT.png'
             ];
+
+            // Modifier le corps de l'email pour mentionner les fichiers
+            $htmlBody = '
+            <h1>Confirmation de réception de votre justificatif</h1>
+            <p>Votre justificatif d\'absence a été reçu avec succès et est maintenant en attente de validation.</p>
+            <p>Vous trouverez ci-joint :</p>
+            <ul>
+                <li>📄 Le récapitulatif PDF de votre demande</li>';
+            
+            if (count($uploaded_files) > 0) {
+                $htmlBody .= '<li>📎 ' . count($uploaded_files) . ' fichier(s) justificatif(s) que vous avez soumis</li>';
+            } else {
+                $htmlBody .= '<li>⚠️ Aucun fichier justificatif fourni</li>';
+            }
+            
+            $htmlBody .= '
+            </ul>
+            <p>Vous recevrez une notification par email une fois que votre justificatif aura été traité par l\'administration.</p>
+            <br>
+            <p style="font-size:0.85em;color:#6c757d;margin-top:10px;">
+                <small>Ce message est automatique — merci de ne pas y répondre.</small>
+            </p>
+            <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
+            <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
+            ';
 
             $response = $emailService->sendEmail(
                 //TODO mettre mail de l'étudiant donc $SESSION['student_info']['email']
@@ -461,10 +542,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($db->inTransaction()) {
                 $db->rollBack();
             }
-            // Clean up uploaded file on database error
-            if ($saved_file_path && file_exists(__DIR__ . '/../' . $saved_file_path)) {
-                unlink(__DIR__ . '/../' . $saved_file_path);
+            
+            // ===== MODIFIÉ : Nettoyer tous les fichiers en cas d'erreur =====
+            foreach ($uploaded_files as $file_info) {
+                $file_to_delete = __DIR__ . '/../' . $file_info['saved_path'];
+                if (file_exists($file_to_delete)) {
+                    unlink($file_to_delete);
+                }
             }
+            
             throw new Exception("Erreur lors de l'enregistrement: " . $e->getMessage());
         }
 

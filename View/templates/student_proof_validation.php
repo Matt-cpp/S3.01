@@ -105,8 +105,26 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
                 <li><strong>Précision du motif :</strong>
                     <?php echo htmlspecialchars($_SESSION['reason_data']['other_reason']); ?></li>
             <?php endif; ?>
-            <li><strong>Fichier justificatif :</strong>
-                <?php echo htmlspecialchars($_SESSION['reason_data']['proof_file']); ?></li>
+            
+            <?php
+            // Display uploaded files
+            $proof_files = $_SESSION['reason_data']['proof_files'] ?? [];
+            if (!empty($proof_files)):
+                ?>
+                <li><strong>Fichier(s) justificatif(s) :</strong>
+                    <ul style="margin-top: 5px;">
+                        <?php foreach ($proof_files as $file): ?>
+                            <li>
+                                <?php echo htmlspecialchars($file['original_name']); ?>
+                                (<?php echo round($file['file_size'] / 1024, 2); ?> Ko)
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </li>
+            <?php else: ?>
+                <li><strong>Fichier(s) justificatif(s) :</strong> Aucun fichier fourni</li>
+            <?php endif; ?>
+            
             <?php if (!empty($_SESSION['reason_data']['comments'])): ?>
                 <li><strong>Commentaires :</strong>
                     <?php echo nl2br(htmlspecialchars($_SESSION['reason_data']['comments'])); ?></li>

@@ -55,17 +55,21 @@ li {
     color: white;
     padding: 15px 30px;
     text-decoration: none;
+    border: none;
     border-radius: 5px;
     font-size: 16px;
     font-weight: bold;
     display: inline-block;
-    transition: background-color 0.3s;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 .btn-pdf:hover {
     background-color: #c0392b;
     text-decoration: none;
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .warning-message {

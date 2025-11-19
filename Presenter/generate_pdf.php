@@ -137,7 +137,18 @@ if (!empty($reason_data['other_reason'])) {
     $html_content .= '<tr><td><strong>Précision du motif :</strong></td><td>' . htmlspecialchars($reason_data['other_reason']) . '</td></tr>';
 }
 
-$html_content .= '<tr><td><strong>Fichier justificatif :</strong></td><td>' . htmlspecialchars($reason_data['proof_file']) . '</td></tr>';
+// Display uploaded files
+$proof_files = $reason_data['proof_files'] ?? [];
+if (!empty($proof_files)) {
+    $files_list = '';
+    foreach ($proof_files as $file) {
+        $file_size_kb = round($file['file_size'] / 1024, 2);
+        $files_list .= htmlspecialchars($file['original_name']) . ' (' . $file_size_kb . ' Ko)<br>';
+    }
+    $html_content .= '<tr><td><strong>Fichier(s) justificatif(s) :</strong></td><td>' . $files_list . '</td></tr>';
+} else {
+    $html_content .= '<tr><td><strong>Fichier(s) justificatif(s) :</strong></td><td>Aucun fichier fourni</td></tr>';
+}
 
 if (!empty($reason_data['comments'])) {
     $html_content .= '<tr><td><strong>Commentaires :</strong></td><td>' . nl2br(htmlspecialchars($reason_data['comments'])) . '</td></tr>';
@@ -198,114 +209,127 @@ if ($stats_hours > 0 || (!empty($cours) && $cours !== '')) {
 
 $pdf->writeHTML($html_content);
 
-$pdf->addPage();
+// Process all uploaded files
+$proof_files = $reason_data['proof_files'] ?? [];
+if (!empty($proof_files)) {
+    // Add section for uploaded files
+    $pdf->SetFont('helvetica', 'B', 14);
+    $pdf->Cell(0, 10, 'Justificatifs fournis (' . count($proof_files) . ')', 0, 1, 'C');
+    
+    foreach ($proof_files as $index => $file_info) {
+        if ($index > 0) {
+            $pdf->AddPage();
+        }
+        // File header
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 10, 'Fichier ' . ($index + 1) . ' / ' . count($proof_files), 0, 1, 'L');
+        
+        // File details
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->MultiCell(0, 5, 'Nom : ' . htmlspecialchars($file_info['original_name']), 0, 'L');
+        $file_size_kb = round($file_info['file_size'] / 1024, 2);
+        $pdf->MultiCell(0, 5, 'Taille : ' . $file_size_kb . ' Ko', 0, 'L');
+        
+        // Construct absolute path to uploads directory
+        $upload_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . $file_info['saved_path'];
+        $extension = strtolower(pathinfo($file_info['original_name'], PATHINFO_EXTENSION));
 
-
-
-// Add an image or PDF preview if available
-if (!empty($reason_data['proof_file']) && !empty($reason_data['saved_file_name'])) {
-    $pdf->SetFont('helvetica', 'B', 16);
-    $pdf->Cell(0, 10, 'Justificatif fourni', 0, 1, 'C');
-
-    // File name
-    $pdf->SetFont('helvetica', '', 12);
-    $pdf->MultiCell(0, 10, 'Nom du fichier : ' . htmlspecialchars($reason_data['proof_file']), 0, 'L');
-
-    // Construct absolute path to uploads directory
-    $upload_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $reason_data['saved_file_name'];
-    $extension = strtolower(pathinfo($reason_data['proof_file'], PATHINFO_EXTENSION));
-
-    if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
-        $pdf->addPage();
-        if (file_exists($upload_path)) {
-            try {
-                $pdf->Image($upload_path, 15, $pdf->GetY(), 180, 0, '', '', '', false, 300, '', false, false, 1);
-            } catch (Exception $e) {
+        if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+            $pdf->addPage();
+            if (file_exists($upload_path)) {
+                try {
+                    $pdf->Image($upload_path, 15, $pdf->GetY(), 180, 0, '', '', '', false, 300, '', false, false, 1);
+                } catch (Exception $e) {
+                    $pdf->SetTextColor(255, 0, 0);
+                    $pdf->Cell(0, 10, 'Erreur lors de l\'affichage de l\'image : ' . $e->getMessage(), 0, 1, 'L');
+                    $pdf->SetTextColor(0, 0, 0);
+                }
+            } else {
                 $pdf->SetTextColor(255, 0, 0);
-                $pdf->Cell(0, 10, 'Erreur lors de l\'affichage de l\'image : ' . $e->getMessage(), 0, 1, 'L');
+                $pdf->Cell(0, 10, 'Fichier image non trouvé : ' . $upload_path, 0, 1, 'L');
                 $pdf->SetTextColor(0, 0, 0);
             }
-        } else {
-            $pdf->SetTextColor(255, 0, 0);
-            $pdf->Cell(0, 10, 'Fichier image non trouvé : ' . $upload_path, 0, 1, 'L');
-            $pdf->SetTextColor(0, 0, 0);
-        }
-    } elseif ($extension === 'pdf') {
-        if (file_exists($upload_path)) {
-            try {
-                // Create a new TCPDF object to import the PDF
-                $pdf->SetTextColor(0, 0, 255);
-                $pdf->Cell(0, 10, 'Type de fichier : Document PDF', 0, 1, 'L');
-                $pdf->SetTextColor(0, 0, 0);
-                $pdf->addPage();
+        } elseif ($extension === 'pdf') {
+            if (file_exists($upload_path)) {
+                try {
+                    $pdf->SetTextColor(0, 0, 255);
+                    $pdf->Cell(0, 10, 'Type de fichier : Document PDF', 0, 1, 'L');
+                    $pdf->SetTextColor(0, 0, 0);
+                    $pdf->addPage();
 
-                if (class_exists('Imagick')) {
-                    try {
-                        // First, get the number of pages in the PDF
-                        $imagick = new Imagick();
-                        $imagick->setResolution(150, 150);
-                        $imagick->readImage($upload_path);
-                        $num_pages = $imagick->getNumberImages();
-                        $imagick->destroy();
-
-                        // Loop through all pages
-                        for ($page = 0; $page < $num_pages; $page++) {
+                    if (class_exists('Imagick')) {
+                        try {
+                            // First, get the number of pages in the PDF
                             $imagick = new Imagick();
                             $imagick->setResolution(150, 150);
-                            $imagick->readImage($upload_path . '[' . $page . ']');
-
-                            $imagick->setImageFormat('jpeg');
-                            $imagick->setImageCompressionQuality(90);
-                            $imagick->setImageBackgroundColor('white');
-                            $imagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
-                            $imagick->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
-
-                            $temp_image = sys_get_temp_dir() . '/pdf_preview_imagick_page_' . $page . '_' . uniqid() . '.jpg';
-                            $imagick->writeImage($temp_image);
-
-                            if (file_exists($temp_image)) {
-                                // Add a new page for each PDF page (except the first one which is already added)
-                                if ($page > 0) {
-                                    $pdf->addPage();
-                                }
-
-                                // Display the image
-                                $pdf->Image($temp_image, 15, $pdf->GetY(), 180, 0, 'JPEG');
-                                unlink($temp_image);
-                            }
+                            $imagick->readImage($upload_path);
+                            $num_pages = $imagick->getNumberImages();
                             $imagick->destroy();
-                        }
 
-                    } catch (Exception $e) {
-                        error_log('Imagick PDF conversion failed: ' . $e->getMessage());
-                        $pdf->SetTextColor(255, 0, 0);
-                        $pdf->Cell(0, 10, 'Erreur lors de la conversion PDF : ' . $e->getMessage(), 0, 1, 'L');
-                        $pdf->SetTextColor(0, 0, 0);
+                            // Loop through all pages
+                            for ($page = 0; $page < $num_pages; $page++) {
+                                $imagick = new Imagick();
+                                $imagick->setResolution(150, 150);
+                                $imagick->readImage($upload_path . '[' . $page . ']');
+
+                                $imagick->setImageFormat('jpeg');
+                                $imagick->setImageCompressionQuality(90);
+                                $imagick->setImageBackgroundColor('white');
+                                $imagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
+                                $imagick->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
+
+                                $temp_image = sys_get_temp_dir() . '/pdf_preview_imagick_page_' . $page . '_' . uniqid() . '.jpg';
+                                $imagick->writeImage($temp_image);
+
+                                if (file_exists($temp_image)) {
+                                    // Add a new page for each PDF page (except the first one which is already added)
+                                    if ($page > 0) {
+                                        $pdf->addPage();
+                                    }
+
+                                    // Display the image
+                                    $pdf->Image($temp_image, 15, $pdf->GetY(), 180, 0, 'JPEG');
+                                    unlink($temp_image);
+                                }
+                                $imagick->destroy();
+                            }
+
+                        } catch (Exception $e) {
+                            error_log('Imagick PDF conversion failed: ' . $e->getMessage());
+                            $pdf->SetTextColor(255, 0, 0);
+                            $pdf->Cell(0, 10, 'Erreur lors de la conversion PDF : ' . $e->getMessage(), 0, 1, 'L');
+                            $pdf->SetTextColor(0, 0, 0);
+                        }
                     }
+                } catch (Exception $e) {
+                    $pdf->SetTextColor(255, 0, 0);
+                    $pdf->Cell(0, 10, 'Erreur lors du traitement du PDF : ' . $e->getMessage(), 0, 1, 'L');
+                    $pdf->SetTextColor(0, 0, 0);
                 }
-            } catch (Exception $e) {
+            } else {
                 $pdf->SetTextColor(255, 0, 0);
-                $pdf->Cell(0, 10, 'Erreur lors du traitement du PDF : ' . $e->getMessage(), 0, 1, 'L');
+                $pdf->Cell(0, 10, 'Fichier PDF non trouvé : ' . $upload_path, 0, 1, 'L');
                 $pdf->SetTextColor(0, 0, 0);
             }
         } else {
+            // Other file types handling
+            if (file_exists($upload_path)) {
+                $pdf->SetTextColor(0, 0, 255);
+                $pdf->Cell(0, 10, 'Type de fichier : ' . strtoupper($extension), 0, 1, 'L');
+            }
             $pdf->SetTextColor(255, 0, 0);
-            $pdf->Cell(0, 10, 'Fichier PDF non trouvé : ' . $upload_path, 0, 1, 'L');
+            $pdf->Cell(0, 10, 'Note : Ce type de fichier ne peut pas être affiché dans le PDF.', 0, 1, 'L');
+            $pdf->Cell(0, 10, 'Veuillez consulter le fichier original joint à votre demande.', 0, 1, 'L');
             $pdf->SetTextColor(0, 0, 0);
         }
-    } else {
-        // Other file types handling
-        if (file_exists($upload_path)) {
-            $file_size = filesize($upload_path);
-            $pdf->SetTextColor(0, 0, 255);
-            $pdf->Cell(0, 10, 'Type de fichier : ' . strtoupper($extension), 0, 1, 'L');
+        
+        // Add spacing between files
+        if ($index < count($proof_files) - 1) {
+            $pdf->Ln(10);
         }
-        $pdf->SetTextColor(255, 0, 0);
-        $pdf->Cell(0, 10, 'Note : Ce type de fichier ne peut pas être affiché dans le PDF.', 0, 1, 'L');
-        $pdf->Cell(0, 10, 'Veuillez consulter le fichier original joint à votre demande.', 0, 1, 'L');
-        $pdf->SetTextColor(0, 0, 0);
     }
 } else {
+    $pdf->addPage();
     $pdf->SetTextColor(255, 0, 0);
     $pdf->Cell(0, 10, 'Aucun fichier justificatif fourni.', 0, 1, 'L');
     $pdf->SetTextColor(0, 0, 0);
