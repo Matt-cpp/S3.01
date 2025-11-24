@@ -11,6 +11,7 @@ class pageEvalProf
         $this->userId = $this->linkTeacherUser($id);
     }
     
+    // ça marche pas encore
     private function linkTeacherUser(int $id)
     {
         $query = "SELECT teachers.id as id
@@ -18,6 +19,7 @@ class pageEvalProf
         WHERE users.id = " . $id; 
 
         $result = $this->db->select($query);
+        echo "ID Teacher lié à l'utilisateur : " . $result[0]['id'] . "\n"; 
         return $result[0]['id'];
     }
     
@@ -34,5 +36,17 @@ class pageEvalProf
         $result = $this->db->select($query);
         return $result;
     }
+    public function exemple()
+    {
+        $query= "SELECT * from absences;";
+        $result = $this->db->select($query);
+        return $result;
+    }
+    
 }
+$test = new pageEvalProf(13);
+$evals = $test->exemple();
+var_dump($evals);
+
+
 ?>
