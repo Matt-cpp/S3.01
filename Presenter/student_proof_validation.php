@@ -430,8 +430,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ';
 
             $response = $emailService->sendEmail(
-                //TODO mettre mail de l'étudiant donc $SESSION['student_info']['email']
-                'ambroise.bisiaux@uphf.fr',
+                $_SESSION['student_info']['email'] ?? $studentInfo['email'] ?? 'ambroise.bisiaux@uphf.fr',
                 'Confirmation de réception - Justificatif d\'absence',
                 $htmlBody,
                 true,
@@ -487,7 +486,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ];
 
                 $response = $emailService->sendEmail(
-                    'ambroise.bisiaux@uphf.fr',
+                    $_SESSION['student_info']['email'] ?? $studentInfo['email'] ?? 'ambroise.bisiaux@uphf.fr',
                     'Justificatif d\'absence - Confirmation',
                     $htmlBody,
                     true,

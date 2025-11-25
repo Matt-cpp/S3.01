@@ -166,6 +166,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-custom-reason="<?php echo htmlspecialchars($proof['custom_reason'] ?? ''); ?>"
                                 data-hours="<?php echo number_format($proof['total_hours_missed'], 1); ?>"
                                 data-absences="<?php echo $proof['absence_count']; ?>"
+                                data-half-days="<?php echo $proof['half_days_count'] ?? 0; ?>"
                                 data-submission="<?php echo htmlspecialchars($presenter->formatDateTime($proof['submission_date'])); ?>"
                                 data-processing="<?php echo $proof['processing_date'] ? htmlspecialchars($presenter->formatDateTime($proof['processing_date'])) : '-'; ?>"
                                 data-status-text="<?php echo $status['text']; ?>"
@@ -263,6 +264,10 @@ $errorMessage = $presenter->getErrorMessage();
                     <div class="modal-info-item">
                         <span class="modal-label">📊 Absences concernées :</span>
                         <span class="modal-value" id="modalAbsences"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📅 Demi-journées concernées :</span>
+                        <span class="modal-value" id="modalHalfDays"></span>
                     </div>
                     <div class="modal-info-item">
                         <span class="modal-label">📝 Évaluation manquée :</span>

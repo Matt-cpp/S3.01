@@ -28,14 +28,22 @@ function getAbsenceStatistics($student_identifier)
     $student_identifier = getStudentIdentifier($student_identifier);
     $db = Database::getInstance()->getConnection();
 
-    // OPTIMISATION: Requête unique pour obtenir toutes les statistiques d'absences en une fois
-    // Utilisation de DISTINCT ON pour éviter les doublons si plusieurs proofs sont liés à la même absence
+    // Requête simple pour compter le nombre total d'absences (cours manqués)
     $stmt = $db->prepare("
+        SELECT COUNT(*) as total_absences_count
+        FROM absences
+        WHERE student_identifier = :student_id
+    ");
+    $stmt->execute(['student_id' => $student_identifier]);
+    $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Calcul des demi-journées dans une requête séparée
+    $stmt2 = $db->prepare("
         WITH absence_stats AS (
             SELECT DISTINCT ON (a.id)
                 a.id,
-                cs.duration_minutes,
                 cs.course_date,
+                cs.start_time,
                 a.justified as absence_justified,
                 p.status as proof_status,
                 pa.proof_id as has_proof
@@ -50,46 +58,35 @@ function getAbsenceStatistics($student_identifier)
                     WHEN a.justified = TRUE THEN 2
                     ELSE 3
                 END ASC
+        ),
+        half_day_calc AS (
+            SELECT 
+                course_date,
+                CASE 
+                    WHEN start_time < '12:00:00' THEN 'morning'
+                    ELSE 'afternoon'
+                END as period,
+                MAX(CASE WHEN absence_justified = TRUE OR proof_status = 'accepted' THEN 1 ELSE 0 END) as is_justified,
+                MAX(CASE WHEN proof_status != 'accepted' THEN 1 ELSE 0 END) as is_unjustified,
+                MAX(CASE WHEN (has_proof IS NULL OR proof_status = 'under_review') THEN 1 ELSE 0 END) as is_justifiable
+            FROM absence_stats
+            GROUP BY course_date, period
         )
         SELECT 
-            -- Heures ratées ce mois
-            COALESCE(SUM(CASE 
+            COUNT(*) as total_half_days,
+            SUM(is_justified) as half_days_justified,
+            SUM(is_unjustified) as half_days_unjustified,
+            SUM(is_justifiable) as half_days_justifiable,
+            SUM(CASE 
                 WHEN EXTRACT(MONTH FROM course_date) = EXTRACT(MONTH FROM CURRENT_DATE)
                 AND EXTRACT(YEAR FROM course_date) = EXTRACT(YEAR FROM CURRENT_DATE)
-                THEN duration_minutes / 60.0 
+                THEN 1 
                 ELSE 0 
-            END), 0) as hour_month,
-            
-            -- Total heures absences
-            COALESCE(SUM(duration_minutes / 60.0), 0) as total_hours_absences,
-            
-            -- Total heures justifiées
-            COALESCE(SUM(CASE 
-                WHEN absence_justified = TRUE OR proof_status = 'accepted'
-                THEN duration_minutes / 60.0 
-                ELSE 0 
-            END), 0) as hour_total_justified,
-            
-            -- Heures non justifiées (absences sans proof ET absences avec proof 'under_review')
-            COALESCE(SUM(CASE 
-                WHEN (has_proof IS NULL AND absence_justified = FALSE) OR proof_status = 'under_review'
-                THEN duration_minutes / 60.0 
-                ELSE 0 
-            END), 0) as hour_total_unjustified,
-            
-            -- Heures sans justificatif du tout (pour l'alerte de soumission)
-            COALESCE(SUM(CASE 
-                WHEN has_proof IS NULL AND absence_justified = FALSE
-                THEN duration_minutes / 60.0 
-                ELSE 0 
-            END), 0) as hour_no_proof,
-            
-            -- Total nombre d'absences
-            COUNT(id) as total_absences_count
-        FROM absence_stats
+            END) as half_days_this_month
+        FROM half_day_calc
     ");
-    $stmt->execute(['student_id' => $student_identifier]);
-    $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt2->execute(['student_id' => $student_identifier]);
+    $half_day_stats = $stmt2->fetch(PDO::FETCH_ASSOC);
 
     // OPTIMISATION: Requête unique pour tous les compteurs de justificatifs
     $stmt = $db->prepare("
@@ -105,12 +102,12 @@ function getAbsenceStatistics($student_identifier)
     $proof_counts = $stmt->fetch(PDO::FETCH_ASSOC);
 
     return [
-        'hour_month' => round($stats['hour_month'], 2),
-        'hour_total_justified' => round($stats['hour_total_justified'], 4),
-        'hour_total_unjustified' => round($stats['hour_total_unjustified'], 2),
-        'hour_no_proof' => round($stats['hour_no_proof'], 2),
-        'total_hours_absences' => round($stats['total_hours_absences'], 2),
         'total_absences_count' => (int) $stats['total_absences_count'],
+        'total_half_days' => (int) ($half_day_stats['total_half_days'] ?? 0),
+        'half_days_justified' => (int) ($half_day_stats['half_days_justified'] ?? 0),
+        'half_days_unjustified' => (int) ($half_day_stats['half_days_unjustified'] ?? 0),
+        'half_days_justifiable' => (int) ($half_day_stats['half_days_justifiable'] ?? 0),
+        'half_days_this_month' => (int) ($half_day_stats['half_days_this_month'] ?? 0),
         'under_review_proofs' => (int) $proof_counts['under_review_proofs'],
         'pending_proofs' => (int) $proof_counts['pending_proofs'],
         'rejected_proofs' => (int) $proof_counts['rejected_proofs'],
@@ -189,7 +186,8 @@ function getProofsByCategory($student_identifier)
             COALESCE(SUM(cs.duration_minutes) / 60.0, 0) as total_hours_missed,
             BOOL_OR(cs.is_evaluation) as has_exam,
             STRING_AGG(DISTINCT r.code, ', ') as course_codes,
-            STRING_AGG(DISTINCT r.label, ' | ') as course_names
+            STRING_AGG(DISTINCT r.label, ' | ') as course_names,
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count
         FROM proof p
         LEFT JOIN proof_absences pa ON pa.proof_id = p.id
         LEFT JOIN absences a ON a.id = pa.absence_id
@@ -215,7 +213,8 @@ function getProofsByCategory($student_identifier)
             p.submission_date,
             COUNT(DISTINCT pa.absence_id) as nb_absences,
             COALESCE(SUM(cs.duration_minutes) / 60.0, 0) as total_hours_missed,
-            BOOL_OR(cs.is_evaluation) as has_exam
+            BOOL_OR(cs.is_evaluation) as has_exam,
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count
         FROM proof p
         LEFT JOIN proof_absences pa ON pa.proof_id = p.id
         LEFT JOIN absences a ON a.id = pa.absence_id
@@ -243,7 +242,8 @@ function getProofsByCategory($student_identifier)
             COALESCE(SUM(cs.duration_minutes) / 60.0, 0) as total_hours_missed,
             BOOL_OR(cs.is_evaluation) as has_exam,
             STRING_AGG(DISTINCT r.code, ', ') as course_codes,
-            STRING_AGG(DISTINCT r.label, ' | ') as course_names
+            STRING_AGG(DISTINCT r.label, ' | ') as course_names,
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count
         FROM proof p
         LEFT JOIN proof_absences pa ON pa.proof_id = p.id
         LEFT JOIN absences a ON a.id = pa.absence_id
@@ -273,7 +273,8 @@ function getProofsByCategory($student_identifier)
             COALESCE(SUM(cs.duration_minutes) / 60.0, 0) as total_hours_missed,
             BOOL_OR(cs.is_evaluation) as has_exam,
             STRING_AGG(DISTINCT r.code, ', ') as course_codes,
-            STRING_AGG(DISTINCT r.label, ' | ') as course_names
+            STRING_AGG(DISTINCT r.label, ' | ') as course_names,
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count
         FROM proof p
         LEFT JOIN proof_absences pa ON pa.proof_id = p.id
         LEFT JOIN absences a ON a.id = pa.absence_id

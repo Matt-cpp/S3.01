@@ -40,10 +40,20 @@ if (!isset($_SESSION['id_student'])) {
     $proofsByCategory = $_SESSION['proofsByCategory'];
     $recentAbsences = $_SESSION['recentAbsences'];
 
-    // Calculer le pourcentage de justification
-    $justification_percentage = $stats['total_hours_absences'] > 0
-        ? round(($stats['hour_total_justified'] / $stats['total_hours_absences']) * 100, 1)
+    // Calculer le pourcentage de justification basé sur les demi-journées
+    $justification_percentage = $stats['total_half_days'] > 0
+        ? round(($stats['half_days_justified'] / $stats['total_half_days']) * 100, 1)
         : 0;
+    
+    // Calculer les demi-points perdus (5 demi-journées non justifiées = 0,5 point perdu)
+    $half_points_lost = (int) $stats['half_days_unjustified'] / 10;
+    $temp = 0;
+    while ($half_points_lost >= 0.5) {
+        $half_points_lost -= 0.5;
+        $temp += 0.5;
+    }
+    $half_points_lost = $temp;
+    echo($half_points_lost);
     ?>
 
     <div class="dashboard-container">
@@ -54,29 +64,40 @@ if (!isset($_SESSION['id_student'])) {
             <div class="overview-card primary">
                 <div class="card-icon">📅</div>
                 <div class="card-content">
-                    <div class="card-label">Total d'absences</div>
-                    <div class="card-value"><?php echo $stats['total_absences_count']; ?></div>
-                    <div class="card-description">cours manqués au total</div>
+                    <div class="card-label">Demi-journées manquées</div>
+                    <div class="card-value"><?php echo $stats['total_half_days']; ?></div>
+                    <div class="card-description">Total de demi-journées d'absence</div>
+                </div>
+            </div>
+
+            <div class="overview-card danger">
+                <div class="card-icon">❌</div>
+                <div class="card-content">
+                    <div class="card-label">Demi-journées non justifiées</div>
+                    <div class="card-value"><?php echo $stats['half_days_unjustified']; ?></div>
+                    <div class="card-description">
+                        <?php echo $stats['half_days_unjustified'] > 0 ? 'À justifier rapidement !' : 'Aucune à justifier'; ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overview-card warning">
+                <div class="card-icon">⏳</div>
+                <div class="card-content">
+                    <div class="card-label">Demi-journées justifiables</div>
+                    <div class="card-value"><?php echo $stats['half_days_justifiable']; ?></div>
+                    <div class="card-description">
+                        Sans justificatif ou en revue
+                    </div>
                 </div>
             </div>
 
             <div class="overview-card success">
                 <div class="card-icon">✅</div>
                 <div class="card-content">
-                    <div class="card-label">Heures justifiées</div>
-                    <div class="card-value"><?php echo $stats['hour_total_justified']; ?>h</div>
-                    <div class="card-description">sur <?php echo $stats['total_hours_absences']; ?>h d'absence</div>
-                </div>
-            </div>
-
-            <div class="overview-card warning">
-                <div class="card-icon">⚠️</div>
-                <div class="card-content">
-                    <div class="card-label">Heures non justifiées</div>
-                    <div class="card-value"><?php echo $stats['hour_total_unjustified']; ?>h</div>
-                    <div class="card-description">
-                        <?php echo $stats['hour_total_unjustified'] > 0 ? 'À justifier rapidement !' : 'Aucune heure à justifier'; ?>
-                    </div>
+                    <div class="card-label">Demi-journées justifiées</div>
+                    <div class="card-value"><?php echo $stats['half_days_justified']; ?></div>
+                    <div class="card-description">Sur <?php echo $stats['total_half_days']; ?> demi-journées</div>
                 </div>
             </div>
 
@@ -84,8 +105,17 @@ if (!isset($_SESSION['id_student'])) {
                 <div class="card-icon">📆</div>
                 <div class="card-content">
                     <div class="card-label">Ce mois-ci</div>
-                    <div class="card-value"><?php echo $stats['hour_month']; ?>h</div>
-                    <div class="card-description">heures manquées en <?php echo date('F Y'); ?></div>
+                    <div class="card-value"><?php echo $stats['half_days_this_month']; ?></div>
+                    <div class="card-description">Demi-journées en <?php echo date('F Y'); ?></div>
+                </div>
+            </div>
+
+            <div class="overview-card secondary">
+                <div class="card-icon">📚</div>
+                <div class="card-content">
+                    <div class="card-label">Total absences</div>
+                    <div class="card-value"><?php echo $stats['total_absences_count']; ?></div>
+                    <div class="card-description">Cours manqués au total</div>
                 </div>
             </div>
         </div>
@@ -94,13 +124,13 @@ if (!isset($_SESSION['id_student'])) {
         <div class="justification-progress-section">
             <h2 class="section-heading">
                 <span class="heading-icon">📊</span>
-                Taux de justification des absences
+                Taux de justification des demi-journées d'absence
             </h2>
             <div class="progress-container">
                 <div class="progress-info">
                     <span class="progress-label">
-                        <strong><?php echo $stats['hour_total_justified']; ?>h justifiées</strong>
-                        sur <?php echo $stats['total_hours_absences']; ?>h d'absence totales
+                        <strong><?php echo $stats['half_days_justified']; ?> demi-journées justifiées</strong>
+                        sur <?php echo $stats['total_half_days']; ?> demi-journées d'absence totales
                     </span>
                     <span class="progress-percentage"><?php echo $justification_percentage; ?>%</span>
                 </div>
@@ -120,7 +150,18 @@ if (!isset($_SESSION['id_student'])) {
                     </span>
                     <span class="legend-item">
                         <span class="legend-color low"></span>
-                        Faible (<50%) </span>
+                        Faible (<50%)
+                    </span>
+                </div>
+                <div class="points-penalty" style="margin-top: 1.5rem; padding: 1rem; background: <?php echo $half_points_lost > 0 ? '#fee2e2' : '#dcfce7'; ?>; border-radius: 8px; text-align: center;">
+                    <span style="font-size: 1rem; color: #4b5563;">
+                        <?php if ($half_points_lost > 0): ?>
+                            ⚠️ <strong style="color: #dc2626;"><?php echo $half_points_lost; ?> point(s) perdu(s)</strong> dans la moyenne
+                            <span style="display: block; font-size: 0.875rem; margin-top: 0.25rem;">(5 demi-journées non justifiées = 0,5 point perdu)</span>
+                        <?php else: ?>
+                            ✅ <strong style="color: #16a34a;">Aucun point perdu !</strong>
+                        <?php endif; ?>
+                    </span>
                 </div>
             </div>
         </div>
@@ -170,15 +211,15 @@ if (!isset($_SESSION['id_student'])) {
             </div>
         </div>
 
-        <!-- Alerte si heures non justifiées -->
-        <?php if ($stats['hour_no_proof'] > 0): ?>
+        <!-- Alerte si demi-journées non justifiées -->
+        <?php if ($stats['half_days_justifiable'] > 0): ?>
             <div class="alert-box alert-warning">
                 <div class="alert-icon">⚠️</div>
                 <div class="alert-content">
-                    <div class="alert-title">Action requise : Absences non justifiées</div>
+                    <div class="alert-title">Action requise : Demi-journées non justifiées</div>
                     <div class="alert-message">
-                        Vous avez <strong><?php echo $stats['hour_no_proof']; ?> heures d'absence non
-                            justifiées</strong>.
+                        Vous avez <strong><?php echo $stats['half_days_justifiable']; ?> demi-journée(s) d'absence non
+                            justifiée(s)</strong>.
                         Pensez à soumettre vos justificatifs dans les 48h suivant votre retour en cours pour éviter des
                         pénalités.
                     </div>
@@ -391,8 +432,9 @@ if (!isset($_SESSION['id_student'])) {
                                     data-reason="<?php echo htmlspecialchars($reasonText); ?>"
                                     data-custom-reason="<?php echo htmlspecialchars($proof['custom_reason'] ?? ''); ?>"
                                     data-hours="<?php echo number_format($proof['total_hours_missed'], 1); ?>"
-                                    data-absences="<?php echo $proof['absence_count'] ?? 0; ?>"
-                                    data-submission="<?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?>"
+                                    data-absences="<?php echo $proof['nb_absences'] ?? 0; ?>"
+                                    data-half-days="<?php echo $proof['half_days_count'] ?? 0; ?>"
+                                    data-submission="<?php echo date('d/m/Y \\à H\\hi', strtotime($proof['submission_date'])); ?>"
                                     data-status-text="En révision" data-status-icon="⚠️" data-status-class="badge-warning"
                                     data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
                                     data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>">
@@ -491,8 +533,9 @@ if (!isset($_SESSION['id_student'])) {
                                     data-reason="<?php echo htmlspecialchars($reasonText); ?>"
                                     data-custom-reason="<?php echo htmlspecialchars($proof['custom_reason'] ?? ''); ?>"
                                     data-hours="<?php echo number_format($proof['total_hours_missed'], 1); ?>"
-                                    data-absences="<?php echo $proof['absence_count'] ?? 0; ?>"
-                                    data-submission="<?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?>"
+                                    data-absences="<?php echo $proof['nb_absences'] ?? 0; ?>"
+                                    data-half-days="<?php echo $proof['half_days_count'] ?? 0; ?>"
+                                    data-submission="<?php echo date('d/m/Y \\à H\\hi', strtotime($proof['submission_date'])); ?>"
                                     data-processing="-" data-status-text="En attente" data-status-icon="🕐"
                                     data-status-class="badge-info" data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
                                     data-comment="">
@@ -577,9 +620,11 @@ if (!isset($_SESSION['id_student'])) {
                                     data-reason="<?php echo htmlspecialchars($reasonText); ?>"
                                     data-custom-reason="<?php echo htmlspecialchars($proof['custom_reason'] ?? ''); ?>"
                                     data-hours="<?php echo number_format($proof['total_hours_missed'], 1); ?>"
-                                    data-absences="<?php echo $proof['absence_count'] ?? 0; ?>"
-                                    data-submission="<?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?>"
-                                    data-processing="<?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : '-'; ?>"
+                                    data-absences="<?php echo $proof['nb_absences'] ?? 0; ?>"
+                                    data-half-days="<?php echo $proof['half_days_count'] ?? 0; ?>"
+                                    data-submission="<?php echo date('d/m/Y \\à H\\hi', strtotime($proof['submission_date'])); ?>"
+                                    data-processing="<?php echo $proof['processing_date'] ? date('d/m/Y \\à H\\hi', strtotime($proof['processing_date'])) : '-'; ?>"
+                                    data-processing="<?php echo $proof['processing_date'] ? date('d/m/Y \\à H\\hi', strtotime($proof['processing_date'])) : '-'; ?>"
                                     data-status-text="Accepté" data-status-icon="✅" data-status-class="badge-success"
                                     data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>" data-comment="">
                                     <td>
@@ -818,6 +863,10 @@ if (!isset($_SESSION['id_student'])) {
                     <div class="modal-info-item">
                         <span class="modal-label">📊 Absences concernées :</span>
                         <span class="modal-value" id="proofModalAbsences"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📅 Demi-journées concernées :</span>
+                        <span class="modal-value" id="proofModalHalfDays"></span>
                     </div>
                     <div class="modal-info-item">
                         <span class="modal-label">📝 Évaluation manquée :</span>

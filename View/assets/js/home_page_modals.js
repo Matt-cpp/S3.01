@@ -91,6 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const customReason = this.dataset.customReason;
       const hours = this.dataset.hours;
       const absences = this.dataset.absences;
+      const halfDays = this.dataset.halfDays;
       const submission = this.dataset.submission;
       const processing = this.dataset.processing;
       const statusText = this.dataset.statusText;
@@ -105,6 +106,8 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("proofModalHours").textContent = hours + "h";
       document.getElementById("proofModalAbsences").textContent =
         absences + " absence" + (absences > 1 ? "s" : "");
+      document.getElementById("proofModalHalfDays").textContent =
+        halfDays + " demi-journ\u00e9e" + (halfDays > 1 ? "s" : "");
       document.getElementById("proofModalSubmission").textContent = submission;
       document.getElementById("proofModalProcessing").textContent = processing;
       document.getElementById("proofModalExam").textContent = exam;

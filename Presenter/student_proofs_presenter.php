@@ -66,7 +66,8 @@ class StudentProofsPresenter
                 p.proof_files,
                 COUNT(DISTINCT pa.absence_id) as absence_count,
                 SUM(cs.duration_minutes) as total_duration_minutes,
-                MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) as has_exam
+                MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) as has_exam,
+                COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count
             FROM proof p
             LEFT JOIN proof_absences pa ON p.id = pa.proof_id
             LEFT JOIN absences a ON pa.absence_id = a.id

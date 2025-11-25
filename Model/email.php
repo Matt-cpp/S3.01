@@ -137,8 +137,10 @@ if (basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
         'logoIUT' => __DIR__ . '/../View/img/logoIUT.png'
     ];
 
+    $Email = $_SESSION['student_info']['email'] ?? $_SESSION['user_email'] ?? 'ambroise.bisiaux@uphf.fr';
+    
     $response = $emailService->sendEmail(
-        'ambroise.bisiaux@uphf.fr',
+        $Email,
         'Test Subject with Attachments',
         $htmlBody,
         true,

@@ -258,4 +258,24 @@ class StudentAbsencesPresenter
     {
         return substr($startTime, 0, 5) . ' - ' . substr($endTime, 0, 5);
     }
+
+    public function getTotalHalfDays($absences)
+    {
+        // Calculer le nombre de demi-journées uniques (date + période)
+        $halfDays = [];
+        
+        foreach ($absences as $absence) {
+            $date = $absence['course_date'];
+            $startTime = $absence['start_time'];
+            
+            // Déterminer la période (matin si < 12:00, sinon après-midi)
+            $period = (strtotime($startTime) < strtotime('12:00:00')) ? 'morning' : 'afternoon';
+            
+            // Créer une clé unique pour cette demi-journée
+            $key = $date . '_' . $period;
+            $halfDays[$key] = true;
+        }
+        
+        return count($halfDays);
+    }
 }
