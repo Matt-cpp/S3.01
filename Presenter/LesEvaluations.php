@@ -3,12 +3,22 @@ class pageEvalProf
 {
     private $db;
     private $userId;
+    private $filtre;
     
     public function __construct(int $id)
     {
         require_once __DIR__ . '/../Model/database.php';
         $this->db = Database::getInstance();
         $this->userId = $this->linkTeacherUser($id);
+        $this->filtre = "course_slots.course_date"; // Valeur par défaut du filtre
+    }
+    // Permet d'activer un filtre spécifique
+    public function activerUnFiltre(string $filtre)
+    {
+        $allowedFilters = ['course_slots.course_date', 'nb_justifications', 'nbabs'];
+        if (in_array($filtre, $allowedFilters)) {
+            $this->filtre = $filtre;
+        }
     }
     //Permet de lier l'id du proffesseur avec l'id de l'utilisateur connecté via le mail
     private function linkTeacherUser(int $id)

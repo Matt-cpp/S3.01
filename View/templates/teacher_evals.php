@@ -1,11 +1,18 @@
 <?php
-
+// le filtre marche pas encore
 
 require_once __DIR__ . '/../../Presenter/LesEvaluations.php';
 require_once __DIR__ . '/../../Presenter/tableRatrapage.php';
 // ID du professeur from session
 $teacherId = 13; // À remplacer par l'ID réel du professeur connecté
 $table = new pageEvalProf($teacherId);
+// Gestion du filtre
+if (isset($_GET['filtre']) && !empty($_GET['filtre'])) {
+    $table->activerUnFiltre($_GET['filtre']);
+}
+else {
+    $table->activerUnFiltre('course_slots.course_date');
+}
 ?>
 
 <!DOCTYPE html>
@@ -23,7 +30,18 @@ $table = new pageEvalProf($teacherId);
 <body>
     <?php include __DIR__ . '/navbar.php'; ?>
     <main class="container">
+        
         <h1>Tableau des Evaluations</h1>
+        
+            <form method="GET" class="filter-form">
+                <span class="filter-label">Trier Par : </span>
+                <select>
+                    <option value="course_slots.course_date">Par date du cours</option>
+                    <option value ="nb_justifications">Par nombres d'absences justifiées</option>
+                    <option value ="nbabs">Par nombres d'absences</option>
+                </select>
+                <button type="submit" name="filtre" value="apply">Appliquer le filtre</button>
+            </form>
         <table>
             <thead>
                 <tr>
@@ -36,7 +54,7 @@ $table = new pageEvalProf($teacherId);
             </thead>
             <tbody>
                 <?php
-                $evaluations = $table->lesEvaluations("nbabs");
+                $evaluations = $table->lesEvaluations('course_slots.course_date');
                 foreach ($evaluations as $eval) {
                     echo "<tr>";
                     echo "<td>" . htmlspecialchars($eval['label']) . "</td>";
