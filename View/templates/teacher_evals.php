@@ -1,16 +1,15 @@
 <?php
-require_once __DIR__ . '/../../controllers/auth_guard.php';
-$user = requireRole('teacher');
+
 
 require_once __DIR__ . '/../../Presenter/LesEvaluations.php';
 require_once __DIR__ . '/../../Presenter/tableRatrapage.php';
 // ID du professeur from session
-$teacherId = $user['id'];
-$table = new LesEvaluations($teacherId);
+$teacherId = 13; // À remplacer par l'ID réel du professeur connecté
+$table = new pageEvalProf($teacherId);
 ?>
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr">s
 <head>
     <title>Tableau des Evaluations</title>
     <meta charset="UTF-8">
