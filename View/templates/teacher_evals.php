@@ -9,17 +9,20 @@ $table = new pageEvalProf($teacherId);
 ?>
 
 <!DOCTYPE html>
-<html lang="fr">s
+<html lang="fr">
 <head>
     <title>Tableau des Evaluations</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="stylesheet" href="<?php echo __DIR__ . '/../assets/css/teacher_evals.css'; ?>">
+    <link rel="stylesheet" href="<?php echo __DIR__ . '/../assets/css/teacher_evals.css?v=' . time(); ?>">
+    <style>
+        <?php include __DIR__ . '/../assets/css/teacher_evals.css'; ?>
+    </style>
 </head>
 
 <body>
     <?php include __DIR__ . '/navbar.php'; ?>
-    <main class="main-content">
+    <main class="container">
         <h1>Tableau des Evaluations</h1>
         <table>
             <thead>
@@ -46,5 +49,6 @@ $table = new pageEvalProf($teacherId);
                 ?>
             </tbody>
         </table>
+    </main>
 </body>
 </html>
