@@ -16,6 +16,8 @@ $showValidateForm = $viewData['showValidateForm'] ?? false;
 $validationError = $viewData['validationError'] ?? '';
 $showInfoForm = $viewData['showInfoForm'] ?? false;
 $infoError = $viewData['infoError'] ?? '';
+$showSplitForm = $viewData['showSplitForm'] ?? false;
+$splitError = $viewData['splitError'] ?? '';
 $rejectionReasons = $viewData['rejectionReasons'] ?? [];
 $validationReasons = $viewData['validationReasons'] ?? [];
 $islocked = $viewData['is_locked'] ?? false;
@@ -46,6 +48,7 @@ if (!$proof) {
     <title>Validation des justificatifs</title>
     <link rel="stylesheet" href="../assets/css/view_proof.css">
     <link rel="icon" type="image/x-icon" href="../img/logoIUT.ico">
+    <script src="../assets/js/view_proof.js" defer></script>
 </head>
 <body>
 <?php include __DIR__ . '/navbar.php'; ?>
@@ -185,6 +188,45 @@ if (!$proof) {
                 </div>
             </form>
 
+        <?php elseif ($showSplitForm): ?>
+            <form method="POST" class="split-form" id="splitForm">
+                <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
+                <h3 style="margin-bottom: 20px;">Scinder le justificatif en plusieurs périodes</h3>
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="num_periods">Nombre de périodes à créer :</label>
+                    <select name="num_periods" id="num_periods" onchange="updatePeriodFields()" style="padding: 8px; font-size: 16px;">
+                        <option value="2" selected>2 périodes</option>
+                        <option value="3">3 périodes</option>
+                        <option value="4">4 périodes</option>
+                        <option value="5">5 périodes</option>
+                    </select>
+                    <small style="color: #666; display: block; margin-top: 5px;">
+                        💡 Exemple : Si le justificatif couvre lundi-vendredi mais seul mercredi est valide, 
+                        créez 3 périodes (lundi-mardi, mercredi, jeudi-vendredi)
+                    </small>
+                </div>
+                
+                <div id="periodsContainer" style="display: grid; gap: 20px; margin-bottom: 20px;">
+                    <!-- Les périodes seront générées dynamiquement par JavaScript -->
+                </div>
+                
+                <div class="form-group">
+                    <label for="split_reason">Raison de la scission :</label>
+                    <textarea name="split_reason" id="split_reason" rows="2" required 
+                              placeholder="Ex: Dates non continues, période intermédiaire non justifiée..."></textarea>
+                </div>
+                
+                <?php if ($splitError): ?>
+                    <div class="error"><?= htmlspecialchars($splitError) ?></div>
+                <?php endif; ?>
+                
+                <div class="button-group">
+                    <button type="submit" name="split_proof" value="1" class="btn btn-validate">Confirmer la scission</button>
+                    <a href="view_proof.php?proof_id=<?= htmlspecialchars($proof['proof_id'] ?? '') ?>" class="btn btn-cancel">Annuler</a>
+                </div>
+            </form>
+
         <?php else: ?>
             <div class="decision-buttons">
                 <form method="POST" action="view_proof.php" class="action-form">
@@ -199,6 +241,9 @@ if (!$proof) {
                         <button type="submit" name="request_info" value="1" class="btn btn-info" style="margin-left:10px;">
                             <span class="btn-text">Demander des informations</span>
                         </button>
+                        <button type="submit" name="split" value="1" class="btn btn-warning" style="margin-left:10px; background-color: #FF9800;">
+                            <span class="btn-text">Scinder</span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -207,22 +252,12 @@ if (!$proof) {
 </div>
 
 <script>
-    (function() {
-        const rejSel = document.getElementById('rejection_reason');
-        const rejGrp = document.getElementById('new-reason-group');
-        if (rejSel && rejGrp) {
-            const toggle = () => rejGrp.style.display = (rejSel.value === 'Autre') ? 'block' : 'none';
-            rejSel.addEventListener('change', toggle);
-            toggle();
-        }
-        const valSel = document.getElementById('validation_reason');
-        const valGrp = document.getElementById('new-validation-reason-group');
-        if (valSel && valGrp) {
-            const toggleV = () => valGrp.style.display = (valSel.value === 'Autre') ? 'block' : 'none';
-            valSel.addEventListener('change', toggleV);
-            toggleV();
-        }
-    })();
+    // Initialiser au chargement de la page si le formulaire de scission est affiché
+    if (document.getElementById('num_periods')) {
+        const startDate = '<?= htmlspecialchars($proof['absence_start_date'] ?? '') ?>';
+        const endDate = '<?= htmlspecialchars($proof['absence_end_date'] ?? '') ?>';
+        updatePeriodFields(startDate, endDate);
+    }
 </script>
 
 <footer class="footer">

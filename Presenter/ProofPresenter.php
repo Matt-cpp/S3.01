@@ -184,6 +184,76 @@ class ProofPresenter
                 return $data;
             }
 
+            // Scission du justificatif
+            if (isset($post['split']) && !isset($post['num_periods'])) {
+                $data['showSplitForm'] = true;
+                $data['splitError'] = '';
+                $this->enrichViewData($data);
+                return $data;
+            } elseif (isset($post['split_proof']) && isset($post['num_periods'])) {
+                $numPeriods = (int)($post['num_periods'] ?? 2);
+                $splitReason = trim((string)($post['split_reason'] ?? ''));
+                
+                if (empty($splitReason)) {
+                    $data['showSplitForm'] = true;
+                    $data['splitError'] = "La raison de la scission est obligatoire.";
+                    $this->enrichViewData($data);
+                    return $data;
+                }
+
+                // Collecter toutes les périodes
+                $periods = [];
+                for ($i = 1; $i <= $numPeriods; $i++) {
+                    $startDate = trim((string)($post["period{$i}_start_date"] ?? ''));
+                    $startTime = trim((string)($post["period{$i}_start_time"] ?? ''));
+                    $endDate = trim((string)($post["period{$i}_end_date"] ?? ''));
+                    $endTime = trim((string)($post["period{$i}_end_time"] ?? ''));
+
+                    if (empty($startDate) || empty($startTime) || empty($endDate) || empty($endTime)) {
+                        $data['showSplitForm'] = true;
+                        $data['splitError'] = "Tous les champs de la période {$i} sont obligatoires.";
+                        $this->enrichViewData($data);
+                        return $data;
+                    }
+
+                    $validate = isset($post["period{$i}_validate"]) && $post["period{$i}_validate"] == '1';
+                    
+                    $periods[] = [
+                        'start' => $startDate . ' ' . $startTime,
+                        'end' => $endDate . ' ' . $endTime,
+                        'validate' => $validate
+                    ];
+                }
+
+                // Vérification que les périodes ne se chevauchent pas et sont dans l'ordre
+                for ($i = 0; $i < count($periods) - 1; $i++) {
+                    if (strtotime($periods[$i]['end']) >= strtotime($periods[$i + 1]['start'])) {
+                        $data['showSplitForm'] = true;
+                        $data['splitError'] = "Les périodes " . ($i + 1) . " et " . ($i + 2) . " se chevauchent. Chaque période doit se terminer avant le début de la suivante.";
+                        $this->enrichViewData($data);
+                        return $data;
+                    }
+                }
+
+                // Appel au modèle pour créer les justificatifs
+                $ok = $this->model->splitProofMultiple($proofId, $periods, $splitReason, $currentUserId);
+                if ($ok) {
+                    $data['redirect'] = 'choose_proof.php?message=split_success';
+                } else {
+                    $data['showSplitForm'] = true;
+                    if (session_status() === PHP_SESSION_NONE) {@session_start();}
+                    $err = $_SESSION['last_model_error'] ?? null;
+                    if ($err) {
+                        $data['splitError'] = 'Impossible de scinder le justificatif : ' . $err;
+                        unset($_SESSION['last_model_error']);
+                    } else {
+                        $data['splitError'] = 'Impossible de scinder le justificatif, voir les logs.';
+                    }
+                }
+                $this->enrichViewData($data);
+                return $data;
+            }
+
             // Demande d'info
             if (isset($post['request_info']) && !isset($post['info_message'])) {
                 $data['showInfoForm'] = true;
