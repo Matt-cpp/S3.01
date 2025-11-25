@@ -33,7 +33,7 @@ $table = new pageEvalProf($teacherId);
             </thead>
             <tbody>
                 <?php
-                $evaluations = $table->lesEvaluations("course_slots.course_date");
+                $evaluations = $table->lesEvaluations("nbabs");
                 foreach ($evaluations as $eval) {
                     echo "<tr>";
                     echo "<td>" . htmlspecialchars($eval['label']) . "</td>";
