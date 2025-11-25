@@ -21,5 +21,31 @@ $table = new LesEvaluations($teacherId);
 <body>
     <?php include __DIR__ . '/navbar.php'; ?>
     <main class="main-content">
+        <h1>Tableau des Evaluations</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Matière</th>
+                    <th>Date</th>
+                    <th>Heures</th>
+                    <th>Nombre d'Absences</th>
+                    <th>Nombre de Justifications</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $evaluations = $table->lesEvaluations("course_slots.course_date");
+                foreach ($evaluations as $eval) {
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($eval['label']) . "</td>";
+                    echo "<td>" . htmlspecialchars($eval['course_date']) . "</td>";
+                    echo "<td>" . htmlspecialchars($eval['start_time']) . "</td>";
+                    echo "<td>" . htmlspecialchars($eval['nbabs']) . "</td>";
+                    echo "<td>" . htmlspecialchars($eval['nb_justifications']) . "</td>";
+                    echo "</tr>";
+                }
+                ?>
+            </tbody>
+        </table>
 </body>
 </html>
