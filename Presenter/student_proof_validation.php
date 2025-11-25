@@ -8,6 +8,9 @@ require_once __DIR__ . '/../Model/AbsenceMonitoringModel.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     session_start();
+    
+    // Définir le fuseau horaire pour toutes les dates
+    date_default_timezone_set('Europe/Paris');
 
     try {
         $db = getDatabase();
@@ -59,7 +62,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
 
                 // Créer un nom unique pour le fichier
-                date_default_timezone_set('Europe/Paris');
                 $unique_name = uniqid() . '_' . date('Y-m-d_H-i-s') . '.' . $file_extension;
                 $file_path = $upload_dir . $unique_name;
 
@@ -290,7 +292,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     :main_reason, 
                     :custom_reason, 
                     :file_path, 
-                    :proof_files::jsonb,
+                    CAST(:proof_files AS jsonb),
                     :student_comment, 
                     'pending', 
                     :submission_date
@@ -303,10 +305,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'absence_end_date' => date('Y-m-d', strtotime($datetime_end)),
                 'concerned_courses' => $_SESSION['reason_data']['class_involved'],
                 'main_reason' => $absence_reason_mapped,
-                'custom_reason' => $_SESSION['reason_data']['other_reason'],
+                'custom_reason' => $_SESSION['reason_data']['other_reason'] ?: null,
                 'file_path' => !empty($uploaded_files) ? $uploaded_files[0]['path'] : null, // Garder pour compatibilité
-                'proof_files' => $files_json, // NOUVEAU : JSON des fichiers
-                'student_comment' => $_SESSION['reason_data']['comments'],
+                'proof_files' => $files_json, // JSON des fichiers uploadés
+                'student_comment' => $_SESSION['reason_data']['comments'] ?: null,
                 'submission_date' => $_SESSION['reason_data']['submission_date']
             ];
 

@@ -29,7 +29,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/logoIUT.ico">
+    <link rel="icon" type="image/x-icon" href="../img/logoIUT.ico">
     <title>Validé</title>
     <link rel="stylesheet" href="../assets/css/student_proof_validation.css">
 </head>
@@ -109,9 +109,11 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
             <?php
             // Display uploaded files
             $proof_files = $_SESSION['reason_data']['proof_files'] ?? [];
-            if (!empty($proof_files)):
+            $file_count = is_array($proof_files) ? count($proof_files) : 0;
+            
+            if ($file_count > 0):
                 ?>
-                <li><strong>Fichier(s) justificatif(s) :</strong>
+                <li><strong>Fichier(s) justificatif(s) :</strong> <?php echo $file_count; ?> fichier<?php echo $file_count > 1 ? 's' : ''; ?>
                     <ul style="margin-top: 5px;">
                         <?php foreach ($proof_files as $file): ?>
                             <li>

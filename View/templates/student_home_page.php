@@ -41,9 +41,10 @@ if (!isset($_SESSION['id_student'])) {
     $recentAbsences = $_SESSION['recentAbsences'];
 
     // Calculer le pourcentage de justification basé sur les demi-journées
+    // Si aucune absence (0 demi-journées), on affiche 100%
     $justification_percentage = $stats['total_half_days'] > 0
         ? round(($stats['half_days_justified'] / $stats['total_half_days']) * 100, 1)
-        : 0;
+        : 100;
     
     // Calculer les demi-points perdus (5 demi-journées non justifiées = 0,5 point perdu)
     $half_points_lost = (int) $stats['half_days_unjustified'] / 10;
@@ -57,7 +58,7 @@ if (!isset($_SESSION['id_student'])) {
     ?>
 
     <div class="dashboard-container">
-        <h1 class="dashboard-title">Tableau de Bord - Suivi des Absences</h1>
+        <h1 class="dashboard-title">Tableau de Bord</h1>
 
         <!-- Vue d'ensemble principale -->
         <div class="overview-section">
