@@ -47,21 +47,9 @@
         /* Overview Section - Cartes principales */
         .overview-section {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
             margin-bottom: 2rem;
-        }
-
-        @media (max-width: 1600px) {
-            .overview-section {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 1400px) {
-            .overview-section {
-                grid-template-columns: repeat(3, 1fr);
-            }
         }
 
         @media (max-width: 900px) {

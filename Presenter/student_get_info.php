@@ -180,6 +180,7 @@ function getProofsByCategory($student_identifier)
             p.absence_end_date,
             p.main_reason,
             p.custom_reason,
+            p.student_comment,
             p.submission_date,
             p.manager_comment,
             COUNT(DISTINCT pa.absence_id) as nb_absences,
@@ -187,7 +188,9 @@ function getProofsByCategory($student_identifier)
             BOOL_OR(cs.is_evaluation) as has_exam,
             STRING_AGG(DISTINCT r.code, ', ') as course_codes,
             STRING_AGG(DISTINCT r.label, ' | ') as course_names,
-            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+            MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
+            MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
         FROM proof p
         LEFT JOIN proof_absences pa ON pa.proof_id = p.id
         LEFT JOIN absences a ON a.id = pa.absence_id
@@ -196,7 +199,7 @@ function getProofsByCategory($student_identifier)
         WHERE p.student_identifier = :student_id
         AND p.status = 'under_review'
         GROUP BY p.id, p.absence_start_date, p.absence_end_date, p.main_reason, 
-                 p.custom_reason, p.submission_date, p.manager_comment
+                 p.custom_reason, p.student_comment, p.submission_date, p.manager_comment
         ORDER BY p.submission_date DESC
     ");
     $stmt->execute(['student_id' => $student_identifier]);
@@ -210,11 +213,14 @@ function getProofsByCategory($student_identifier)
             p.absence_end_date,
             p.main_reason,
             p.custom_reason,
+            p.student_comment,
             p.submission_date,
             COUNT(DISTINCT pa.absence_id) as nb_absences,
             COALESCE(SUM(cs.duration_minutes) / 60.0, 0) as total_hours_missed,
             BOOL_OR(cs.is_evaluation) as has_exam,
-            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+            MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
+            MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
         FROM proof p
         LEFT JOIN proof_absences pa ON pa.proof_id = p.id
         LEFT JOIN absences a ON a.id = pa.absence_id
@@ -222,7 +228,7 @@ function getProofsByCategory($student_identifier)
         WHERE p.student_identifier = :student_id
         AND p.status = 'pending'
         GROUP BY p.id, p.absence_start_date, p.absence_end_date, p.main_reason, 
-                 p.custom_reason, p.submission_date
+                 p.custom_reason, p.student_comment, p.submission_date
         ORDER BY p.submission_date DESC
     ");
     $stmt->execute(['student_id' => $student_identifier]);
@@ -236,6 +242,7 @@ function getProofsByCategory($student_identifier)
             p.absence_end_date,
             p.main_reason,
             p.custom_reason,
+            p.student_comment,
             p.submission_date,
             p.processing_date,
             COUNT(DISTINCT pa.absence_id) as nb_absences,
@@ -243,7 +250,9 @@ function getProofsByCategory($student_identifier)
             BOOL_OR(cs.is_evaluation) as has_exam,
             STRING_AGG(DISTINCT r.code, ', ') as course_codes,
             STRING_AGG(DISTINCT r.label, ' | ') as course_names,
-            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+            MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
+            MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
         FROM proof p
         LEFT JOIN proof_absences pa ON pa.proof_id = p.id
         LEFT JOIN absences a ON a.id = pa.absence_id
@@ -252,7 +261,7 @@ function getProofsByCategory($student_identifier)
         WHERE p.student_identifier = :student_id
         AND p.status = 'accepted'
         GROUP BY p.id, p.absence_start_date, p.absence_end_date, p.main_reason, 
-                 p.custom_reason, p.submission_date, p.processing_date
+                 p.custom_reason, p.student_comment, p.submission_date, p.processing_date
         ORDER BY p.processing_date DESC
     ");
     $stmt->execute(['student_id' => $student_identifier]);
@@ -266,6 +275,7 @@ function getProofsByCategory($student_identifier)
             p.absence_end_date,
             p.main_reason,
             p.custom_reason,
+            p.student_comment,
             p.submission_date,
             p.processing_date,
             p.manager_comment,
@@ -274,7 +284,9 @@ function getProofsByCategory($student_identifier)
             BOOL_OR(cs.is_evaluation) as has_exam,
             STRING_AGG(DISTINCT r.code, ', ') as course_codes,
             STRING_AGG(DISTINCT r.label, ' | ') as course_names,
-            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+            MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
+            MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
         FROM proof p
         LEFT JOIN proof_absences pa ON pa.proof_id = p.id
         LEFT JOIN absences a ON a.id = pa.absence_id
@@ -283,7 +295,7 @@ function getProofsByCategory($student_identifier)
         WHERE p.student_identifier = :student_id
         AND p.status = 'rejected'
         GROUP BY p.id, p.absence_start_date, p.absence_end_date, p.main_reason, 
-                 p.custom_reason, p.submission_date, p.processing_date, p.manager_comment
+                 p.custom_reason, p.student_comment, p.submission_date, p.processing_date, p.manager_comment
         ORDER BY p.processing_date DESC
     ");
     $stmt->execute(['student_id' => $student_identifier]);

@@ -162,8 +162,11 @@ $errorMessage = $presenter->getErrorMessage();
                             <tr class="proof-row" data-proof-id="<?php echo $proof['proof_id']; ?>" 
                                 data-status="<?php echo $proof['status']; ?>"
                                 data-period="<?php echo htmlspecialchars($presenter->formatPeriod($proof['absence_start_date'], $proof['absence_end_date'])); ?>"
+                                data-start-datetime="<?php echo htmlspecialchars($proof['absence_start_datetime'] ?? $proof['absence_start_date']); ?>"
+                                data-end-datetime="<?php echo htmlspecialchars($proof['absence_end_datetime'] ?? $proof['absence_end_date']); ?>"
                                 data-reason="<?php echo htmlspecialchars($presenter->translateReason($proof['main_reason'], $proof['custom_reason'])); ?>"
                                 data-custom-reason="<?php echo htmlspecialchars($proof['custom_reason'] ?? ''); ?>"
+                                data-student-comment="<?php echo htmlspecialchars($proof['student_comment'] ?? ''); ?>"
                                 data-hours="<?php echo number_format($proof['total_hours_missed'], 1); ?>"
                                 data-absences="<?php echo $proof['absence_count']; ?>"
                                 data-half-days="<?php echo $proof['half_days_count'] ?? 0; ?>"
@@ -243,8 +246,12 @@ $errorMessage = $presenter->getErrorMessage();
             <div class="modal-body">
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Période d'absence :</span>
-                        <span class="modal-value" id="modalPeriod"></span>
+                        <span class="modal-label">📅 Début d'absence :</span>
+                        <span class="modal-value" id="modalStartDate"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📅 Fin d'absence :</span>
+                        <span class="modal-value" id="modalEndDate"></span>
                     </div>
                     <div class="modal-info-item">
                         <span class="modal-label">📝 Motif :</span>
@@ -253,6 +260,10 @@ $errorMessage = $presenter->getErrorMessage();
                     <div class="modal-info-item" id="customReasonItem" style="display: none;">
                         <span class="modal-label">ℹ️ Précision :</span>
                         <span class="modal-value" id="modalCustomReason"></span>
+                    </div>
+                    <div class="modal-info-item" id="studentCommentItem" style="display: none;">
+                        <span class="modal-label">💬 Commentaire de l'étudiant :</span>
+                        <span class="modal-value" id="modalStudentComment"></span>
                     </div>
                 </div>
 

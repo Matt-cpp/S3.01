@@ -19,8 +19,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const status = this.dataset.status;
       const proofId = this.dataset.proofId;
       const period = this.dataset.period;
+      const startDatetime = this.dataset.startDatetime;
+      const endDatetime = this.dataset.endDatetime;
       const reason = this.dataset.reason;
       const customReason = this.dataset.customReason;
+      const studentComment = this.dataset.studentComment;
       const hours = this.dataset.hours;
       const absences = this.dataset.absences;
       const halfDays = this.dataset.halfDays;
@@ -33,8 +36,21 @@ document.addEventListener("DOMContentLoaded", function () {
       const comment = this.dataset.comment;
       const filesJson = this.dataset.files;
 
+      // Fonction pour formater la date et l'heure
+      function formatDateTime(datetime) {
+        if (!datetime) return '-';
+        const date = new Date(datetime);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}/${month}/${year} à ${hours}h${minutes}`;
+      }
+
       // Remplir le modal avec les données
-      document.getElementById("modalPeriod").textContent = period;
+      document.getElementById("modalStartDate").textContent = formatDateTime(startDatetime);
+      document.getElementById("modalEndDate").textContent = formatDateTime(endDatetime);
       document.getElementById("modalReason").textContent = reason;
       document.getElementById("modalHours").textContent = hours + "h";
       document.getElementById("modalAbsences").textContent =
@@ -90,6 +106,14 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("modalCustomReason").textContent = customReason;
       } else {
         document.getElementById("customReasonItem").style.display = "none";
+      }
+
+      // Gérer le commentaire de l'étudiant
+      if (studentComment && studentComment.trim() !== "") {
+        document.getElementById("studentCommentItem").style.display = "flex";
+        document.getElementById("modalStudentComment").textContent = studentComment;
+      } else {
+        document.getElementById("studentCommentItem").style.display = "none";
       }
 
       // Afficher le statut avec le badge approprié
