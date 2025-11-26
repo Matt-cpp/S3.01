@@ -128,11 +128,34 @@ if (!$proof) {
             <?php endif; ?>
         </div>
 
-        <!-- Lien vers le presenter de prévisualisation (ouvre dans un nouvel onglet) -->
-        <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>"
-            class="download-btn" target="_blank" rel="noopener">
-            <img src="download-icon.png" alt="Consulter le justificatif">
-        </a>
+        <!-- Section fichiers justificatifs -->
+        <div class="files-section" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+            <strong style="display: block; margin-bottom: 10px; font-size: 16px;">📎 Fichiers justificatifs :</strong>
+            <?php
+            $proofFiles = [];
+            if (!empty($proof['proof_files'])) {
+                $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
+                $proofFiles = is_array($proofFiles) ? $proofFiles : [];
+            }
+
+            if (!empty($proofFiles)): ?>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <?php foreach ($proofFiles as $index => $file): ?>
+                        <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>"
+                            target="_blank" rel="noopener"
+                            title="<?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>"
+                            style="display: inline-block; padding: 10px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px;">
+                            📄 <?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>
+                            <?php if (!empty($file['size'])): ?>
+                                <small style="opacity: 0.9;">(<?= number_format($file['size'] / 1024, 1) ?> Ko)</small>
+                            <?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p style="color: #666; font-style: italic; margin: 0;">Aucun fichier justificatif n'a été fourni.</p>
+            <?php endif; ?>
+        </div>
 
         <div class="actions">
             <?php if ($showInfoForm): ?>

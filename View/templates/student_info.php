@@ -46,9 +46,9 @@ if (!isset($_SESSION['id_student'])) {
                         <span class="link-icon">📄</span>
                         <div>
                             <strong>Règlement intérieur :</strong><br>
-                            <a href="https://www.uphf.fr/scolarite/reglement-interieur" target="_blank"
+                            <a href="https://recueildesactes.uphf.fr/download/f3c230cc-c68b-45b0-b1b9-b7e60868b6ce" target="_blank"
                                 class="external-link">
-                                Consultez le règlement intérieur complet de l'UPHF
+                                Consultez le règlement intérieur complet (PDF)
                             </a>
                         </div>
                     </div>
@@ -121,6 +121,20 @@ if (!isset($_SESSION['id_student'])) {
                     <h2>Conséquences d'une Absence Non Justifiée</h2>
                 </div>
                 <div class="section-content">
+                    <div class="consequence-box">
+                        <h3>📊 Impact sur la moyenne selon le règlement du BUT Informatique</h3>
+                        <p class="highlight-text">
+                            <strong>Selon le règlement de la formation du BUT Informatique :</strong><br>
+                            <span style="font-size: 1.1em; color: #dc2626;">
+                                5 demi-journées d'absences non justifiées = -0,5 point sur la moyenne
+                            </span>
+                        </p>
+                        <p>
+                            Ce système de pénalité s'applique de manière cumulative. Plus vous accumulez d'absences 
+                            non justifiées, plus l'impact sur votre moyenne sera important.
+                        </p>
+                    </div>
+
                     <div class="consequence-box">
                         <h3>📝 Remplacement de la mention "ABS" par un "0"</h3>
                         <p>

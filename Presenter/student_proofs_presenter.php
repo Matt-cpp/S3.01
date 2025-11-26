@@ -22,7 +22,7 @@ class StudentProofsPresenter
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['status'])) {
             $this->filters['status'] = $_GET['status'] ?? '';
         }
-        
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->validateAndSetFilters();
         }
@@ -50,7 +50,7 @@ class StudentProofsPresenter
     public function getProofs()
     {
         $db = Database::getInstance()->getConnection();
-        
+
         $query = "
             SELECT 
                 p.id as proof_id,
@@ -58,37 +58,42 @@ class StudentProofsPresenter
                 p.absence_end_date,
                 p.main_reason,
                 p.custom_reason,
+                p.student_comment,
                 p.submission_date,
                 p.processing_date,
                 p.status,
                 p.manager_comment,
                 p.file_path,
+                p.proof_files,
                 COUNT(DISTINCT pa.absence_id) as absence_count,
                 SUM(cs.duration_minutes) as total_duration_minutes,
-                MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) as has_exam
+                MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) as has_exam,
+                COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+                MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
+                MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
             FROM proof p
             LEFT JOIN proof_absences pa ON p.id = pa.proof_id
             LEFT JOIN absences a ON pa.absence_id = a.id
             LEFT JOIN course_slots cs ON a.course_slot_id = cs.id
             WHERE p.student_identifier = :student_id
         ";
-        
+
         $params = [':student_id' => $this->studentIdentifier];
-        
+
         // Filtre par date de début d'absence
         if (!empty($this->filters['start_date'])) {
             $query .= " AND p.absence_start_date >= :start_date";
             $params[':start_date'] = $this->filters['start_date'];
         }
-        
+
         // Filtre par date de fin d'absence
         if (!empty($this->filters['end_date'])) {
             $query .= " AND p.absence_end_date <= :end_date";
             $params[':end_date'] = $this->filters['end_date'];
         }
-        
+
         $query .= " GROUP BY p.id";
-        
+
         // Filtre par statut
         if (!empty($this->filters['status'])) {
             if ($this->filters['status'] === 'accepted') {
@@ -101,7 +106,7 @@ class StudentProofsPresenter
                 $query .= " HAVING p.status = 'rejected'";
             }
         }
-        
+
         // Filtre par motif
         if (!empty($this->filters['reason'])) {
             if (strpos($query, 'HAVING') !== false) {
@@ -111,7 +116,7 @@ class StudentProofsPresenter
             }
             $params[':reason'] = $this->filters['reason'];
         }
-        
+
         // Filtre par présence d'évaluation
         if (!empty($this->filters['has_exam'])) {
             if ($this->filters['has_exam'] === 'yes') {
@@ -128,7 +133,7 @@ class StudentProofsPresenter
                 }
             }
         }
-        
+
         // Tri : justificatifs en révision d'abord, puis par date de soumission décroissante (plus récent en premier)
         $query .= " ORDER BY 
             CASE 
@@ -139,17 +144,17 @@ class StudentProofsPresenter
                 ELSE 5
             END,
             p.submission_date DESC";
-        
+
         try {
             $stmt = $db->prepare($query);
             $stmt->execute($params);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             // Calculer les heures manquées
             foreach ($results as &$proof) {
                 $proof['total_hours_missed'] = ($proof['total_duration_minutes'] ?? 0) / 60;
             }
-            
+
             return $results;
         } catch (Exception $e) {
             error_log("Erreur lors de la récupération des justificatifs: " . $e->getMessage());
@@ -186,7 +191,7 @@ class StudentProofsPresenter
         if (!$reason) {
             return '';
         }
-        
+
         $translations = [
             'illness' => 'Maladie',
             'death' => 'Décès dans la famille',

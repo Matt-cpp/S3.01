@@ -10,7 +10,7 @@ if (!isset($_GET['proof_id'])) {
     exit();
 }
 
-$proofId = (int)$_GET['proof_id'];
+$proofId = (int) $_GET['proof_id'];
 
 try {
     $db = Database::getInstance();
@@ -28,6 +28,7 @@ try {
             p.student_comment,
             p.manager_comment,
             p.file_path,
+            p.proof_files,
             p.concerned_courses
         FROM proof p
         WHERE p.id = :proof_id
@@ -77,6 +78,17 @@ try {
         $endDate = date('Y-m-d\TH:i', strtotime($endDate));
     }
 
+    // Decode proof_files JSONB column
+    $proofFiles = [];
+    if (!empty($proof['proof_files'])) {
+        if (is_array($proof['proof_files'])) {
+            $proofFiles = $proof['proof_files'];
+        } else {
+            $decoded = json_decode($proof['proof_files'], true);
+            $proofFiles = is_array($decoded) ? $decoded : [];
+        }
+    }
+
     $_SESSION['edit_proof'] = [
         'proof_id' => $proof['id'],
         'datetime_start' => $startDate,
@@ -86,7 +98,8 @@ try {
         'comments' => $proof['student_comment'] ?? '',
         'manager_comment' => $proof['manager_comment'] ?? '',
         'class_involved' => $proof['concerned_courses'] ?? '',
-        'existing_file_path' => $proof['file_path']
+        'existing_file_path' => $proof['file_path'],
+        'existing_files' => $proofFiles
     ];
 
     // Rediriger vers la page de modification

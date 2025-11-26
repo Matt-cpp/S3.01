@@ -87,10 +87,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const status = this.dataset.status;
       const proofId = this.dataset.proofId;
       const period = this.dataset.period;
+      const startDatetime = this.dataset.startDatetime;
+      const endDatetime = this.dataset.endDatetime;
       const reason = this.dataset.reason;
       const customReason = this.dataset.customReason;
+      const studentComment = this.dataset.studentComment;
       const hours = this.dataset.hours;
       const absences = this.dataset.absences;
+      const halfDays = this.dataset.halfDays;
       const submission = this.dataset.submission;
       const processing = this.dataset.processing;
       const statusText = this.dataset.statusText;
@@ -98,16 +102,71 @@ document.addEventListener("DOMContentLoaded", function () {
       const statusClass = this.dataset.statusClass;
       const exam = this.dataset.exam;
       const comment = this.dataset.comment;
+      const filesJson = this.dataset.files;
+
+      // Fonction pour formater la date et l'heure
+      function formatDateTime(datetime) {
+        if (!datetime) return '-';
+        const date = new Date(datetime);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}/${month}/${year} à ${hours}h${minutes}`;
+      }
 
       // Remplir le modal avec les données
-      document.getElementById("proofModalPeriod").textContent = period;
+      document.getElementById("proofModalStartDate").textContent = formatDateTime(startDatetime);
+      document.getElementById("proofModalEndDate").textContent = formatDateTime(endDatetime);
       document.getElementById("proofModalReason").textContent = reason;
       document.getElementById("proofModalHours").textContent = hours + "h";
       document.getElementById("proofModalAbsences").textContent =
         absences + " absence" + (absences > 1 ? "s" : "");
+      document.getElementById("proofModalHalfDays").textContent =
+        halfDays + " demi-journ\u00e9e" + (halfDays > 1 ? "s" : "");
       document.getElementById("proofModalSubmission").textContent = submission;
       document.getElementById("proofModalProcessing").textContent = processing;
       document.getElementById("proofModalExam").textContent = exam;
+
+      // Afficher les fichiers
+      let files = [];
+      try {
+        files = filesJson ? JSON.parse(filesJson) : [];
+      } catch (e) {
+        console.error("Error parsing files JSON:", e);
+        files = [];
+      }
+
+      const filesSection = document.getElementById("proofFilesSection");
+      const modalFiles = document.getElementById("proofModalFiles");
+
+      if (files && files.length > 0) {
+        filesSection.style.display = "block";
+        modalFiles.innerHTML = "";
+        files.forEach((file, index) => {
+          const fileName =
+            file.original_name || file.saved_name || "Fichier " + (index + 1);
+          const fileSize = file.file_size
+            ? " (" + (file.file_size / 1024).toFixed(1) + " Ko)"
+            : "";
+
+          const fileLink = document.createElement("a");
+          fileLink.href =
+            "../../Presenter/view_upload_proof.php?proof_id=" +
+            proofId +
+            "&file_index=" +
+            index;
+          fileLink.target = "_blank";
+          fileLink.style.cssText =
+            "display: inline-block; padding: 8px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 13px;";
+          fileLink.textContent = "📄 " + fileName + fileSize;
+
+          modalFiles.appendChild(fileLink);
+        });
+      } else {
+        filesSection.style.display = "none";
+      }
 
       // Gérer la raison personnalisée
       if (customReason && customReason.trim() !== "") {
@@ -116,6 +175,14 @@ document.addEventListener("DOMContentLoaded", function () {
           customReason;
       } else {
         document.getElementById("proofCustomReasonItem").style.display = "none";
+      }
+
+      // Gérer le commentaire de l'étudiant
+      if (studentComment && studentComment.trim() !== "") {
+        document.getElementById("proofStudentCommentItem").style.display = "flex";
+        document.getElementById("proofModalStudentComment").textContent = studentComment;
+      } else {
+        document.getElementById("proofStudentCommentItem").style.display = "none";
       }
 
       // Afficher le statut avec le badge approprié

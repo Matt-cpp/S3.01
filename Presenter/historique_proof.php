@@ -77,7 +77,23 @@ class HistoriqueProofPresenter
 
     public function hasProof($proof): bool
     {
+        if (!empty($proof['proof_files'])) {
+            $files = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
+            return is_array($files) && count($files) > 0;
+        }
         return !empty($proof['file_path']);
+    }
+
+    public function getProofFiles($proof): array
+    {
+        if (!empty($proof['proof_files'])) {
+            if (is_array($proof['proof_files'])) {
+                return $proof['proof_files'];
+            }
+            $decoded = json_decode($proof['proof_files'], true);
+            return is_array($decoded) ? $decoded : [];
+        }
+        return [];
     }
 
     public function getProofPath($proof): string

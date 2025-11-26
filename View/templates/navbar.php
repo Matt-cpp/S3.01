@@ -54,13 +54,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </nav>
     <?php endif; ?>
 
+    <?php if ($user_role !== 'student'): ?>
     <div class="header-icons">
         <a href="<?php echo htmlspecialchars($home_url); ?>" class="icon-link" title="Accueil">
             <div class="icon home">🏠</div>
         </a>
+        <?php endif; ?>
         <?php if ($user_role === 'student'): ?>
-            <a href="student_info.php" class="icon info-icon" title="Informations et procédure">
-                <span>❓</span>
+            <a href="student_info.php" class="icon-link" title="Informations et procédure">
+                <div class="icon info-icon">
+                    <span>❓</span>
+                </div>
             </a>
         <?php else: ?>
             <div class="icon notification" title="Notifications"></div>

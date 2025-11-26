@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Couleurs de bordure selon le statut
     const statusBorderColors = {
         'accepted': '#28a745',      // Vert
-        'rejected': '#dc3545',      // Rouge
+        'rejected': '#dc3545',      // Rouge - Justificatif refusé
         'under_review': '#ffc107',  // Jaune/Orange
         'pending': '#17a2b8',       // Bleu
-        'none': '#6c757d'           // Gris (non justifiée)
+        'none': '#dc3545'           // Rouge - Absence non justifiée
     };
 
     // Ouvrir le modal quand on clique sur une ligne

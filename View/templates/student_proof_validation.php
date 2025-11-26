@@ -29,7 +29,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/logoIUT.ico">
+    <link rel="icon" type="image/x-icon" href="../img/logoIUT.ico">
     <title>Validé</title>
     <link rel="stylesheet" href="../assets/css/student_proof_validation.css">
 </head>
@@ -105,8 +105,28 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
                 <li><strong>Précision du motif :</strong>
                     <?php echo htmlspecialchars($_SESSION['reason_data']['other_reason']); ?></li>
             <?php endif; ?>
-            <li><strong>Fichier justificatif :</strong>
-                <?php echo htmlspecialchars($_SESSION['reason_data']['proof_file']); ?></li>
+            
+            <?php
+            // Display uploaded files
+            $proof_files = $_SESSION['reason_data']['proof_files'] ?? [];
+            $file_count = is_array($proof_files) ? count($proof_files) : 0;
+            
+            if ($file_count > 0):
+                ?>
+                <li><strong>Fichier(s) justificatif(s) :</strong> <?php echo $file_count; ?> fichier<?php echo $file_count > 1 ? 's' : ''; ?>
+                    <ul style="margin-top: 5px;">
+                        <?php foreach ($proof_files as $file): ?>
+                            <li>
+                                <?php echo htmlspecialchars($file['original_name']); ?>
+                                (<?php echo round($file['file_size'] / 1024, 2); ?> Ko)
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </li>
+            <?php else: ?>
+                <li><strong>Fichier(s) justificatif(s) :</strong> Aucun fichier fourni</li>
+            <?php endif; ?>
+            
             <?php if (!empty($_SESSION['reason_data']['comments'])): ?>
                 <li><strong>Commentaires :</strong>
                     <?php echo nl2br(htmlspecialchars($_SESSION['reason_data']['comments'])); ?></li>

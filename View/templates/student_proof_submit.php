@@ -105,15 +105,27 @@ if (!isset($_SESSION['id_student'])) {
             </div>
 
             <div class="form-group">
-                <label for="proof_file">Fichier justificatif :</label>
-                <input type="file" id="proof_file" name="proof_file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+                <label for="proof_files">Fichiers justificatifs :</label>
+                <input type="file" id="proof_files" name="proof_files[]" multiple 
+                       accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
                 <p class="help-text" style="color: #e36153ff; font-weight: bold; margin-top: 8px;">
-                    <strong>ATTENTION :</strong> Taille maximale autorisée : <strong>5MB</strong><br>
-                    Formats acceptés : PDF (recommandé), JPG, JPEG, PNG, DOC, DOCX
+                    <strong>ATTENTION :</strong><br>
+                    • Vous pouvez sélectionner <strong>plusieurs fichiers</strong> (optionnel)<br>
+                    • Taille maximale <strong>par fichier</strong> : <strong>5MB</strong><br>
+                    • Taille totale maximale : <strong>20MB</strong><br>
+                    • Formats acceptés : PDF (recommandé), JPG, JPEG, PNG, DOC, DOCX
                 </p>
-                <div id="file_size_warning"
-                    style="display: none; color: #e74c3c; font-weight: bold; margin-top: 5px; padding: 8px; background-color: #ffe6e6; border: 1px solid #e74c3c; border-radius: 4px;">
-                    Fichier trop volumineux ! Veuillez sélectionner un fichier de moins de 5MB.
+                
+                <!-- Zone d'aperçu des fichiers sélectionnés -->
+                <div id="files_preview" style="display: none; margin-top: 15px;">
+                    <h4>Fichiers sélectionnés :</h4>
+                    <div id="files_list"></div>
+                    <div id="total_size" style="margin-top: 10px; font-weight: bold;"></div>
+                </div>
+                
+                <div id="file_size_warning" style="display: none; color: #e74c3c; font-weight: bold; 
+                     margin-top: 5px; padding: 8px; background-color: #ffe6e6; border: 1px solid #e74c3c; 
+                     border-radius: 4px;">
                 </div>
             </div>
 

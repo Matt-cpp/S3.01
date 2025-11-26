@@ -118,7 +118,7 @@ $errorMessage = $presenter->getErrorMessage();
         </form>
 
         <div class="results-counter">
-            <strong>Nombre d'absences trouvées: <?php echo count($absences); ?></strong>
+            <strong>Nombre d'absences trouvées: <?php echo count($absences); ?> • Demi-journées manquées: <?php echo $presenter->getTotalHalfDays($absences); ?></strong>
         </div>
 
         <div class="table-container">

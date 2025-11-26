@@ -28,6 +28,7 @@ class ProofModel
         p.student_comment,
         p.status,
         p.submission_date,
+        p.proof_files,
         u.last_name,
         u.first_name,
         g.label AS group_label
@@ -603,6 +604,7 @@ class ProofModel
                 p.status,
                 p.submission_date,
                 p.file_path,
+                p.proof_files,
                 u.last_name,
                 u.first_name,
                 g.label AS group_label
@@ -677,6 +679,29 @@ class ProofModel
             return $this->db->select($sql);
         } catch (Exception $e) {
             error_log("Erreur getProofReasons : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    // Get proof files from JSONB column
+    public function getProofFiles(int $proofId): array
+    {
+        try {
+            $result = $this->db->selectOne("SELECT proof_files FROM proof WHERE id = :id", ['id' => $proofId]);
+            if (!$result || empty($result['proof_files'])) {
+                return [];
+            }
+
+            // If it's already an array (PDO might decode JSONB automatically)
+            if (is_array($result['proof_files'])) {
+                return $result['proof_files'];
+            }
+
+            // Otherwise decode JSON string
+            $files = json_decode($result['proof_files'], true);
+            return is_array($files) ? $files : [];
+        } catch (Exception $e) {
+            error_log("Erreur getProofFiles : " . $e->getMessage());
             return [];
         }
     }

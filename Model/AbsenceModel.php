@@ -27,6 +27,8 @@ class AbsenceModel
                 a.justified as status,
                 p.main_reason as motif,
                 p.file_path as file_path,
+                p.proof_files as proof_files,
+                p.id as proof_id,
                 p.status as justification_status
             FROM absences a
             JOIN users u ON a.student_identifier = u.identifier

@@ -123,14 +123,10 @@
     transform: scale(1.1);
 }
 
-.icon.info-icon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-}
-
 .icon.info-icon span {
     font-size: 18px;
     color: white;
+    line-height: 1;
 }
 
 .icon.notification::before {

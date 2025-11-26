@@ -153,14 +153,23 @@ $errorMessage = $presenter->getErrorMessage();
                         <?php foreach ($proofs as $proof): ?>
                             <?php 
                             $status = $presenter->getStatusBadge($proof['status']);
+                            $proofFiles = [];
+                            if (!empty($proof['proof_files'])) {
+                                $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
+                                $proofFiles = is_array($proofFiles) ? $proofFiles : [];
+                            }
                             ?>
                             <tr class="proof-row" data-proof-id="<?php echo $proof['proof_id']; ?>" 
                                 data-status="<?php echo $proof['status']; ?>"
                                 data-period="<?php echo htmlspecialchars($presenter->formatPeriod($proof['absence_start_date'], $proof['absence_end_date'])); ?>"
+                                data-start-datetime="<?php echo htmlspecialchars($proof['absence_start_datetime'] ?? $proof['absence_start_date']); ?>"
+                                data-end-datetime="<?php echo htmlspecialchars($proof['absence_end_datetime'] ?? $proof['absence_end_date']); ?>"
                                 data-reason="<?php echo htmlspecialchars($presenter->translateReason($proof['main_reason'], $proof['custom_reason'])); ?>"
                                 data-custom-reason="<?php echo htmlspecialchars($proof['custom_reason'] ?? ''); ?>"
+                                data-student-comment="<?php echo htmlspecialchars($proof['student_comment'] ?? ''); ?>"
                                 data-hours="<?php echo number_format($proof['total_hours_missed'], 1); ?>"
                                 data-absences="<?php echo $proof['absence_count']; ?>"
+                                data-half-days="<?php echo $proof['half_days_count'] ?? 0; ?>"
                                 data-submission="<?php echo htmlspecialchars($presenter->formatDateTime($proof['submission_date'])); ?>"
                                 data-processing="<?php echo $proof['processing_date'] ? htmlspecialchars($presenter->formatDateTime($proof['processing_date'])) : '-'; ?>"
                                 data-status-text="<?php echo $status['text']; ?>"
@@ -168,6 +177,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-status-class="<?php echo $status['class']; ?>"
                                 data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
                                 data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>"
+                                data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>"
                                 style="cursor: pointer;">
                                 <td>
                                     <strong><?php echo $presenter->formatPeriod($proof['absence_start_date'], $proof['absence_end_date']); ?></strong>
@@ -236,8 +246,12 @@ $errorMessage = $presenter->getErrorMessage();
             <div class="modal-body">
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Période d'absence :</span>
-                        <span class="modal-value" id="modalPeriod"></span>
+                        <span class="modal-label">📅 Début d'absence :</span>
+                        <span class="modal-value" id="modalStartDate"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📅 Fin d'absence :</span>
+                        <span class="modal-value" id="modalEndDate"></span>
                     </div>
                     <div class="modal-info-item">
                         <span class="modal-label">📝 Motif :</span>
@@ -246,6 +260,10 @@ $errorMessage = $presenter->getErrorMessage();
                     <div class="modal-info-item" id="customReasonItem" style="display: none;">
                         <span class="modal-label">ℹ️ Précision :</span>
                         <span class="modal-value" id="modalCustomReason"></span>
+                    </div>
+                    <div class="modal-info-item" id="studentCommentItem" style="display: none;">
+                        <span class="modal-label">💬 Commentaire de l'étudiant :</span>
+                        <span class="modal-value" id="modalStudentComment"></span>
                     </div>
                 </div>
 
@@ -257,6 +275,10 @@ $errorMessage = $presenter->getErrorMessage();
                     <div class="modal-info-item">
                         <span class="modal-label">📊 Absences concernées :</span>
                         <span class="modal-value" id="modalAbsences"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📅 Demi-journées concernées :</span>
+                        <span class="modal-value" id="modalHalfDays"></span>
                     </div>
                     <div class="modal-info-item">
                         <span class="modal-label">📝 Évaluation manquée :</span>
@@ -278,6 +300,11 @@ $errorMessage = $presenter->getErrorMessage();
                 <div class="modal-status-section">
                     <span class="modal-label">🏷️ Statut :</span>
                     <span id="modalStatus" class="badge"></span>
+                </div>
+
+                <div class="modal-files-section" id="filesSection" style="display: none; margin-top: 20px;">
+                    <span class="modal-label">📎 Fichiers justificatifs :</span>
+                    <div id="modalFiles" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
                 </div>
 
                 <div class="modal-comment-section" id="commentSection" style="display: none;">
