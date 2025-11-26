@@ -20,10 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date = $_POST['date'] ?? null;
     $heure = $_POST['heure'] ?? null;
     $duree = $_POST['duree'] ?? null;
+    $salle = $_POST['salle'] ?? null;
 
-    if ($dsId && $date && $heure) {
-        $dateRattrapage = $date . ' ' . $heure;
-
+    if ($dsId && $date && $heure && $duree) {
         $lesEleves = $planif->getLesEleves($dsId);
 
         $count = 0;
@@ -32,8 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $eleve['id'],
                 $dsId,
                 $eleve['identifier'],
-                $dateRattrapage,
-                "Rattrapage planifié pour une durée de {$duree} minutes"
+                $date,
+                $salle,
+                intval($duree)
             );
             $count++;
         }
@@ -110,14 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <div class="form-group">
-                        <label for="heure">Heure <span class="required">*</span></label>
-                        <input type="time" id="heure" name="heure" required>
+                        <label for="salle">Salle <span class="required">*</span></label>
+                        <input type="text" id="salle" name="salle" placeholder="Ex: A101" required>
+                        <div class="form-help">Entrez le code de la salle</div>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="duree">Durée<span class="required">*</span></label>
+                        <label for="duree">Durée <span class="required">*</span></label>
                         <select id="duree" name="duree" required>
                             <option value="">Sélectionnez une durée</option>
                             <option value="30">30 minutes</option>
@@ -130,6 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Planifier le rattrapage</button>
                     </div>
+                </div>
             </form>
         </div>
     </div>

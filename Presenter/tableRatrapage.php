@@ -53,7 +53,8 @@ public function getData($page){
     $offset = (int)($page * 5);
     $userId = (int)$this->userId;
 
-    $query = "SELECT users.first_name, users.last_name, resources.label, course_slots.course_date
+    $query = "SELECT users.first_name, users.last_name, resources.label, course_slots.course_date, 
+                     course_slots.id as course_slot_id, course_slots.duration_minutes
     FROM absences 
     LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
     LEFT JOIN users ON absences.student_identifier = users.identifier
@@ -108,6 +109,7 @@ public function setPage($page){
             <th>Last Name</th>
             <th>Resource</th>
             <th>Course Date</th>
+            <th>Duration (minutes)</th>
         </tr>";
         foreach ($donnees as $ligne) {
             $tableau .= "<tr>
@@ -115,6 +117,7 @@ public function setPage($page){
                 <td>" . htmlspecialchars($ligne['last_name']) . "</td>
                 <td>" . htmlspecialchars($ligne['label']) . "</td>
                 <td>" . htmlspecialchars($ligne['course_date']) . "</td>
+                <td>" . htmlspecialchars($ligne['duration_minutes']) . "</td>
             </tr>";
         }
         $tableau .= "</table>";
