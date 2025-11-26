@@ -946,5 +946,8 @@ window.addEventListener("DOMContentLoaded", function () {
       );
       return;
     }
+
+    // IMPORTANT: Sync selectedFiles array to the actual file input before submission
+    updateFileInputWithSelectedFiles();
   });
 });

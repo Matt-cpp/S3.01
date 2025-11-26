@@ -215,7 +215,7 @@ if (!empty($proof_files)) {
     // Add section for uploaded files
     $pdf->SetFont('helvetica', 'B', 14);
     $pdf->Cell(0, 10, 'Justificatifs fournis (' . count($proof_files) . ')', 0, 1, 'C');
-    
+
     foreach ($proof_files as $index => $file_info) {
         if ($index > 0) {
             $pdf->AddPage();
@@ -223,15 +223,17 @@ if (!empty($proof_files)) {
         // File header
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(0, 10, 'Fichier ' . ($index + 1) . ' / ' . count($proof_files), 0, 1, 'L');
-        
+
         // File details
         $pdf->SetFont('helvetica', '', 10);
         $pdf->MultiCell(0, 5, 'Nom : ' . htmlspecialchars($file_info['original_name']), 0, 'L');
         $file_size_kb = round($file_info['file_size'] / 1024, 2);
         $pdf->MultiCell(0, 5, 'Taille : ' . $file_size_kb . ' Ko', 0, 'L');
-        
+
         // Construct absolute path to uploads directory
-        $upload_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . $file_info['saved_path'];
+        // Support both 'path' and 'saved_path' keys for compatibility
+        $file_path = $file_info['path'] ?? $file_info['saved_path'] ?? '';
+        $upload_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . $file_path;
         $extension = strtolower(pathinfo($file_info['original_name'], PATHINFO_EXTENSION));
 
         if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
@@ -322,7 +324,7 @@ if (!empty($proof_files)) {
             $pdf->Cell(0, 10, 'Veuillez consulter le fichier original joint à votre demande.', 0, 1, 'L');
             $pdf->SetTextColor(0, 0, 0);
         }
-        
+
         // Add spacing between files
         if ($index < count($proof_files) - 1) {
             $pdf->Ln(10);

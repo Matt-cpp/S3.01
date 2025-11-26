@@ -8,12 +8,15 @@ require_once __DIR__ . '/../Model/AbsenceMonitoringModel.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     session_start();
-    
+
     // Définir le fuseau horaire pour toutes les dates
     date_default_timezone_set('Europe/Paris');
 
     try {
         $db = getDatabase();
+
+        // Debug: Check if FILES are received
+        error_log("POST received - FILES array: " . json_encode($_FILES));
 
         // Gestion de multiples fichiers
         $uploaded_files = [];
@@ -202,9 +205,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $debug_absences = $db->select($sql_debug, $params_check);
 
         if (!$absence_check || $absence_check['absence_count'] == 0) {
-            // Clean up uploaded file if no absences found
-            if ($saved_file_path && file_exists(__DIR__ . '/../' . $saved_file_path)) {
-                unlink(__DIR__ . '/../' . $saved_file_path);
+            // Clean up uploaded files if no absences found
+            foreach ($uploaded_files as $file_info) {
+                $file_to_delete = __DIR__ . '/../' . $file_info['path'];
+                if (file_exists($file_to_delete)) {
+                    unlink($file_to_delete);
+                }
             }
 
             // Create detailed error message with debug info
@@ -441,10 +447,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             );
 
             if ($response['success']) {
-                // Email sent successfully
+                // Email sent successfully - log notification
+                try {
+                    insert_notification(
+                        $db,
+                        $student_identifier,
+                        'justification_processed',
+                        'Justificatif reçu',
+                        'Votre justificatif a été reçu et est en attente de validation.',
+                        true
+                    );
+                } catch (Exception $notif_error) {
+                    error_log("Notification insertion failed: " . $notif_error->getMessage());
+                }
             } else {
                 // Log the email error but do not fail the whole process
                 error_log("Email error: " . $response['message']);
+                try {
+                    insert_notification(
+                        $db,
+                        $student_identifier,
+                        'justification_processed',
+                        'Justificatif reçu (email échoué)',
+                        'Votre justificatif a été reçu mais l\'email de confirmation n\'a pas pu être envoyé.',
+                        false
+                    );
+                } catch (Exception $notif_error) {
+                    error_log("Notification insertion failed: " . $notif_error->getMessage());
+                }
             }
 
             // Delete the generated PDF after sending the email
@@ -467,75 +497,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Send response to user immediately, then handle emails in background
             header("Location: ../View/templates/student_proof_validation.php");
 
-            // Now handle email operations in background (user already redirected)
-            try {
-                $emailService = new EmailService();
-
-                $htmlBody = '
-                <h1>Résumé de votre justificatif envoyé</h1>
-                <p>Veuillez trouver le document récapitulatif ci-joint.</p>
-                <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
-                <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
-                ';
-
-                $attachments = [
-                    __DIR__ . '/../' . $saved_file_path,
-                ];
-
-                $images = [
-                    'logoUPHF' => __DIR__ . '/../View/img/UPHF.png',
-                    'logoIUT' => __DIR__ . '/../View/img/logoIUT.png'
-                ];
-
-                $response = $emailService->sendEmail(
-                    $_SESSION['student_info']['email'] ?? $studentInfo['email'] ?? 'ambroise.bisiaux@uphf.fr',
-                    'Justificatif d\'absence - Confirmation',
-                    $htmlBody,
-                    true,
-                    $attachments,
-                    $images
-                );
-
-                if ($response['success']) {
-                    // Log successful email notification
-                    insert_notification(
-                        $db,
-                        $student_identifier,
-                        'justification_processed',
-                        'Justificatif reçu',
-                        'Votre justificatif a été reçu et est en cours de traitement.',
-                        true
-                    );
-                } else {
-                    // Log the email error but do not fail the whole process
-                    insert_notification(
-                        $db,
-                        $student_identifier,
-                        'justification_processed',
-                        'Justificatif reçu (email échoué)',
-                        'Votre justificatif n\'a pas pu être envoyé.',
-                        false
-                    );
-                    error_log("Email error: " . $response['message']);
-                }
-            } catch (Exception $email_error) {
-                // Log email error but don't fail the main process since the proof was saved
-                error_log("Email sending failed: " . $email_error->getMessage());
-                // Still try to insert a notification about the email failure
-                try {
-                    insert_notification(
-                        $db,
-                        $student_identifier,
-                        'justification_processed',
-                        'Justificatif reçu (email échoué)',
-                        'Votre justificatif a été reçu mais l\'email de confirmation n\'a pas pu être envoyé.',
-                        false
-                    );
-                } catch (Exception $notification_error) {
-                    error_log("Notification insertion failed: " . $notification_error->getMessage());
-                }
-            }
-
+            // Email was already sent above with all attachments and files
+            // No need for additional email operations
             exit();
 
         } catch (Exception $e) {
@@ -570,13 +533,13 @@ function insert_notification($db, $student_identifier, $notification_type, $subj
 {
     try {
         $sql = "INSERT INTO notifications (student_identifier, notification_type, subject, message , sent, sent_date) 
-                VALUES (:student_identifier, :notification_type, :subject, :message, :sent, CASE WHEN :sent = TRUE THEN NOW() ELSE NULL END)";
+                VALUES (:student_identifier, :notification_type, :subject, :message, :sent::boolean, CASE WHEN :sent::boolean = TRUE THEN NOW() ELSE NULL END)";
         $db->execute($sql, [
             'student_identifier' => $student_identifier,
             'notification_type' => $notification_type,
             'subject' => $subject,
             'message' => $message,
-            'sent' => $sent
+            'sent' => $sent ? 'true' : 'false'
         ]);
         return true;
     } catch (Exception $e) {
