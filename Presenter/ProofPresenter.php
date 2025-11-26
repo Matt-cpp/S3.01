@@ -1,4 +1,16 @@
 <?php
+
+/**
+ * Fichier: ProofPresenter.php
+ * 
+ * Présentateur de justificatif - Gère la logique métier pour l'affichage et le traitement des justificatifs.
+ * Fournit des méthodes pour:
+ * - Gérer les actions sur un justificatif (valider, rejeter, demander des infos)
+ * - Préparer les données pour l'affichage
+ * - Gérer les formulaires de rejet avec motifs
+ * Utilisé par les gestionnaires pour traiter les justificatifs soumis.
+ */
+
 require_once __DIR__ . '/../Model/ProofModel.php';
 require_once __DIR__ . '/../Model/email.php';
 

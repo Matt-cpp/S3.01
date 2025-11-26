@@ -1,4 +1,14 @@
 <?php
+
+/**
+ * Fichier: check_proof_submission_delay.php
+ * 
+ * API de vérification du délai de soumission - Vérifie si un étudiant a dépassé le délai pour soumettre un justificatif.
+ * Calcule le délai de 48h (2 jours ouvrés) après le retour en cours de l'étudiant.
+ * Renvoie un avertissement JSON si le délai est dépassé.
+ * Utilisé par AJAX lors de la soumission d'un justificatif.
+ */
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
@@ -67,11 +77,11 @@ try {
 
     // Calculate the return to class date (skip weekends)
     $return_date = clone $last_absence_datetime;
-    
+
     // If last absence is on Friday, return date is Monday
     if ($return_date->format('N') == 5) { // Friday
         $return_date->modify('+3 days'); // Skip to Monday
-    } 
+    }
     // If last absence is on Saturday (shouldn't happen normally)
     elseif ($return_date->format('N') == 6) {
         $return_date->modify('+2 days'); // Skip to Monday
@@ -93,7 +103,7 @@ try {
     $deadline_date = clone $return_date;
     $days_to_add = 2;
     $days_added = 0;
-    
+
     while ($days_added < $days_to_add) {
         $deadline_date->modify('+1 day');
         // Skip weekends
@@ -138,7 +148,6 @@ try {
             'is_after_deadline' => $show_warning
         ]
     ]);
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
@@ -146,4 +155,3 @@ try {
         'show_warning' => false
     ]);
 }
-?>

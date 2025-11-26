@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Fichier: student_proofs_presenter.php
+ * 
+ * Présentateur des justificatifs étudiant - Gère l'affichage de la liste des justificatifs d'un étudiant.
+ * Fournit des méthodes pour:
+ * - Filtrer les justificatifs (dates, statut, motif, présence d'évaluation)
+ * - Récupérer les justificatifs avec statistiques (heures, absences, évaluations)
+ * - Formater les données pour l'affichage (badges de statut, dates, périodes)
+ * - Traduire les motifs en français
+ * Utilisé par la page "Mes justificatifs" de l'étudiant.
+ */
+
 require_once __DIR__ . '/../Model/database.php';
 
 class StudentProofsPresenter

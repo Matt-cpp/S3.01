@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Fichier: student_get_info.php
+ * 
+ * Service de récupération d'informations étudiant - Fournit les statistiques et données d'un étudiant.
+ * Fonctions principales:
+ * - getStudentIdentifier(): Récupère l'identifiant d'un étudiant
+ * - getAbsenceStatistics(): Calcule les stats d'absences (heures, justifiées, non justifiées)
+ * - getRecentAbsences(): Récupère les dernières absences
+ * - getProofsByCategory(): Récupère les justificatifs classés par statut
+ * Utilisé pour le tableau de bord étudiant et le cache de session.
+ */
+
 require_once __DIR__ . '/../Model/database.php';
 
 // Fonction pour obtenir l'identifier d'un étudiant à partir de son ID ou identifier car on récupère les infos de grâce à cela

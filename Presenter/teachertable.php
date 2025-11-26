@@ -1,5 +1,17 @@
 <meta charset="UTF-8">
 <?php
+/**
+ * Fichier: teachertable.php
+ * 
+ * Présentateur du tableau enseignant - Gère l'affichage des absences pour un enseignant spécifique.
+ * Fournit des méthodes pour:
+ * - Récupérer les absences aux cours d'un enseignant avec pagination
+ * - Filtrer par ressource/matière
+ * - Générer un tableau HTML avec les informations des étudiants absents
+ * - Gérer la navigation entre les pages (5 entrées par page)
+ * Permet aux enseignants de suivre les absences dans leurs cours.
+ */
+
 class teacherTable
 {
     private $page;
@@ -155,7 +167,6 @@ class teacherTable
         <th>Course Date</th>
         <th>Status</th>
         </tr>" . implode("", $tableau) . "</table>";
-
     }
     public function activerUnFiltre($nom)
     {
@@ -163,7 +174,6 @@ class teacherTable
         $this->filtre = $nom;
         $this->nombrepages = $this->getTotalPages();
         $this->page = 0;
-
     }
     public function desactiverUnFiltre()
     {
@@ -185,7 +195,5 @@ class teacherTable
         }
         return $labels;
     }
-
-
 }
 

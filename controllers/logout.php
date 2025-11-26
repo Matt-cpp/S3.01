@@ -1,4 +1,12 @@
 <?php
+
+/**
+ * Fichier: logout.php
+ * 
+ * Contrôleur de déconnexion - Gère la déconnexion des utilisateurs.
+ * Détruit la session en cours, supprime les cookies de session et redirige vers la page de connexion.
+ */
+
 session_start();
 
 // Supprimer toutes les variables de session
@@ -7,9 +15,14 @@ $_SESSION = array();
 // Détruire le cookie de session si il existe
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000,
-        $params["path"], $params["domain"],
-        $params["secure"], $params["httponly"]
+    setcookie(
+        session_name(),
+        '',
+        time() - 42000,
+        $params["path"],
+        $params["domain"],
+        $params["secure"],
+        $params["httponly"]
     );
 }
 

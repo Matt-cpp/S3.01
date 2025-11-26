@@ -1,4 +1,14 @@
 <?php
+
+/**
+ * Fichier: login.php
+ * 
+ * Contrôleur de connexion - Gère l'authentification des utilisateurs.
+ * Traite le formulaire de connexion, vérifie les identifiants dans la base de données,
+ * crée la session utilisateur et redirige vers la page appropriée selon le rôle.
+ * Fournit également des fonctions utilitaires (isLoggedIn, getCurrentUser, logout).
+ */
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Fichier: student_absences_presenter.php
+ * 
+ * Présentateur des absences étudiant - Gère l'affichage des absences pour un étudiant spécifique.
+ * Fournit des méthodes pour:
+ * - Filtrer les absences (dates, statut, type de cours)
+ * - Récupérer les absences avec leurs justificatifs
+ * - Formater les données pour l'affichage (statuts, motifs, dates)
+ * - Gérer la priorité des statuts de justificatifs
+ * Utilisé par la page "Mes absences" de l'étudiant.
+ */
+
 require_once __DIR__ . '/../Model/database.php';
 
 class StudentAbsencesPresenter
@@ -41,22 +53,23 @@ class StudentAbsencesPresenter
         ];
     }
 
-    function getStudentIdentifier($student_id_or_identifier) {
+    function getStudentIdentifier($student_id_or_identifier)
+    {
         if (!is_numeric($student_id_or_identifier)) {
             return $student_id_or_identifier;
         }
-        
+
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare("SELECT identifier, first_name, last_name FROM users WHERE id = :id");
         $stmt->execute(['id' => $student_id_or_identifier]);
         $result = $stmt->fetch();
-        
+
         if ($result) {
             $_SESSION['first_name'] = $result['first_name'];
             $_SESSION['last_name'] = $result['last_name'];
             return $result['identifier'];
         }
-        
+
         throw new Exception("Student not found");
     }
 
@@ -95,19 +108,19 @@ class StudentAbsencesPresenter
             LEFT JOIN proof p ON pa.proof_id = p.id
             WHERE a.student_identifier = :student_id
         ";
-        
+
         $params = [':student_id' => $this->studentIdentifier];
-        
+
         if (!empty($this->filters['start_date'])) {
             $query .= " AND cs.course_date >= :start_date";
             $params[':start_date'] = $this->filters['start_date'];
         }
-        
+
         if (!empty($this->filters['end_date'])) {
             $query .= " AND cs.course_date <= :end_date";
             $params[':end_date'] = $this->filters['end_date'];
         }
-        
+
         if (!empty($this->filters['status'])) {
             if ($this->filters['status'] === 'justifiée') {
                 $query .= " AND p.status = 'accepted'";
@@ -121,7 +134,7 @@ class StudentAbsencesPresenter
                 $query .= " AND (p.id IS NULL OR p.status IS NULL)";
             }
         }
-        
+
         if (!empty($this->filters['course_type'])) {
             $query .= " AND cs.course_type = :course_type";
             $params[':course_type'] = $this->filters['course_type'];
@@ -133,7 +146,7 @@ class StudentAbsencesPresenter
             $stmt = $db->prepare($query);
             $stmt->execute($params);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             // Trier les résultats par date et heure décroissantes (plus récent en premier)
             usort($results, function($a, $b) {
                 // Définir la priorité des statuts (1 = plus important)
@@ -162,7 +175,7 @@ class StudentAbsencesPresenter
                 // Si même date, trier par heure de début décroissante (14h avant 8h)
                 return strcmp($b['start_time'], $a['start_time']);
             });
-            
+
             return $results;
         } catch (Exception $e) {
             error_log("Erreur lors de la récupération des absences: " . $e->getMessage());
@@ -195,7 +208,7 @@ class StudentAbsencesPresenter
         if (!$motif) {
             return '';
         }
-        
+
         $translations = [
             'illness' => 'Maladie',
             'death' => 'Décès',
@@ -217,15 +230,15 @@ class StudentAbsencesPresenter
     public function hasProof($absence)
     {
         // Un justificatif est visible seulement s'il est accepté et qu'il a un fichier
-        return !empty($absence['proof_status']) && 
-               $absence['proof_status'] === 'accepted' && 
-               !empty($absence['file_path']);
+        return !empty($absence['proof_status']) &&
+            $absence['proof_status'] === 'accepted' &&
+            !empty($absence['file_path']);
     }
 
     public function getProofStatus($absence)
     {
         $proofStatus = $absence['proof_status'] ?? null;
-        
+
         if ($proofStatus === 'accepted') {
             return ['text' => 'Justifiée', 'class' => 'badge-success', 'icon' => '✅'];
         } elseif ($proofStatus === 'under_review') {

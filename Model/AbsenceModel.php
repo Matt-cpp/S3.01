@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Fichier: AbsenceModel.php
+ * 
+ * Modèle Absence - Gère les données des absences dans la base de données.
+ * Fournit des méthodes pour récupérer les absences avec des filtres (nom, date, statut, type de cours).
+ * Permet d'obtenir les types de cours disponibles et les informations des utilisateurs.
+ * Utilisé principalement par la page historique des absences.
+ */
+
 require_once __DIR__ . '/database.php';
 
 class AbsenceModel

@@ -50,6 +50,7 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
 
             <div class="login-link">
                 <p>Pas de compte? <a href="create_acc.php">Créer un compte</a></p>
+                <p>Mot de passe oublié? <a href="forgot_password.php">Réinitialiser</a></p>
             </div>
         </div>
     </div>

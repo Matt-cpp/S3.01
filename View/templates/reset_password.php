@@ -1,73 +1,86 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
-    <title>Finaliser l'inscription</title>
+    <title>Nouveau mot de passe</title>
     <link rel="stylesheet" href="../assets/css/style_create_acc.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <img src="../img/logoIUT.png" alt="Logo" class="logo">
     <div class="container">
         <div class="form-container">
-            <h1 class="form-title">Créer un compte - Étape 3/3</h1>
+            <h1 class="form-title">Réinitialisation du mot de passe - Étape 3/3</h1>
             <p style="text-align: center; color: #666; margin-bottom: 20px;">
-                Choisissez votre mot de passe pour finaliser votre compte
+                Choisissez votre nouveau mot de passe
             </p>
-            
-            <?php 
+
+            <?php
             session_start();
             if (isset($_SESSION['success'])): ?>
                 <div class="success-message">
-                    <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
-                </div>
-            <?php endif; ?>
-            
-            <?php if (isset($_SESSION['error'])): ?>
-                <div class="error-message">
-                    <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+                    <?php echo $_SESSION['success'];
+                    unset($_SESSION['success']); ?>
                 </div>
             <?php endif; ?>
 
-            <?php if (!isset($_SESSION['email_verified'])): ?>
+            <?php if (isset($_SESSION['error'])): ?>
                 <div class="error-message">
-                    Session expirée ou email non vérifié. Veuillez recommencer le processus d'inscription.
+                    <?php echo $_SESSION['error'];
+                    unset($_SESSION['error']); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!isset($_SESSION['reset_email']) || !isset($_SESSION['reset_code_verified'])): ?>
+                <div class="error-message">
+                    Session expirée ou code non vérifié. Veuillez recommencer le processus de réinitialisation.
                 </div>
                 <div class="login-link">
-                    <p><a href="create_acc.php">Retour à l'inscription</a></p>
+                    <p><a href="forgot_password.php">Retour à la réinitialisation</a></p>
                 </div>
             <?php else: ?>
                 <div class="success-message" style="margin-bottom: 20px;">
-                    ✓ Email vérifié : <strong><?php echo htmlspecialchars($_SESSION['email_verified']); ?></strong>
+                    ✓ Code vérifié pour : <strong><?php echo htmlspecialchars($_SESSION['reset_email']); ?></strong>
                 </div>
 
-                <form action="../../controllers/register.php" method="POST" class="register-form">
-                    <input type="hidden" name="action" value="complete_registration">
-                    
+                <form action="../../controllers/forgot_password.php" method="POST" class="register-form">
+                    <input type="hidden" name="action" value="reset_password">
+
                     <div class="form-group">
-                        <label for="password">Mot de passe:</label>
+                        <label for="new_password">Nouveau mot de passe:</label>
                         <div class="password-wrapper">
-                            <input type="password" id="password" name="password" required minlength="8" placeholder="Au moins 8 caractères">
-                            <i class="fas fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
+                            <input type="password"
+                                id="new_password"
+                                name="new_password"
+                                required
+                                minlength="8"
+                                placeholder="Au moins 8 caractères">
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword('new_password', this)"></i>
                         </div>
                         <small style="color: #666; font-size: 12px;">Minimum 8 caractères</small>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="confirm_password">Confirmer le mot de passe:</label>
+                        <label for="confirm_password">Confirmer le nouveau mot de passe:</label>
                         <div class="password-wrapper">
-                            <input type="password" id="confirm_password" name="confirm_password" required minlength="8" placeholder="Au moins 8 caractères">
+                            <input type="password"
+                                id="confirm_password"
+                                name="confirm_password"
+                                required
+                                minlength="8">
                             <i class="far fa-eye toggle-password" onclick="togglePassword('confirm_password', this)"></i>
                         </div>
                     </div>
-                    
+
                     <div id="password-match-message" style="margin-top: 10px; font-size: 12px;"></div>
-                    
-                    <button type="submit" class="btn-submit" id="submit-btn">Créer le compte</button>
+
+                    <button type="submit" class="btn-submit" id="submit-btn">Réinitialiser le mot de passe</button>
                 </form>
 
                 <div class="login-link">
-                    <p><a href="create_acc.php">Recommencer avec un autre email</a></p>
+                    <p><a href="login.php">Retour à la connexion</a></p>
                 </div>
             <?php endif; ?>
         </div>
@@ -78,16 +91,16 @@
             const input = document.getElementById(inputId);
             if (input.type === 'password') {
                 input.type = 'text';
-                icon.classList.remove('far fa-eye');
-                icon.classList.add('far fa-eye-slash');
+                icon.classList.remove('far', 'fa-eye');
+                icon.classList.add('far', 'fa-eye-slash');
             } else {
                 input.type = 'password';
-                icon.classList.remove('far fa-eye-slash');
-                icon.classList.add('far fa-eye');
+                icon.classList.remove('far', 'fa-eye-slash');
+                icon.classList.add('far', 'fa-eye');
             }
         }
 
-        const password = document.getElementById('password');
+        const password = document.getElementById('new_password');
         const confirmPassword = document.getElementById('confirm_password');
         const message = document.getElementById('password-match-message');
         const submitBtn = document.getElementById('submit-btn');
@@ -122,10 +135,10 @@
                 strengthDiv.style.marginTop = '5px';
                 password.parentNode.appendChild(strengthDiv);
             }
-            
+
             const strengthElement = document.getElementById('password-strength');
             const value = this.value;
-            
+
             if (value.length < 8) {
                 strengthElement.textContent = 'Trop court (minimum 8 caractères)';
                 strengthElement.style.color = 'red';
@@ -139,4 +152,5 @@
         });
     </script>
 </body>
+
 </html>
