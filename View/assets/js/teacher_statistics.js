@@ -302,7 +302,7 @@ function applyFilters() {
 // ===== TENDANCES PAR MATIÈRE (Top 5) =====
 function initSubjectTrendsChart() {
     const ctx = document.getElementById('subjectTrendsChart');
-    if (!ctx) return;
+    if (! ctx) return;
     
     const defaultTrends = {
         labels: ['2024-01', '2024-02', '2024-03', '2024-04', '2025-11'],
@@ -311,73 +311,75 @@ function initSubjectTrendsChart() {
                 label: 'INFFIS2-DEV OBJETS',
                 data: [3, 2, 1, 2, 7],
                 borderColor: '#5c6bc0',
-                backgroundColor: 'rgba(92, 107, 192, 0.15)',
-                fill: 'origin',
+                backgroundColor: '#5c6bc0',
+                fill: false,
                 tension: 0.4,
-                pointRadius: 4,
-                pointBackgroundColor: '#5c6bc0'
+                pointRadius: 5,
+                pointBackgroundColor: '#5c6bc0',
+                borderWidth: 2
             },
             {
                 label: 'INFFIS1-DEV WEB',
                 data: [4, 2, 2, 1, 0],
                 borderColor: '#9575cd',
-                backgroundColor: 'rgba(149, 117, 205, 0.15)',
-                fill: 'origin',
+                backgroundColor: '#9575cd',
+                fill: false,
                 tension: 0.4,
-                pointRadius: 4,
-                pointBackgroundColor: '#9575cd'
+                pointRadius: 5,
+                pointBackgroundColor: '#9575cd',
+                borderWidth: 2
             },
             {
                 label: 'INFFIS1-PROGRAMMATION',
                 data: [5, 3, 2, 2, 0],
                 borderColor: '#f44336',
-                backgroundColor: 'rgba(244, 67, 54, 0.1)',
-                fill: 'origin',
+                backgroundColor: '#f44336',
+                fill: false,
                 tension: 0.4,
-                pointRadius: 4,
-                pointBackgroundColor: '#f44336'
+                pointRadius: 5,
+                pointBackgroundColor: '#f44336',
+                borderWidth: 2
             },
             {
                 label: 'INFFIS1-ARCHITECTURE',
                 data: [3, 1, 3, 2, 4],
                 borderColor: '#4caf50',
-                backgroundColor: 'rgba(76, 175, 80, 0. 1)',
-                fill: 'origin',
+                backgroundColor: '#4caf50',
+                fill: false,
                 tension: 0.4,
-                pointRadius: 4,
-                pointBackgroundColor: '#4caf50'
+                pointRadius: 5,
+                pointBackgroundColor: '#4caf50',
+                borderWidth: 2
             },
             {
                 label: 'INFFIS1-INTRO BDD',
                 data: [3, 1, 0, 1, 0],
                 borderColor: '#ff9800',
-                backgroundColor: 'rgba(255, 152, 0, 0.1)',
-                fill: 'origin',
+                backgroundColor: '#ff9800',
+                fill: false,
                 tension: 0.4,
-                pointRadius: 4,
-                pointBackgroundColor: '#ff9800'
+                pointRadius: 5,
+                pointBackgroundColor: '#ff9800',
+                borderWidth: 2
             }
         ]
     };
     
     const data = statsData.subjectTrends && statsData.subjectTrends.labels && statsData.subjectTrends.labels.length > 0
-        ? statsData. subjectTrends 
+        ? statsData.subjectTrends 
         : defaultTrends;
     
-    // S'assurer que chaque dataset a le bon fill et backgroundColor
+    // S'assurer que chaque dataset n'a PAS de fill
+    const colors = ['#5c6bc0', '#9575cd', '#f44336', '#4caf50', '#ff9800'];
     if (data.datasets) {
-        const colors = [
-            'rgba(92, 107, 192, 0.15)',
-            'rgba(149, 117, 205, 0.15)',
-            'rgba(244, 67, 54, 0.1)',
-            'rgba(76, 175, 80, 0. 1)',
-            'rgba(255, 152, 0, 0.1)'
-        ];
-        data.datasets.forEach((dataset, index) => {
-            dataset. fill = 'origin';
-            dataset.backgroundColor = colors[index] || 'rgba(100, 100, 100, 0. 1)';
+        data. datasets.forEach((dataset, index) => {
+            dataset.fill = false;  // Pas de remplissage
             dataset.tension = 0.4;
-            dataset.pointRadius = 4;
+            dataset.pointRadius = 5;
+            dataset.borderWidth = 2;
+            dataset.borderColor = colors[index] || colors[0];
+            dataset.backgroundColor = colors[index] || colors[0];
+            dataset.pointBackgroundColor = colors[index] || colors[0];
         });
     }
     
