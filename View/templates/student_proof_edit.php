@@ -192,8 +192,6 @@ $editData = $_SESSION['edit_proof'];
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #0066cc;">
                         📎 Ajouter de nouveaux fichiers :
                     </label>
-                    <input type="file" id="proof_files" name="proof_files[]" multiple
-                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.gif" style="display: none;">
                     <button type="button" onclick="addNewFiles()"
                         style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500;">
                         ➕ Sélectionner des fichiers

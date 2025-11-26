@@ -925,19 +925,6 @@ window.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Vérifier qu'au moins un fichier est sélectionné si désiré
-    // (ou permettre 0 fichier si c'est acceptable)
-    if (selectedFiles.length === 0) {
-      const confirmSubmit = confirm(
-        "Aucun fichier justificatif n'a été sélectionné. " +
-          "Voulez-vous quand même soumettre votre demande ?"
-      );
-      if (!confirmSubmit) {
-        e.preventDefault();
-        return;
-      }
-    }
-
     // Check if any courses are selected
     if (!classInvolvedValue || classInvolvedValue.trim() === "") {
       e.preventDefault();

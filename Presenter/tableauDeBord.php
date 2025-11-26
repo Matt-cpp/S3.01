@@ -29,12 +29,34 @@ class backendTableauDeBord
     public function getData($page)
     {
         $offset = $page * 5;
-        $query = "SELECT users.first_name,users.last_name,resources.label,course_slots.course_date,absences.status  
-        FROM absences LEFT JOIN users ON absences.student_identifier = users.identifier 
+        $query = "SELECT 
+            course_slots.course_date,
+            course_slots.start_time,
+            course_slots.end_time,
+            users.first_name,
+            users.last_name,
+            resources.label,
+            course_slots.course_type,
+            absences.status  
+        FROM absences 
+        LEFT JOIN users ON absences.student_identifier = users.identifier 
         LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id
         LEFT JOIN resources ON course_slots.resource_id=resources.id
-        ORDER BY course_slots.course_date DESC, absences.id ASC LIMIT 5 OFFSET :offset";
+        ORDER BY course_slots.course_date DESC, course_slots.start_time DESC, absences.id ASC 
+        LIMIT 5 OFFSET :offset";
         return $this->db->select($query, ['offset' => $offset]);
+    }
+
+    // Traduit le statut en français
+    private function translateStatus($status)
+    {
+        $translations = [
+            'absent' => 'Absent',
+            'present' => 'Présent',
+            'excused' => 'Excusé',
+            'unjustified' => 'Non justifié'
+        ];
+        return $translations[$status] ?? ucfirst($status);
     }
     // renvoie le nombre total de pages
     public function getTotalPages()
@@ -102,20 +124,36 @@ class backendTableauDeBord
         // Récupération des données brutes
         $donnees = $this->getData($this->getCurrentPage());
 
-        // Création du tableau final
+        // Création du tableau final (sans les en-têtes, car ils sont déjà dans le HTML)
         $tableau = [];
-
-        // Ajout des en-têtes comme première ligne
-        $tableau[] = ['Prénom', 'Nom', 'Cours', 'Date', 'Status'];
 
         // Remplissage des données
         foreach ($donnees as $ligne) {
+            // Format date (YYYY-MM-DD to DD/MM/YYYY)
+            $date = date('d/m/Y', strtotime($ligne['course_date']));
+
+            // Format time (HH:MM:SS to HH:MM)
+            $time = substr($ligne['start_time'], 0, 5) . ' - ' . substr($ligne['end_time'], 0, 5);
+
+            // Student name
+            $student = $ligne['first_name'] . ' ' . $ligne['last_name'];
+
+            // Course
+            $course = $ligne['label'] ?? 'Non spécifié';
+
+            // Course type (uppercase)
+            $type = strtoupper($ligne['course_type'] ?? '');
+
+            // Status translated
+            $status = $this->translateStatus($ligne['status']);
+
             $tableau[] = [
-                $ligne['first_name'],
-                $ligne['last_name'],
-                $ligne['label'],
-                $ligne['course_date'],
-                $ligne['status']
+                $date,
+                $time,
+                $student,
+                $course,
+                $type,
+                $status
             ];
         }
         return $tableau;

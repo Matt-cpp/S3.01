@@ -413,3 +413,9 @@ INSERT INTO rejection_validation_reasons (label, type_of_reason) VALUES
 ('Autre (rejet)', 'rejection')
     ON CONFLICT (label) DO NOTHING;
 
+--changeset boltz.louis:add-room-and-duration-to-makeups labels:Makeup
+--comment: add columns to makeups table to inform about the room and duration of the makeup session
+ALTER TABLE makeups ADD COLUMN room_id INTEGER REFERENCES rooms(id);
+ALTER TABLE makeups ADD COLUMN duration_minutes INTEGER;
+--rollback ALTER TABLE makeups DROP COLUMN IF EXISTS duration_minutes;
+--rollback ALTER TABLE makeups DROP COLUMN IF EXISTS room_id;
