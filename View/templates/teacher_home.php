@@ -1,4 +1,5 @@
 <?php
+//Page Principake du tableau de bord enseignant
 require_once __DIR__ . '/../../controllers/auth_guard.php';
 $user = requireRole('teacher');
 
@@ -129,7 +130,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
         <div class="section">
             <div class="section-header">
                 <h2 class="section-title">Gestion des rattrapages</h2>
-                <a href="planifier_rattrapage.html" class="btn-primary" style="text-decoration: none;">Planifier un
+                <a href="planifier_rattrapage.php" class="btn-primary" style="text-decoration: none;">Planifier un
                     rattrapage</a>
             </div>
 
@@ -187,9 +188,14 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
         <div class="section">
             <h2 class="section-title">Actions rapides</h2>
 
-            <a href="planifier_rattrapage.html" class="btn-primary"
+            <a href="planifier_rattrapage.php" class="btn-primary"
                 style="display: block; width: 100%; padding: 1.5rem; text-align: center; text-decoration: none; font-size: 1.1rem; font-weight: 600;">
                 📅 Planifier un rattrapage
+            </a>
+            <br>
+                <a href="teacher_evals.php" class="btn-primary"
+                style="display: block; width: 100%; padding: 1.5rem; text-align: center; text-decoration: none; font-size: 1.1rem; font-weight: 600;">
+                📖 Voir Mes Evaluations avec des élèves absents
             </a>
         </div>
     </div>

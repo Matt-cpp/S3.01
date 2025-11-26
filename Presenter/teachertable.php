@@ -26,35 +26,35 @@ class teacherTable
         $this->page = 0;
         require_once __DIR__ . '/../Model/database.php';
         $this->db = Database::getInstance();
-        $this->userId = $this->linkUserId($id);
+        $this->userId = $this->linkTeacherUser($id);
         $this->nombrepages = $this->getTotalPages();
         $this->filtreBool = false;
         $this->filtre = "";
     }
-    public function linkUserId(int $id)
+        private function linkTeacherUser(int $id)
     {
-       $query = "SELECT teacher.id FROM teachers left JOIN users ON teachers.email=users.email
-       WHERE users.id=" . $id . ""; 
-       $result = $this->db->select($query);
-       return $result[0]['id'];
+        $query = "SELECT teachers.id as id
+        FROM users LEFT JOIN teachers ON teachers.email = users.email
+        WHERE users.id = " . $id; 
+        $result = $this->db->select($query);
+        return $result[0]['id'];
     }
     // calcule le nombre de pages totales du tableau
     public function getTotalPages()
     {
-        ;
         try {
             if ($this->filtreBool == false) {
                 $query = "SELECT COUNT(*) as count 
-        FROM absences LEFT JOIN course_slots 
-        ON absences.course_slot_id = course_slots.id
-        WHERE course_slots.teacher_id=" . $this->userId . "";
+                FROM absences LEFT JOIN course_slots 
+                ON absences.course_slot_id = course_slots.id
+                WHERE course_slots.teacher_id = " . intval($this->userId);
             } else {
                 $query = "SELECT COUNT(*) as count 
-            FROM absences LEFT JOIN course_slots 
-            ON absences.course_slot_id = course_slots.id
-            Left Join resources ON course_slots.resource_id = resources.id
-            WHERE course_slots.teacher_id=" . $this->userId . "
-             AND resources.label='" . $this->filtre . "'";
+                FROM absences LEFT JOIN course_slots 
+                ON absences.course_slot_id = course_slots.id
+                LEFT JOIN resources ON course_slots.resource_id = resources.id
+                WHERE course_slots.teacher_id = " . intval($this->userId) . "
+                AND resources.label = '" . addslashes($this->filtre) . "'";
             }
 
             $result = $this->db->select($query);
@@ -81,28 +81,27 @@ class teacherTable
     public function getData($page)
     {
         $offset = (int) ($page * 5);
-        $userId = (int) $this->userId;
+        $userId = intval($this->userId);
         if ($this->filtreBool == true) {
-            $query = "SELECT users.first_name,users.last_name,COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date,absences.status,resources.label
-    From absences 
-    Left Join users on absences.student_identifier = users.identifier
-    Left Join course_slots ON absences.course_slot_id = course_slots.id
-    Left Join resources ON course_slots.resource_id = resources.id
-        WHERE course_slots.teacher_id=" . $this->userId . "
-        AND resources.label='" . $this->filtre . "'
-        ORDER BY course_slots.course_date DESC
-        LIMIT 5 OFFSET $offset";
+            $query = "SELECT users.first_name, users.last_name, COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date, absences.status, resources.label
+            FROM absences 
+            LEFT JOIN users ON absences.student_identifier = users.identifier
+            LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
+            LEFT JOIN resources ON course_slots.resource_id = resources.id
+            WHERE course_slots.teacher_id = " . $userId . "
+            AND resources.label = '" . addslashes($this->filtre) . "'
+            ORDER BY course_slots.course_date DESC
+            LIMIT 5 OFFSET " . $offset;
         } else {
-            $query = "SELECT users.first_name,users.last_name,COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date,absences.status,resources.label
-    From absences 
-    Left Join users on absences.student_identifier = users.identifier
-    Left Join course_slots ON absences.course_slot_id = course_slots.id
-    Left Join resources ON course_slots.resource_id = resources.id
-        WHERE course_slots.teacher_id=" . $this->userId . "
-        ORDER BY course_slots.course_date DESC
-        LIMIT 5 OFFSET $offset";
+            $query = "SELECT users.first_name, users.last_name, COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date, absences.status, resources.label
+            FROM absences 
+            LEFT JOIN users ON absences.student_identifier = users.identifier
+            LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
+            LEFT JOIN resources ON course_slots.resource_id = resources.id
+            WHERE course_slots.teacher_id = " . $userId . "
+            ORDER BY course_slots.course_date DESC
+            LIMIT 5 OFFSET " . $offset;
         }
-
 
         return $this->db->select($query);
     }

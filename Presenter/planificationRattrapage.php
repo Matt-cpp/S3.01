@@ -1,7 +1,7 @@
 <meta charset="UTF-8">
 <?php
-class planificationRattrapage
-{
+// Classe permettant la planification des rattrapages par les professeurs
+class planificationRattrapage{
     private $db;
     private $userId;
     private $lesDs;
@@ -13,23 +13,31 @@ class planificationRattrapage
         require_once __DIR__ . '/../Model/database.php';
         require_once __DIR__ . '/../Model/email.php';
         $this->db = Database::getInstance();
-        $this->userId = $id;
-        $this->emailService = new EmailService();
+        $this->userId = $this->linkTeacherUser($id);
+        $this->emailService = new EmailService();   
     }
-
-    public function getLesDs()
+        private function linkTeacherUser(int $id)
     {
-        $query = "SELECT DISTINCT cs.*
+        $query = "SELECT teachers.id as id
+        FROM users LEFT JOIN teachers ON teachers.email = users.email
+        WHERE users.id = " . $id; 
+        $result = $this->db->select($query);
+        return $result[0]['id'];
+    }
+    
+    public function getLesDs(){
+        $query = "SELECT DISTINCT cs.id, cs.course_date, cs.start_time, r.label
         FROM course_slots cs
         INNER JOIN absences a ON a.course_slot_id = cs.id
+        LEFT JOIN resources r ON cs.resource_id = r.id
         LEFT JOIN makeups m ON m.absence_id = a.id
-        WHERE cs.teacher_id = :userId 
+        WHERE cs.teacher_id = " . intval($this->userId) . " 
             AND cs.is_evaluation = true
-            AND a.status = 'excused'
+            AND a.justified = true
             AND m.id IS NULL
-        ORDER BY cs.course_date";
-
-        $result = $this->db->select($query, [':userId' => $this->userId]);
+        ORDER BY cs.course_date DESC";
+        
+        $result = $this->db->select($query);
 
         return $result;
     }
@@ -44,13 +52,13 @@ class planificationRattrapage
         LEFT JOIN users u ON a.student_identifier = u.identifier
         LEFT JOIN resources r ON cs.resource_id = r.id
         LEFT JOIN makeups m ON m.absence_id = a.id
-        WHERE cs.id = :dsId 
-            AND a.status = 'excused'
+        WHERE cs.id = " . intval($dsId) . " 
+            AND a.justified = true
             AND m.id IS NULL
         ORDER BY cs.course_date DESC";
-
-        $result = $this->db->select($query, [':dsId' => $dsId]);
-
+        
+        $result = $this->db->select($query);
+    
         return $result;
     }
     public function insererRattrapage($idAbs, $evalId, $studentId, $dateRattrapage, $comment = null)
