@@ -10,14 +10,25 @@ class tableRatrapage{
         $this->page = 0;
         require_once __DIR__ . '/../Model/database.php';
         $this->db = Database::getInstance();
-        $this->userId = $id;
+        $this->userId = $this->linkTeacherUser($id);
         $this->nombrepages = $this->getTotalPages();
+    }
+    private function linkTeacherUser(int $id)
+    {
+        $query = "SELECT teachers.id as id
+        FROM users LEFT JOIN teachers ON teachers.email = users.email
+        WHERE users.id = " . $id; 
+        $result = $this->db->select($query);
+        return $result[0]['id'];
     }
     // calcule le nombre de pages totales du tableau
     public function getTotalPages(){
         try {
-        $query = "SELECT COUNT(*) as count FROM absences LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
-        WHERE course_slots.teacher_id=".$this->userId." AND absences.status='excused'AND course_slots.is_evaluation=true";
+        $query = "SELECT COUNT(*) as count FROM absences 
+        LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
+        LEFT JOIN makeups ON absences.id = makeups.absence_id
+        WHERE course_slots.teacher_id=".$this->userId." AND absences.justified=TRUE 
+        AND course_slots.is_evaluation=true AND makeups.id IS NULL";
         $result = $this->db->select($query);    
         if (empty($result)) {
             return 1;
@@ -41,14 +52,16 @@ public function getData($page){
     $offset = (int)($page * 5);
     $userId = (int)$this->userId;
 
-    $query = "SELECT users.first_name, users.last_name,resources.label, course_slots.course_date
-    FROM absences LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
+    $query = "SELECT users.first_name, users.last_name, resources.label, course_slots.course_date
+    FROM absences 
+    LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
     LEFT JOIN users ON absences.student_identifier = users.identifier
-    LefT JOIN resources ON course_slots.resource_id = resources.id
-    WHERE course_slots.teacher_id=".$this->userId." AND absences.status='excused' 
-        AND course_slots.is_evaluation=true
-        ORDER BY course_slots.course_date DESC
-        LIMIT 5 OFFSET $offset";
+    LEFT JOIN resources ON course_slots.resource_id = resources.id
+    LEFT JOIN makeups ON absences.id = makeups.absence_id
+    WHERE course_slots.teacher_id=".$this->userId." AND absences.justified=TRUE 
+    AND course_slots.is_evaluation=true AND makeups.id IS NULL
+    ORDER BY course_slots.course_date DESC
+    LIMIT 5 OFFSET $offset";
     return $this->db->select($query);
 }
 public function setPage($page){
