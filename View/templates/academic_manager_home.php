@@ -16,9 +16,14 @@
 
     require_once __DIR__ . '/../../Presenter/tableauDeBord.php';
     require_once __DIR__ . '/../../Model/ProofModel.php';
+    require_once __DIR__ . '/../../Model/database.php';
     $donnes = new backendTableauDeBord();
     $proofModel = new ProofModel();
     $recentProofs = $proofModel->getRecentProofs(5); // Get 5 most recent proofs
+    
+    // Récupérer le nombre de justificatifs en attente
+    $db = Database::getInstance();
+    $pendingProofsCount = $db->select("SELECT COUNT(*) as count FROM proof WHERE status = 'pending'")[0]['count'];
     ?>
     <?php include __DIR__ . '/navbar.php'; ?>
 
@@ -35,6 +40,10 @@
             <div class="stat-card">
                 <div class="stat-title">Absences non justifiées</div>
                 <div class="stat-number"><?php echo $donnes->unjustifiedAbs() ?></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Justificatifs en attente</div>
+                <div class="stat-number"><?php echo $pendingProofsCount ?></div>
             </div>
         </div>
 
