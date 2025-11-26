@@ -1,5 +1,6 @@
 <meta charset="UTF-8">
 <?php
+// Classe permettant la planification des rattrapages par les professeurs
 class planificationRattrapage{
     private $db;
     private $userId;

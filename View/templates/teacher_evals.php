@@ -1,4 +1,5 @@
 <?php
+// Page affichant les évaluations avec des élèves absents pour les professeurs
 require_once __DIR__ . '/../../controllers/auth_guard.php';
 $user = requireRole('teacher');
 

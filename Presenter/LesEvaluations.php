@@ -1,4 +1,6 @@
 <?php
+// La class ci dessous permet de gérer la page des évaluations pour les professeurs
+// elle ne montre que les évaluations (ds) avec des élèves absents justifiés ou non
 class pageEvalProf
 {
     private $db;
@@ -50,17 +52,3 @@ class pageEvalProf
     }
     
 }
-/*
-$test = new pageEvalProf(13);
-/*evals = $test->exemple();
-foreach ($evals as $eval) {
-    echo "ID Teacher: " . $eval['id'] . " - Justifications: " . $eval['cpt'] . "\n";
-}
-
-$evals = $test->lesEvaluations("course_slots.course_date");
-foreach ($evals as $eval) {
-    echo "Matière: " . $eval['label'] . " - Date: " . $eval['course_date'] . " - Heures: " . $eval['start_time'] . " - Absences: " . $eval['nbabs'] . " - Justifications: " . $eval['nb_justifications'] . "\n";
-}
-
-?>
-*/

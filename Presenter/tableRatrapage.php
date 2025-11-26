@@ -1,5 +1,6 @@
 <meta charset="UTF-8">
 <?php
+// crée le tableau des rattrapages à planifier pour les professeurs
 class tableRatrapage{
     private $page;
     private $db;

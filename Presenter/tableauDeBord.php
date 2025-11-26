@@ -1,5 +1,6 @@
 <meta charset="UTF-8">
 <?php
+//affiche toutes les absences dans le tableau de bord liée au professeur
 class backendTableauDeBord
 {
     private $page;
