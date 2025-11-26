@@ -52,6 +52,30 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <span>Soumettre justificatif</span>
             </a>
         </nav>
+    <?php elseif ($user_role === 'academic_manager'): ?>
+        <!-- Academic Manager Navigation Menu -->
+        <nav class="nav-menu">
+            <a href="academic_manager_home.php"
+                class="nav-link <?php echo ($current_page == 'academic_manager_home.php') ? 'active' : ''; ?>">
+                <span class="nav-icon">📊</span>
+                <span>Tableau de bord</span>
+            </a>
+            <a href="academic_manager_absences.php"
+                class="nav-link <?php echo ($current_page == 'academic_manager_absences.php') ? 'active' : ''; ?>">
+                <span class="nav-icon">📅</span>
+                <span>Absences</span>
+            </a>
+            <a href="historique_proof.php"
+                class="nav-link <?php echo ($current_page == 'historique_proof.php') ? 'active' : ''; ?>">
+                <span class="nav-icon">📄</span>
+                <span>Justificatifs</span>
+            </a>
+            <a href="academic_manager_statistics.php"
+                class="nav-link <?php echo ($current_page == 'academic_manager_statistics.php') ? 'active' : ''; ?>">
+                <span class="nav-icon">📈</span>
+                <span>Statistiques</span>
+            </a>
+        </nav>
     <?php endif; ?>
 
     <?php if ($user_role !== 'student'): ?>
