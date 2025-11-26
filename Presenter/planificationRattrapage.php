@@ -1,7 +1,8 @@
 <meta charset="UTF-8">
 <?php
 // Classe permettant la planification des rattrapages par les professeurs
-class planificationRattrapage{
+class planificationRattrapage
+{
     private $db;
     private $userId;
     private $lesDs;
@@ -14,18 +15,19 @@ class planificationRattrapage{
         require_once __DIR__ . '/../Model/email.php';
         $this->db = Database::getInstance();
         $this->userId = $this->linkTeacherUser($id);
-        $this->emailService = new EmailService();   
+        $this->emailService = new EmailService();
     }
-        private function linkTeacherUser(int $id)
+    private function linkTeacherUser(int $id)
     {
         $query = "SELECT teachers.id as id
         FROM users LEFT JOIN teachers ON teachers.email = users.email
-        WHERE users.id = " . $id; 
+        WHERE users.id = " . $id;
         $result = $this->db->select($query);
         return $result[0]['id'];
     }
-    
-    public function getLesDs(){
+
+    public function getLesDs()
+    {
         $query = "SELECT DISTINCT cs.id, cs.course_date, cs.start_time, r.label
         FROM course_slots cs
         INNER JOIN absences a ON a.course_slot_id = cs.id
@@ -36,7 +38,7 @@ class planificationRattrapage{
             AND a.justified = true
             AND m.id IS NULL
         ORDER BY cs.course_date DESC";
-        
+
         $result = $this->db->select($query);
 
         return $result;
@@ -56,21 +58,23 @@ class planificationRattrapage{
             AND a.justified = true
             AND m.id IS NULL
         ORDER BY cs.course_date DESC";
-        
+
         $result = $this->db->select($query);
-    
+
         return $result;
     }
-    public function insererRattrapage($idAbs, $evalId, $studentId, $dateRattrapage, $comment = null)
+    public function insererRattrapage($idAbs, $evalId, $studentId, $dateRattrapage, $roomId = null, $durationMinutes = null, $comment = null)
     {
         // Insérer le nouveau rattrapage
-        $insertQuery = "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, scheduled, makeup_date, comment) 
-                        VALUES (:absence_id, :evaluation_slot_id, :student_identifier, true, :makeup_date, :comment)";
+        $insertQuery = "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, scheduled, makeup_date, room_id, duration_minutes, comment) 
+                        VALUES (:absence_id, :evaluation_slot_id, :student_identifier, true, :makeup_date, :room_id, :duration_minutes, :comment)";
         $insertParams = [
             ':absence_id' => $idAbs,
             ':evaluation_slot_id' => $evalId,
             ':student_identifier' => $studentId,
             ':makeup_date' => $dateRattrapage,
+            ':room_id' => $roomId,
+            ':duration_minutes' => $durationMinutes,
             ':comment' => $comment
         ];
 
