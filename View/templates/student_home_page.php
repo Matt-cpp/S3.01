@@ -855,8 +855,12 @@ if (!isset($_SESSION['id_student'])) {
             <div class="modal-body">
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Période d'absence :</span>
-                        <span class="modal-value" id="proofModalPeriod"></span>
+                        <span class="modal-label">📅 Début d'absence :</span>
+                        <span class="modal-value" id="proofModalStartDate"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📅 Fin d'absence :</span>
+                        <span class="modal-value" id="proofModalEndDate"></span>
                     </div>
                     <div class="modal-info-item">
                         <span class="modal-label">📝 Motif :</span>
@@ -865,6 +869,10 @@ if (!isset($_SESSION['id_student'])) {
                     <div class="modal-info-item" id="proofCustomReasonItem" style="display: none;">
                         <span class="modal-label">ℹ️ Précision :</span>
                         <span class="modal-value" id="proofModalCustomReason"></span>
+                    </div>
+                    <div class="modal-info-item" id="proofStudentCommentItem" style="display: none;">
+                        <span class="modal-label">💬 Commentaire de l'étudiant :</span>
+                        <span class="modal-value" id="proofModalStudentComment"></span>
                     </div>
                 </div>
 
