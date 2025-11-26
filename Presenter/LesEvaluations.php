@@ -32,18 +32,15 @@ class pageEvalProf
     }
     
     // revoit la l'array des evaluations de la matière enseigné (pendant les ds avec comptabilisation des absences justifiées ou non)
-    // args sert de filtre et prend les valeur inscrites en dessous
-    public function lesEvaluations($arg)
+    public function lesEvaluations()
     {
-        $query = "SELECT resources.label, course_slots.course_date,course_slots.start_time, COUNT(*) as nbabs ,COUNT (CASE WHEN absences.justified = True THEN 1 END) as nb_justifications
-        FROM course_slots LEFT JOIN resources ON course_slots.subject_identifier = resources.code
-         LEFT JOIN absences ON course_slots.id = absences.course_slot_id
-         WHERE course_slots.teacher_id = " . $this->userId . " AND course_slots.is_evaluation = True
-         GROUP BY course_slots.id, resources.label, course_slots.course_date, course_slots.start_time
-         ORDER BY  "  .$arg." DESC, course_slots.start_time DESC;";
-        //course_slots.course_date
-        //nb_justifications
-        //nbabs
+        $query = "SELECT resources.label, course_slots.course_date, course_slots.start_time, COUNT(absences.student_identifier) as nbabs, COUNT(CASE WHEN absences.justified = True THEN 1 END) as nb_justifications
+        FROM course_slots 
+        LEFT JOIN resources ON course_slots.subject_identifier = resources.code
+        LEFT JOIN absences ON course_slots.id = absences.course_slot_id
+        WHERE course_slots.teacher_id = " . $this->userId . " AND course_slots.is_evaluation = True
+        GROUP BY course_slots.id, resources.label, course_slots.course_date, course_slots.start_time
+        ORDER BY " . $this->filtre . " DESC, course_slots.start_time DESC;";
         
         $result = $this->db->select($query);
         return $result;
