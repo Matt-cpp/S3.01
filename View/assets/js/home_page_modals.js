@@ -102,6 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const statusClass = this.dataset.statusClass;
       const exam = this.dataset.exam;
       const comment = this.dataset.comment;
+      const filesJson = this.dataset.files;
 
       // Fonction pour formater la date et l'heure
       function formatDateTime(datetime) {
@@ -127,6 +128,45 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("proofModalSubmission").textContent = submission;
       document.getElementById("proofModalProcessing").textContent = processing;
       document.getElementById("proofModalExam").textContent = exam;
+
+      // Afficher les fichiers
+      let files = [];
+      try {
+        files = filesJson ? JSON.parse(filesJson) : [];
+      } catch (e) {
+        console.error("Error parsing files JSON:", e);
+        files = [];
+      }
+
+      const filesSection = document.getElementById("proofFilesSection");
+      const modalFiles = document.getElementById("proofModalFiles");
+
+      if (files && files.length > 0) {
+        filesSection.style.display = "block";
+        modalFiles.innerHTML = "";
+        files.forEach((file, index) => {
+          const fileName =
+            file.original_name || file.saved_name || "Fichier " + (index + 1);
+          const fileSize = file.file_size
+            ? " (" + (file.file_size / 1024).toFixed(1) + " Ko)"
+            : "";
+
+          const fileLink = document.createElement("a");
+          fileLink.href =
+            "../../Presenter/view_upload_proof.php?proof_id=" +
+            proofId +
+            "&file_index=" +
+            index;
+          fileLink.target = "_blank";
+          fileLink.style.cssText =
+            "display: inline-block; padding: 8px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 13px;";
+          fileLink.textContent = "📄 " + fileName + fileSize;
+
+          modalFiles.appendChild(fileLink);
+        });
+      } else {
+        filesSection.style.display = "none";
+      }
 
       // Gérer la raison personnalisée
       if (customReason && customReason.trim() !== "") {
