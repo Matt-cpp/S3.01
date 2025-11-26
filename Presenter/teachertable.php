@@ -1,6 +1,19 @@
 <meta charset="UTF-8">
 <?php
-class teacherTable{
+/**
+ * Fichier: teachertable.php
+ * 
+ * Présentateur du tableau enseignant - Gère l'affichage des absences pour un enseignant spécifique.
+ * Fournit des méthodes pour:
+ * - Récupérer les absences aux cours d'un enseignant avec pagination
+ * - Filtrer par ressource/matière
+ * - Générer un tableau HTML avec les informations des étudiants absents
+ * - Gérer la navigation entre les pages (5 entrées par page)
+ * Permet aux enseignants de suivre les absences dans leurs cours.
+ */
+
+class teacherTable
+{
     private $page;
     private $db;
     private $userId;
@@ -8,111 +21,124 @@ class teacherTable{
     private $filtreBool;
     private $filtre;
     //constructeur
-    public function __construct(int $id) {
+    public function __construct(int $id)
+    {
         $this->page = 0;
         require_once __DIR__ . '/../Model/database.php';
         $this->db = Database::getInstance();
         $this->userId = $id;
         $this->nombrepages = $this->getTotalPages();
-        $this->filtreBool=false;
-        $this->filtre="";
+        $this->filtreBool = false;
+        $this->filtre = "";
     }
     // calcule le nombre de pages totales du tableau
-    public function getTotalPages(){
-        ;
+    public function getTotalPages()
+    {;
         try {
-            if ($this->filtreBool==false){
-        $query = "SELECT COUNT(*) as count 
+            if ($this->filtreBool == false) {
+                $query = "SELECT COUNT(*) as count 
         FROM absences LEFT JOIN course_slots 
         ON absences.course_slot_id = course_slots.id
-        WHERE course_slots.teacher_id=".$this->userId."";}
-        else{
-            $query = "SELECT COUNT(*) as count 
+        WHERE course_slots.teacher_id=" . $this->userId . "";
+            } else {
+                $query = "SELECT COUNT(*) as count 
             FROM absences LEFT JOIN course_slots 
             ON absences.course_slot_id = course_slots.id
             Left Join resources ON course_slots.resource_id = resources.id
-            WHERE course_slots.teacher_id=".$this->userId."
-             AND resources.label='".$this->filtre."'";}
-        
-        $result = $this->db->select($query);    
-        if (empty($result)) {
+            WHERE course_slots.teacher_id=" . $this->userId . "
+             AND resources.label='" . $this->filtre . "'";
+            }
+
+            $result = $this->db->select($query);
+            if (empty($result)) {
+                return 1;
+            }
+            return ceil($result[0]['count'] / 5);
+        } catch (Exception $e) {
+            echo "ERREUR dans getTotalPages: " . $e->getMessage();
             return 1;
         }
-        return ceil($result[0]['count'] / 5);
-    } catch (Exception $e) {
-        echo "ERREUR dans getTotalPages: " . $e->getMessage();
-        return 1;
     }
-}
-// renvoie le nombre de pages totales sans refaire de requete
-    public function getNombrePages(){
+    // renvoie le nombre de pages totales sans refaire de requete
+    public function getNombrePages()
+    {
         return $this->nombrepages;
     }
     // renvoie le numéro de la page actuelle
-    public function getPage(){
+    public function getPage()
+    {
         return $this->page;
     }
-//reqeuete principale du tableau
-public function getData($page){
-    $offset = (int)($page * 5);
-    $userId = (int)$this->userId;
-    if ($this->filtreBool==true){
-    $query = "SELECT users.first_name,users.last_name,COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date,absences.status,resources.label
+    //reqeuete principale du tableau
+    public function getData($page)
+    {
+        $offset = (int)($page * 5);
+        $userId = (int)$this->userId;
+        if ($this->filtreBool == true) {
+            $query = "SELECT users.first_name,users.last_name,COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date,absences.status,resources.label
     From absences 
     Left Join users on absences.student_identifier = users.identifier
     Left Join course_slots ON absences.course_slot_id = course_slots.id
     Left Join resources ON course_slots.resource_id = resources.id
-        WHERE course_slots.teacher_id=".$this->userId."
-        AND resources.label='".$this->filtre."'
+        WHERE course_slots.teacher_id=" . $this->userId . "
+        AND resources.label='" . $this->filtre . "'
         ORDER BY course_slots.course_date DESC
-        LIMIT 5 OFFSET $offset";}
-    else{
-    $query = "SELECT users.first_name,users.last_name,COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date,absences.status,resources.label
+        LIMIT 5 OFFSET $offset";
+        } else {
+            $query = "SELECT users.first_name,users.last_name,COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date,absences.status,resources.label
     From absences 
     Left Join users on absences.student_identifier = users.identifier
     Left Join course_slots ON absences.course_slot_id = course_slots.id
     Left Join resources ON course_slots.resource_id = resources.id
-        WHERE course_slots.teacher_id=".$this->userId."
+        WHERE course_slots.teacher_id=" . $this->userId . "
         ORDER BY course_slots.course_date DESC
-        LIMIT 5 OFFSET $offset";}
+        LIMIT 5 OFFSET $offset";
+        }
 
 
-    return $this->db->select($query);
-}
-public function setPage($page){
-    if($page>=0 && $page<$this->nombrepages){
-        $this->page=$page;
+        return $this->db->select($query);
     }
-}
+    public function setPage($page)
+    {
+        if ($page >= 0 && $page < $this->nombrepages) {
+            $this->page = $page;
+        }
+    }
     // fait avancer la page de 1 si possible
-    public function nextPage() {
+    public function nextPage()
+    {
         if ($this->page < $this->nombrepages - 1) {
             $this->page++;
         }
     }
     // fait reculer la page de 1 si possible
-    public function previousPage() {
+    public function previousPage()
+    {
         if ($this->page > 0) {
             $this->page--;
         }
     }
     //renvoie le numéro de page actuel
-    public function getCurrentPage() {
+    public function getCurrentPage()
+    {
         return $this->page;
     }
     //permet l'accès a la page suivante et précédente en posant des limites
-    public function getNextPage() {
+    public function getNextPage()
+    {
         return min($this->page + 1, $this->nombrepages - 1);
     }
-    public function getPreviousPage() {
+    public function getPreviousPage()
+    {
         return max($this->page - 1, 0);
     }
-    
+
     // Tableau
-    public function laTable() {
+    public function laTable()
+    {
         // Récupération des données brutes
         $donnees = $this->getData($this->getCurrentPage());
-        $tableau=[];
+        $tableau = [];
         // Construction du tableau HTML
         foreach ($donnees as $ligne) {
             $tableau[] = "<tr>
@@ -133,35 +159,34 @@ public function setPage($page){
         <th>Course Date</th>
         <th>Status</th>
         </tr>" . implode("", $tableau) . "</table>";
-
     }
-    public function activerUnFiltre($nom){
-        $this->filtreBool=true;
-        $this->filtre=$nom;
+    public function activerUnFiltre($nom)
+    {
+        $this->filtreBool = true;
+        $this->filtre = $nom;
         $this->nombrepages = $this->getTotalPages();
-        $this->page=0;
-
+        $this->page = 0;
     }
-    public function desactiverUnFiltre(){
-        $this->filtreBool=false;
-        $this->filtre="";
+    public function desactiverUnFiltre()
+    {
+        $this->filtreBool = false;
+        $this->filtre = "";
         $this->nombrepages = $this->getTotalPages();
-        $this->page=0;
-        }
-    public function getRessourcesLabels(){
+        $this->page = 0;
+    }
+    public function getRessourcesLabels()
+    {
         $query = "SELECT DISTINCT resources.label
         From course_slots 
         Left Join resources ON course_slots.resource_id = resources.id
-        WHERE course_slots.teacher_id=".$this->userId;
-        $result = $this->db->select($query);    
-        $labels=[];
+        WHERE course_slots.teacher_id=" . $this->userId;
+        $result = $this->db->select($query);
+        $labels = [];
         foreach ($result as $ligne) {
-            $labels[]=$ligne['label'];
+            $labels[] = $ligne['label'];
         }
         return $labels;
     }
-
-
 }
 
 //Test de la classe
@@ -176,7 +201,7 @@ if (isset($_GET['page'])) {
     $test->setPage($page);
 }
 
-echo $test->laTable();  
+echo $test->laTable();
 ?>
 <a href="?page=<?php echo $test->getPreviousPage(); ?>">
     <button type="button">previous</button>
@@ -189,4 +214,3 @@ echo $test->laTable();
 echo "Page " . ($test->getCurrentPage() + 1) . " sur " . $test->getNombrePages() . "<br>";
 ?>
 <br>
-

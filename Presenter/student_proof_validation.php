@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * Fichier: student_proof_validation.php
+ * 
+ * Gestionnaire de soumission de justificatif - Traite la soumission d'un justificatif d'absence par un étudiant.
+ * Processus complet:
+ * 1. Upload et validation du fichier justificatif
+ * 2. Vérification de l'existence des absences sur la période
+ * 3. Enregistrement du justificatif dans la BDD
+ * 4. Liaison du justificatif aux absences concernées
+ * 5. Génération d'un PDF récapitulatif
+ * 6. Envoi d'un email de confirmation avec les pièces jointes
+ * 7. Création d'une notification
+ */
+
 require_once __DIR__ . '/../Model/database.php';
 require_once __DIR__ . '/../Model/email.php';
 
@@ -440,7 +454,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             exit();
-
         } catch (Exception $e) {
             // Only rollback if transaction is still active
             if ($db->inTransaction()) {
@@ -452,7 +465,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             throw new Exception("Erreur lors de l'enregistrement: " . $e->getMessage());
         }
-
     } catch (Exception $e) {
         $_SESSION['error_message'] = $e->getMessage();
         header("Location: ../View/templates/student_proof_submit.php?error=1");
@@ -482,4 +494,3 @@ function insert_notification($db, $student_identifier, $notification_type, $subj
         return false;
     }
 }
-?>

@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * Fichier: env.php
+ * 
+ * Gestionnaire de variables d'environnement - Charge et gère les variables du fichier .env.
+ * Permet de récupérer facilement les paramètres de configuration (BDD, email, etc.)
+ * sans les coder en dur dans l'application.
+ * Implémente un pattern Singleton pour charger le fichier .env une seule fois.
+ * Fournit la fonction env() pour accéder facilement aux variables.
+ */
+
+/**
  * Allows easy retrieval of environment variables from a .env file
  */
 class EnvLoader
@@ -85,5 +95,3 @@ function env(string $key, $default = null)
 
 // Automatically load .env on first call
 EnvLoader::load();
-
-?>

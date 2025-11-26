@@ -1,5 +1,17 @@
 <meta charset="UTF-8">
 <?php
+/**
+ * Fichier: tableauDeBord.php
+ * 
+ * Présentateur du tableau de bord - Gère l'affichage du tableau de bord principal des absences.
+ * Fournit des méthodes pour:
+ * - Récupérer les absences récentes avec pagination (5 par page)
+ * - Calculer les statistiques (absences du jour, du mois, non justifiées)
+ * - Générer un tableau formaté pour l'affichage
+ * - Gérer la navigation entre les pages
+ * Utilisé par la page d'accueil des gestionnaires/administrateurs.
+ */
+
 class backendTableauDeBord
 {
     private $page;

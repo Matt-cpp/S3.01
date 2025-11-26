@@ -1,4 +1,16 @@
 <?php
+
+/**
+ * Fichier: historique.php
+ * 
+ * Présentateur de l'historique des absences - Gère l'affichage de l'historique complet des absences.
+ * Fournit des méthodes pour:
+ * - Filtrer les absences (nom, dates, statut de justification, type de cours)
+ * - Récupérer les données formatées pour l'affichage
+ * - Traduire les statuts et motifs en français
+ * Utilisé par la vue templates/historique.php.
+ */
+
 // Protection de la page avec authentification simple
 require_once __DIR__ . '/../controllers/auth.php';
 $user = requireAuth();
@@ -131,12 +143,12 @@ class HistoriquePresenter
         return date('d/m/Y', strtotime($date));
     }
 
-        public function formatTime($startTime, $endTime)
-        {
-            $start = date('H:i', strtotime($startTime));
-            $end = date('H:i', strtotime($endTime));
-            return $start . '-' . $end;
-        }
+    public function formatTime($startTime, $endTime)
+    {
+        $start = date('H:i', strtotime($startTime));
+        $end = date('H:i', strtotime($endTime));
+        return $start . '-' . $end;
+    }
 }
 
 $presenter = new HistoriquePresenter();

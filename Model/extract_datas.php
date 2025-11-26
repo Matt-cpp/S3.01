@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * Fichier: extract_datas.php
+ * 
+ * Extracteur de données CSV - Importe les données d'absences depuis les fichiers CSV exportés.
+ * Traite les fichiers CSV pour extraire et insérer dans la base de données:
+ * - Les utilisateurs (étudiants)
+ * - Les groupes/promotions
+ * - Les ressources (matières/cours)
+ * - Les salles
+ * - Les enseignants
+ * - Les créneaux de cours
+ * - Les absences
+ * Gère les doublons et met à jour les données existantes.
+ * Exécutable en ligne de commande.
+ */
+
 require_once __DIR__ . '/database.php';
 
 class DataExtractor
@@ -45,7 +61,6 @@ class DataExtractor
 
             // Print statistics
             $this->printStatistics();
-
         } catch (Exception $e) {
             $this->db->rollBack();
             echo "Error during extraction: " . $e->getMessage() . "\n";
@@ -174,10 +189,9 @@ class DataExtractor
         if ($existingUser and $existingUser['birth_date']) {
             $this->processedUsers[$identifier] = $existingUser['id'];
             return $existingUser['id'];
-        }
-        else if ($existingUser and $existingUser['birth_date'] === null) {
+        } else if ($existingUser and $existingUser['birth_date'] === null) {
             $birthDate = $this->parseDate($data['Date de naissance'] ?? '');
-            
+
             $this->db->execute(
                 "UPDATE users SET birth_date = ?, middle_name = ?, degrees = ?, department = ? WHERE id = ?",
                 [

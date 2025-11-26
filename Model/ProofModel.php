@@ -1,4 +1,16 @@
 <?php
+
+/**
+ * Fichier: ProofModel.php
+ * 
+ * Modèle Justificatif (Proof) - Gère les justificatifs d'absence dans la base de données.
+ * Fournit des méthodes pour:
+ * - Récupérer les détails d'un justificatif
+ * - Mettre à jour le statut d'un justificatif (accepté, rejeté, en révision)
+ * - Mettre à jour les absences liées selon la décision
+ * - Enregistrer les motifs de rejet
+ */
+
 require_once __DIR__ . '/database.php';
 
 class ProofModel
@@ -91,7 +103,7 @@ class ProofModel
             ]);
         }
     }
-// revoir la modification de la table proof pour ajouter la colonne rejection_reason
+    // revoir la modification de la table proof pour ajouter la colonne rejection_reason
     public function setRejectionReason(int $proofId, string $reason, string $comment = ''): bool
     {
         $sql = "UPDATE proof
@@ -111,7 +123,4 @@ class ProofModel
             return false;
         }
     }
-
-
-
 }

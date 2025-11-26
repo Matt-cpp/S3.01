@@ -1,4 +1,18 @@
 <?php
+
+/**
+ * Fichier: generate_pdf.php
+ * 
+ * Générateur de PDF récapitulatif - Crée un document PDF récapitulatif d'un justificatif d'absence.
+ * Génère un PDF contenant:
+ * - Les informations de l'étudiant
+ * - Les détails de l'absence (dates, motif, commentaires)
+ * - Les statistiques (heures manquées, évaluations)
+ * - L'aperçu du document justificatif joint
+ * Utilise TCPDF pour la génération et Imagick pour convertir les PDF en images.
+ * Peut être téléchargé par l'étudiant ou envoyé par email.
+ */
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -20,8 +34,8 @@ if (isset($_SESSION['id_student'])) {
         $db = Database::getInstance();
         $student_info = $db->selectOne(
             "SELECT id, identifier, last_name, first_name, middle_name, birth_date, degrees, department, email, role
-             FROM users
-             WHERE id = ?",
+                FROM users
+                WHERE id = ?",
             [$_SESSION['id_student']]
         );
     } catch (Exception $e) {
@@ -275,7 +289,6 @@ if (!empty($reason_data['proof_file']) && !empty($reason_data['saved_file_name']
                             }
                             $imagick->destroy();
                         }
-
                     } catch (Exception $e) {
                         error_log('Imagick PDF conversion failed: ' . $e->getMessage());
                         $pdf->SetTextColor(255, 0, 0);

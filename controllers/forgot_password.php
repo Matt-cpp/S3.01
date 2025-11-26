@@ -1,4 +1,16 @@
 <?php
+
+/**
+ * Fichier: forgot_password.php
+ * 
+ * Contrôleur de réinitialisation de mot de passe - Gère la récupération de compte.
+ * Processus en 3 étapes:
+ * 1. Envoi d'un code de vérification à 6 chiffres par email
+ * 2. Vérification du code (expire après 15 minutes)
+ * 3. Réinitialisation du mot de passe
+ * Envoie des emails HTML avec le logo de l'université.
+ */
+
 session_start();
 require_once __DIR__ . '/../Model/database.php';
 require_once __DIR__ . '/../Model/email.php';

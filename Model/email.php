@@ -1,4 +1,14 @@
 <?php
+
+/**
+ * Fichier: email.php
+ * 
+ * Service d'envoi d'emails - Gère l'envoi d'emails via SMTP avec PHPMailer.
+ * Configure automatiquement la connexion SMTP avec les paramètres du fichier .env.
+ * Supporte l'envoi d'emails HTML, de pièces jointes et d'images intégrées (embedded).
+ * Utilisé pour envoyer les codes de vérification, confirmations et notifications.
+ */
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../Model/env.php';
 require_once __DIR__ . '/../Model/database.php';

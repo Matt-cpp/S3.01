@@ -1,18 +1,30 @@
 <?php
 
+/**
+ * Fichier: AbsenceModel.php
+ * 
+ * Modèle Absence - Gère les données des absences dans la base de données.
+ * Fournit des méthodes pour récupérer les absences avec des filtres (nom, date, statut, type de cours).
+ * Permet d'obtenir les types de cours disponibles et les informations des utilisateurs.
+ * Utilisé principalement par la page historique des absences.
+ */
+
 require_once __DIR__ . '/database.php';
 
-class AbsenceModel {
+class AbsenceModel
+{
     private $db;
-    
-    public function __construct() {
+
+    public function __construct()
+    {
         $this->db = getDatabase();
     }
-    
+
     /**
      * Récupère toutes les absences avec des filtres optionnels
      */
-    public function getAllAbsences($filters = []) {
+    public function getAllAbsences($filters = [])
+    {
         $query = "
             WITH absence_data AS (
                 SELECT DISTINCT ON (a.id)
@@ -36,25 +48,25 @@ class AbsenceModel {
                 LEFT JOIN proof p ON pa.proof_id = p.id
                 WHERE 1=1
         ";
-        
+
         $params = [];
         $conditions = [];
-        
+
         if (!empty($filters['name'])) {
             $conditions[] = "(u.first_name ILIKE :name OR u.last_name ILIKE :name)";
             $params[':name'] = '%' . $filters['name'] . '%';
         }
-        
+
         if (!empty($filters['start_date'])) {
             $conditions[] = "cs.course_date >= :start_date";
             $params[':start_date'] = $filters['start_date'];
         }
-        
+
         if (!empty($filters['end_date'])) {
             $conditions[] = "cs.course_date <= :end_date";
             $params[':end_date'] = $filters['end_date'];
         }
-        
+
         if (!empty($filters['JustificationStatus'])) {
             if ($filters['JustificationStatus'] === 'En attente') {
                 $conditions[] = "p.status = 'pending'";
@@ -68,21 +80,21 @@ class AbsenceModel {
                 $conditions[] = "p.status IS NULL";
             }
         }
-        
+
         if (!empty($filters['course_type'])) {
             $conditions[] = "cs.course_type = :course_type";
             $params[':course_type'] = $filters['course_type'];
         }
-        
+
         if (!empty($conditions)) {
             $query .= " AND " . implode(" AND ", $conditions);
         }
-        
+
         $query .= " ORDER BY a.id, p.id DESC
             )
             SELECT * FROM absence_data
             ORDER BY date DESC, start_time DESC";
-        
+
         try {
             return $this->db->select($query, $params);
         } catch (Exception $e) {
@@ -90,11 +102,12 @@ class AbsenceModel {
             return [];
         }
     }
-    
+
     /**
      * Récupère tous les types de cours disponibles
      */
-    public function getCourseTypes() {
+    public function getCourseTypes()
+    {
         $query = "SELECT DISTINCT course_type FROM course_slots WHERE course_type IS NOT NULL ORDER BY course_type";
         try {
             return $this->db->select($query);
@@ -103,11 +116,12 @@ class AbsenceModel {
             return [];
         }
     }
-    
+
     /**
      * Récupère le nom d'un utilisateur
      */
-    public function getUserName() {
+    public function getUserName()
+    {
         $result = $this->db->select("SELECT first_name, last_name FROM users");
         $name = !empty($result) ? $result[0] : null;
         return $name ? $name['first_name'] . ' ' . $name['last_name'] : '';

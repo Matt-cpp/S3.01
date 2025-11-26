@@ -1,4 +1,14 @@
 <?php
+
+/**
+ * Fichier: get_absences_of_student.php
+ * 
+ * API de récupération des absences - Renvoie la liste des absences non justifiées d'un étudiant.
+ * Filtre les absences sur une période donnée (datetime_start et datetime_end).
+ * Renvoie les détails des cours concernés (matière, type, horaires, enseignant, salle).
+ * Utilisé par AJAX lors de la soumission d'un justificatif pour afficher les cours concernés.
+ */
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
@@ -156,7 +166,6 @@ try {
             'student_identifier' => $student_identifier
         ]
     ]);
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
@@ -171,4 +180,3 @@ try {
         ]
     ]);
 }
-?>

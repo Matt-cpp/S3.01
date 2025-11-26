@@ -1,4 +1,14 @@
 <?php
+
+/**
+ * Fichier: login.php
+ * 
+ * Contrôleur de connexion - Gère l'authentification des utilisateurs.
+ * Traite le formulaire de connexion, vérifie les identifiants dans la base de données,
+ * crée la session utilisateur et redirige vers la page appropriée selon le rôle.
+ * Fournit également des fonctions utilitaires (isLoggedIn, getCurrentUser, logout).
+ */
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -9,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
     $errors = [];
-    
+
     // Validation basique
     if (empty($email)) {
         $errors[] = "L'email est requis.";
@@ -17,21 +27,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
     if (empty($password)) {
         $errors[] = "Le mot de passe est requis.";
     }
-    
+
     // Si pas d'erreurs, tenter la connexion
     if (empty($errors)) {
         try {
             $db = getDatabase();
-            
+
             // Test de la connexion d'abord
             if (!$db->testConnection()) {
                 $errors[] = "Impossible de se connecter à la base de données.";
             } else {
                 $query = "SELECT id, email, password_hash, first_name, last_name, role::text as role
                         FROM users WHERE email = :email";
-                
+
                 $user = $db->selectOne($query, [':email' => $email]);
-                
+
                 // DEBUG - À retirer après
                 error_log("Email recherché: " . $email);
                 error_log("Utilisateur trouvé: " . ($user ? "OUI" : "NON"));
@@ -40,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                     error_log("Mot de passe saisi: " . $password);
                     error_log("Vérification password: " . (password_verify($password, $user['password_hash']) ? "OK" : "ECHEC"));
                 }
-                
+
                 if ($user && password_verify($password, $user['password_hash'])) {
                     // Connexion réussie
                     $_SESSION['user_id'] = $user['id'];
@@ -48,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                     $_SESSION['user_first_name'] = $user['first_name'];
                     $_SESSION['user_last_name'] = $user['last_name'];
                     $_SESSION['user_role'] = $user['role'];
-                    
+
                     // Redirection vers la page principale
                     if ($user['role'] === 'student') {
                         header("Location: ../View/templates/student_home_page.php");
@@ -58,15 +68,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                         header("Location: ../View/templates/welcome_teacher.php");
                     }
                     exit;
-                } else {    
+                } else {
                     $errors[] = "Email ou mot de passe incorrect.";
                 }
             }
         } catch (Exception $e) {
             $errors[] = "Email ou mot de passe incorrect.";
-        }   
+        }
     }
-    
+
     // En cas d'erreur, sauvegarder pour affichage
     $_SESSION['login_errors'] = $errors;
     $_SESSION['form_data'] = $_POST;
@@ -75,11 +85,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
 }
 
 // Fonctions utilitaires
-function isLoggedIn() {
+function isLoggedIn()
+{
     return isset($_SESSION['user_id']);
 }
 
-function getCurrentUser() {
+function getCurrentUser()
+{
     if (isLoggedIn()) {
         return [
             'id' => $_SESSION['user_id'],
@@ -92,7 +104,8 @@ function getCurrentUser() {
     return null;
 }
 
-function logout() {
+function logout()
+{
     session_unset();
     session_destroy();
     header("Location: ../View/templates/login.php");
