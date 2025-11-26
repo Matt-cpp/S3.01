@@ -151,6 +151,15 @@ function getRecentAbsences($student_identifier, $limit = 5)
                 t.last_name as teacher_last_name,
                 rm.code as room_name,
                 p.status as proof_status,
+                m.id as makeup_id,
+                m.scheduled as makeup_scheduled,
+                m.makeup_date as makeup_date,
+                m.comment as makeup_comment,
+                makeup_cs.start_time as makeup_start_time,
+                makeup_cs.end_time as makeup_end_time,
+                makeup_cs.duration_minutes as makeup_duration,
+                makeup_rm.code as makeup_room,
+                makeup_r.label as makeup_resource_label,
                 CASE 
                     WHEN p.status = 'accepted' THEN 1
                     WHEN p.status = 'under_review' THEN 2
@@ -165,6 +174,10 @@ function getRecentAbsences($student_identifier, $limit = 5)
             LEFT JOIN rooms rm ON cs.room_id = rm.id
             LEFT JOIN proof_absences pa ON a.id = pa.absence_id
             LEFT JOIN proof p ON pa.proof_id = p.id
+            LEFT JOIN makeups m ON a.id = m.absence_id
+            LEFT JOIN course_slots makeup_cs ON m.evaluation_slot_id = makeup_cs.id
+            LEFT JOIN rooms makeup_rm ON makeup_cs.room_id = makeup_rm.id
+            LEFT JOIN resources makeup_r ON makeup_cs.resource_id = makeup_r.id
             WHERE a.student_identifier = :student_id
             ORDER BY a.id, status_priority ASC
         )

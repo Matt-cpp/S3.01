@@ -77,7 +77,7 @@ if (!isset($_SESSION['id_student'])) {
                     <div class="card-label">Demi-journées non justifiées</div>
                     <div class="card-value"><?php echo $stats['half_days_unjustified']; ?></div>
                     <div class="card-description">
-                        <?php echo $stats['half_days_unjustified'] > 0 ? 'À justifier rapidement !' : 'Aucune à justifier'; ?>
+                        <?php echo $stats['half_days_unjustified'] > 0 ? 'ATTENTION !' : 'Aucune à justifier'; ?>
                     </div>
                 </div>
             </div>
@@ -215,7 +215,7 @@ if (!isset($_SESSION['id_student'])) {
         </div>
 
         <!-- Alerte si demi-journées non justifiées -->
-        <?php if ($stats['half_days_justifiable'] > 0): ?>
+        <?php if ($stats['half_days_justifiable'] > 0 && $stats['under_review_proofs'] == 0): ?>
             <div class="alert-box alert-warning">
                 <div class="alert-icon">⚠️</div>
                 <div class="alert-content">
@@ -337,6 +337,15 @@ if (!isset($_SESSION['id_student'])) {
                                     data-duration="<?php echo number_format($absence['duration_minutes'] / 60, 1); ?>"
                                     data-type="<?php echo $courseType; ?>" data-type-badge="<?php echo $badge_class; ?>"
                                     data-evaluation="<?php echo $absence['is_evaluation'] ? 'Oui' : 'Non'; ?>"
+                                    data-is-evaluation="<?php echo $absence['is_evaluation'] ? '1' : '0'; ?>"
+                                    data-has-makeup="<?php echo !empty($absence['makeup_id']) ? '1' : '0'; ?>"
+                                    data-makeup-scheduled="<?php echo !empty($absence['makeup_scheduled']) ? '1' : '0'; ?>"
+                                    data-makeup-date="<?php echo !empty($absence['makeup_date']) ? date('d/m/Y', strtotime($absence['makeup_date'])) : ''; ?>"
+                                    data-makeup-time="<?php echo !empty($absence['makeup_start_time']) && !empty($absence['makeup_end_time']) ? date('H\hi', strtotime($absence['makeup_start_time'])) . ' - ' . date('H\hi', strtotime($absence['makeup_end_time'])) : ''; ?>"
+                                    data-makeup-duration="<?php echo !empty($absence['makeup_duration']) ? number_format($absence['makeup_duration'] / 60, 1) : ''; ?>"
+                                    data-makeup-room="<?php echo htmlspecialchars($absence['makeup_room'] ?? ''); ?>"
+                                    data-makeup-resource="<?php echo htmlspecialchars($absence['makeup_resource_label'] ?? ''); ?>"
+                                    data-makeup-comment="<?php echo htmlspecialchars($absence['makeup_comment'] ?? ''); ?>"
                                     data-motif="Aucun motif spécifié" data-status-text="<?php echo $statusText; ?>"
                                     data-status-icon="<?php echo $statusIcon; ?>"
                                     data-status-class="<?php echo $statusClass; ?>">
@@ -373,6 +382,9 @@ if (!isset($_SESSION['id_student'])) {
                                     <td>
                                         <?php if ($absence['is_evaluation']): ?>
                                             <span class="eval-badge">⚠️ Oui</span>
+                                            <?php if (!empty($absence['makeup_id']) && !empty($absence['makeup_scheduled'])): ?>
+                                                <br><span class="makeup-badge" style="background-color: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; display: inline-block;">📝 Rattrapage prévu</span>
+                                            <?php endif; ?>
                                         <?php else: ?>
                                             <span class="no-eval">Non</span>
                                         <?php endif; ?>
@@ -842,10 +854,6 @@ if (!isset($_SESSION['id_student'])) {
                         <span class="modal-label">📚 Cours :</span>
                         <span class="modal-value" id="absenceModalCourse"></span>
                     </div>
-                    <div class="modal-info-item" id="absenceCourseCodeItem" style="display: none;">
-                        <span class="modal-label">🔖 Code :</span>
-                        <span class="modal-value" id="absenceModalCourseCode"></span>
-                    </div>
                     <div class="modal-info-item">
                         <span class="modal-label">👨‍🏫 Enseignant :</span>
                         <span class="modal-value" id="absenceModalTeacher"></span>
@@ -866,6 +874,52 @@ if (!isset($_SESSION['id_student'])) {
                     <div class="modal-info-item">
                         <span class="modal-label">📝 Évaluation :</span>
                         <span class="modal-value" id="absenceModalEvaluation"></span>
+                    </div>
+                </div>
+
+                <!-- Section Évaluation ratée (visible uniquement si is_evaluation) -->
+                <div id="evaluationSection" class="modal-info-group" style="display: none; background-color: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <h3 style="color: #856404; margin-bottom: 10px; font-size: 16px;">⚠️ Évaluation ratée</h3>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📚 Évaluation :</span>
+                        <span class="modal-value" id="evaluationCourse"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📅 Date :</span>
+                        <span class="modal-value" id="evaluationDate"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">🕐 Horaire :</span>
+                        <span class="modal-value" id="evaluationTime"></span>
+                    </div>
+                </div>
+
+                <!-- Section Rattrapage (visible uniquement si makeup existe) -->
+                <div id="makeupSection" class="modal-info-group" style="display: none; background-color: #d1ecf1; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <h3 style="color: #0c5460; margin-bottom: 10px; font-size: 16px;">📝 Rattrapage prévu</h3>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📅 Date du rattrapage :</span>
+                        <span class="modal-value" id="makeupDate"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">🕐 Horaire :</span>
+                        <span class="modal-value" id="makeupTime"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">⏱️ Durée :</span>
+                        <span class="modal-value" id="makeupDuration"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">🚪 Salle :</span>
+                        <span class="modal-value" id="makeupRoom"></span>
+                    </div>
+                    <div class="modal-info-item" id="makeupResourceItem" style="display: none;">
+                        <span class="modal-label">📚 Matière :</span>
+                        <span class="modal-value" id="makeupResource"></span>
+                    </div>
+                    <div class="modal-info-item" id="makeupCommentItem" style="display: none;">
+                        <span class="modal-label">💬 Commentaire :</span>
+                        <span class="modal-value" id="makeupComment"></span>
                     </div>
                 </div>
 

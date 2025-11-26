@@ -33,6 +33,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const statusIcon = this.dataset.statusIcon;
             const statusClass = this.dataset.statusClass;
 
+            // Données évaluation et rattrapage
+            const isEvaluation = this.dataset.isEvaluation === '1';
+            const hasMakeup = this.dataset.hasMakeup === '1';
+            const makeupScheduled = this.dataset.makeupScheduled === '1';
+            const makeupDate = this.dataset.makeupDate;
+            const makeupTime = this.dataset.makeupTime;
+            const makeupDuration = this.dataset.makeupDuration;
+            const makeupRoom = this.dataset.makeupRoom;
+            const makeupResource = this.dataset.makeupResource;
+            const makeupComment = this.dataset.makeupComment;
+
             // Remplir le modal avec les données
             document.getElementById('modalDate').textContent = date;
             document.getElementById('modalTime').textContent = time;
@@ -43,14 +54,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modalEvaluation').textContent = evaluation;
             document.getElementById('modalMotif').textContent = motif || 'Aucun motif spécifié';
 
-            // Gérer le code du cours
-            if (courseCode && courseCode.trim() !== '') {
-                document.getElementById('courseCodeItem').style.display = 'flex';
-                document.getElementById('modalCourseCode').textContent = courseCode;
-            } else {
-                document.getElementById('courseCodeItem').style.display = 'none';
-            }
-
             // Afficher le type avec le badge approprié
             const typeBadgeElement = document.getElementById('modalType');
             typeBadgeElement.textContent = type;
@@ -60,6 +63,47 @@ document.addEventListener('DOMContentLoaded', function() {
             const statusBadge = document.getElementById('modalStatus');
             statusBadge.textContent = statusIcon + ' ' + statusText;
             statusBadge.className = 'badge ' + statusClass;
+
+            // Gérer l'affichage de la section évaluation
+            const evaluationSection = document.getElementById('evaluationSection');
+            if (isEvaluation) {
+                evaluationSection.style.display = 'block';
+                document.getElementById('evaluationCourse').textContent = course;
+                document.getElementById('evaluationDate').textContent = date;
+                document.getElementById('evaluationTime').textContent = time;
+            } else {
+                evaluationSection.style.display = 'none';
+            }
+
+            // Gérer l'affichage de la section rattrapage
+            const makeupSection = document.getElementById('makeupSection');
+            if (hasMakeup && makeupScheduled) {
+                makeupSection.style.display = 'block';
+                document.getElementById('makeupDate').textContent = makeupDate || '-';
+                document.getElementById('makeupTime').textContent = makeupTime || '-';
+                document.getElementById('makeupDuration').textContent = makeupDuration ? makeupDuration + 'h' : '-';
+                document.getElementById('makeupRoom').textContent = makeupRoom || '-';
+                
+                // Gérer la ressource
+                const makeupResourceItem = document.getElementById('makeupResourceItem');
+                if (makeupResource && makeupResource.trim() !== '') {
+                    makeupResourceItem.style.display = 'flex';
+                    document.getElementById('makeupResource').textContent = makeupResource;
+                } else {
+                    makeupResourceItem.style.display = 'none';
+                }
+
+                // Gérer le commentaire
+                const makeupCommentItem = document.getElementById('makeupCommentItem');
+                if (makeupComment && makeupComment.trim() !== '') {
+                    makeupCommentItem.style.display = 'flex';
+                    document.getElementById('makeupComment').textContent = makeupComment;
+                } else {
+                    makeupCommentItem.style.display = 'none';
+                }
+            } else {
+                makeupSection.style.display = 'none';
+            }
 
             // Appliquer la couleur de bordure selon le statut
             const borderColor = statusBorderColors[modalStatus] || '#6c757d';

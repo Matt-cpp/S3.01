@@ -188,6 +188,15 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-type="<?php echo htmlspecialchars($courseType); ?>"
                                 data-type-badge="<?php echo $badge_class; ?>"
                                 data-evaluation="<?php echo $absence['is_evaluation'] ? 'Oui' : 'Non'; ?>"
+                                data-is-evaluation="<?php echo $absence['is_evaluation'] ? '1' : '0'; ?>"
+                                data-has-makeup="<?php echo !empty($absence['makeup_id']) ? '1' : '0'; ?>"
+                                data-makeup-scheduled="<?php echo !empty($absence['makeup_scheduled']) ? '1' : '0'; ?>"
+                                data-makeup-date="<?php echo !empty($absence['makeup_date']) ? $presenter->formatDate($absence['makeup_date']) : ''; ?>"
+                                data-makeup-time="<?php echo !empty($absence['makeup_start_time']) && !empty($absence['makeup_end_time']) ? $presenter->formatTime($absence['makeup_start_time'], $absence['makeup_end_time']) : ''; ?>"
+                                data-makeup-duration="<?php echo !empty($absence['makeup_duration']) ? number_format($absence['makeup_duration'] / 60, 1) : ''; ?>"
+                                data-makeup-room="<?php echo htmlspecialchars($absence['makeup_room'] ?? ''); ?>"
+                                data-makeup-resource="<?php echo htmlspecialchars($absence['makeup_resource_label'] ?? ''); ?>"
+                                data-makeup-comment="<?php echo htmlspecialchars($absence['makeup_comment'] ?? ''); ?>"
                                 data-motif="<?php echo htmlspecialchars($presenter->translateMotif($absence['motif'], $absence['custom_motif'])); ?>"
                                 data-status-text="<?php echo $status['text']; ?>"
                                 data-status-icon="<?php echo $status['icon']; ?>"
@@ -210,6 +219,9 @@ $errorMessage = $presenter->getErrorMessage();
                                 <td>
                                     <?php if ($absence['is_evaluation']): ?>
                                         <span class="eval-badge">⚠️ Oui</span>
+                                        <?php if (!empty($absence['makeup_id']) && !empty($absence['makeup_scheduled'])): ?>
+                                            <br><span class="makeup-badge" style="background-color: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; display: inline-block;">📝 Rattrapage prévu</span>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <span class="no-eval">Non</span>
                                     <?php endif; ?>
@@ -255,10 +267,6 @@ $errorMessage = $presenter->getErrorMessage();
                         <span class="modal-label">📚 Cours :</span>
                         <span class="modal-value" id="modalCourse"></span>
                     </div>
-                    <div class="modal-info-item" id="courseCodeItem" style="display: none;">
-                        <span class="modal-label">🔖 Code :</span>
-                        <span class="modal-value" id="modalCourseCode"></span>
-                    </div>
                     <div class="modal-info-item">
                         <span class="modal-label">👨‍🏫 Enseignant :</span>
                         <span class="modal-value" id="modalTeacher"></span>
@@ -283,6 +291,52 @@ $errorMessage = $presenter->getErrorMessage();
                     <div class="modal-info-item">
                         <span class="modal-label">📄 Motif :</span>
                         <span class="modal-value" id="modalMotif"></span>
+                    </div>
+                </div>
+
+                <!-- Section Évaluation ratée (visible uniquement si is_evaluation) -->
+                <div id="evaluationSection" class="modal-info-group" style="display: none; background-color: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <h3 style="color: #856404; margin-bottom: 10px; font-size: 16px;">⚠️ Évaluation ratée</h3>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📚 Évaluation :</span>
+                        <span class="modal-value" id="evaluationCourse"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📅 Date :</span>
+                        <span class="modal-value" id="evaluationDate"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">🕐 Horaire :</span>
+                        <span class="modal-value" id="evaluationTime"></span>
+                    </div>
+                </div>
+
+                <!-- Section Rattrapage (visible uniquement si makeup existe) -->
+                <div id="makeupSection" class="modal-info-group" style="display: none; background-color: #d1ecf1; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <h3 style="color: #0c5460; margin-bottom: 10px; font-size: 16px;">📝 Rattrapage prévu</h3>
+                    <div class="modal-info-item">
+                        <span class="modal-label">📅 Date du rattrapage :</span>
+                        <span class="modal-value" id="makeupDate"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">🕐 Horaire :</span>
+                        <span class="modal-value" id="makeupTime"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">⏱️ Durée :</span>
+                        <span class="modal-value" id="makeupDuration"></span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label">🚪 Salle :</span>
+                        <span class="modal-value" id="makeupRoom"></span>
+                    </div>
+                    <div class="modal-info-item" id="makeupResourceItem" style="display: none;">
+                        <span class="modal-label">📚 Matière :</span>
+                        <span class="modal-value" id="makeupResource"></span>
+                    </div>
+                    <div class="modal-info-item" id="makeupCommentItem" style="display: none;">
+                        <span class="modal-label">💬 Commentaire :</span>
+                        <span class="modal-value" id="makeupComment"></span>
                     </div>
                 </div>
 

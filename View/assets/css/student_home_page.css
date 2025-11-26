@@ -525,8 +525,8 @@
         .absences-table th:nth-child(4) { width: 12%; } /* Enseignant */
         .absences-table th:nth-child(5) { width: 8%; }  /* Salle */
         .absences-table th:nth-child(6) { width: 6%; }  /* Durée */
-        .absences-table th:nth-child(7) { width: 10%; } /* Type */
-        .absences-table th:nth-child(8) { width: 8%; }  /* Évaluation */
+        .absences-table th:nth-child(7) { width: 6%; } /* Type */
+        .absences-table th:nth-child(8) { width: 12%; }  /* Évaluation */
         .absences-table th:nth-child(9) { width: 12%; } /* Statut */
         .absences-table th:nth-child(10) { width: 11%; } /* Action (pour les justificatifs) */
 
