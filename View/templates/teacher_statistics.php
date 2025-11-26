@@ -66,11 +66,12 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
                     </div>
                     <div class="filter-group">
                         <label for="resource-filter">Matière</label>
-                        <select id="resource-filter">
+                        <select id="resource-filter" name="resource">
                             <option value="">Toutes les matières</option>
-                            <?php foreach ($resources ?? [] as $resource): ?>
-                                <option value="<?= htmlspecialchars($resource['id']) ?>">
-                                    <?= htmlspecialchars($resource['code']) ?>
+                            <?php foreach (($resources ?? []) as $resource): ?>
+                                <option value="<?= htmlspecialchars($resource['id']) ?>"
+                                    <?= (($_GET['resource'] ?? '') == $resource['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($resource['label']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

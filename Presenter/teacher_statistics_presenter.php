@@ -86,20 +86,22 @@ function getStudentStatistics($studentId) {
         }
         
         // Get absences by subject (Top 10)
-        $subjectQuery = "SELECT r.code, COUNT(*) as count 
+        $subjectQuery = "SELECT 
+                            COALESCE(r.label, r.code) as subject_name, 
+                            COUNT(*) as count 
                          FROM absences a 
                          INNER JOIN course_slots cs ON a.course_slot_id = cs.id
                          INNER JOIN resources r ON cs.resource_id = r.id
                          WHERE a.student_identifier = :identifier 
-                         GROUP BY r. code 
+                         GROUP BY COALESCE(r.label, r.code)
                          ORDER BY count DESC 
                          LIMIT 10";
         $stmt = $db->prepare($subjectQuery);
         $stmt->execute([':identifier' => $student['student_number']]);
         $subjects = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            if ($row['code']) {
-                $subjects[$row['code']] = (int)$row['count'];
+            if ($row['subject_name']) {
+                $subjects[$row['subject_name']] = (int)$row['count'];
             }
         }
         
@@ -139,7 +141,7 @@ $semesters = [];
 
 try {
     // Get all resources for filter dropdown
-    $resourcesQuery = "SELECT id, code FROM resources ORDER BY code";
+    $resourcesQuery = "SELECT id, code, COALESCE(label, code) as label FROM resources ORDER BY label";
     $stmt = $db->query($resourcesQuery);
     $resources = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -207,20 +209,22 @@ try {
     }
 
     // Subject statistics (Top 10)
-    $subjectQuery = "SELECT r. code, COUNT(*) as count 
+    $subjectQuery = "SELECT 
+                        COALESCE(r.label, r.code) as subject_name, 
+                        COUNT(*) as count 
                      FROM absences a 
-                     INNER JOIN course_slots cs ON a.course_slot_id = cs.id
-                     INNER JOIN resources r ON cs.resource_id = r. id
+                     INNER JOIN course_slots cs ON a.course_slot_id = cs. id
+                     INNER JOIN resources r ON cs.resource_id = r.id
                      INNER JOIN users u ON a.student_identifier = u.identifier
-                     " . ($conditions ? 'WHERE ' . implode(' AND ', $conditions) : '') .  "
-                     GROUP BY r.code 
+                     " . ($conditions ? 'WHERE ' . implode(' AND ', $conditions) : '') . "
+                     GROUP BY COALESCE(r.label, r. code)
                      ORDER BY count DESC 
                      LIMIT 10";
     $stmt = $db->prepare($subjectQuery);
     $stmt->execute($params);
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-        if ($row['code']) {
-            $subjectStats[$row['code']] = (int)$row['count'];
+        if ($row['subject_name']) {
+            $subjectStats[$row['subject_name']] = (int)$row['count'];
         }
     }
 
@@ -298,15 +302,15 @@ try {
 
     // ===== SUBJECT TRENDS (Top 5 subjects over time) =====
     $subjectTrendsQuery = "SELECT 
-                              r.code as subject,
+                              COALESCE(r.label, r.code) as subject,
                               TO_CHAR(cs.course_date, 'YYYY-MM') as month,
                               COUNT(*) as count
                            FROM absences a
-                           INNER JOIN course_slots cs ON a.course_slot_id = cs. id
-                           INNER JOIN resources r ON cs.resource_id = r.id
+                           INNER JOIN course_slots cs ON a.course_slot_id = cs.id
+                           INNER JOIN resources r ON cs.resource_id = r. id
                            INNER JOIN users u ON a.student_identifier = u.identifier
-                           " . ($conditions ? 'WHERE ' . implode(' AND ', $conditions) : '') .  "
-                           GROUP BY r.code, TO_CHAR(cs.course_date, 'YYYY-MM')
+                           " . ($conditions ? 'WHERE ' . implode(' AND ', $conditions) : '') . "
+                           GROUP BY COALESCE(r.label, r. code), TO_CHAR(cs.course_date, 'YYYY-MM')
                            ORDER BY month";
     $stmt = $db->prepare($subjectTrendsQuery);
     $stmt->execute($params);
