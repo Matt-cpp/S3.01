@@ -40,17 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                 $query = "SELECT id, email, password_hash, first_name, last_name, role::text as role
                         FROM users WHERE email = :email";
 
-                $user = $db->selectOne($query, [':email' => $email]);
-
-                // DEBUG - À retirer après
-                error_log("Email recherché: " . $email);
-                error_log("Utilisateur trouvé: " . ($user ? "OUI" : "NON"));
-                if ($user) {
-                    error_log("Hash en BDD: " . $user['password_hash']);
-                    error_log("Mot de passe saisi: " . $password);
-                    error_log("Vérification password: " . (password_verify($password, $user['password_hash']) ? "OK" : "ECHEC"));
-                }
-
+                $user = $db->selectOne($query, [':email' => strtolower($email)]);
+                
                 if ($user && password_verify($password, $user['password_hash'])) {
                     // Connexion réussie
                     $_SESSION['user_id'] = $user['id'];
