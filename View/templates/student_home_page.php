@@ -45,7 +45,7 @@ if (!isset($_SESSION['id_student'])) {
     $justification_percentage = $stats['total_half_days'] > 0
         ? round(($stats['half_days_justified'] / $stats['total_half_days']) * 100, 1)
         : 100;
-    
+
     // Calculer les demi-points perdus (5 demi-journées non justifiées = 0,5 point perdu)
     $half_points_lost = (int) $stats['half_days_unjustified'] / 10;
     $temp = 0;
@@ -54,7 +54,7 @@ if (!isset($_SESSION['id_student'])) {
         $temp += 0.5;
     }
     $half_points_lost = $temp;
-    echo($half_points_lost);
+    echo ($half_points_lost);
     ?>
 
     <div class="dashboard-container">
@@ -151,14 +151,16 @@ if (!isset($_SESSION['id_student'])) {
                     </span>
                     <span class="legend-item">
                         <span class="legend-color low"></span>
-                        Faible (<50%)
-                    </span>
+                        Faible (<50%) </span>
                 </div>
-                <div class="points-penalty" style="margin-top: 1.5rem; padding: 1rem; background: <?php echo $half_points_lost > 0 ? '#fee2e2' : '#dcfce7'; ?>; border-radius: 8px; text-align: center;">
+                <div class="points-penalty"
+                    style="margin-top: 1.5rem; padding: 1rem; background: <?php echo $half_points_lost > 0 ? '#fee2e2' : '#dcfce7'; ?>; border-radius: 8px; text-align: center;">
                     <span style="font-size: 1rem; color: #4b5563;">
                         <?php if ($half_points_lost > 0): ?>
-                            ⚠️ <strong style="color: #dc2626;"><?php echo $half_points_lost; ?> point(s) perdu(s)</strong> dans la moyenne
-                            <span style="display: block; font-size: 0.875rem; margin-top: 0.25rem;">(5 demi-journées non justifiées = 0,5 point perdu)</span>
+                            ⚠️ <strong style="color: #dc2626;"><?php echo $half_points_lost; ?> point(s) perdu(s)</strong>
+                            dans la moyenne
+                            <span style="display: block; font-size: 0.875rem; margin-top: 0.25rem;">(5 demi-journées non
+                                justifiées = 0,5 point perdu)</span>
                         <?php else: ?>
                             ✅ <strong style="color: #16a34a;">Aucun point perdu !</strong>
                         <?php endif; ?>
@@ -426,6 +428,12 @@ if (!isset($_SESSION['id_student'])) {
                                     'other' => 'Autre'
                                 ];
                                 $reasonText = $reasons[$proof['main_reason']] ?? $proof['main_reason'];
+
+                                $proofFiles = [];
+                                if (!empty($proof['proof_files'])) {
+                                    $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
+                                    $proofFiles = is_array($proofFiles) ? $proofFiles : [];
+                                }
                                 ?>
                                 <tr class="clickable-row proof-row" style="cursor: pointer;" data-status="under_review"
                                     data-proof-id="<?php echo $proof['proof_id']; ?>"
@@ -438,7 +446,8 @@ if (!isset($_SESSION['id_student'])) {
                                     data-submission="<?php echo date('d/m/Y \\à H\\hi', strtotime($proof['submission_date'])); ?>"
                                     data-status-text="En révision" data-status-icon="⚠️" data-status-class="badge-warning"
                                     data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
-                                    data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>">
+                                    data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>"
+                                    data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
                                     <td>
                                         <?php
                                         $start = date('d/m/Y', strtotime($proof['absence_start_date']));
@@ -528,8 +537,15 @@ if (!isset($_SESSION['id_student'])) {
                                     'other' => 'Autre'
                                 ];
                                 $reasonText = $reasons[$proof['main_reason']] ?? $proof['main_reason'];
+
+                                $proofFiles = [];
+                                if (!empty($proof['proof_files'])) {
+                                    $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
+                                    $proofFiles = is_array($proofFiles) ? $proofFiles : [];
+                                }
                                 ?>
                                 <tr class="clickable-row proof-row" style="cursor: pointer;" data-status="pending"
+                                    data-proof-id="<?php echo $proof['proof_id']; ?>"
                                     data-period="<?php echo htmlspecialchars($period); ?>"
                                     data-reason="<?php echo htmlspecialchars($reasonText); ?>"
                                     data-custom-reason="<?php echo htmlspecialchars($proof['custom_reason'] ?? ''); ?>"
@@ -539,7 +555,7 @@ if (!isset($_SESSION['id_student'])) {
                                     data-submission="<?php echo date('d/m/Y \\à H\\hi', strtotime($proof['submission_date'])); ?>"
                                     data-processing="-" data-status-text="En attente" data-status-icon="🕐"
                                     data-status-class="badge-info" data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
-                                    data-comment="">
+                                    data-comment="" data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
                                     <td>
                                         <?php
                                         $start = date('d/m/Y', strtotime($proof['absence_start_date']));
@@ -615,8 +631,15 @@ if (!isset($_SESSION['id_student'])) {
                                     'other' => 'Autre'
                                 ];
                                 $reasonText = $reasons[$proof['main_reason']] ?? $proof['main_reason'];
+
+                                $proofFiles = [];
+                                if (!empty($proof['proof_files'])) {
+                                    $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
+                                    $proofFiles = is_array($proofFiles) ? $proofFiles : [];
+                                }
                                 ?>
                                 <tr class="clickable-row proof-row" style="cursor: pointer;" data-status="accepted"
+                                    data-proof-id="<?php echo $proof['proof_id']; ?>"
                                     data-period="<?php echo htmlspecialchars($period); ?>"
                                     data-reason="<?php echo htmlspecialchars($reasonText); ?>"
                                     data-custom-reason="<?php echo htmlspecialchars($proof['custom_reason'] ?? ''); ?>"
@@ -625,9 +648,9 @@ if (!isset($_SESSION['id_student'])) {
                                     data-half-days="<?php echo $proof['half_days_count'] ?? 0; ?>"
                                     data-submission="<?php echo date('d/m/Y \\à H\\hi', strtotime($proof['submission_date'])); ?>"
                                     data-processing="<?php echo $proof['processing_date'] ? date('d/m/Y \\à H\\hi', strtotime($proof['processing_date'])) : '-'; ?>"
-                                    data-processing="<?php echo $proof['processing_date'] ? date('d/m/Y \\à H\\hi', strtotime($proof['processing_date'])) : '-'; ?>"
                                     data-status-text="Accepté" data-status-icon="✅" data-status-class="badge-success"
-                                    data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>" data-comment="">
+                                    data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>" data-comment=""
+                                    data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
                                     <td>
                                         <?php
                                         $start = date('d/m/Y', strtotime($proof['absence_start_date']));
@@ -706,8 +729,15 @@ if (!isset($_SESSION['id_student'])) {
                                     'other' => 'Autre'
                                 ];
                                 $reasonText = $reasons[$proof['main_reason']] ?? $proof['main_reason'];
+
+                                $proofFiles = [];
+                                if (!empty($proof['proof_files'])) {
+                                    $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
+                                    $proofFiles = is_array($proofFiles) ? $proofFiles : [];
+                                }
                                 ?>
                                 <tr class="clickable-row proof-row" style="cursor: pointer;" data-status="rejected"
+                                    data-proof-id="<?php echo $proof['proof_id']; ?>"
                                     data-period="<?php echo htmlspecialchars($period); ?>"
                                     data-reason="<?php echo htmlspecialchars($reasonText); ?>"
                                     data-custom-reason="<?php echo htmlspecialchars($proof['custom_reason'] ?? ''); ?>"
@@ -717,7 +747,8 @@ if (!isset($_SESSION['id_student'])) {
                                     data-processing="<?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : '-'; ?>"
                                     data-status-text="Refusé" data-status-icon="❌" data-status-class="badge-danger"
                                     data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
-                                    data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>">
+                                    data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>"
+                                    data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
                                     <td>
                                         <?php
                                         $start = date('d/m/Y', strtotime($proof['absence_start_date']));
@@ -889,6 +920,11 @@ if (!isset($_SESSION['id_student'])) {
                 <div class="modal-status-section">
                     <span class="modal-label">🏷️ Statut :</span>
                     <span id="proofModalStatus" class="badge"></span>
+                </div>
+
+                <div class="modal-files-section" id="proofFilesSection" style="display: none; margin-top: 20px;">
+                    <span class="modal-label">📎 Fichiers justificatifs :</span>
+                    <div id="proofModalFiles" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
                 </div>
 
                 <div class="modal-comment-section" id="proofCommentSection" style="display: none;">

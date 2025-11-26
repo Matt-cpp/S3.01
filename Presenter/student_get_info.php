@@ -36,7 +36,7 @@ function getAbsenceStatistics($student_identifier)
     ");
     $stmt->execute(['student_id' => $student_identifier]);
     $stats = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     // Calcul des demi-journées dans une requête séparée
     $stmt2 = $db->prepare("
         WITH absence_stats AS (
@@ -182,6 +182,7 @@ function getProofsByCategory($student_identifier)
             p.custom_reason,
             p.submission_date,
             p.manager_comment,
+            p.proof_files,
             COUNT(DISTINCT pa.absence_id) as nb_absences,
             COALESCE(SUM(cs.duration_minutes) / 60.0, 0) as total_hours_missed,
             BOOL_OR(cs.is_evaluation) as has_exam,
@@ -196,7 +197,7 @@ function getProofsByCategory($student_identifier)
         WHERE p.student_identifier = :student_id
         AND p.status = 'under_review'
         GROUP BY p.id, p.absence_start_date, p.absence_end_date, p.main_reason, 
-                 p.custom_reason, p.submission_date, p.manager_comment
+                 p.custom_reason, p.submission_date, p.manager_comment, p.proof_files
         ORDER BY p.submission_date DESC
     ");
     $stmt->execute(['student_id' => $student_identifier]);
@@ -211,6 +212,7 @@ function getProofsByCategory($student_identifier)
             p.main_reason,
             p.custom_reason,
             p.submission_date,
+            p.proof_files,
             COUNT(DISTINCT pa.absence_id) as nb_absences,
             COALESCE(SUM(cs.duration_minutes) / 60.0, 0) as total_hours_missed,
             BOOL_OR(cs.is_evaluation) as has_exam,
@@ -222,7 +224,7 @@ function getProofsByCategory($student_identifier)
         WHERE p.student_identifier = :student_id
         AND p.status = 'pending'
         GROUP BY p.id, p.absence_start_date, p.absence_end_date, p.main_reason, 
-                 p.custom_reason, p.submission_date
+                 p.custom_reason, p.submission_date, p.proof_files
         ORDER BY p.submission_date DESC
     ");
     $stmt->execute(['student_id' => $student_identifier]);
@@ -238,6 +240,7 @@ function getProofsByCategory($student_identifier)
             p.custom_reason,
             p.submission_date,
             p.processing_date,
+            p.proof_files,
             COUNT(DISTINCT pa.absence_id) as nb_absences,
             COALESCE(SUM(cs.duration_minutes) / 60.0, 0) as total_hours_missed,
             BOOL_OR(cs.is_evaluation) as has_exam,
@@ -252,7 +255,7 @@ function getProofsByCategory($student_identifier)
         WHERE p.student_identifier = :student_id
         AND p.status = 'accepted'
         GROUP BY p.id, p.absence_start_date, p.absence_end_date, p.main_reason, 
-                 p.custom_reason, p.submission_date, p.processing_date
+                 p.custom_reason, p.submission_date, p.processing_date, p.proof_files
         ORDER BY p.processing_date DESC
     ");
     $stmt->execute(['student_id' => $student_identifier]);
@@ -269,6 +272,7 @@ function getProofsByCategory($student_identifier)
             p.submission_date,
             p.processing_date,
             p.manager_comment,
+            p.proof_files,
             COUNT(DISTINCT pa.absence_id) as nb_absences,
             COALESCE(SUM(cs.duration_minutes) / 60.0, 0) as total_hours_missed,
             BOOL_OR(cs.is_evaluation) as has_exam,
@@ -283,7 +287,7 @@ function getProofsByCategory($student_identifier)
         WHERE p.student_identifier = :student_id
         AND p.status = 'rejected'
         GROUP BY p.id, p.absence_start_date, p.absence_end_date, p.main_reason, 
-                 p.custom_reason, p.submission_date, p.processing_date, p.manager_comment
+                 p.custom_reason, p.submission_date, p.processing_date, p.manager_comment, p.proof_files
         ORDER BY p.processing_date DESC
     ");
     $stmt->execute(['student_id' => $student_identifier]);
