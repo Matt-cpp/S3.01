@@ -1,7 +1,23 @@
 /**
- * Gestion du formulaire de validation des justificatifs
- * - Affichage conditionnel des raisons personnalisées
- * - Génération dynamique des périodes de scission
+ * view_proof.js
+ * 
+ * Script JavaScript pour l'interface de validation des justificatifs.
+ * 
+ * Fonctionnalités principales :
+ * 1. Affichage conditionnel des champs de saisie personnalisés
+ *    - Affiche le champ "Autre raison" quand l'utilisateur sélectionne "Autre"
+ *    - Gère à la fois les raisons de rejet et de validation
+ * 
+ * 2. Génération dynamique du formulaire de scission
+ *    - Permet de créer 2 à 5 périodes de scission
+ *    - Chaque période inclut : date de début, heure de début, date de fin, heure de fin
+ *    - Option de validation directe pour chaque période (checkbox)
+ * 
+ * 3. Pré-remplissage intelligent avec les dates de début et de fin du justificatif d'origine
+ * 
+ * @package View/assets/js
+ * @author Équipe de développement S3.01
+ * @version 2.0
  */
 
 (function() {
@@ -24,13 +40,26 @@
     }
 })();
 
-// Gestion dynamique des périodes de scission
+// ============================================
+// GESTION DYNAMIQUE DES PÉRIODES DE SCISSION
+// ============================================
+
+// Couleurs utilisées pour différencier visuellement les périodes
 const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#F44336'];
 
 /**
- * Met à jour l'affichage des champs de périodes en fonction du nombre sélectionné
- * @param {string} startDate - Date de début par défaut (format YYYY-MM-DD)
- * @param {string} endDate - Date de fin par défaut (format YYYY-MM-DD)
+ * Génère dynamiquement les champs de formulaire pour les périodes de scission
+ * 
+ * Cette fonction crée entre 2 et 5 périodes selon le choix de l'utilisateur.
+ * Chaque période contient :
+ * - Date de début et heure de début
+ * - Date de fin et heure de fin
+ * - Checkbox pour validation directe
+ * 
+ * Le layout s'adapte au nombre de périodes sélectionnées.
+ * 
+ * @param {string} startDate - Date de début par défaut (format YYYY-MM-DD) pour la première période
+ * @param {string} endDate - Date de fin par défaut (format YYYY-MM-DD) pour la dernière période
  */
 function updatePeriodFields(startDate, endDate) {
     const numPeriods = parseInt(document.getElementById('num_periods').value);

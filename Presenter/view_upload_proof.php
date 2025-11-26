@@ -1,13 +1,42 @@
 <?php declare(strict_types=1);
+/**
+ * view_upload_proof.php
+ * 
+ * Afficheur de fichiers justificatifs avec prévisualisation.
+ * 
+ * Ce script permet de visualiser les fichiers associés aux justificatifs d'absence.
+ * Il gère de manière sécurisée l'accès aux fichiers stockés dans le dossier uploads/.
+ * 
+ * Fonctionnalités principales :
+ * - Support multi-fichiers via proof_files (JSONB) et file_path (legacy)
+ * - Prévisualisation intégrée pour images (PNG, JPG, GIF, WEBP, SVG) et PDF
+ * - Téléchargement pour autres types de fichiers
+ * - Détection automatique du type MIME
+ * - Sécurité : confinement strict dans le dossier uploads/, validation des chemins
+ * 
+ * 
+ * @package Presenter
+ * @author Équipe de développement S3.01
+ * @version 2.0
+ */
 
 session_start();
 require_once __DIR__ . '/../Model/database.php';
 
+/**
+ * Envoie une erreur HTTP et arrête l'exécution
+ * @param int $code Code HTTP (404, 500, etc.)
+ * @param string $msg Message d'erreur
+ */
 function http_err(int $code, string $msg): void {
     http_response_code($code);
     echo $msg;
     exit;
 }
+/**
+ * Récupère l'instance de connexion à la base de données
+ * @return Database|null Instance de la base de données ou null si indisponible
+ */
 function getDb() {
     if (class_exists('Database')) return Database::getInstance();
     if (function_exists('getDatabase')) return getDatabase();
@@ -47,10 +76,16 @@ if ($proofId > 0) {
         http_err(404, 'Justificatif introuvable.');
     }
 
-    // Extraire les fichiers depuis proof_files (JSONB) ou file_path
+    // ============================================
+    // EXTRACTION DES FICHIERS DEPUIS LA BDD
+    // ============================================
+    // Gère deux formats :
+    // 1. proof_files (JSONB) : ["path1", "path2"] ou [{"path": "path1"}]
+    // 2. file_path (legacy) : un seul chemin de fichier
+    
     $allFiles = [];
     
-    // 1. Vérifier proof_files (JSONB)
+    // 1. Vérifier proof_files (JSONB) - format moderne
     if (!empty($row['proof_files'])) {
         $jsonFiles = $row['proof_files'];
         

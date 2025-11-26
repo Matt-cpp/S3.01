@@ -1,16 +1,49 @@
 <?php
+/**
+ * ProofModel.php
+ * 
+ * Modèle de gestion des justificatifs d'absence.
+ * 
+ * Ce fichier gère toutes les opérations liées aux justificatifs d'absence :
+ * - Récupération des détails des justificatifs (avec informations étudiant, dates, heures, fichiers)
+ * - Validation et rejet des justificatifs
+ * - Scission de justificatifs en plusieurs périodes
+ * - Gestion du verrouillage/déverrouillage
+ * - Mise à jour des absences associées
+ * - Gestion des fichiers multiples (via JSONB proof_files)
+ * - Historique des décisions
+ * 
+ * @package Model
+ * @author Équipe de développement S3.01
+ * @version 2.0
+ */
+
 require_once __DIR__ . '/database.php';
 
 class ProofModel
 {
     private $db;
 
+    /**
+     * Constructeur - Initialise la connexion à la base de données
+     */
     public function __construct()
     {
         $this->db = Database::getInstance();
     }
 
-    // Récupère les détails d'un justificatif par son ID
+    /**
+     * Récupère les détails complets d'un justificatif par son ID
+     * 
+     * Cette méthode retourne toutes les informations d'un justificatif incluant :
+     * - Les informations de l'étudiant (nom, prénom, groupe)
+     * - Les dates et heures de début/fin des absences concernées
+     * - Les fichiers justificatifs (via proof_files JSONB ou file_path)
+     * - Le statut et les commentaires
+     * 
+     * @param int $proofId L'identifiant unique du justificatif
+     * @return array|null Tableau associatif avec les détails du justificatif, null si non trouvé
+     */
     public function getProofDetails(int $proofId): ?array
     {
         $sql = "
@@ -84,7 +117,8 @@ class ProofModel
                 }
             }
 
-            // Extraire les fichiers depuis proof_files (JSONB) ou file_path
+            // Extraire tous les fichiers associés au justificatif
+            // (gère proof_files JSONB et file_path legacy)
             $result['files'] = $this->extractProofFiles($result);
 
             return $result;
@@ -94,7 +128,16 @@ class ProofModel
         }
     }
 
-    // Extrait la liste des fichiers depuis proof_files (JSONB) ou file_path
+    /**
+     * Extrait la liste des fichiers associés à un justificatif
+     * 
+     * Gère plusieurs formats de stockage :
+     * 1. proof_files JSONB : ["path1", "path2"] ou [{"path": "path1"}, {"file_path": "path2"}]
+     * 2. file_path legacy : un seul chemin de fichier
+     * 
+     * @param array $proof Les données du justificatif incluant proof_files et file_path
+     * @return array Tableau des chemins de fichiers (peut être vide)
+     */
     private function extractProofFiles(array $proof): array
     {
         $files = [];
@@ -552,12 +595,28 @@ class ProofModel
         }
     }
 
-    // Scinde un justificatif en N périodes distinctes
+    /**
+     * Scinde un justificatif en N périodes distinctes
+     * 
+     * Permet de diviser un justificatif en plusieurs justificatifs distincts avec des périodes précises.
+     * Chaque période peut être :
+     * - Validée automatiquement (si validate=true)
+     * - Mise en attente (pending par défaut)
+     * 
+     * Les absences sont réassignées aux nouveaux justificatifs selon les plages horaires.
+     * Le justificatif original est supprimé après la scission.
+     * 
+     * @param int $proofId L'identifiant du justificatif à scinder
+     * @param array $periods Tableau de périodes : [['start' => 'YYYY-MM-DD HH:MM', 'end' => 'YYYY-MM-DD HH:MM', 'validate' => bool]]
+     * @param string $reason Raison de la scission
+     * @param int|null $userId ID de l'utilisateur effectuant la scission (pour l'historique)
+     * @return bool True si la scission a réussi, false sinon
+     */
     public function splitProofMultiple(int $proofId, array $periods, string $reason, ?int $userId = null): bool
     {
         $this->db->beginTransaction();
         try {
-            // Récupérer le justificatif original
+            // Récupérer le justificatif original avec toutes ses données
             $proof = $this->getProofDetails($proofId);
             if (!$proof) {
                 throw new Exception("Justificatif introuvable");

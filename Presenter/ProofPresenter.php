@@ -1,18 +1,59 @@
 <?php
+/**
+ * ProofPresenter.php
+ * 
+ * Presenter pour la gestion des justificatifs d'absence (architecture MVC).
+ * 
+ * Ce fichier fait le lien entre la vue (view_proof.php) et le modèle (ProofModel.php).
+ * Il gère toute la logique métier et les interactions utilisateur :
+ * 
+ * Fonctionnalités principales :
+ * - Affichage des détails d'un justificatif (GET)
+ * - Validation de justificatifs avec motif
+ * - Rejet de justificatifs avec raison
+ * - Demande d'informations complémentaires
+ * - Scission de justificatifs en plusieurs périodes (avec validation partielle)
+ * - Verrouillage/déverrouillage de justificatifs
+ * 
+ * Validation des données :
+ * - Vérification de la cohérence des périodes (chronologie, non-chevauchement)
+ * - Validation des champs obligatoires
+ * - Gestion des erreurs avec messages explicites
+ * 
+ * @package Presenter
+ * @author Équipe de développement S3.01
+ * @version 2.0
+ */
+
 require_once __DIR__ . '/../Model/ProofModel.php';
 
 class ProofPresenter
 {
     private $model;
 
+    /**
+     * Constructeur - Initialise le modèle de gestion des justificatifs
+     */
     public function __construct()
     {
         $this->model = new ProofModel();
     }
 
+    /**
+     * Gère les requêtes GET et POST pour l'interface de validation
+     * 
+     * Cette méthode orchestre toutes les actions possibles sur un justificatif :
+     * - Affichage (GET)
+     * - Validation, rejet, demande d'info, scission, verrouillage (POST)
+     * 
+     * @param array $get Paramètres GET ($_GET)
+     * @param array $post Paramètres POST ($_POST)
+     * @return array Données à afficher dans la vue
+     */
     public function handleRequest($get, $post)
     {
-        // S'assurer que la session est démarrée pour récupérer l'id utilisateur
+        // Récupération de l'ID utilisateur depuis la session
+        // (nécessaire pour l'historique des actions)
         if (session_status() === PHP_SESSION_NONE) {
             @session_start();
         }
@@ -191,9 +232,14 @@ class ProofPresenter
                 $this->enrichViewData($data);
                 return $data;
             } elseif (isset($post['split_proof']) && isset($post['num_periods'])) {
+                // =========================================
+                // TRAITEMENT DE LA SCISSION DE JUSTIFICATIF
+                // =========================================
+                
                 $numPeriods = (int)($post['num_periods'] ?? 2);
                 $splitReason = trim((string)($post['split_reason'] ?? ''));
                 
+                // Validation : la raison est obligatoire
                 if (empty($splitReason)) {
                     $data['showSplitForm'] = true;
                     $data['splitError'] = "La raison de la scission est obligatoire.";
@@ -201,7 +247,8 @@ class ProofPresenter
                     return $data;
                 }
 
-                // Collecter toutes les périodes
+                // Collecte de toutes les périodes depuis le formulaire
+                // Chaque période contient : start (date+heure), end (date+heure), validate (bool)
                 $periods = [];
                 for ($i = 1; $i <= $numPeriods; $i++) {
                     $startDate = trim((string)($post["period{$i}_start_date"] ?? ''));
@@ -225,7 +272,9 @@ class ProofPresenter
                     ];
                 }
 
-                // Vérification que les périodes ne se chevauchent pas et sont dans l'ordre
+                // Validation : vérifier que les périodes sont chronologiques et ne se chevauchent pas
+                // Exemple valide : Période 1 (Lun 8h-12h), Période 2 (Lun 14h-18h)
+                // Exemple invalide : Période 1 (Lun 8h-14h), Période 2 (Lun 12h-16h) <- chevauchement
                 for ($i = 0; $i < count($periods) - 1; $i++) {
                     if (strtotime($periods[$i]['end']) >= strtotime($periods[$i + 1]['start'])) {
                         $data['showSplitForm'] = true;

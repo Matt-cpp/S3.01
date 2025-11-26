@@ -1,4 +1,27 @@
 <?php
+/**
+ * view_proof.php
+ * 
+ * Interface de visualisation et de validation des justificatifs d'absence.
+ * 
+ * Cette page permet aux responsables pédagogiques de :
+ * - Consulter les détails d'un justificatif (étudiant, dates, fichiers joints)
+ * - Valider ou rejeter un justificatif avec motif
+ * - Scinder un justificatif en plusieurs périodes (2 à 5 périodes)
+ * - Demander des informations complémentaires à l'étudiant
+ * - Verrouiller/déverrouiller un justificatif
+ * - Consulter les fichiers justificatifs (support multi-fichiers)
+ * 
+ * Fonctionnalités avancées :
+ * - Scission avec précision horaire (date + heure de début/fin)
+ * - Validation directe de certaines périodes lors de la scission
+ * - Affichage dynamique des boutons de téléchargement selon le nombre de fichiers
+ * 
+ * @package View/templates
+ * @author Équipe de développement S3.01
+ * @version 2.0
+ */
+
 require_once __DIR__ . '/../../Presenter/ProofPresenter.php';
 
 $presenter = new ProofPresenter();
@@ -23,7 +46,9 @@ $validationReasons = $viewData['validationReasons'] ?? [];
 $islocked = $viewData['is_locked'] ?? false;
 $lockStatus = $viewData['lock_status'] ?? ($islocked ? 'Verrouillé' : 'Déverrouillé');
 
-// Dates formatées: priorité aux champs fournis par le presenter
+// Formatage des dates de début et fin avec les heures
+// Priorité : absence_start_datetime/absence_end_datetime (avec heures des cours)
+// Fallback : formatted_start/formatted_end fournis par le presenter
 $formattedStart = $proof['formatted_start'] ?? '';
 $formattedEnd = $proof['formatted_end'] ?? '';
 if (!$formattedStart && !empty($proof['absence_start_datetime'])) {
@@ -102,7 +127,9 @@ if (!$proof) {
         </div>
     </div>
 
-    <!-- Liens vers les fichiers justificatifs (affiche plusieurs boutons si plusieurs fichiers) -->
+    <!-- Affichage des fichiers justificatifs -->
+    <!-- Support multi-fichiers : affiche autant de boutons que de fichiers disponibles -->
+    <!-- Les fichiers sont numérotés (Doc 1, Doc 2...) si plusieurs fichiers existent -->
     <?php if (!empty($proof['files']) && is_array($proof['files'])): ?>
         <div class="files-container" style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap;">
             <?php foreach ($proof['files'] as $index => $filePath): ?>
