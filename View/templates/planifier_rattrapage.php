@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-group">
                         <label for="salle">Salle <span class="required">*</span></label>
-                        <input type="text" id="salle" name="salle" placeholder="Ex: A101" required>
+                        <input type="text" id="salle" name="salle" placeholder="Ex: PUM110" required>
                         <div class="form-help">Entrez le code de la salle</div>
                     </div>
                 </div>
