@@ -23,11 +23,13 @@ class ProofModel
         p.custom_reason,
         p.status,
         p.submission_date,
+        p.file_path,
+        p.proof_files,
         u.last_name,
         u.first_name,
         g.label AS group_label
     FROM proof p
-    JOIN users u ON LOWER(u.identifier) = LOWER(p.student_identifier)
+    LEFT JOIN users u ON LOWER(u.identifier) = LOWER(p.student_identifier)
     LEFT JOIN user_groups ug ON ug.user_id = u.id
     LEFT JOIN groups g ON g.id = ug.group_id
     WHERE p.id = :id
@@ -36,7 +38,8 @@ class ProofModel
         try {
             $result = $this->db->selectOne($sql, ['id' => $proofId]);
 
-            if ($result === false) {
+            if ($result === false || $result === null || empty($result)) {
+                error_log("ProofModel->getProofDetails: Aucun résultat pour proof_id=$proofId");
                 return null;
             }
 
@@ -81,11 +84,53 @@ class ProofModel
                 }
             }
 
+            // Extraire les fichiers depuis proof_files (JSONB) ou file_path
+            $result['files'] = $this->extractProofFiles($result);
+
             return $result;
         } catch (Exception $e) {
             error_log("Erreur ProofModel->getProofDetails : " . $e->getMessage());
             return null;
         }
+    }
+
+    // Extrait la liste des fichiers depuis proof_files (JSONB) ou file_path
+    private function extractProofFiles(array $proof): array
+    {
+        $files = [];
+        
+        // 1. Vérifier le champ proof_files (JSONB)
+        if (!empty($proof['proof_files'])) {
+            $jsonFiles = $proof['proof_files'];
+            
+            // Si c'est une chaîne JSON, la décoder
+            if (is_string($jsonFiles)) {
+                $decoded = json_decode($jsonFiles, true);
+                if (is_array($decoded)) {
+                    $jsonFiles = $decoded;
+                }
+            }
+            
+            // Si c'est un tableau, extraire les chemins
+            if (is_array($jsonFiles)) {
+                foreach ($jsonFiles as $file) {
+                    if (is_string($file)) {
+                        $files[] = $file;
+                    } elseif (is_array($file) && isset($file['path'])) {
+                        $files[] = $file['path'];
+                    } elseif (is_array($file) && isset($file['file_path'])) {
+                        $files[] = $file['file_path'];
+                    }
+                }
+            }
+        }
+        
+        // 2. Fallback sur file_path si proof_files est vide
+        if (empty($files) && !empty($proof['file_path'])) {
+            $files[] = $proof['file_path'];
+        }
+        
+        return $files;
     }
 
     // Met à jour le statut du justificatif

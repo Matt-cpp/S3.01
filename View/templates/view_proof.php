@@ -102,10 +102,25 @@ if (!$proof) {
         </div>
     </div>
 
-    <!-- Lien vers le presenter de prévisualisation (ouvre dans un nouvel onglet) -->
-    <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>" class="download-btn" target="_blank" rel="noopener">
-        <img src="download-icon.png" alt="Consulter le justificatif">
-    </a>
+    <!-- Liens vers les fichiers justificatifs (affiche plusieurs boutons si plusieurs fichiers) -->
+    <?php if (!empty($proof['files']) && is_array($proof['files'])): ?>
+        <div class="files-container" style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap;">
+            <?php foreach ($proof['files'] as $index => $filePath): ?>
+                <?php if (file_exists(__DIR__ . '/../../' . $filePath)): ?>
+                    <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>" 
+                       class="download-btn" 
+                       target="_blank" 
+                       rel="noopener"
+                       title="Consulter le document <?= $index + 1 ?>">
+                        <img src="download-icon.png" alt="Document <?= $index + 1 ?>">
+                        <?php if (count($proof['files']) > 1): ?>
+                            <span style="font-size: 12px; margin-left: 5px;">Doc <?= $index + 1 ?></span>
+                        <?php endif; ?>
+                    </a>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
     <div class="actions">
         <?php if ($showInfoForm): ?>

@@ -17,6 +17,7 @@ function getDb() {
 $debug   = isset($_GET['debug']) ? (int)$_GET['debug'] : 0;
 $rawMode = isset($_GET['raw']) ? (int)$_GET['raw'] : 0;
 $proofId = isset($_GET['proof_id']) ? (int)$_GET['proof_id'] : 0;
+$fileIndex = isset($_GET['file_index']) ? (int)$_GET['file_index'] : 0;
 
 // Localisation robuste du dossier uploads (au même niveau que Presenter)
 $projectRoot = dirname(__DIR__);
@@ -41,13 +42,56 @@ if ($proofId > 0) {
     $db = getDb();
     if (!$db) http_err(500, 'Base de données indisponible.');
 
-    $row = $db->selectOne('SELECT file_path FROM proof WHERE id = :id LIMIT 1', ['id' => $proofId]);
-    if (!$row || empty($row['file_path'])) {
+    $row = $db->selectOne('SELECT file_path, proof_files FROM proof WHERE id = :id LIMIT 1', ['id' => $proofId]);
+    if (!$row) {
         http_err(404, 'Justificatif introuvable.');
     }
 
-    // Normalisation: retire le préfixe uploads/ et sécurise les segments
-    $storedPath = (string)$row['file_path']; // ex: "uploads/68e4....png"
+    // Extraire les fichiers depuis proof_files (JSONB) ou file_path
+    $allFiles = [];
+    
+    // 1. Vérifier proof_files (JSONB)
+    if (!empty($row['proof_files'])) {
+        $jsonFiles = $row['proof_files'];
+        
+        // Décoder si c'est une chaîne JSON
+        if (is_string($jsonFiles)) {
+            $decoded = json_decode($jsonFiles, true);
+            if (is_array($decoded)) {
+                $jsonFiles = $decoded;
+            }
+        }
+        
+        // Extraire les chemins
+        if (is_array($jsonFiles)) {
+            foreach ($jsonFiles as $file) {
+                if (is_string($file)) {
+                    $allFiles[] = $file;
+                } elseif (is_array($file) && isset($file['path'])) {
+                    $allFiles[] = $file['path'];
+                } elseif (is_array($file) && isset($file['file_path'])) {
+                    $allFiles[] = $file['file_path'];
+                }
+            }
+        }
+    }
+    
+    // 2. Fallback sur file_path si proof_files est vide
+    if (empty($allFiles) && !empty($row['file_path'])) {
+        $allFiles[] = $row['file_path'];
+    }
+    
+    // Vérifier qu'on a au moins un fichier
+    if (empty($allFiles)) {
+        http_err(404, 'Aucun fichier associé à ce justificatif.');
+    }
+    
+    // Sélectionner le fichier selon l'index
+    if ($fileIndex >= count($allFiles)) {
+        http_err(404, 'Index de fichier invalide.');
+    }
+    
+    $storedPath = $allFiles[$fileIndex]; // ex: "uploads/68e4....png"
     $p = str_replace('\\', '/', trim($storedPath));
     $p = ltrim($p, '/');
     if (stripos($p, 'uploads/') === 0) {
