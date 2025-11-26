@@ -267,7 +267,47 @@ if (!$proof) {
                     </div>
                 </form>
             </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Commentaire de l'étudiant -->
+    <?php if (!empty($proof['student_comment'])): ?>
+        <div class="reason-container" style="margin-top: 20px;">
+            <div class="info-field">
+                <strong>Commentaire de l'étudiant :</strong> <?= htmlspecialchars($proof['student_comment']) ?>
+            </div>
         </div>
+    <?php endif; ?>
+
+    <!-- Section fichiers justificatifs -->
+    <div class="files-section" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+        <strong style="display: block; margin-bottom: 10px; font-size: 16px;">📎 Fichiers justificatifs :</strong>
+        <?php
+        $proofFiles = [];
+        if (!empty($proof['proof_files'])) {
+            $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
+            $proofFiles = is_array($proofFiles) ? $proofFiles : [];
+        }
+
+        if (!empty($proofFiles)): ?>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <?php foreach ($proofFiles as $index => $file): ?>
+                    <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>"
+                        target="_blank" rel="noopener"
+                        title="<?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>"
+                        style="display: inline-block; padding: 10px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px;">
+                        📄 <?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>
+                        <?php if (!empty($file['size'])): ?>
+                            <small style="opacity: 0.9;">(<?= number_format($file['size'] / 1024, 1) ?> Ko)</small>
+                        <?php endif; ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p style="color: #666; font-style: italic; margin: 0;">Aucun fichier justificatif n'a été fourni.</p>
+        <?php endif; ?>
+    </div>
+</div>
 
 <script>
     // Initialiser au chargement de la page si le formulaire de scission est affiché
@@ -276,6 +316,24 @@ if (!$proof) {
         const endDate = '<?= htmlspecialchars($proof['absence_end_date'] ?? '') ?>';
         updatePeriodFields(startDate, endDate);
     }
+
+    // Gestion des select "Autre"
+    (function () {
+        const rejSel = document.getElementById('rejection_reason');
+        const rejGrp = document.getElementById('new-reason-group');
+        if (rejSel && rejGrp) {
+            const toggle = () => rejGrp.style.display = (rejSel.value === 'Autre') ? 'block' : 'none';
+            rejSel.addEventListener('change', toggle);
+            toggle();
+        }
+        const valSel = document.getElementById('validation_reason');
+        const valGrp = document.getElementById('new-validation-reason-group');
+        if (valSel && valGrp) {
+            const toggleV = () => valGrp.style.display = (valSel.value === 'Autre') ? 'block' : 'none';
+            valSel.addEventListener('change', toggleV);
+            toggleV();
+        }
+    })();
 </script>
 
 <footer class="footer">
@@ -283,202 +341,14 @@ if (!$proof) {
         <div class="team-section">
             <h3 class="team-title">Équipe de développement</h3>
             <div class="team-names">
-                <p>CIPOLAT Matteo • BOLTZ Louis • NAVREZ Louis • COLLARD Yony • BISIAUX Ambroise • FOURNIER
-                    Alexandre</p>
+                <p>CIPOLAT Matteo • BOLTZ Louis • NAVREZ Louis • COLLARD Yony • BISIAUX Ambroise • FOURNIER Alexandre</p>
             </div>
         </div>
-
-        <div class="reason-container">
-            <div class="info-field">
-                <strong>Motif :</strong>
-                <?= htmlspecialchars($proof['main_reason_label'] ?? $proof['main_reason'] ?? $proof['reason'] ?? '') ?>
-            </div>
-            <?php if (!empty($proof['custom_reason'])): ?>
-                <div class="info-field">
-                    <strong>Raison personnalisée :</strong> <?= htmlspecialchars($proof['custom_reason']) ?>
-                </div>
-            <?php endif; ?>
-            <?php if (!empty($proof['student_comment'])): ?>
-                <div class="info-field">
-                    <strong>Commentaire de l'étudiant :</strong> <?= htmlspecialchars($proof['student_comment']) ?>
-                </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- Section fichiers justificatifs -->
-        <div class="files-section" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-            <strong style="display: block; margin-bottom: 10px; font-size: 16px;">📎 Fichiers justificatifs :</strong>
-            <?php
-            $proofFiles = [];
-            if (!empty($proof['proof_files'])) {
-                $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
-                $proofFiles = is_array($proofFiles) ? $proofFiles : [];
-            }
-
-            if (!empty($proofFiles)): ?>
-                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                    <?php foreach ($proofFiles as $index => $file): ?>
-                        <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>"
-                            target="_blank" rel="noopener"
-                            title="<?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>"
-                            style="display: inline-block; padding: 10px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px;">
-                            📄 <?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>
-                            <?php if (!empty($file['size'])): ?>
-                                <small style="opacity: 0.9;">(<?= number_format($file['size'] / 1024, 1) ?> Ko)</small>
-                            <?php endif; ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p style="color: #666; font-style: italic; margin: 0;">Aucun fichier justificatif n'a été fourni.</p>
-            <?php endif; ?>
-        </div>
-
-        <div class="actions">
-            <?php if ($showInfoForm): ?>
-                <form method="POST" class="rejection-form">
-                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
-                    <div class="form-group">
-                        <label for="info_message">Message à l'étudiant :</label>
-                        <textarea name="info_message" id="info_message" rows="3"
-                            required><?= htmlspecialchars($_POST['info_message'] ?? '') ?></textarea>
-                    </div>
-                    <?php if ($infoError): ?>
-                        <div class="error"><?= htmlspecialchars($infoError) ?></div>
-                    <?php endif; ?>
-                    <div class="button-group">
-                        <button type="submit" name="request_info" value="1" class="btn btn-info">Envoyer la demande</button>
-                        <a href="view_proof.php?proof_id=<?= htmlspecialchars($proof['proof_id'] ?? '') ?>"
-                            class="btn btn-cancel">Annuler</a>
-                    </div>
-                </form>
-
-            <?php elseif ($showRejectForm): ?>
-                <form method="POST" class="rejection-form">
-                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
-                    <div class="form-group">
-                        <label for="rejection_reason">Motif du rejet :</label>
-                        <select name="rejection_reason" id="rejection_reason" required>
-                            <option value="">-- Sélectionner un motif --</option>
-                            <?php foreach (($rejectionReasons ?? []) as $reason): ?>
-                                <option value="<?= htmlspecialchars($reason) ?>" <?= (isset($_POST['rejection_reason']) && $_POST['rejection_reason'] === $reason) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($reason) ?>
-                                </option>
-                            <?php endforeach; ?>
-                            <option value="Autre" <?= (isset($_POST['rejection_reason']) && $_POST['rejection_reason'] === 'Autre') ? 'selected' : '' ?>>Autre</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="new-reason-group" style="display: none;">
-                        <label for="new_rejection_reason">Nouveau motif :</label>
-                        <input type="text" name="new_rejection_reason" id="new_rejection_reason"
-                            value="<?= htmlspecialchars($_POST['new_rejection_reason'] ?? '') ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="rejection_details">Détails du rejet :</label>
-                        <textarea name="rejection_details" id="rejection_details"
-                            rows="3"><?= htmlspecialchars($_POST['rejection_details'] ?? '') ?></textarea>
-                    </div>
-                    <?php if ($rejectionError): ?>
-                        <div class="error"><?= htmlspecialchars($rejectionError) ?></div>
-                    <?php endif; ?>
-                    <div class="button-group">
-                        <button type="submit" name="reject" value="1" class="btn btn-reject">Confirmer le rejet</button>
-                        <a href="view_proof.php?proof_id=<?= htmlspecialchars($proof['proof_id'] ?? '') ?>"
-                            class="btn btn-cancel">Annuler</a>
-                    </div>
-                </form>
-
-            <?php elseif ($showValidateForm): ?>
-                <form method="POST" class="validation-form">
-                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
-                    <div class="form-group">
-                        <label for="validation_reason">Motif de validation :</label>
-                        <select name="validation_reason" id="validation_reason">
-                            <option value="">-- Sélectionner un motif --</option>
-                            <?php foreach (($validationReasons ?? []) as $reason): ?>
-                                <option value="<?= htmlspecialchars($reason) ?>" <?= (isset($_POST['validation_reason']) && $_POST['validation_reason'] === $reason) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($reason) ?>
-                                </option>
-                            <?php endforeach; ?>
-                            <option value="Autre" <?= (isset($_POST['validation_reason']) && $_POST['validation_reason'] === 'Autre') ? 'selected' : '' ?>>Autre</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="new-validation-reason-group" style="display: none;">
-                        <label for="new_validation_reason">Nouveau motif :</label>
-                        <input type="text" name="new_validation_reason" id="new_validation_reason"
-                            value="<?= htmlspecialchars($_POST['new_validation_reason'] ?? '') ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="validation_details">Détails :</label>
-                        <textarea name="validation_details" id="validation_details"
-                            rows="3"><?= htmlspecialchars($_POST['validation_details'] ?? '') ?></textarea>
-                    </div>
-                    <?php if (!empty($validationError)): ?>
-                        <div class="error"><?= htmlspecialchars($validationError) ?></div>
-                    <?php endif; ?>
-                    <div class="button-group">
-                        <button type="submit" name="validate" value="1" class="btn btn-validate">Confirmer la
-                            validation</button>
-                        <a href="view_proof.php?proof_id=<?= htmlspecialchars($proof['proof_id'] ?? '') ?>"
-                            class="btn btn-cancel">Annuler</a>
-                    </div>
-                </form>
-
-            <?php else: ?>
-                <div class="decision-buttons">
-                    <form method="POST" action="view_proof.php" class="action-form">
-                        <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
-                        <div class="button-container">
-                            <button type="submit" name="validate" value="1" class="btn btn-validate">
-                                <span class="btn-text">Valider</span>
-                            </button>
-                            <button type="submit" name="reject" value="1" class="btn btn-reject" style="margin-left:10px;">
-                                <span class="btn-text">Refuser</span>
-                            </button>
-                            <button type="submit" name="request_info" value="1" class="btn btn-info"
-                                style="margin-left:10px;">
-                                <span class="btn-text">Demander des informations</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            <?php endif; ?>
+        <div class="footer-info">
+            <p>&copy; 2025 UPHF - Système de gestion des absences</p>
         </div>
     </div>
-
-    <script>
-        (function () {
-            const rejSel = document.getElementById('rejection_reason');
-            const rejGrp = document.getElementById('new-reason-group');
-            if (rejSel && rejGrp) {
-                const toggle = () => rejGrp.style.display = (rejSel.value === 'Autre') ? 'block' : 'none';
-                rejSel.addEventListener('change', toggle);
-                toggle();
-            }
-            const valSel = document.getElementById('validation_reason');
-            const valGrp = document.getElementById('new-validation-reason-group');
-            if (valSel && valGrp) {
-                const toggleV = () => valGrp.style.display = (valSel.value === 'Autre') ? 'block' : 'none';
-                valSel.addEventListener('change', toggleV);
-                toggleV();
-            }
-        })();
-    </script>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="team-section">
-                <h3 class="team-title">Équipe de développement</h3>
-                <div class="team-names">
-                    <p>CIPOLAT Matteo • BOLTZ Louis • NAVREZ Louis • COLLARD Yony • BISIAUX Ambroise • FOURNIER
-                        Alexandre</p>
-                </div>
-            </div>
-            <div class="footer-info">
-                <p>&copy; 2025 UPHF - Système de gestion des absences</p>
-            </div>
-        </div>
-    </footer>
+</footer>
 
 </body>
 

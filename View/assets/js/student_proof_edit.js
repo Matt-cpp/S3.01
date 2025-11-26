@@ -271,6 +271,18 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = fileInput ? fileInput.closest("form") : null;
   if (form) {
     form.addEventListener("submit", function (e) {
+      // Vérifier qu'il reste au moins un fichier (existant non supprimé OU nouveau)
+      const existingCount = document.querySelectorAll(".existing-file-item").length;
+      const toDeleteCount = existingFilesToDelete.length;
+      const toAddCount = newFilesToAdd.length;
+      const finalCount = existingCount - toDeleteCount + toAddCount;
+
+      if (finalCount === 0) {
+        e.preventDefault();
+        alert("Aucun fichier justificatif n'a été sélectionné. Veuillez ajouter au moins un fichier pour soumettre votre justificatif.");
+        return false;
+      }
+
       syncFileInputWithNewFiles();
     });
   }
