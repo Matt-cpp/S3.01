@@ -1,5 +1,15 @@
 <?php
 /**
+ * Redirect to the user's dashboard if already authenticated
+ */
+function redirectIfAuthenticated()
+{
+    if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
+        redirectToDashboard($_SESSION['user_role']);
+        exit;
+    }
+}
+/**
  * Authentication Guard
  * Include this file at the top of any page that requires authentication
  */

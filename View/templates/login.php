@@ -1,16 +1,7 @@
-<?php 
+<?php
 session_start();
-
-// Vérifier si l'utilisateur est déjà connecté
-if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
-    // Rediriger selon le rôle
-    if ($_SESSION['user_role'] === 'student') {
-        header("Location: historique.php");
-    } else {
-        header("Location: admin_dashboard.php");
-    }
-    exit;
-}
+require_once __DIR__ . '/../../controllers/auth_guard.php';
+redirectIfAuthenticated();
 
 $errors = $_SESSION['login_errors'] ?? [];
 $formData = $_SESSION['form_data'] ?? [];
@@ -18,18 +9,20 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>Connection</title>
     <link rel="stylesheet" href="../assets/css/style_create_acc.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <img src="../img/logoIUT.png" alt="Logo" class="logo">
     <div class="container">
         <div class="form-container">
             <h1 class="form-title">Se connecter</h1>
-            
+
             <?php if (!empty($errors)): ?>
                 <div class="error-messages" style="color: red; margin-bottom: 15px;">
                     <?php foreach ($errors as $error): ?>
@@ -37,14 +30,14 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
-            
+
             <form action="../../controllers/login.php" method="POST" class="login-form">
                 <div class="form-group">
                     <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" placeholder="prenom.nom@uhpf.fr" 
+                    <input type="email" id="email" name="email" placeholder="prenom.nom@uhpf.fr"
                         value="<?php echo htmlspecialchars($formData['email'] ?? ''); ?>" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="password">Mot de passe:</label>
                     <div class="password-wrapper">
@@ -54,13 +47,13 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
                 </div>
                 <button type="submit" class="btn-submit">Se connecter</button>
             </form>
-            
+
             <div class="login-link">
                 <p>Pas de compte? <a href="create_acc.php">Créer un compte</a></p>
             </div>
         </div>
     </div>
-    
+
     <script>
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
@@ -76,4 +69,5 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
         }
     </script>
 </body>
+
 </html>

@@ -117,9 +117,16 @@ try {
             $student['absence_period_end']
         );
 
+        // Calculate half-days of absences
+        $halfDays = $monitoringModel->calculateHalfDays(
+            $student['student_identifier'],
+            $student['absence_period_start'],
+            $student['absence_period_end']
+        );
+
         // Prepare email content
         $subject = "Retour en cours détecté - Justification d'absences requise";
-        $body = generateReturnNotificationEmail($student, $absenceDetails);
+        $body = generateReturnNotificationEmail($student, $absenceDetails, $halfDays);
 
         // Send email
         $result = $emailService->sendEmail(
@@ -186,9 +193,16 @@ try {
             $student['absence_period_end']
         );
 
+        // Calculate half-days of absences
+        $halfDays = $monitoringModel->calculateHalfDays(
+            $student['student_identifier'],
+            $student['absence_period_start'],
+            $student['absence_period_end']
+        );
+
         // Prepare reminder email content
         $subject = "Rappel - Justification d'absences requise";
-        $body = generateReminderEmail($student, $absenceDetails);
+        $body = generateReminderEmail($student, $absenceDetails, $halfDays);
 
         // Send email
         $result = $emailService->sendEmail(
@@ -240,7 +254,7 @@ try {
 }
 
 //Generate the HTML email for return-to-class notification
-function generateReturnNotificationEmail($student, $absenceDetails)
+function generateReturnNotificationEmail($student, $absenceDetails, $halfDays)
 {
     $firstName = htmlspecialchars($student['first_name']);
     $lastName = htmlspecialchars($student['last_name']);
@@ -257,6 +271,17 @@ function generateReturnNotificationEmail($student, $absenceDetails)
     }
 
     $totalAbsences = count($absenceDetails);
+
+    // Calculate penalty warning
+    $penaltyWarning = '';
+    if ($halfDays >= 4) {
+        $remainingHalfDays = 5 - $halfDays;
+        if ($remainingHalfDays > 0) {
+            $penaltyWarning = "<div class='warning-box'><strong>⚠️ Attention :</strong> Vous avez déjà <strong>{$halfDays} demi-journées d'absences</strong>. À partir de 5 demi-journées, vous recevrez un <strong>malus de 0,5 point par demi-journées d'absence</strong> sur votre note finale.</div>";
+        } else {
+            $penaltyWarning = "<div class='danger-box'><strong>🚨 Important :</strong> Vous avez <strong>{$halfDays} demi-journées d'absences</strong>. Vous avez atteint ou dépassé le seuil de 5 demi-journées. Un <strong>malus de 0,5 point</strong> sera appliqué sur votre note finale.</div>";
+        }
+    }
 
     $html = <<<HTML
 <!DOCTYPE html>
@@ -333,6 +358,18 @@ function generateReturnNotificationEmail($student, $absenceDetails)
             color: #d9534f;
             font-weight: bold;
         }
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .danger-box {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -350,11 +387,13 @@ function generateReturnNotificationEmail($student, $absenceDetails)
         vous avez été absent(e) lors des cours suivants :</p>
         
         <div class="absence-list">
-            <h3>Vos absences non justifiées ({$totalAbsences} cours) :</h3>
+            <h3>Vos absences non justifiées ({$totalAbsences} cours - {$halfDays} demi-journées) :</h3>
             <ul>
                 {$absenceList}
             </ul>
         </div>
+        
+        {$penaltyWarning}
         
         <div class="alert-box">
             <strong>⚠️ Action requise :</strong> Vous devez justifier ces absences dans les plus brefs délais.
@@ -389,7 +428,7 @@ HTML;
 /**
  * Generate the HTML email for 24h reminder notification
  */
-function generateReminderEmail($student, $absenceDetails)
+function generateReminderEmail($student, $absenceDetails, $halfDays)
 {
     $firstName = htmlspecialchars($student['first_name']);
     $lastName = htmlspecialchars($student['last_name']);
@@ -406,6 +445,17 @@ function generateReminderEmail($student, $absenceDetails)
     }
 
     $totalAbsences = count($absenceDetails);
+
+    // Calculate penalty warning
+    $penaltyWarning = '';
+    if ($halfDays >= 4) {
+        $remainingHalfDays = 5 - $halfDays;
+        if ($remainingHalfDays > 0) {
+            $penaltyWarning = "<div class='warning-box'><strong>⚠️ Attention :</strong> Vous avez déjà <strong>{$halfDays} demi-journées d'absences</strong>. À partir de 5 demi-journées, vous recevrez un <strong>malus de 0,5 point par demi-journées d'absence</strong> sur votre note finale. Il vous reste {$remainingHalfDays} demi-journée(s) avant le malus.</div>";
+        } else {
+            $penaltyWarning = "<div class='danger-box'><strong>🚨 Important :</strong> Vous avez <strong>{$halfDays} demi-journées d'absences</strong>. Vous avez atteint ou dépassé le seuil de 5 demi-journées. Un <strong>malus de 0,5 point par demi-journées d'absence</strong> sera appliqué sur votre note finale.</div>";
+        }
+    }
 
     $html = <<<HTML
 <!DOCTYPE html>
@@ -483,6 +533,18 @@ function generateReminderEmail($student, $absenceDetails)
             font-weight: bold;
             font-size: 1.1em;
         }
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .danger-box {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -504,11 +566,13 @@ function generateReminderEmail($student, $absenceDetails)
         <p>Pour rappel, vous avez les absences non justifiées suivantes :</p>
         
         <div class="absence-list">
-            <h3>Absences à justifier ({$totalAbsences} cours) :</h3>
+            <h3>Absences à justifier ({$totalAbsences} cours - {$halfDays} demi-journées) :</h3>
             <ul>
                 {$absenceList}
             </ul>
         </div>
+        
+        {$penaltyWarning}
         
         <p class="urgent">⚠️ Veuillez justifier ces absences au plus vite pour éviter toute sanction disciplinaire.</p>
         
