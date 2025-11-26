@@ -80,8 +80,8 @@ class planificationRattrapage
 
         $this->db->execute($insertQuery, $insertParams);
 
-        // Send email notification to student
-        $this->sendMakeupNotificationEmail($studentId, $evalId, $dateRattrapage, $comment);
+        // Send email notification to student with room and duration info
+        $this->sendMakeupNotificationEmail($studentId, $evalId, $dateRattrapage, $roomId, $durationMinutes, $comment);
 
         return true;
     }
@@ -89,7 +89,7 @@ class planificationRattrapage
     /**
      * Send email notification to student about makeup session
      */
-    private function sendMakeupNotificationEmail($studentId, $evalId, $makeupDate, $comment)
+    private function sendMakeupNotificationEmail($studentId, $evalId, $makeupDate, $roomId = null, $durationMinutes = null, $comment = null)
     {
         try {
             // Get student information
@@ -103,13 +103,11 @@ class planificationRattrapage
                 return;
             }
 
-            // Get course information
-            $courseQuery = "SELECT cs.course_date, cs.start_time, cs.end_time, 
-                                  r.label as resource_label, cs.course_type,
-                                  rm.name as room_name
+            // Get course information (original evaluation)
+            $courseQuery = "SELECT cs.course_date, cs.start_time, cs.end_time, cs.duration_minutes as original_duration,
+                                  r.label as resource_label, cs.course_type
                            FROM course_slots cs
                            LEFT JOIN resources r ON cs.resource_id = r.id
-                           LEFT JOIN rooms rm ON cs.room_id = rm.id
                            WHERE cs.id = :eval_id";
             $course = $this->db->selectOne($courseQuery, [':eval_id' => $evalId]);
 
@@ -117,6 +115,20 @@ class planificationRattrapage
                 error_log("Cannot send makeup email: course not found for eval_id {$evalId}");
                 return;
             }
+
+            // Get makeup room information if roomId is provided
+            $makeupRoomName = 'À définir';
+            if ($roomId) {
+                $roomQuery = "SELECT code FROM rooms WHERE id = :room_id";
+                $room = $this->db->selectOne($roomQuery, [':room_id' => $roomId]);
+                if ($room) {
+                    $makeupRoomName = htmlspecialchars($room['code']);
+                }
+            }
+
+            // Determine duration for the makeup (use provided duration or original course duration)
+            $makeupDuration = $durationMinutes ?? $course['original_duration'] ?? null;
+            $durationText = $makeupDuration ? $makeupDuration . ' minutes' : 'Non spécifiée';
 
             $firstName = htmlspecialchars($student['first_name']);
             $lastName = htmlspecialchars($student['last_name']);
@@ -126,7 +138,6 @@ class planificationRattrapage
             $startTime = substr($course['start_time'], 0, 5);
             $endTime = substr($course['end_time'], 0, 5);
             $makeupDateFormatted = date('d/m/Y', strtotime($makeupDate));
-            $roomName = $course['room_name'] ? htmlspecialchars($course['room_name']) : 'À définir';
             $commentText = $comment ? htmlspecialchars($comment) : '';
 
             $subject = "Rattrapage planifié - {$resourceLabel}";
@@ -139,7 +150,8 @@ class planificationRattrapage
                 $startTime,
                 $endTime,
                 $makeupDateFormatted,
-                $roomName,
+                $makeupRoomName,
+                $durationText,
                 $commentText
             );
 
@@ -156,7 +168,7 @@ class planificationRattrapage
     /**
      * Generate HTML email body for makeup notification
      */
-    private function generateMakeupEmailBody($firstName, $lastName, $resource, $courseType, $courseDate, $startTime, $endTime, $makeupDate, $room, $comment)
+    private function generateMakeupEmailBody($firstName, $lastName, $resource, $courseType, $courseDate, $startTime, $endTime, $makeupDate, $room, $duration, $comment)
     {
         $commentSection = $comment ? "<div class='info-box'><strong>Commentaire de l'enseignant :</strong><p>{$comment}</p></div>" : "";
 
@@ -221,6 +233,10 @@ class planificationRattrapage
                     <tr>
                         <td>Salle</td>
                         <td>{$room}</td>
+                    </tr>
+                    <tr>
+                        <td>Durée</td>
+                        <td>{$duration}</td>
                     </tr>
                 </table>
             </div>

@@ -3,14 +3,18 @@ require_once __DIR__ . '/../../controllers/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../Presenter/planificationRattrapage.php';
+require_once __DIR__ . '/../../Model/database.php';
 
 // ID du professeur from session
 $teacherId = $user['id'];
 $planif = new planificationRattrapage($teacherId);
+$db = Database::getInstance();
 
 // Récupérer les DS à rattraper
 $lesDs = $planif->getLesDs();
 
+// Récupérer toutes les salles existantes
+$rooms = $db->select("SELECT id, code FROM rooms ORDER BY code ASC");
 
 $message = '';
 $messageType = '';
@@ -18,11 +22,31 @@ $messageType = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dsId = $_POST['matiere'] ?? null;
     $date = $_POST['date'] ?? null;
-    $heure = $_POST['heure'] ?? null;
     $duree = $_POST['duree'] ?? null;
-    $salle = $_POST['salle'] ?? null;
+    $salleId = $_POST['salle_id'] ?? null;
+    $newSalleCode = trim($_POST['new_salle'] ?? '');
+    $comment = $_POST['comment'] ?? null;
 
-    if ($dsId && $date && $heure && $duree) {
+    // Determine room ID
+    $roomId = null;
+    if ($salleId && $salleId !== 'new') {
+        // Use existing room
+        $roomId = intval($salleId);
+    } elseif ($newSalleCode) {
+        // Check if room already exists
+        $existingRoom = $db->selectOne("SELECT id FROM rooms WHERE code = :code", [':code' => $newSalleCode]);
+        if ($existingRoom) {
+            $roomId = $existingRoom['id'];
+        } else {
+            // Create new room
+            $db->execute("INSERT INTO rooms (code) VALUES (:code)", [':code' => $newSalleCode]);
+            $roomId = $db->lastInsertId();
+            // Refresh rooms list
+            $rooms = $db->select("SELECT id, code FROM rooms ORDER BY code ASC");
+        }
+    }
+
+    if ($dsId && $date && $duree) {
         $lesEleves = $planif->getLesEleves($dsId);
 
         $count = 0;
@@ -32,8 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dsId,
                 $eleve['identifier'],
                 $date,
-                $salle,
-                intval($duree)
+                $roomId,
+                intval($duree),
+                $comment
             );
             $count++;
         }
@@ -110,10 +135,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <div class="form-group">
-                        <label for="salle">Salle <span class="required">*</span></label>
-                        <input type="text" id="salle" name="salle" placeholder="Ex: PUM110" required>
-                        <div class="form-help">Entrez le code de la salle</div>
+                        <label for="salle_id">Salle</label>
+                        <select id="salle_id" name="salle_id" onchange="toggleNewRoomInput(this)">
+                            <option value="">-- Aucune salle --</option>
+                            <?php foreach ($rooms as $room): ?>
+                                <option value="<?php echo htmlspecialchars($room['id']); ?>">
+                                    <?php echo htmlspecialchars($room['code']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                            <option value="new">➕ Ajouter une nouvelle salle...</option>
+                        </select>
+                        <div class="form-help">Sélectionnez une salle existante ou ajoutez-en une nouvelle</div>
                     </div>
+                </div>
+
+                <div class="form-group" id="new-room-group" style="display: none;">
+                    <label for="new_salle">Nouvelle salle</label>
+                    <input type="text" id="new_salle" name="new_salle" placeholder="Ex: PUM110">
+                    <div class="form-help">Entrez le code de la nouvelle salle</div>
                 </div>
 
                 <div class="form-row">
@@ -127,10 +166,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <option value="120">2 heures</option>
                         </select>
                     </div>
+                </div>
 
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Planifier le rattrapage</button>
-                    </div>
+                <div class="form-group">
+                    <label for="comment">Commentaire</label>
+                    <textarea id="comment" name="comment" rows="3"
+                        placeholder="Informations complémentaires pour l'étudiant (optionnel)"></textarea>
+                    <div class="form-help">Ce commentaire sera inclus dans l'email envoyé à l'étudiant</div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Planifier le rattrapage</button>
                 </div>
             </form>
         </div>
@@ -151,6 +197,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </footer>
     <?php renderThemeScript(); ?>
+    <script>
+        function toggleNewRoomInput(select) {
+            const newRoomGroup = document.getElementById('new-room-group');
+            const newRoomInput = document.getElementById('new_salle');
+
+            if (select.value === 'new') {
+                newRoomGroup.style.display = 'block';
+                newRoomInput.focus();
+            } else {
+                newRoomGroup.style.display = 'none';
+                newRoomInput.value = '';
+            }
+        }
+    </script>
 </body>
 
 </html>

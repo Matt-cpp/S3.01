@@ -183,21 +183,6 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
                 </div>
             <?php endif; ?>
         </div>
-
-        <!-- Actions rapides -->
-        <div class="section">
-            <h2 class="section-title">Actions rapides</h2>
-
-            <a href="planifier_rattrapage.php" class="btn-primary"
-                style="display: block; width: 100%; padding: 1.5rem; text-align: center; text-decoration: none; font-size: 1.1rem; font-weight: 600;">
-                📅 Planifier un rattrapage
-            </a>
-            <br>
-                <a href="teacher_evals.php" class="btn-primary"
-                style="display: block; width: 100%; padding: 1.5rem; text-align: center; text-decoration: none; font-size: 1.1rem; font-weight: 600;">
-                📖 Voir Mes Evaluations avec des élèves absents
-            </a>
-        </div>
     </div>
 
     <footer class="footer">
