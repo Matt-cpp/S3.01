@@ -18,10 +18,10 @@ function getDb()
     return null;
 }
 
-$debug = isset($_GET['debug']) ? (int) $_GET['debug'] : 0;
-$rawMode = isset($_GET['raw']) ? (int) $_GET['raw'] : 0;
-$proofId = isset($_GET['proof_id']) ? (int) $_GET['proof_id'] : 0;
-$fileIndex = isset($_GET['file_index']) ? (int) $_GET['file_index'] : 0;
+$debug = isset($_GET['debug']) ? (int)$_GET['debug'] : 0;
+$rawMode = isset($_GET['raw']) ? (int)$_GET['raw'] : 0;
+$proofId = isset($_GET['proof_id']) ? (int)$_GET['proof_id'] : 0;
+$fileIndex = isset($_GET['file_index']) ? (int)$_GET['file_index'] : 0;
 
 // Localisation robuste du dossier uploads (au même niveau que Presenter)
 $projectRoot = dirname(__DIR__);
@@ -55,33 +55,52 @@ if ($proofId > 0) {
         http_err(404, 'Justificatif introuvable.');
     }
 
-    // Check if we should use proof_files (multiple files)
-    $storedPath = null;
+    // Extraire les fichiers depuis proof_files (JSONB) ou file_path
+    $allFiles = [];
+    
+    // 1. Vérifier proof_files (JSONB)
     if (!empty($row['proof_files'])) {
-        // Decode JSONB column
-        $files = is_array($row['proof_files']) ? $row['proof_files'] : json_decode($row['proof_files'], true);
-        if (is_array($files) && isset($files[$fileIndex])) {
-            $fileData = $files[$fileIndex];
-            // Support both 'path' and 'saved_path' keys for compatibility
-            $storedPath = $fileData['path'] ?? $fileData['saved_path'] ?? null;
-            $clientName = $fileData['original_name'] ?? $fileData['saved_name'] ?? 'file_' . $fileIndex;
-        } else {
-            http_err(404, 'Fichier introuvable à l\'index spécifié.');
+        $jsonFiles = $row['proof_files'];
+        
+        // Décoder si c'est une chaîne JSON
+        if (is_string($jsonFiles)) {
+            $decoded = json_decode($jsonFiles, true);
+            if (is_array($decoded)) {
+                $jsonFiles = $decoded;
+            }
         }
-    } elseif (!empty($row['file_path'])) {
-        // Fallback to old file_path column
-        $storedPath = $row['file_path'];
-        $clientName = basename($storedPath);
-    } else {
-        http_err(404, 'Aucun fichier trouvé pour ce justificatif.');
+        
+        // Extraire les chemins
+        if (is_array($jsonFiles)) {
+            foreach ($jsonFiles as $file) {
+                if (is_string($file)) {
+                    $allFiles[] = $file;
+                } elseif (is_array($file) && isset($file['path'])) {
+                    $allFiles[] = $file['path'];
+                } elseif (is_array($file) && isset($file['file_path'])) {
+                    $allFiles[] = $file['file_path'];
+                }
+            }
+        }
     }
-
-    if (!$storedPath) {
-        http_err(404, 'Chemin de fichier vide.');
+    
+    // 2. Fallback sur file_path si proof_files est vide
+    if (empty($allFiles) && !empty($row['file_path'])) {
+        $allFiles[] = $row['file_path'];
     }
-
-    // Normalisation: retire le préfixe uploads/ et sécurise les segments
-    $p = str_replace('\\', '/', trim((string) $storedPath));
+    
+    // Vérifier qu'on a au moins un fichier
+    if (empty($allFiles)) {
+        http_err(404, 'Aucun fichier associé à ce justificatif.');
+    }
+    
+    // Sélectionner le fichier selon l'index
+    if ($fileIndex >= count($allFiles)) {
+        http_err(404, 'Index de fichier invalide.');
+    }
+    
+    $storedPath = $allFiles[$fileIndex]; // ex: "uploads/68e4....png"
+    $p = str_replace('\\', '/', trim($storedPath));
     $p = ltrim($p, '/');
     if (stripos($p, 'uploads/') === 0) {
         $p = substr($p, strlen('uploads/'));
