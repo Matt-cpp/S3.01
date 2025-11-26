@@ -22,7 +22,7 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Connection</title>
+    <title>Connexion</title>
     <link rel="stylesheet" href="../assets/css/style_create_acc.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
