@@ -98,7 +98,16 @@ class StudentAbsencesPresenter
                 p.custom_reason as custom_motif,
                 p.file_path as file_path,
                 p.status as proof_status,
-                p.manager_comment
+                p.manager_comment,
+                m.id as makeup_id,
+                m.scheduled as makeup_scheduled,
+                m.makeup_date as makeup_date,
+                m.comment as makeup_comment,
+                m.duration_minutes as makeup_duration,
+                makeup_rm.code as makeup_room,
+                makeup_cs.start_time as makeup_start_time,
+                makeup_cs.end_time as makeup_end_time,
+                makeup_r.label as makeup_resource_label
             FROM absences a
             JOIN course_slots cs ON a.course_slot_id = cs.id
             LEFT JOIN resources r ON cs.resource_id = r.id
@@ -106,6 +115,10 @@ class StudentAbsencesPresenter
             LEFT JOIN rooms rm ON cs.room_id = rm.id
             LEFT JOIN proof_absences pa ON a.id = pa.absence_id
             LEFT JOIN proof p ON pa.proof_id = p.id
+            LEFT JOIN makeups m ON a.id = m.absence_id
+            LEFT JOIN rooms makeup_rm ON m.room_id = makeup_rm.id
+            LEFT JOIN course_slots makeup_cs ON m.evaluation_slot_id = makeup_cs.id
+            LEFT JOIN resources makeup_r ON makeup_cs.resource_id = makeup_r.id
             WHERE a.student_identifier = :student_id
         ";
 
