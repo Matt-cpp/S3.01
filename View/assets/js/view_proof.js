@@ -31,8 +31,10 @@ const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#F44336'];
  * Met à jour l'affichage des champs de périodes en fonction du nombre sélectionné
  * @param {string} startDate - Date de début par défaut (format YYYY-MM-DD)
  * @param {string} endDate - Date de fin par défaut (format YYYY-MM-DD)
+ * @param {string} startTime - Heure de début du justificatif original (format HH:MM)
+ * @param {string} endTime - Heure de fin du justificatif original (format HH:MM)
  */
-function updatePeriodFields(startDate, endDate) {
+function updatePeriodFields(startDate, endDate, startTime = '08:00', endTime = '18:00') {
     const numPeriods = parseInt(document.getElementById('num_periods').value);
     const container = document.getElementById('periodsContainer');
     container.innerHTML = '';
@@ -50,6 +52,8 @@ function updatePeriodFields(startDate, endDate) {
         
         const defaultStartDate = i === 1 ? startDate : '';
         const defaultEndDate = i === numPeriods ? endDate : '';
+        const defaultStartTime = i === 1 ? startTime : '08:00';
+        const defaultEndTime = i === numPeriods ? endTime : '18:00';
         
         periodDiv.innerHTML = `
             <h4 style="color: ${colors[(i-1) % colors.length]}; margin-top: 0;">Période ${i}</h4>
@@ -61,7 +65,7 @@ function updatePeriodFields(startDate, endDate) {
             <div class="form-group">
                 <label for="period${i}_start_time">Heure de début :</label>
                 <input type="time" name="period${i}_start_time" id="period${i}_start_time" 
-                       value="08:00" required>
+                       value="${defaultStartTime}" required>
             </div>
             <div class="form-group">
                 <label for="period${i}_end_date">Date de fin :</label>
@@ -71,7 +75,7 @@ function updatePeriodFields(startDate, endDate) {
             <div class="form-group">
                 <label for="period${i}_end_time">Heure de fin :</label>
                 <input type="time" name="period${i}_end_time" id="period${i}_end_time" 
-                       value="18:00" required>
+                       value="${defaultEndTime}" required>
             </div>
             <div class="form-group" style="border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px;">
                 <label style="display: flex; align-items: center; cursor: pointer;">

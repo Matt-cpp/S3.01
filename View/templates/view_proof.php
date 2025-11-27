@@ -329,7 +329,24 @@ if (!$proof) {
     if (document.getElementById('num_periods')) {
         const startDate = '<?= htmlspecialchars($proof['absence_start_date'] ?? '') ?>';
         const endDate = '<?= htmlspecialchars($proof['absence_end_date'] ?? '') ?>';
-        updatePeriodFields(startDate, endDate);
+        
+        // Extraire les heures depuis absence_start_datetime et absence_end_datetime
+        <?php
+        $startTime = '08:00';
+        $endTime = '18:00';
+        if (!empty($proof['absence_start_datetime'])) {
+            $dt = new DateTime($proof['absence_start_datetime']);
+            $startTime = $dt->format('H:i');
+        }
+        if (!empty($proof['absence_end_datetime'])) {
+            $dt = new DateTime($proof['absence_end_datetime']);
+            $endTime = $dt->format('H:i');
+        }
+        ?>
+        const startTime = '<?= $startTime ?>';
+        const endTime = '<?= $endTime ?>';
+        
+        updatePeriodFields(startDate, endDate, startTime, endTime);
     }
 
     // Gestion des select "Autre"

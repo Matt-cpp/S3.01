@@ -60,15 +60,20 @@ class ProofModel
                 return null;
             }
 
-            // récupération heure de début et de fin via la table proof_absences
-            $sqlAbs = "SELECT cs.course_date, cs.start_time, cs.end_time
-                FROM proof_absences pa
-                JOIN absences a ON pa.absence_id = a.id
+            // Récupération des heures de début et fin des PREMIERS et DERNIERS créneaux d'absence
+            // dans la période déclarée (absence_start_date à absence_end_date)
+            // Cela permet d'afficher les vraies heures même si certains jours n'ont pas d'absence liée
+            $sqlAbsAll = "SELECT cs.course_date, cs.start_time, cs.end_time
+                FROM absences a
                 JOIN course_slots cs ON a.course_slot_id = cs.id
-                WHERE pa.proof_id = :proof_id
+                WHERE a.student_identifier = :student_identifier
+                  AND cs.course_date BETWEEN :start_date AND :end_date
                 ORDER BY cs.course_date ASC, cs.start_time ASC";
-            $absences = $this->db->select($sqlAbs, [
-                'proof_id' => $proofId
+            
+            $absences = $this->db->select($sqlAbsAll, [
+                'student_identifier' => $result['student_identifier'],
+                'start_date' => $result['absence_start_date'],
+                'end_date' => $result['absence_end_date']
             ]);
             
             if ($absences && count($absences) > 0) {
@@ -77,28 +82,9 @@ class ProofModel
                 $result['absence_start_datetime'] = $first['course_date'] . ' ' . $first['start_time'];
                 $result['absence_end_datetime'] = $last['course_date'] . ' ' . $last['end_time'];
             } else {
-                // Fallback: chercher par étudiant et dates
-                $sqlAbsFallback = "SELECT cs.course_date, cs.start_time, cs.end_time
-                    FROM absences a
-                    JOIN course_slots cs ON a.course_slot_id = cs.id
-                    WHERE a.student_identifier = :student_identifier
-                      AND cs.course_date BETWEEN :start_date AND :end_date
-                    ORDER BY cs.course_date ASC, cs.start_time ASC";
-                $absences = $this->db->select($sqlAbsFallback, [
-                    'student_identifier' => $result['student_identifier'],
-                    'start_date' => $result['absence_start_date'],
-                    'end_date' => $result['absence_end_date']
-                ]);
-                
-                if ($absences && count($absences) > 0) {
-                    $first = $absences[0];
-                    $last = $absences[count($absences) - 1];
-                    $result['absence_start_datetime'] = $first['course_date'] . ' ' . $first['start_time'];
-                    $result['absence_end_datetime'] = $last['course_date'] . ' ' . $last['end_time'];
-                } else {
-                    $result['absence_start_datetime'] = $result['absence_start_date'] . ' 00:00:00';
-                    $result['absence_end_datetime'] = $result['absence_end_date'] . ' 00:00:00';
-                }
+                // Aucune absence trouvée dans la période : utiliser les dates déclarées avec heure par défaut
+                $result['absence_start_datetime'] = $result['absence_start_date'] . ' 08:00:00';
+                $result['absence_end_datetime'] = $result['absence_end_date'] . ' 18:00:00';
             }
 
             // Extraire les fichiers depuis proof_files (JSONB) ou file_path
@@ -630,8 +616,10 @@ class ProofModel
 
             // Créer un justificatif pour chaque période
             foreach ($periods as $index => $period) {
-                // Définir le statut : 'validated' si validate=true, sinon 'pending'
-                $status = (!empty($period['validate']) && $period['validate'] === true) ? 'validated' : 'pending';
+                // Définir le statut : 'accepted' si validate=true, sinon 'pending'
+                $status = (!empty($period['validate']) && $period['validate'] === true) ? 'accepted' : 'pending';
+                
+                error_log("DEBUG: Inserting proof with status: $status, validate=" . var_export($period['validate'], true));
                 
                 $this->db->execute($sqlInsert, [
                     'student_identifier' => $proof['student_identifier'],
@@ -649,32 +637,29 @@ class ProofModel
                 $newProofId = $this->db->lastInsertId();
                 $newProofIds[] = $newProofId;
                 
-                // Si validé, enregistrer dans l'historique
-                if ($status === 'validated' && $userId !== null) {
-                    try {
-                        $sqlHistoryValidation = "INSERT INTO decision_history
-                            (justification_id, user_id, action, old_status, new_status, comment, created_at)
-                            VALUES (:justification_id, :user_id, 'validate', 'pending', 'validated', :comment, NOW())";
-                        $this->db->execute($sqlHistoryValidation, [
-                            'justification_id' => $newProofId,
-                            'user_id' => $userId,
-                            'comment' => 'Validé automatiquement lors de la scission'
-                        ]);
-                    } catch (Exception $e) {
-                        error_log("Erreur lors de l'enregistrement de l'historique de validation : " . $e->getMessage());
-                    }
+                // Si validé, enregistrer dans l'historique avec action 'accept'
+                if ($status === 'accepted' && $userId !== null) {
+                    $sqlHistoryValidation = "INSERT INTO decision_history
+                        (justification_id, user_id, action, old_status, new_status, comment, created_at)
+                        VALUES (:justification_id, :user_id, 'accept', 'pending', 'accepted', :comment, NOW())";
+                    $this->db->execute($sqlHistoryValidation, [
+                        'justification_id' => $newProofId,
+                        'user_id' => $userId,
+                        'comment' => 'Validé automatiquement lors de la scission'
+                    ]);
                 }
             }
 
             // Réassigner les absences aux nouveaux justificatifs selon les périodes
+            // Un créneau est inclus s'il chevauche la période (pas nécessairement entièrement contenu)
             $sqlInsertAbsences = "INSERT INTO proof_absences (proof_id, absence_id)
                 SELECT :new_proof_id, pa.absence_id
                 FROM proof_absences pa
                 JOIN absences a ON pa.absence_id = a.id
                 JOIN course_slots cs ON a.course_slot_id = cs.id
                 WHERE pa.proof_id = :old_proof_id
-                  AND (cs.course_date || ' ' || cs.start_time)::timestamp >= :start_datetime::timestamp
-                  AND (cs.course_date || ' ' || cs.end_time)::timestamp <= :end_datetime::timestamp";
+                  AND (cs.course_date || ' ' || cs.end_time)::timestamp >= :start_datetime::timestamp
+                  AND (cs.course_date || ' ' || cs.start_time)::timestamp <= :end_datetime::timestamp";
 
             foreach ($periods as $index => $period) {
                 $this->db->execute($sqlInsertAbsences, [
@@ -685,22 +670,12 @@ class ProofModel
                 ]);
             }
 
-            // Enregistrer dans l'historique
-            if ($userId !== null) {
-                $sqlHistory = "INSERT INTO decision_history
-                    (justification_id, user_id, action, old_status, new_status, comment, created_at)
-                    VALUES (:justification_id, :user_id, 'split', :old_status, 'deleted', :comment, NOW())";
-                try {
-                    $this->db->execute($sqlHistory, [
-                        'justification_id' => $proofId,
-                        'user_id' => $userId,
-                        'old_status' => $proof['status'] ?? 'pending',
-                        'comment' => 'Scindé en ' . count($periods) . ' justificatifs (#' . implode(', #', $newProofIds) . ') : ' . $reason
-                    ]);
-                } catch (Exception $e) {
-                    error_log("Erreur lors de l'enregistrement de l'historique de scission : " . $e->getMessage());
-                }
-            }
+            // Note: L'historique de scission n'est pas enregistré car 'split' n'est pas une action valide
+            // Les nouveaux justificatifs créés contiennent l'information dans manager_comment
+
+            // Supprimer l'historique de décisions du justificatif original (avant de supprimer le justificatif)
+            $sqlDeleteHistory = "DELETE FROM decision_history WHERE justification_id = :proof_id";
+            $this->db->execute($sqlDeleteHistory, ['proof_id' => $proofId]);
 
             // Supprimer les liens dans proof_absences de l'original
             $sqlDeleteAbsences = "DELETE FROM proof_absences WHERE proof_id = :proof_id";
@@ -773,14 +748,15 @@ class ProofModel
             $newProofId2 = $this->db->lastInsertId();
 
             // Réassigner les absences aux nouveaux justificatifs en tenant compte des heures
+            // Un créneau est inclus s'il chevauche la période (pas nécessairement entièrement contenu)
             $sqlUpdateAbs1 = "INSERT INTO proof_absences (proof_id, absence_id)
                 SELECT :new_proof_id, pa.absence_id
                 FROM proof_absences pa
                 JOIN absences a ON pa.absence_id = a.id
                 JOIN course_slots cs ON a.course_slot_id = cs.id
                 WHERE pa.proof_id = :old_proof_id
-                  AND (cs.course_date || ' ' || cs.start_time)::timestamp >= :start_datetime::timestamp
-                  AND (cs.course_date || ' ' || cs.end_time)::timestamp <= :end_datetime::timestamp";
+                  AND (cs.course_date || ' ' || cs.end_time)::timestamp >= :start_datetime::timestamp
+                  AND (cs.course_date || ' ' || cs.start_time)::timestamp <= :end_datetime::timestamp";
             
             $this->db->execute($sqlUpdateAbs1, [
                 'new_proof_id' => $newProofId1,
@@ -796,22 +772,12 @@ class ProofModel
                 'end_datetime' => $split2End
             ]);
 
-            // Enregistrer la scission dans l'historique avant suppression
-            if ($userId !== null) {
-                $sqlHistory = "INSERT INTO decision_history
-                    (justification_id, user_id, action, old_status, new_status, comment, created_at)
-                    VALUES (:justification_id, :user_id, 'split', :old_status, 'deleted', :comment, NOW())";
-                try {
-                    $this->db->execute($sqlHistory, [
-                        'justification_id' => $proofId,
-                        'user_id' => $userId,
-                        'old_status' => $proof['status'] ?? 'pending',
-                        'comment' => 'Scindé en justificatifs #' . $newProofId1 . ' et #' . $newProofId2 . ' : ' . $reason
-                    ]);
-                } catch (Exception $e) {
-                    error_log("Erreur lors de l'enregistrement de l'historique de scission : " . $e->getMessage());
-                }
-            }
+            // Note: L'historique de scission n'est pas enregistré car 'split' n'est pas une action valide
+            // Les nouveaux justificatifs créés contiennent l'information dans manager_comment
+
+            // Supprimer l'historique de décisions du justificatif original (avant de supprimer le justificatif)
+            $sqlDeleteHistory = "DELETE FROM decision_history WHERE justification_id = :proof_id";
+            $this->db->execute($sqlDeleteHistory, ['proof_id' => $proofId]);
 
             // Supprimer les liens dans proof_absences de l'original
             $sqlDeleteAbsences = "DELETE FROM proof_absences WHERE proof_id = :proof_id";

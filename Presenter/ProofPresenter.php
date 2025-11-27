@@ -254,7 +254,7 @@ class ProofPresenter
 
                 // Vérification que les périodes ne se chevauchent pas et sont dans l'ordre
                 for ($i = 0; $i < count($periods) - 1; $i++) {
-                    if (strtotime($periods[$i]['end']) >= strtotime($periods[$i + 1]['start'])) {
+                    if (strtotime($periods[$i]['end']) > strtotime($periods[$i + 1]['start'])) {
                         $data['showSplitForm'] = true;
                         $data['splitError'] = "Les périodes " . ($i + 1) . " et " . ($i + 2) . " se chevauchent. Chaque période doit se terminer avant le début de la suivante.";
                         $this->enrichViewData($data);
@@ -262,6 +262,9 @@ class ProofPresenter
                     }
                 }
 
+                // Debug: afficher les périodes
+                error_log("DEBUG splitProofMultiple - periods: " . json_encode($periods));
+                
                 // Appel au modèle pour créer les justificatifs
                 $ok = $this->model->splitProofMultiple($proofId, $periods, $splitReason, $currentUserId);
                 if ($ok) {
