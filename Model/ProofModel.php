@@ -60,20 +60,15 @@ class ProofModel
                 return null;
             }
 
-            // Récupération des heures de début et fin des PREMIERS et DERNIERS créneaux d'absence
-            // dans la période déclarée (absence_start_date à absence_end_date)
-            // Cela permet d'afficher les vraies heures même si certains jours n'ont pas d'absence liée
-            $sqlAbsAll = "SELECT cs.course_date, cs.start_time, cs.end_time
-                FROM absences a
+            // récupération heure de début et de fin via la table proof_absences
+            $sqlAbs = "SELECT cs.course_date, cs.start_time, cs.end_time
+                FROM proof_absences pa
+                JOIN absences a ON pa.absence_id = a.id
                 JOIN course_slots cs ON a.course_slot_id = cs.id
-                WHERE a.student_identifier = :student_identifier
-                  AND cs.course_date BETWEEN :start_date AND :end_date
+                WHERE pa.proof_id = :proof_id
                 ORDER BY cs.course_date ASC, cs.start_time ASC";
-            
-            $absences = $this->db->select($sqlAbsAll, [
-                'student_identifier' => $result['student_identifier'],
-                'start_date' => $result['absence_start_date'],
-                'end_date' => $result['absence_end_date']
+            $absences = $this->db->select($sqlAbs, [
+                'proof_id' => $proofId
             ]);
             
             if ($absences && count($absences) > 0) {
@@ -81,10 +76,6 @@ class ProofModel
                 $last = $absences[count($absences) - 1];
                 $result['absence_start_datetime'] = $first['course_date'] . ' ' . $first['start_time'];
                 $result['absence_end_datetime'] = $last['course_date'] . ' ' . $last['end_time'];
-            } else {
-                // Aucune absence trouvée dans la période : utiliser les dates déclarées avec heure par défaut
-                $result['absence_start_datetime'] = $result['absence_start_date'] . ' 08:00:00';
-                $result['absence_end_datetime'] = $result['absence_end_date'] . ' 18:00:00';
             }
 
             // Extraire les fichiers depuis proof_files (JSONB) ou file_path
