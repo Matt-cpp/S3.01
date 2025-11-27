@@ -59,12 +59,8 @@ class EmailService
         $this->mail->Timeout = 120;
         $this->mail->SMTPKeepAlive = true;
 
-        // Enable debugging in development mode
-        if (env('APP_ENV', 'production') === 'development') {
-            $this->mail->SMTPDebug = SMTP::DEBUG_SERVER; // Show detailed debug output
-        } else {
-            $this->mail->SMTPDebug = 0; // No debug output in production
-        }
+        // Disable debug output
+        $this->mail->SMTPDebug = 0;
     }
 
     public function sendEmail($to, $subject, $body, $isHTML = true, $attachments = [], $images = [])
