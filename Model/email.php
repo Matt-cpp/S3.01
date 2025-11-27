@@ -38,7 +38,7 @@ class EmailService
         // Use port from .env file (default 587 for TLS)
         $mailPort = (int)env('MAIL_PORT', 587);
         $this->mail->Port = $mailPort;
-        
+
         // Use SSL for port 465, TLS for port 587
         if ($mailPort === 465) {
             $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL
@@ -59,12 +59,8 @@ class EmailService
         $this->mail->Timeout = 120;
         $this->mail->SMTPKeepAlive = true;
 
-        // Enable debugging in development mode
-        if (env('APP_ENV', 'production') === 'development') {
-            $this->mail->SMTPDebug = SMTP::DEBUG_SERVER; // Show detailed debug output
-        } else {
-            $this->mail->SMTPDebug = 0; // No debug output in production
-        }
+        // Disable debug output
+        $this->mail->SMTPDebug = 0;
     }
 
     public function sendEmail($to, $subject, $body, $isHTML = true, $attachments = [], $images = [])
@@ -163,7 +159,7 @@ if (basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
     ];
 
     $Email = $_SESSION['student_info']['email'] ?? $_SESSION['user_email'] ?? 'ambroise.bisiaux@uphf.fr';
-    
+
     $response = $emailService->sendEmail(
         $Email,
         'Test Subject with Attachments',
