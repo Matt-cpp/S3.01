@@ -102,10 +102,24 @@ class AbsenceMonitoringModel
     //Record that a student has returned to class
     public function recordStudentReturn($studentIdentifier, $absenceStartDate, $absenceEndDate, $lastAbsenceDate)
     {
+        // First, get the student_id from the identifier
+        $userQuery = "SELECT id FROM users WHERE identifier = :identifier";
+        try {
+            $user = $this->db->selectOne($userQuery, [':identifier' => $studentIdentifier]);
+            if (!$user) {
+                error_log("User not found for identifier: " . $studentIdentifier);
+                return null;
+            }
+            $studentId = $user['id'];
+        } catch (Exception $e) {
+            error_log("Error fetching user ID: " . $e->getMessage());
+            return null;
+        }
+
         $query = "
             INSERT INTO absence_monitoring 
-            (student_identifier, absence_period_start, absence_period_end, last_absence_date, return_detected_at, updated_at)
-            VALUES (:student_identifier, :absence_start, :absence_end, :last_absence, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            (student_id, student_identifier, absence_period_start, absence_period_end, last_absence_date, return_detected_at, updated_at)
+            VALUES (:student_id, :student_identifier, :absence_start, :absence_end, :last_absence, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             ON CONFLICT (student_identifier, absence_period_start, absence_period_end)
             DO UPDATE SET
                 return_detected_at = CURRENT_TIMESTAMP,
@@ -116,6 +130,7 @@ class AbsenceMonitoringModel
 
         try {
             $result = $this->db->selectOne($query, [
+                ':student_id' => $studentId,
                 ':student_identifier' => $studentIdentifier,
                 ':absence_start' => $absenceStartDate,
                 ':absence_end' => $absenceEndDate,

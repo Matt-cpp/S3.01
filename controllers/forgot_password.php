@@ -32,6 +32,7 @@ class ForgotPasswordController
     public function sendResetCode($email)
     {
         try {
+            $email = strtolower(trim($email));
             // Vérifier que l'email existe dans la base de données
             $stmt = $this->pdo->prepare("SELECT id, first_name, last_name FROM users WHERE email = ?");
             $stmt->execute([$email]);

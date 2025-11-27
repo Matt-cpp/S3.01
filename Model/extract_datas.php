@@ -566,8 +566,8 @@ class DataExtractor
             return null;
         }
 
-        // Convert "15H30" to "15:30:00"
-        $timeString = str_replace('H', ':', $timeString);
+        // Convert "15H30" or "15h30" to "15:30:00" (handle both uppercase and lowercase)
+        $timeString = str_ireplace('H', ':', $timeString);
         if (preg_match('/^(\d{1,2}):(\d{2})$/', $timeString, $matches)) {
             return sprintf('%02d:%02d:00', $matches[1], $matches[2]);
         }
@@ -581,10 +581,10 @@ class DataExtractor
             return null;
         }
 
-        // Convert "1H30" to minutes
-        if (preg_match('/^(\d+)H(\d+)$/', $durationString, $matches)) {
+        // Convert "1H30" or "1h30" to minutes (case-insensitive)
+        if (preg_match('/^(\d+)[Hh](\d+)$/', $durationString, $matches)) {
             return ($matches[1] * 60) + $matches[2];
-        } elseif (preg_match('/^(\d+)H$/', $durationString, $matches)) {
+        } elseif (preg_match('/^(\d+)[Hh]$/', $durationString, $matches)) {
             return $matches[1] * 60;
         }
 

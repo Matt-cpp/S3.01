@@ -28,16 +28,25 @@ class EmailService
         $this->mail->CharSet = 'UTF-8';
         $this->mail->Encoding = 'base64';
 
-        // Server settings - using SSL (port 465)
+        // Server settings - using TLS (port 587) or SSL (port 465)
         $this->mail->isSMTP();
         $this->mail->Host = env('MAIL_HOST', 'smtp.gmail.com');
         $this->mail->SMTPAuth = true;
         $this->mail->Username = env('MAIL_USER', '');
         $this->mail->Password = env('MAIL_PASSWORD', '');
-        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL
-        $this->mail->Port = 465;
 
-        // Connection options
+        // Use port from .env file (default 587 for TLS)
+        $mailPort = (int) env('MAIL_PORT', 587);
+        $this->mail->Port = $mailPort;
+
+        // Use SSL for port 465, TLS for port 587
+        if ($mailPort === 465) {
+            $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL
+        } else {
+            $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // TLS
+        }
+
+        // Connection options with extended timeout
         $this->mail->SMTPOptions = array(
             'ssl' => array(
                 'verify_peer' => false,
@@ -46,9 +55,11 @@ class EmailService
             )
         );
 
-        $this->mail->Timeout = 60;
+        // Extended timeout for slow connections
+        $this->mail->Timeout = 120;
+        $this->mail->SMTPKeepAlive = true;
 
-        // Disable debugging for production use
+        // Disable debug output
         $this->mail->SMTPDebug = 0;
     }
 
@@ -148,7 +159,7 @@ if (basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
     ];
 
     $Email = $_SESSION['student_info']['email'] ?? $_SESSION['user_email'] ?? 'ambroise.bisiaux@uphf.fr';
-    
+
     $response = $emailService->sendEmail(
         $Email,
         'Test Subject with Attachments',

@@ -2,6 +2,7 @@
 // Note: FILE_CONFIG is already defined in student_proof_submit.js
 let existingFilesToDelete = [];
 let newFilesToAdd = [];
+let hiddenInputs = []; // Track hidden file inputs
 
 //Marque un fichier existant pour suppression
 window.toggleDeleteExistingFile = function (checkbox, index) {
@@ -17,29 +18,62 @@ window.toggleDeleteExistingFile = function (checkbox, index) {
 
 //Déclenche la sélection de nouveaux fichiers
 window.addNewFiles = function () {
-  document.getElementById("proof_files").click();
+  // Create a new hidden file input for this selection
+  const hiddenInput = document.createElement("input");
+  hiddenInput.type = "file";
+  hiddenInput.name = "proof_files[]";
+  hiddenInput.multiple = true;
+  hiddenInput.accept = ".pdf,.jpg,.jpeg,.png,.doc,.docx,.gif";
+  hiddenInput.style.display = "none";
+
+  // Add change event listener
+  hiddenInput.addEventListener("change", function (e) {
+    handleNewFileSelection(e, hiddenInput);
+  });
+
+  // Add to form
+  const form = document.querySelector("form");
+  form.appendChild(hiddenInput);
+
+  // Trigger file selection
+  hiddenInput.click();
 };
 
 //Gère l'ajout de nouveaux fichiers
-function handleNewFileSelection(event) {
-  const fileInput = event.target;
-  const files = Array.from(fileInput.files);
+function handleNewFileSelection(event, hiddenInput) {
+  const files = Array.from(event.target.files);
 
-  if (files.length === 0) return;
+  console.log("Files selected from input:", files.length);
 
-  // Ajouter les nouveaux fichiers (éviter les doublons)
+  if (files.length === 0) {
+    // Remove the hidden input if no files selected
+    if (hiddenInput.parentNode) {
+      hiddenInput.parentNode.removeChild(hiddenInput);
+    }
+    return;
+  }
+
+  // Keep track of this hidden input
+  hiddenInputs.push(hiddenInput);
+
+  // Add new files to our display array (avoiding duplicates)
   files.forEach((newFile) => {
     const isDuplicate = newFilesToAdd.some(
       (existingFile) =>
         existingFile.name === newFile.name && existingFile.size === newFile.size
     );
     if (!isDuplicate) {
-      newFilesToAdd.push(newFile);
+      newFilesToAdd.push({
+        file: newFile,
+        inputElement: hiddenInput,
+      });
+      console.log("Added file:", newFile.name);
+    } else {
+      console.log("Duplicate file skipped:", newFile.name);
     }
   });
 
-  // Réinitialiser l'input
-  fileInput.value = "";
+  console.log("Total files to add:", newFilesToAdd.length);
 
   // Valider et afficher
   validateAndDisplayFiles();
@@ -47,7 +81,29 @@ function handleNewFileSelection(event) {
 
 //Supprime un nouveau fichier de la liste
 function removeNewFile(index) {
+  const fileToRemove = newFilesToAdd[index];
+
+  // Remove from array
   newFilesToAdd.splice(index, 1);
+
+  // If this was the only file in its input, remove the input
+  if (fileToRemove && fileToRemove.inputElement) {
+    const inputElement = fileToRemove.inputElement;
+    const filesInThisInput = newFilesToAdd.filter(
+      (f) => f.inputElement === inputElement
+    );
+
+    if (filesInThisInput.length === 0) {
+      // Remove the hidden input from DOM
+      if (inputElement.parentNode) {
+        inputElement.parentNode.removeChild(inputElement);
+      }
+      // Remove from tracking array
+      hiddenInputs = hiddenInputs.filter((input) => input !== inputElement);
+    }
+  }
+
+  console.log("Removed file, remaining:", newFilesToAdd.length);
   validateAndDisplayFiles();
 }
 
@@ -74,7 +130,9 @@ function validateAndDisplayFiles() {
 
   // Valider les nouveaux fichiers
   const validNewFiles = [];
-  newFilesToAdd.forEach((file) => {
+  newFilesToAdd.forEach((fileObj) => {
+    const file = fileObj.file;
+
     // Vérifier l'extension
     const extension = file.name.split(".").pop().toLowerCase();
     if (!FILE_CONFIG.allowedExtensions.includes(extension)) {
@@ -94,7 +152,7 @@ function validateAndDisplayFiles() {
     }
 
     totalSize += file.size;
-    validNewFiles.push(file);
+    validNewFiles.push(fileObj);
   });
 
   // Remplacer par les fichiers valides
@@ -122,7 +180,8 @@ function validateAndDisplayFiles() {
       '<strong style="color: #0066cc;">📎 Nouveaux fichiers à ajouter :</strong>';
     html += '<div style="margin-top: 10px;">';
 
-    newFilesToAdd.forEach((file, index) => {
+    newFilesToAdd.forEach((fileObj, index) => {
+      const file = fileObj.file;
       const icon = getFileIcon(file.name.split(".").pop().toLowerCase());
       html += `
                 <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: white; border-radius: 4px; margin-bottom: 6px;">
@@ -174,8 +233,8 @@ function updateFileSummary() {
       }
     }
   });
-  newFilesToAdd.forEach((file) => {
-    totalSize += file.size;
+  newFilesToAdd.forEach((fileObj) => {
+    totalSize += fileObj.file.size;
   });
 
   const sizePercent = (totalSize / FILE_CONFIG.maxTotalSize) * 100;
@@ -244,46 +303,35 @@ function escapeHtml(text) {
   return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
-//Synchronise le FileList de l'input avec le tableau newFilesToAdd
-function syncFileInputWithNewFiles() {
-  const fileInput = document.getElementById("proof_files");
-  if (!fileInput) return;
-
-  // Créer un nouveau DataTransfer pour construire le FileList
-  const dataTransfer = new DataTransfer();
-  newFilesToAdd.forEach((file) => {
-    dataTransfer.items.add(file);
-  });
-
-  // Mettre à jour l'input
-  fileInput.files = dataTransfer.files;
-}
-
 // Initialisation
 document.addEventListener("DOMContentLoaded", function () {
-  // Écouteur pour l'ajout de nouveaux fichiers
-  const fileInput = document.getElementById("proof_files");
-  if (fileInput) {
-    fileInput.addEventListener("change", handleNewFileSelection);
-  }
+  console.log("File edit script initialized");
 
-  // Synchroniser avant la soumission du formulaire
-  const form = fileInput ? fileInput.closest("form") : null;
+  // Vérifier avant la soumission du formulaire
+  const form = document.querySelector("form");
   if (form) {
     form.addEventListener("submit", function (e) {
-      // Vérifier qu'il reste au moins un fichier (existant non supprimé OU nouveau)
-      const existingCount = document.querySelectorAll(".existing-file-item").length;
-      const toDeleteCount = existingFilesToDelete.length;
-      const toAddCount = newFilesToAdd.length;
-      const finalCount = existingCount - toDeleteCount + toAddCount;
+      // Allow submission even with 0 files - files are optional
+      console.log("=== FORM SUBMIT ===");
+      console.log("Files to add:", newFilesToAdd.length);
+      console.log("Hidden inputs:", hiddenInputs.length);
 
-      if (finalCount === 0) {
-        e.preventDefault();
-        alert("Aucun fichier justificatif n'a été sélectionné. Veuillez ajouter au moins un fichier pour soumettre votre justificatif.");
-        return false;
-      }
+      // Log all hidden inputs and their files
+      hiddenInputs.forEach((input, idx) => {
+        console.log(`Hidden input ${idx}:`, input.files.length, "files");
+        for (let i = 0; i < input.files.length; i++) {
+          console.log(
+            `  File: ${input.files[i].name} (${input.files[i].size} bytes)`
+          );
+        }
+      });
 
-      syncFileInputWithNewFiles();
+      // Count total files that will be submitted
+      let totalFiles = 0;
+      hiddenInputs.forEach((input) => {
+        totalFiles += input.files.length;
+      });
+      console.log("Total files to upload:", totalFiles);
     });
   }
 

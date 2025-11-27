@@ -81,13 +81,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $max_file_size = 5 * 1024 * 1024; // 5MB
         $max_total_size = 20 * 1024 * 1024; // 20MB
 
-        if (isset($_FILES['proof_files']) && !empty($_FILES['proof_files']['name'][0])) {
+        // Log file upload attempt
+        error_log("File upload check - isset: " . (isset($_FILES['proof_files']) ? 'yes' : 'no'));
+        if (isset($_FILES['proof_files'])) {
+            error_log("Files array: " . print_r($_FILES['proof_files'], true));
+        }
+
+        if (isset($_FILES['proof_files']) && is_array($_FILES['proof_files']['name'])) {
             $files_count = count($_FILES['proof_files']['name']);
+            error_log("Processing $files_count file slots (some may be empty)");
+
             $total_size = array_sum(array_map(function ($f) {
                 return !empty($f['size']) ? $f['size'] : 0;
             }, $currentFiles));
 
             for ($i = 0; $i < $files_count; $i++) {
+                // Skip empty file slots (error code 4 = UPLOAD_ERR_NO_FILE)
+                if ($_FILES['proof_files']['error'][$i] === UPLOAD_ERR_NO_FILE) {
+                    error_log("Skipping empty file slot at index $i");
+                    continue;
+                }
+
                 if ($_FILES['proof_files']['error'][$i] === UPLOAD_ERR_OK) {
                     $file_extension = strtolower(pathinfo($_FILES['proof_files']['name'][$i], PATHINFO_EXTENSION));
                     $file_size = $_FILES['proof_files']['size'][$i];
@@ -112,8 +126,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $file_path = $upload_dir . $unique_name;
 
                     if (!move_uploaded_file($_FILES['proof_files']['tmp_name'][$i], $file_path)) {
+                        error_log("Failed to move uploaded file from " . $_FILES['proof_files']['tmp_name'][$i] . " to " . $file_path);
                         throw new Exception("Erreur lors de la sauvegarde du fichier {$original_name}.");
                     }
+
+                    error_log("Successfully uploaded file: $original_name as $unique_name");
 
                     // Déterminer le type MIME
                     $mime_type = 'application/octet-stream';

@@ -84,8 +84,14 @@ class RegistrationController
         }
     }
 
+    public function setToLowerMail($email)
+    {
+        return strtolower($email);
+    }
+
     public function createAccount($email, $password, $confirmPassword)
     {
+        $email = $this->setToLowerMail($email);
         try {
             // Vérifier que les mots de passe correspondent
             if ($password !== $confirmPassword) {

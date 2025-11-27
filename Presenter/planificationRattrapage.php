@@ -1,7 +1,8 @@
 <meta charset="UTF-8">
 <?php
 // Classe permettant la planification des rattrapages par les professeurs
-class planificationRattrapage{
+class planificationRattrapage
+{
     private $db;
     private $userId;
     private $lesDs;
@@ -14,18 +15,19 @@ class planificationRattrapage{
         require_once __DIR__ . '/../Model/email.php';
         $this->db = Database::getInstance();
         $this->userId = $this->linkTeacherUser($id);
-        $this->emailService = new EmailService();   
+        $this->emailService = new EmailService();
     }
-        private function linkTeacherUser(int $id)
+    private function linkTeacherUser(int $id)
     {
         $query = "SELECT teachers.id as id
         FROM users LEFT JOIN teachers ON teachers.email = users.email
-        WHERE users.id = " . $id; 
+        WHERE users.id = " . $id;
         $result = $this->db->select($query);
         return $result[0]['id'];
     }
-    
-    public function getLesDs(){
+
+    public function getLesDs()
+    {
         $query = "SELECT DISTINCT cs.id, cs.course_date, cs.start_time, r.label
         FROM course_slots cs
         INNER JOIN absences a ON a.course_slot_id = cs.id
@@ -36,7 +38,7 @@ class planificationRattrapage{
             AND a.justified = true
             AND m.id IS NULL
         ORDER BY cs.course_date DESC";
-        
+
         $result = $this->db->select($query);
 
         return $result;
@@ -56,28 +58,29 @@ class planificationRattrapage{
             AND a.justified = true
             AND m.id IS NULL
         ORDER BY cs.course_date DESC";
-        
+
         $result = $this->db->select($query);
-    
+
         return $result;
     }
-    public function insererRattrapage($idAbs, $evalId, $studentId, $dateRattrapage, $comment = null)
-    {
+    public function insererRattrapage($idAbs, $evalId, $studentId, $dateRattrapage, $roomId = null, $durationMinutes = null, $comment = null) {
         // Insérer le nouveau rattrapage
-        $insertQuery = "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, scheduled, makeup_date, comment) 
-                        VALUES (:absence_id, :evaluation_slot_id, :student_identifier, true, :makeup_date, :comment)";
+        $insertQuery = "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, scheduled, makeup_date, room_id, duration_minutes, comment) 
+                        VALUES (:absence_id, :evaluation_slot_id, :student_identifier, true, :makeup_date, :room_id, :duration_minutes, :comment)";
         $insertParams = [
             ':absence_id' => $idAbs,
             ':evaluation_slot_id' => $evalId,
             ':student_identifier' => $studentId,
             ':makeup_date' => $dateRattrapage,
+            ':room_id' => $roomId,
+            ':duration_minutes' => $durationMinutes,
             ':comment' => $comment
         ];
 
         $this->db->execute($insertQuery, $insertParams);
 
-        // Send email notification to student
-        $this->sendMakeupNotificationEmail($studentId, $evalId, $dateRattrapage, $comment);
+        // Send email notification to student with room and duration info
+        $this->sendMakeupNotificationEmail($studentId, $evalId, $dateRattrapage, $roomId, $durationMinutes, $comment);
 
         return true;
     }
@@ -85,7 +88,7 @@ class planificationRattrapage{
     /**
      * Send email notification to student about makeup session
      */
-    private function sendMakeupNotificationEmail($studentId, $evalId, $makeupDate, $comment)
+    private function sendMakeupNotificationEmail($studentId, $evalId, $makeupDate, $roomId = null, $durationMinutes = null, $comment = null)
     {
         try {
             // Get student information
@@ -99,13 +102,11 @@ class planificationRattrapage{
                 return;
             }
 
-            // Get course information
-            $courseQuery = "SELECT cs.course_date, cs.start_time, cs.end_time, 
-                                  r.label as resource_label, cs.course_type,
-                                  rm.name as room_name
+            // Get course information (original evaluation)
+            $courseQuery = "SELECT cs.course_date, cs.start_time, cs.end_time, cs.duration_minutes as original_duration,
+                                  r.label as resource_label, cs.course_type
                            FROM course_slots cs
                            LEFT JOIN resources r ON cs.resource_id = r.id
-                           LEFT JOIN rooms rm ON cs.room_id = rm.id
                            WHERE cs.id = :eval_id";
             $course = $this->db->selectOne($courseQuery, [':eval_id' => $evalId]);
 
@@ -113,6 +114,20 @@ class planificationRattrapage{
                 error_log("Cannot send makeup email: course not found for eval_id {$evalId}");
                 return;
             }
+
+            // Get makeup room information if roomId is provided
+            $makeupRoomName = 'À définir';
+            if ($roomId) {
+                $roomQuery = "SELECT code FROM rooms WHERE id = :room_id";
+                $room = $this->db->selectOne($roomQuery, [':room_id' => $roomId]);
+                if ($room) {
+                    $makeupRoomName = htmlspecialchars($room['code']);
+                }
+            }
+
+            // Determine duration for the makeup (use provided duration or original course duration)
+            $makeupDuration = $durationMinutes ?? $course['original_duration'] ?? null;
+            $durationText = $makeupDuration ? $makeupDuration . ' minutes' : 'Non spécifiée';
 
             $firstName = htmlspecialchars($student['first_name']);
             $lastName = htmlspecialchars($student['last_name']);
@@ -122,7 +137,6 @@ class planificationRattrapage{
             $startTime = substr($course['start_time'], 0, 5);
             $endTime = substr($course['end_time'], 0, 5);
             $makeupDateFormatted = date('d/m/Y', strtotime($makeupDate));
-            $roomName = $course['room_name'] ? htmlspecialchars($course['room_name']) : 'À définir';
             $commentText = $comment ? htmlspecialchars($comment) : '';
 
             $subject = "Rattrapage planifié - {$resourceLabel}";
@@ -135,7 +149,8 @@ class planificationRattrapage{
                 $startTime,
                 $endTime,
                 $makeupDateFormatted,
-                $roomName,
+                $makeupRoomName,
+                $durationText,
                 $commentText
             );
 
@@ -152,7 +167,7 @@ class planificationRattrapage{
     /**
      * Generate HTML email body for makeup notification
      */
-    private function generateMakeupEmailBody($firstName, $lastName, $resource, $courseType, $courseDate, $startTime, $endTime, $makeupDate, $room, $comment)
+    private function generateMakeupEmailBody($firstName, $lastName, $resource, $courseType, $courseDate, $startTime, $endTime, $makeupDate, $room, $duration, $comment)
     {
         $commentSection = $comment ? "<div class='info-box'><strong>Commentaire de l'enseignant :</strong><p>{$comment}</p></div>" : "";
 
@@ -217,6 +232,10 @@ class planificationRattrapage{
                     <tr>
                         <td>Salle</td>
                         <td>{$room}</td>
+                    </tr>
+                    <tr>
+                        <td>Durée</td>
+                        <td>{$duration}</td>
                     </tr>
                 </table>
             </div>

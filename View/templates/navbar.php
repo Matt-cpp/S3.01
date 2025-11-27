@@ -76,13 +76,37 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <span>Statistiques</span>
             </a>
         </nav>
+    <?php elseif ($user_role === 'teacher'): ?>
+        <!-- Teacher Navigation Menu -->
+        <nav class="nav-menu">
+            <a href="teacher_home.php"
+                class="nav-link <?php echo ($current_page == 'teacher_home.php') ? 'active' : ''; ?>">
+                <span class="nav-icon">📊</span>
+                <span>Tableau de bord</span>
+            </a>
+            <a href="planifier_rattrapage.php"
+                class="nav-link <?php echo ($current_page == 'planifier_rattrapage.php') ? 'active' : ''; ?>">
+                <span class="nav-icon">📅</span>
+                <span>Planifier rattrapage</span>
+            </a>
+            <a href="teacher_evals.php"
+                class="nav-link <?php echo ($current_page == 'teacher_evals.php') ? 'active' : ''; ?>">
+                <span class="nav-icon">📖</span>
+                <span>Mes évaluations</span>
+            </a>
+            <a href="teacher_statistics.php"
+                class="nav-link <?php echo ($current_page == 'teacher_statistics.php') ? 'active' : ''; ?>">
+                <span class="nav-icon">📈</span>
+                <span>Statistiques</span>
+            </a>
+        </nav>
     <?php endif; ?>
 
     <?php if ($user_role !== 'student'): ?>
-    <div class="header-icons">
-        <a href="<?php echo htmlspecialchars($home_url); ?>" class="icon-link" title="Accueil">
-            <div class="icon home">🏠</div>
-        </a>
+        <div class="header-icons">
+            <a href="<?php echo htmlspecialchars($home_url); ?>" class="icon-link" title="Accueil">
+                <div class="icon home">🏠</div>
+            </a>
         <?php endif; ?>
         <?php if ($user_role === 'student'): ?>
             <a href="student_info.php" class="icon-link" title="Informations et procédure">
