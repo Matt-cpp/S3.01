@@ -419,3 +419,16 @@ ALTER TABLE makeups ADD COLUMN room_id INTEGER REFERENCES rooms(id);
 ALTER TABLE makeups ADD COLUMN duration_minutes INTEGER;
 --rollback ALTER TABLE makeups DROP COLUMN IF EXISTS duration_minutes;
 --rollback ALTER TABLE makeups DROP COLUMN IF EXISTS room_id;
+
+--changeset collard.yony:fix-absence-monitoring-unique-constraint labels:Fix constraint context:absence-monitoring
+--comment: Add unique constraint on student_identifier for absence_monitoring to support ON CONFLICT queries
+
+-- Drop the old constraint if it exists (based on student_id)
+ALTER TABLE absence_monitoring DROP CONSTRAINT IF EXISTS absence_monitoring_student_id_absence_period_start_absence__key;
+
+-- Add new unique constraint based on student_identifier
+ALTER TABLE absence_monitoring ADD CONSTRAINT absence_monitoring_student_identifier_period_unique 
+    UNIQUE (student_identifier, absence_period_start, absence_period_end);
+
+--rollback ALTER TABLE absence_monitoring DROP CONSTRAINT IF EXISTS absence_monitoring_student_identifier_period_unique;
+--rollback ALTER TABLE absence_monitoring ADD CONSTRAINT absence_monitoring_student_id_absence_period_start_absence__key UNIQUE (student_id, absence_period_start, absence_period_end);

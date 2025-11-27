@@ -36,9 +36,9 @@ class EmailService
         $this->mail->Password = env('MAIL_PASSWORD', '');
 
         // Use port from .env file (default 587 for TLS)
-        $mailPort = (int)env('MAIL_PORT', 587);
+        $mailPort = (int) env('MAIL_PORT', 587);
         $this->mail->Port = $mailPort;
-        
+
         // Use SSL for port 465, TLS for port 587
         if ($mailPort === 465) {
             $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL
@@ -163,7 +163,7 @@ if (basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
     ];
 
     $Email = $_SESSION['student_info']['email'] ?? $_SESSION['user_email'] ?? 'ambroise.bisiaux@uphf.fr';
-    
+
     $response = $emailService->sendEmail(
         $Email,
         'Test Subject with Attachments',
