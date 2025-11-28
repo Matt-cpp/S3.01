@@ -79,7 +79,7 @@ function getAbsenceStatistics($student_identifier)
                     ELSE 'afternoon'
                 END as period,
                 MAX(CASE WHEN proof_status = 'accepted' THEN 1 ELSE 0 END) as is_justified,
-                MAX(CASE WHEN proof_status != 'accepted' THEN 1 ELSE 0 END) as is_unjustified,
+                MAX(CASE WHEN proof_status != 'accepted' OR absence_justified is FALSE THEN 1 ELSE 0 END) as is_unjustified,
                 MAX(CASE WHEN (has_proof IS NULL OR proof_status = 'under_review') THEN 1 ELSE 0 END) as is_justifiable
             FROM absence_stats
             GROUP BY course_date, period
