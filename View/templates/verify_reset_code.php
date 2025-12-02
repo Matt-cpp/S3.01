@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>Vérification du code</title>
     <link rel="stylesheet" href="../assets/css/style_create_acc.css">
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
 </head>
 
 <body>
@@ -40,7 +42,8 @@
                     <p><a href="forgot_password.php">Retour à la réinitialisation</a></p>
                 </div>
             <?php else: ?>
-                <div class="info-message" style="background-color: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 10px; margin-bottom: 20px; border-radius: 4px;">
+                <div class="info-message"
+                    style="background-color: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 10px; margin-bottom: 20px; border-radius: 4px;">
                     Code envoyé à : <strong><?php echo htmlspecialchars($_SESSION['reset_email']); ?></strong>
                 </div>
 
@@ -49,12 +52,7 @@
 
                     <div class="form-group">
                         <label for="reset_code">Code de vérification (6 chiffres):</label>
-                        <input type="text"
-                            id="reset_code"
-                            name="reset_code"
-                            required
-                            maxlength="6"
-                            pattern="[0-9]{6}"
+                        <input type="text" id="reset_code" name="reset_code" required maxlength="6" pattern="[0-9]{6}"
                             placeholder="123456"
                             style="text-align: center; font-size: 24px; letter-spacing: 5px; font-weight: bold;">
                         <small style="color: #666; font-size: 12px;">Le code expire dans 15 minutes</small>
@@ -95,7 +93,7 @@
         }
 
         // Auto-format du code (optionnel)
-        document.getElementById('reset_code').addEventListener('input', function(e) {
+        document.getElementById('reset_code').addEventListener('input', function (e) {
             // Supprimer tout caractère non-numérique
             this.value = this.value.replace(/\D/g, '');
         });

@@ -32,6 +32,8 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
     <link rel="icon" type="image/x-icon" href="../img/logoIUT.ico">
     <title>Validé</title>
     <link rel="stylesheet" href="../assets/css/student_proof_validation.css">
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
 </head>
 
 <body>
@@ -105,15 +107,16 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
                 <li><strong>Précision du motif :</strong>
                     <?php echo htmlspecialchars($_SESSION['reason_data']['other_reason']); ?></li>
             <?php endif; ?>
-            
+
             <?php
             // Display uploaded files
             $proof_files = $_SESSION['reason_data']['proof_files'] ?? [];
             $file_count = is_array($proof_files) ? count($proof_files) : 0;
-            
+
             if ($file_count > 0):
                 ?>
-                <li><strong>Fichier(s) justificatif(s) :</strong> <?php echo $file_count; ?> fichier<?php echo $file_count > 1 ? 's' : ''; ?>
+                <li><strong>Fichier(s) justificatif(s) :</strong> <?php echo $file_count; ?>
+                    fichier<?php echo $file_count > 1 ? 's' : ''; ?>
                     <ul style="margin-top: 5px;">
                         <?php foreach ($proof_files as $file): ?>
                             <li>
@@ -126,7 +129,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
             <?php else: ?>
                 <li><strong>Fichier(s) justificatif(s) :</strong> Aucun fichier fourni</li>
             <?php endif; ?>
-            
+
             <?php if (!empty($_SESSION['reason_data']['comments'])): ?>
                 <li><strong>Commentaires :</strong>
                     <?php echo nl2br(htmlspecialchars($_SESSION['reason_data']['comments'])); ?></li>
@@ -160,20 +163,20 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
                     <?php if ($stats_hours > 0): ?>
                         <div class="stats-summary">
                             <div class="stat-item">
-                                <span class="stat-label">⏱️ Nombre total d'heures :</span>
+                                <span class="stat-label">Nombre total d'heures :</span>
                                 <span class="stat-value"><?php echo number_format($stats_hours, 1); ?>h</span>
                             </div>
 
                             <?php if ($stats_halfdays > 0): ?>
                                 <div class="stat-item">
-                                    <span class="stat-label">📅 Demi-journées :</span>
+                                    <span class="stat-label">Demi-journées :</span>
                                     <span class="stat-value"><?php echo number_format($stats_halfdays, 1); ?></span>
                                 </div>
                             <?php endif; ?>
 
                             <?php if (!empty($stats_course_types)): ?>
                                 <div class="stat-item">
-                                    <span class="stat-label">📚 Types de cours :</span>
+                                    <span class="stat-label">Types de cours :</span>
                                     <div class="course-types">
                                         <?php foreach ($stats_course_types as $type => $count): ?>
                                             <span class="course-type-tag"><?php echo htmlspecialchars($type); ?>
@@ -194,7 +197,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
 
                     <?php if (!empty($cours) && $cours !== ''): ?>
                         <div class="courses-details">
-                            <h4>📋 Cours concernés</h4>
+                            <h4>Cours concernés</h4>
                             <div class="courses-list">
                                 <?php
                                 if (is_array($cours)) {
@@ -227,18 +230,16 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
                                             <?php endif; ?>
                                         </div>
                                         <div class="eval-details">
-                                            <span class="eval-info">📅
-                                                <?php echo htmlspecialchars($eval['course_date'] ?? ''); ?></span>
-                                            <span class="eval-info">🕐
-                                                <?php echo htmlspecialchars($eval['start_time'] ?? ''); ?>-<?php echo htmlspecialchars($eval['end_time'] ?? ''); ?></span>
+                                            <?php echo htmlspecialchars($eval['course_date'] ?? ''); ?>
+                                            <?php echo htmlspecialchars($eval['start_time'] ?? ''); ?>-<?php echo htmlspecialchars($eval['end_time'] ?? ''); ?></span>
                                             <?php if (!empty($eval['course_type'])): ?>
-                                                <span class="eval-info">📚 <?php echo htmlspecialchars($eval['course_type']); ?></span>
+                                                <span class="eval-info"><?php echo htmlspecialchars($eval['course_type']); ?></span>
                                             <?php endif; ?>
                                             <?php if (!empty($eval['teacher'])): ?>
-                                                <span class="eval-info">👨‍🏫 <?php echo htmlspecialchars($eval['teacher']); ?></span>
+                                                <span class="eval-info"><?php echo htmlspecialchars($eval['teacher']); ?></span>
                                             <?php endif; ?>
                                             <?php if (!empty($eval['room'])): ?>
-                                                <span class="eval-info">🏫 <?php echo htmlspecialchars($eval['room']); ?></span>
+                                                <span class="eval-info"><?php echo htmlspecialchars($eval['room']); ?></span>
                                             <?php endif; ?>
                                         </div>
                                     </div>

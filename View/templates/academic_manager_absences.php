@@ -22,11 +22,13 @@
 
     <div class="main-content">
         <div class="stats-header">
-            <h1>📅 Gestion des Absences</h1>
+            <h1>Gestion des Absences</h1>
             <p class="subtitle">Consultation et gestion de toutes les absences</p>
         </div>
 
         <div class="absences-section">
+            <h2 class="section-title">Liste des Absences</h2>
+            <p class="section-subtitle">Absences signalées dans le système</p>
             <?php
             if (isset($_GET['page'])) {
                 $page = intval($_GET['page']);

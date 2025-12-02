@@ -6,6 +6,8 @@
     <title>Nouveau mot de passe</title>
     <link rel="stylesheet" href="../assets/css/style_create_acc.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
 </head>
 
 <body>
@@ -51,11 +53,7 @@
                     <div class="form-group">
                         <label for="new_password">Nouveau mot de passe:</label>
                         <div class="password-wrapper">
-                            <input type="password"
-                                id="new_password"
-                                name="new_password"
-                                required
-                                minlength="8"
+                            <input type="password" id="new_password" name="new_password" required minlength="8"
                                 placeholder="Au moins 8 caractères">
                             <i class="fas fa-eye toggle-password" onclick="togglePassword('new_password', this)"></i>
                         </div>
@@ -65,11 +63,7 @@
                     <div class="form-group">
                         <label for="confirm_password">Confirmer le nouveau mot de passe:</label>
                         <div class="password-wrapper">
-                            <input type="password"
-                                id="confirm_password"
-                                name="confirm_password"
-                                required
-                                minlength="8">
+                            <input type="password" id="confirm_password" name="confirm_password" required minlength="8">
                             <i class="far fa-eye toggle-password" onclick="togglePassword('confirm_password', this)"></i>
                         </div>
                     </div>
@@ -126,7 +120,7 @@
         confirmPassword.addEventListener('input', checkPasswords);
 
         // Validation de la force du mot de passe
-        password.addEventListener('input', function() {
+        password.addEventListener('input', function () {
             const strength = document.getElementById('password-strength');
             if (!strength) {
                 const strengthDiv = document.createElement('div');

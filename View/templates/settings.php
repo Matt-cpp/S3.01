@@ -29,7 +29,7 @@
             <!-- User Information Section -->
             <div class="settings-section">
                 <div class="section-header">
-                    <h2 class="section-title">👤 Informations personnelles</h2>
+                    <h2 class="section-title">Informations personnelles</h2>
                     <p class="section-description">Vos informations de compte</p>
                 </div>
                 
@@ -86,25 +86,25 @@
             <?php if ($statistics): ?>
             <div class="settings-section">
                 <div class="section-header">
-                    <h2 class="section-title">📊 Statistiques</h2>
+                    <h2 class="section-title">Statistiques</h2>
                     <p class="section-description">Vos absences en un coup d'œil</p>
                 </div>
                 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon">📝</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-number"><?php echo $statistics['total_absences']; ?></div>
                         <div class="stat-label">Absences totales</div>
                     </div>
                     
                     <div class="stat-card success">
-                        <div class="stat-icon">✅</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-number"><?php echo $statistics['justified_absences']; ?></div>
                         <div class="stat-label">Absences justifiées</div>
                     </div>
                     
                     <div class="stat-card warning">
-                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-number"><?php echo $statistics['unjustified_absences']; ?></div>
                         <div class="stat-label">Absences non justifiées</div>
                     </div>
@@ -115,7 +115,7 @@
             <!-- Password Change Section -->
             <div class="settings-section">
                 <div class="section-header">
-                    <h2 class="section-title">🔒 Sécurité</h2>
+                    <h2 class="section-title">Sécurité</h2>
                     <p class="section-description">Modifiez votre mot de passe</p>
                 </div>
                 
@@ -166,7 +166,7 @@
             <!-- Appearance Section -->
             <div class="settings-section">
                 <div class="section-header">
-                    <h2 class="section-title">🎨 Apparence</h2>
+                    <h2 class="section-title">Apparence</h2>
                     <p class="section-description">Personnalisez l'interface</p>
                 </div>
                 
@@ -187,7 +187,7 @@
                                     <div class="preview-line short"></div>
                                 </div>
                             </div>
-                            <div class="theme-name">☀️ Mode clair</div>
+                            <div class="theme-name">Mode clair</div>
                         </div>
                     </label>
                     
@@ -207,7 +207,7 @@
                                     <div class="preview-line short"></div>
                                 </div>
                             </div>
-                            <div class="theme-name">🌙 Mode sombre</div>
+                            <div class="theme-name">Mode sombre</div>
                         </div>
                     </label>
                 </div>

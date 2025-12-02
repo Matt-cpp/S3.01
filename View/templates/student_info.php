@@ -17,6 +17,8 @@ if (!isset($_SESSION['id_student'])) {
     <title>Informations et Procédure</title>
 
     <link rel="stylesheet" href="../assets/css/student_info.css">
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
 </head>
 
 <body>
@@ -46,8 +48,8 @@ if (!isset($_SESSION['id_student'])) {
                         <span class="link-icon">📄</span>
                         <div>
                             <strong>Règlement intérieur :</strong><br>
-                            <a href="https://recueildesactes.uphf.fr/download/f3c230cc-c68b-45b0-b1b9-b7e60868b6ce" target="_blank"
-                                class="external-link">
+                            <a href="https://recueildesactes.uphf.fr/download/f3c230cc-c68b-45b0-b1b9-b7e60868b6ce"
+                                target="_blank" class="external-link">
                                 Consultez le règlement intérieur complet (PDF)
                             </a>
                         </div>
@@ -130,7 +132,7 @@ if (!isset($_SESSION['id_student'])) {
                             </span>
                         </p>
                         <p>
-                            Ce système de pénalité s'applique de manière cumulative. Plus vous accumulez d'absences 
+                            Ce système de pénalité s'applique de manière cumulative. Plus vous accumulez d'absences
                             non justifiées, plus l'impact sur votre moyenne sera important.
                         </p>
                     </div>

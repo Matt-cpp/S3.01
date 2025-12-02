@@ -25,7 +25,7 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
         <!-- Header Section -->
         <div class="stats-header">
             <div class="stats-title">
-                <span class="stats-icon">📊</span>
+                <span class="stats-icon"></span>
                 <div>
                     <h1>Statistiques des absences</h1>
                     <p>Analyse complète et interactive des absences</p>
@@ -36,7 +36,7 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
         <!-- Filters Section -->
         <div class="filters-section">
             <div class="filters-header" id="filters-toggle">
-                <span class="filter-icon">🔍</span>
+                <span class="filter-icon"></span>
                 <span>Filtres</span>
                 <span class="toggle-arrow">▼</span>
             </div>
@@ -84,35 +84,45 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
         <!-- KPI Cards -->
         <div class="kpi-cards">
             <div class="kpi-card kpi-blue">
-                <div class="kpi-icon">📊</div>
+                <div class="kpi-icon"></div>
                 <div class="kpi-content">
                     <span class="kpi-label">Total des absences</span>
                     <span class="kpi-value" id="total-absences"><?= $stats['total_absences'] ?? 0 ?></span>
                 </div>
             </div>
             <div class="kpi-card kpi-cyan">
-                <div class="kpi-icon">👥</div>
+                <div class="kpi-icon"></div>
                 <div class="kpi-content">
                     <span class="kpi-label">Étudiants concernés</span>
                     <span class="kpi-value" id="total-students"><?= $stats['total_students'] ?? 0 ?></span>
                 </div>
             </div>
             <div class="kpi-card kpi-green">
-                <div class="kpi-icon">✅</div>
+                <div class="kpi-icon"></div>
                 <div class="kpi-content">
                     <span class="kpi-label">Absences justifiées</span>
                     <span class="kpi-value" id="justified-absences"><?= $stats['justified'] ?? 0 ?></span>
                 </div>
             </div>
             <div class="kpi-card kpi-red">
-                <div class="kpi-icon">⚠️</div>
+                <div class="kpi-icon"></div>
                 <div class="kpi-content">
                     <span class="kpi-label">Absences non justifiées</span>
                     <span class="kpi-value" id="unjustified-absences"><?= $stats['unjustified'] ?? 0 ?></span>
                 </div>
             </div>
+<<<<<<< Updated upstream
+=======
+            <div class="kpi-card kpi-purple">
+                <div class="kpi-icon"></div>
+                <div class="kpi-content">
+                    <span class="kpi-label">Absences en évaluation</span>
+                    <span class="kpi-value" id="evaluation-absences"><?= $stats['evaluation_absences'] ?? 0 ?></span>
+                </div>
+            </div>
+>>>>>>> Stashed changes
             <div class="kpi-card kpi-orange">
-                <div class="kpi-icon">📈</div>
+                <div class="kpi-icon"></div>
                 <div class="kpi-content">
                     <span class="kpi-label">Moyenne par étudiant</span>
                     <span class="kpi-value" id="average-absences"><?= number_format($stats['average'] ?? 0, 2) ?></span>
@@ -122,7 +132,7 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
 
         <!-- Semester Analysis -->
         <div class="section-title">
-            <span class="section-icon">📅</span>
+            <span class="section-icon"></span>
             <h2>Analyse par semestre</h2>
         </div>
         <div class="semester-cards">
@@ -175,6 +185,17 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
             </div>
         </div>
 
+<<<<<<< Updated upstream
+=======
+        <!-- Evaluation Absences by Subject Chart -->
+        <div class="chart-card chart-full">
+            <h3>Absences en évaluation par matière</h3>
+            <div class="chart-container-large">
+                <canvas id="evaluationSubjectChart"></canvas>
+            </div>
+        </div>
+
+>>>>>>> Stashed changes
         <!-- Monthly Evolution Chart -->
         <div class="chart-card chart-full">
             <h3>Évolution mensuelle des absences</h3>
@@ -195,7 +216,6 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
         <!-- Tableau des étudiants avec le plus d'absences -->
         <div class="ranking-card">
             <div class="ranking-header">
-                <span class="ranking-icon">🎯</span>
                 <h2>Étudiants avec le plus d'absences</h2>
             </div>
             <div class="ranking-table-container">
@@ -239,7 +259,7 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
             <div class="modal-content-large">
                 <div class="modal-header-detail">
                     <div class="student-detail-title">
-                        <span class="detail-icon">📊</span>
+                        <span class="detail-icon"></span>
                         <div>
                             <h2 id="detail-student-name">Statistiques de Thomas Robert</h2>
                             <p id="detail-student-id">Identifiant: 55667788</p>
@@ -255,28 +275,28 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
                 <!-- KPI Cards for student -->
                 <div class="student-kpi-cards">
                     <div class="student-kpi-card kpi-blue">
-                        <div class="student-kpi-icon">📊</div>
+                        <div class="student-kpi-icon"></div>
                         <div class="student-kpi-content">
                             <span class="student-kpi-label">Total des absences</span>
                             <span class="student-kpi-value" id="detail-total">6</span>
                         </div>
                     </div>
                     <div class="student-kpi-card kpi-green">
-                        <div class="student-kpi-icon">✅</div>
+                        <div class="student-kpi-icon"></div>
                         <div class="student-kpi-content">
                             <span class="student-kpi-label">Absences justifiées</span>
                             <span class="student-kpi-value" id="detail-justified">1</span>
                         </div>
                     </div>
                     <div class="student-kpi-card kpi-red">
-                        <div class="student-kpi-icon">⚠️</div>
+                        <div class="student-kpi-icon"></div>
                         <div class="student-kpi-content">
                             <span class="student-kpi-label">Absences non justifiées</span>
                             <span class="student-kpi-value" id="detail-unjustified">5</span>
                         </div>
                     </div>
                     <div class="student-kpi-card kpi-cyan">
-                        <div class="student-kpi-icon">📈</div>
+                        <div class="student-kpi-icon"></div>
                         <div class="student-kpi-content">
                             <span class="student-kpi-label">Taux de justification</span>
                             <span class="student-kpi-value" id="detail-rate">17%</span>

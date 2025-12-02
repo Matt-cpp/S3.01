@@ -22,6 +22,8 @@ $errorMessage = $presenter->getErrorMessage();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../assets/css/style_historique.css">
     <title>Historique des absences</title>
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
 </head>
 <body>
     <?php include __DIR__ . '/navbar.php'; ?>

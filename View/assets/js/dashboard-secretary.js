@@ -128,7 +128,7 @@ function pollImportProgress(importId) {
       console.error("Progress polling error:", error);
       clearInterval(interval);
     }
-  }, 1000); // Poll every second
+  }, 500); // Poll every 500ms for smoother progress updates
 }
 
 function updateProgress(percentage, statusText) {

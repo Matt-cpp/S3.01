@@ -32,7 +32,10 @@ body {
 .stats-header h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #1f2937;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 0.5rem;
 }
 
@@ -222,7 +225,6 @@ body {
     gap: 1rem;
     align-items: center;
     transition: all 0.3s ease;
-    border-left: 4px solid #4338ca;
 }
 
 .stat-card:hover {
@@ -230,22 +232,29 @@ body {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
-.stat-card-success {
-    border-left-color: #059669;
+.stat-card-success .stat-icon {
+    background: #d1fae5;
 }
 
-.stat-card-danger {
-    border-left-color: #dc2626;
+.stat-card-danger .stat-icon {
+    background: #fee2e2;
 }
 
-.stat-card-warning {
-    border-left-color: #ea580c;
+.stat-card-warning .stat-icon {
+    background: #fef3c7;
 }
 
-.stat-card-info {
-    border-left-color: #0891b2;
+.stat-card-info .stat-icon {
+    background: #dbeafe;
 }
 
+<<<<<<< Updated upstream
+=======
+.stat-card-purple .stat-icon {
+    background: #ede9fe;
+}
+
+>>>>>>> Stashed changes
 .stat-icon {
     font-size: 2.5rem;
     line-height: 1;

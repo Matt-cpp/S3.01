@@ -74,6 +74,10 @@ try {
     exit(1);
 }
 
+/**
+ * Update job status using a separate connection to bypass any active transactions
+ * This ensures progress updates are immediately visible
+ */
 function updateJobStatus($db, $importId, $status, $processedRows = null, $message = null)
 {
     $updates = ["status = :status", "updated_at = NOW()"];
@@ -90,7 +94,24 @@ function updateJobStatus($db, $importId, $status, $processedRows = null, $messag
     }
 
     $sql = "UPDATE import_jobs SET " . implode(', ', $updates) . " WHERE id = :id";
-    $db->execute($sql, $params);
+
+    // Use a separate PDO connection to bypass the main transaction
+    // This ensures progress updates are immediately committed and visible
+    static $progressPdo = null;
+    if ($progressPdo === null) {
+        require_once __DIR__ . '/../../Model/env.php';
+        $host = env('DB_HOST', 'localhost');
+        $port = env('DB_PORT', '5432');
+        $dbname = env('DB_NAME', 'database');
+        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};options='--client_encoding=UTF8'";
+        $progressPdo = new PDO($dsn, env('DB_USER', 'user'), env('DB_PASSWORD', ''), [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]);
+    }
+
+    $stmt = $progressPdo->prepare($sql);
+    $stmt->execute($params);
 }
 
 function processCSVWithExtractor($db, $importId, $filepath, $totalRows)
@@ -132,8 +153,8 @@ function processCSVWithExtractor($db, $importId, $filepath, $totalRows)
                 processRowFromExtractor($db, $data);
                 $processedCount++;
 
-                // Update progress every 10 rows
-                if ($processedCount % 10 === 0 || $processedCount === $totalRows) {
+                // Update progress every 2 rows
+                if ($processedCount % 2 === 0 || $processedCount === $totalRows) {
                     $message = "Traitement en cours: $processedCount/$totalRows lignes";
                     updateJobStatus($db, $importId, 'processing', $processedCount, $message);
                 }

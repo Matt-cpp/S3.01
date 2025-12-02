@@ -49,14 +49,14 @@
 
     <div class="main-content">
         <div class="stats-header">
-            <h1>📈 Statistiques des absences</h1>
+            <h1>Statistiques des absences</h1>
             <p class="subtitle">Analyse complète et interactive des absences</p>
         </div>
 
         <!-- Filters Section -->
         <div class="filters-container">
             <button class="toggle-filters-btn" onclick="toggleFilters()">
-                <span class="filter-icon">🔍</span>
+                <span class="filter-icon"></span>
                 <span>Filtres</span>
                 <span class="arrow">▼</span>
             </button>
@@ -169,7 +169,7 @@
         <?php if (!$studentIdentifier): ?>
             <div class="student-search-container">
                 <div class="search-box">
-                    <input type="text" id="studentSearch" placeholder="🔍 Rechercher un étudiant par nom ou identifiant..."
+                    <input type="text" id="studentSearch" placeholder="Rechercher un étudiant par nom ou identifiant..."
                         onkeyup="searchStudent()">
                     <div id="searchResults" class="search-results"></div>
                 </div>
@@ -180,7 +180,7 @@
             <!-- Student-Specific View -->
             <div class="student-view">
                 <div class="student-header">
-                    <h2>📊 Statistiques de <?php echo htmlspecialchars($studentStats['student_name']); ?></h2>
+                    <h2>Statistiques de <?php echo htmlspecialchars($studentStats['student_name']); ?></h2>
                     <p>Identifiant: <?php echo htmlspecialchars($studentStats['identifier']); ?></p>
                     <a href="?" class="btn btn-secondary">← Retour à la vue générale</a>
                 </div>
@@ -188,7 +188,7 @@
                 <!-- Student Summary Cards -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon">📊</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-content">
                             <div class="stat-title">Total des absences</div>
                             <div class="stat-number"><?php echo $studentStats['total_absences'] ?? 0; ?></div>
@@ -196,7 +196,7 @@
                     </div>
 
                     <div class="stat-card stat-card-success">
-                        <div class="stat-icon">✅</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-content">
                             <div class="stat-title">Absences justifiées</div>
                             <div class="stat-number"><?php echo $studentStats['justified_absences'] ?? 0; ?></div>
@@ -204,15 +204,26 @@
                     </div>
 
                     <div class="stat-card stat-card-danger">
-                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-content">
                             <div class="stat-title">Absences non justifiées</div>
                             <div class="stat-number"><?php echo $studentStats['unjustified_absences'] ?? 0; ?></div>
                         </div>
                     </div>
 
+<<<<<<< Updated upstream
+=======
+                    <div class="stat-card stat-card-purple">
+                        <div class="stat-icon"></div>
+                        <div class="stat-content">
+                            <div class="stat-title">Absences en évaluation</div>
+                            <div class="stat-number"><?php echo $studentStats['evaluation_absences'] ?? 0; ?></div>
+                        </div>
+                    </div>
+
+>>>>>>> Stashed changes
                     <div class="stat-card stat-card-info">
-                        <div class="stat-icon">📈</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-content">
                             <div class="stat-title">Taux de justification</div>
                             <div class="stat-number">
@@ -252,7 +263,7 @@
             <?php if ($generalStats): ?>
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon">📊</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-content">
                             <div class="stat-title">Total des absences</div>
                             <div class="stat-number"><?php echo $generalStats['total_absences'] ?? 0; ?></div>
@@ -260,7 +271,7 @@
                     </div>
 
                     <div class="stat-card stat-card-info">
-                        <div class="stat-icon">👥</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-content">
                             <div class="stat-title">Étudiants concernés</div>
                             <div class="stat-number"><?php echo $generalStats['total_students'] ?? 0; ?></div>
@@ -268,7 +279,7 @@
                     </div>
 
                     <div class="stat-card stat-card-success">
-                        <div class="stat-icon">✅</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-content">
                             <div class="stat-title">Absences justifiées</div>
                             <div class="stat-number"><?php echo $generalStats['justified_absences'] ?? 0; ?></div>
@@ -276,15 +287,26 @@
                     </div>
 
                     <div class="stat-card stat-card-danger">
-                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-content">
                             <div class="stat-title">Absences non justifiées</div>
                             <div class="stat-number"><?php echo $generalStats['unjustified_absences'] ?? 0; ?></div>
                         </div>
                     </div>
 
+<<<<<<< Updated upstream
+=======
+                    <div class="stat-card stat-card-purple">
+                        <div class="stat-icon"></div>
+                        <div class="stat-content">
+                            <div class="stat-title">Absences en évaluation</div>
+                            <div class="stat-number"><?php echo $generalStats['evaluation_absences'] ?? 0; ?></div>
+                        </div>
+                    </div>
+
+>>>>>>> Stashed changes
                     <div class="stat-card stat-card-warning">
-                        <div class="stat-icon">📈</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-content">
                             <div class="stat-title">Moyenne par étudiant</div>
                             <div class="stat-number"><?php echo $generalStats['avg_absences_per_student'] ?? 0; ?></div>
@@ -296,7 +318,7 @@
             <!-- Semester Analysis -->
             <?php if (!empty($semesterData)): ?>
                 <div class="semester-section">
-                    <h2>📅 Analyse par semestre</h2>
+                    <h2>Analyse par semestre</h2>
                     <div class="semester-grid">
                         <?php foreach ($semesterData as $semester => $data): ?>
                             <div class="semester-card">
@@ -340,6 +362,19 @@
                     <canvas id="resourceChart"></canvas>
                 </div>
 
+<<<<<<< Updated upstream
+=======
+                <div class="chart-card">
+                    <h3>Absences en évaluation par matière</h3>
+                    <canvas id="evaluationResourceChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Taux de justification par matière</h3>
+                    <canvas id="justificationRateChart"></canvas>
+                </div>
+
+>>>>>>> Stashed changes
                 <div class="chart-card chart-card-large">
                     <h3>Évolution mensuelle des absences</h3>
                     <canvas id="monthlyTrendChart"></canvas>
@@ -354,7 +389,7 @@
             <!-- Top Absent Students -->
             <?php if (!empty($topStudents)): ?>
                 <div class="top-students-section">
-                    <h2>🎯 Étudiants avec le plus d'absences</h2>
+                    <h2>Étudiants avec le plus d'absences</h2>
                     <div class="students-table">
                         <table>
                             <thead>
@@ -652,7 +687,11 @@
                     labels: <?php echo json_encode($resourceTrends['months']); ?>,
                     datasets: [
                         <?php foreach ($resourceTrends['datasets'] as $index => $dataset): ?>
+<<<<<<< Updated upstream
                                                     {
+=======
+                                                                                                    {
+>>>>>>> Stashed changes
                                 label: <?php echo json_encode($dataset['label']); ?>,
                                 data: <?php echo json_encode($dataset['data']); ?>,
                                 borderColor: '<?php echo $dataset['color']; ?>',
@@ -660,7 +699,11 @@
                                 tension: 0.4,
                                 fill: true
                             }<?php echo $index < count($resourceTrends['datasets']) - 1 ? ',' : ''; ?>
+<<<<<<< Updated upstream
                                         <?php endforeach; ?>
+=======
+                                                                        <?php endforeach; ?>
+>>>>>>> Stashed changes
                     ]
                 };
 

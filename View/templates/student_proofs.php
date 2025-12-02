@@ -46,6 +46,8 @@ $errorMessage = $presenter->getErrorMessage();
     <title>Mes Justificatifs</title>
 
     <link rel="stylesheet" href="../assets/css/student_proofs.css">
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
 </head>
 
 <body>

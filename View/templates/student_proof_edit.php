@@ -26,6 +26,8 @@ $editData = $_SESSION['edit_proof'];
     <title>Modification Justificatif Élève</title>
 
     <link rel="stylesheet" href="../assets/css/student_proof_submit.css">
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
     <script>
         // Pass PHP session data to JavaScript
         window.studentId = <?php echo $_SESSION['id_student'] ?? 1; ?>;
@@ -171,14 +173,14 @@ $editData = $_SESSION['edit_proof'];
                                 <a href="../../Presenter/view_upload_proof.php?proof_id=<?php echo $editData['proof_id']; ?>&file_index=<?php echo $index; ?>"
                                     target="_blank"
                                     style="padding: 6px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 13px; white-space: nowrap;">
-                                    👁️ Voir
+                                    Voir
                                 </a>
                                 <label
                                     style="display: flex; align-items: center; gap: 5px; cursor: pointer; margin: 0; padding: 6px 12px; background: #dc3545; color: white; border-radius: 4px; font-size: 13px; white-space: nowrap;">
                                     <input type="checkbox" name="delete_files[]" value="<?php echo $index; ?>"
                                         onchange="toggleDeleteExistingFile(this, <?php echo $index; ?>)"
                                         style="margin: 0; cursor: pointer;">
-                                    <span>🗑️ Supprimer</span>
+                                    <span>Supprimer</span>
                                 </label>
                             </div>
                         <?php endforeach; ?>

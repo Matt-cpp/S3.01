@@ -28,22 +28,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <nav class="nav-menu">
             <a href="student_home_page.php"
                 class="nav-link <?php echo ($current_page == 'student_home_page.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📊</span>
                 <span>Tableau de bord</span>
             </a>
             <a href="student_absences.php"
                 class="nav-link <?php echo ($current_page == 'student_absences.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📅</span>
                 <span>Mes absences</span>
             </a>
             <a href="student_proofs.php"
                 class="nav-link <?php echo ($current_page == 'student_proofs.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📄</span>
                 <span>Mes justificatifs</span>
             </a>
             <a href="student_statistics.php"
                 class="nav-link <?php echo ($current_page == 'student_statistics.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📈</span>
                 <span>Statistiques</span>
             </a>
             <a href="student_proof_submit.php"
@@ -57,22 +53,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <nav class="nav-menu">
             <a href="academic_manager_home.php"
                 class="nav-link <?php echo ($current_page == 'academic_manager_home.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📊</span>
                 <span>Tableau de bord</span>
             </a>
             <a href="academic_manager_absences.php"
                 class="nav-link <?php echo ($current_page == 'academic_manager_absences.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📅</span>
                 <span>Absences</span>
             </a>
             <a href="historique_proof.php"
                 class="nav-link <?php echo ($current_page == 'historique_proof.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📄</span>
                 <span>Justificatifs</span>
             </a>
             <a href="academic_manager_statistics.php"
                 class="nav-link <?php echo ($current_page == 'academic_manager_statistics.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📈</span>
                 <span>Statistiques</span>
             </a>
         </nav>
@@ -81,28 +73,24 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <nav class="nav-menu">
             <a href="teacher_home.php"
                 class="nav-link <?php echo ($current_page == 'teacher_home.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📊</span>
                 <span>Tableau de bord</span>
             </a>
             <a href="planifier_rattrapage.php"
                 class="nav-link <?php echo ($current_page == 'planifier_rattrapage.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📅</span>
                 <span>Planifier rattrapage</span>
             </a>
             <a href="teacher_evals.php"
                 class="nav-link <?php echo ($current_page == 'teacher_evals.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📖</span>
                 <span>Mes évaluations</span>
             </a>
             <a href="teacher_statistics.php"
                 class="nav-link <?php echo ($current_page == 'teacher_statistics.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">📈</span>
                 <span>Statistiques</span>
             </a>
         </nav>
     <?php endif; ?>
 
-    <?php if ($user_role !== 'student'): ?>
+    <?php if ($user_role === 'secretary'): ?>
         <div class="header-icons">
             <a href="<?php echo htmlspecialchars($home_url); ?>" class="icon-link" title="Accueil">
                 <div class="icon home">🏠</div>
@@ -114,8 +102,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <span>❓</span>
                 </div>
             </a>
-        <?php else: ?>
-            <div class="icon notification" title="Notifications"></div>
         <?php endif; ?>
         <a href="/View/templates/settings.php" class="icon-link">
             <div class="icon settings" title="Paramètres"></div>

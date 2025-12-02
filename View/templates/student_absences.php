@@ -40,6 +40,8 @@ $errorMessage = $presenter->getErrorMessage();
     <title>Mes Absences</title>
 
     <link rel="stylesheet" href="../assets/css/student_absences.css">
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
 </head>
 
 <body>

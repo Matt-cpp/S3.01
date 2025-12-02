@@ -23,11 +23,13 @@ $errorMessage = $presenter->getErrorMessage();
     <link rel="stylesheet" href="../assets/css/style_historique.css">
     <link rel="icon" type="image/x-icon" href="../img/logoIUT.ico">
     <title>Historique des justificatifs</title>
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
 </head>
 <body>
     <?php include __DIR__ . '/navbar.php'; ?>
     <main>
-        <h1 style="text-align: center; margin-bottom: 30px; color: #1f2937; font-size: 2rem; font-weight: 600;">Historique des justificatifs</h1>
+        <h1 style="text-align: center; margin-bottom: 30px; font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Historique des justificatifs</h1>
         
         <?php if (!empty($errorMessage)): ?>
             <div class="error-message">

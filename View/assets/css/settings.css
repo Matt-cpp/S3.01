@@ -1,19 +1,20 @@
 /* Settings Page Styles */
 
 :root {
-    --primary-color: rgb(0, 139, 172);
-    --primary-hover: rgb(0, 120, 150);
+    --primary-color: #667eea;
+    --primary-hover: #5568d3;
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --success-color: #10b981;
     --warning-color: #f59e0b;
     --danger-color: #ef4444;
-    --text-primary: #333;
-    --text-secondary: #666;
-    --text-light: #999;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --text-light: #9ca3af;
     --bg-primary: #ffffff;
-    --bg-secondary: #f8f9fa;
+    --bg-secondary: #f5f7fa;
     --border-color: #e5e7eb;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    --radius: 12px;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --radius: 16px;
 }
 
 /* Dark mode variables */
@@ -28,12 +29,13 @@ body.dark-mode {
 }
 
 body {
-    background-color: var(--bg-secondary);
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     transition: background-color 0.3s ease, color 0.3s ease;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .main-content {
@@ -54,7 +56,10 @@ body {
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    color: var(--text-primary);
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .page-subtitle {
@@ -65,7 +70,7 @@ body {
 
 /* Settings Section */
 .settings-section {
-    background: var(--bg-primary);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
     border-radius: var(--radius);
     padding: 2rem;
     box-shadow: var(--shadow);
@@ -75,7 +80,7 @@ body {
 .section-header {
     margin-bottom: 2rem;
     padding-bottom: 1rem;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid #667eea;
 }
 
 .section-title {
@@ -123,7 +128,7 @@ body {
 .role-badge {
     display: inline-block;
     padding: 0.5rem 1rem;
-    background: var(--primary-color);
+    background: var(--primary-gradient);
     color: white;
     border-radius: 20px;
     font-size: 0.875rem;
@@ -161,6 +166,7 @@ body {
 .stat-icon {
     font-size: 2rem;
     margin-bottom: 0.5rem;
+    display: none;
 }
 
 .stat-number {
@@ -206,7 +212,7 @@ body {
 .form-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 139, 172, 0.1);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .form-hint {
@@ -258,14 +264,14 @@ body {
 }
 
 .btn-primary {
-    background: var(--primary-color);
+    background: var(--primary-gradient);
     color: white;
 }
 
 .btn-primary:hover {
-    background: var(--primary-hover);
+    background: linear-gradient(135deg, #5568d3 0%, #6a4193 100%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 139, 172, 0.3);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
 }
 
 .btn-primary:active {
@@ -302,7 +308,7 @@ body {
 
 .theme-option input[type="radio"]:checked + .theme-card {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 139, 172, 0.1);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .theme-card:hover {
@@ -372,7 +378,7 @@ body {
 
 /* Footer Styles */
 .footer {
-    background-color: var(--primary-color);
+    background: var(--primary-gradient);
     color: white;
     padding: 2rem;
     margin-top: 3rem;

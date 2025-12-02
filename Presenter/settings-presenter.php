@@ -17,9 +17,13 @@ class SettingsPresenter
 
         $this->userModel = new UserModel();
 
-        // For now, we'll use a default user (user ID 1)
-        // In production, you would get this from the session
-        $userId = $_SESSION['id_student'] ?? 1;
+
+
+        if (isset($_SESSION['user_id'])) {
+            $userId = $_SESSION['user_id'];
+        } else {
+            $userId = null;
+        }
         $this->currentUser = $this->userModel->getUserById($userId);
     }
 

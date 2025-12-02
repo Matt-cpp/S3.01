@@ -62,7 +62,6 @@ if (!isset($_SESSION['id_student'])) {
         <!-- Vue d'ensemble principale -->
         <div class="overview-section">
             <div class="overview-card primary">
-                <div class="card-icon">📅</div>
                 <div class="card-content">
                     <div class="card-label">Demi-journées manquées</div>
                     <div class="card-value"><?php echo $stats['total_half_days']; ?></div>
@@ -71,7 +70,6 @@ if (!isset($_SESSION['id_student'])) {
             </div>
 
             <div class="overview-card danger">
-                <div class="card-icon">❌</div>
                 <div class="card-content">
                     <div class="card-label">Demi-journées non justifiées</div>
                     <div class="card-value"><?php echo $stats['half_days_unjustified']; ?></div>
@@ -82,7 +80,6 @@ if (!isset($_SESSION['id_student'])) {
             </div>
 
             <div class="overview-card warning">
-                <div class="card-icon">⏳</div>
                 <div class="card-content">
                     <div class="card-label">Demi-journées justifiables</div>
                     <div class="card-value"><?php echo $stats['half_days_justifiable']; ?></div>
@@ -93,7 +90,6 @@ if (!isset($_SESSION['id_student'])) {
             </div>
 
             <div class="overview-card success">
-                <div class="card-icon">✅</div>
                 <div class="card-content">
                     <div class="card-label">Demi-journées justifiées</div>
                     <div class="card-value"><?php echo $stats['half_days_justified']; ?></div>
@@ -102,7 +98,6 @@ if (!isset($_SESSION['id_student'])) {
             </div>
 
             <div class="overview-card info">
-                <div class="card-icon">📆</div>
                 <div class="card-content">
                     <div class="card-label">Ce mois-ci</div>
                     <div class="card-value"><?php echo $stats['half_days_this_month']; ?></div>
@@ -111,7 +106,6 @@ if (!isset($_SESSION['id_student'])) {
             </div>
 
             <div class="overview-card secondary">
-                <div class="card-icon">📚</div>
                 <div class="card-content">
                     <div class="card-label">Total absences</div>
                     <div class="card-value"><?php echo $stats['total_absences_count']; ?></div>
@@ -123,7 +117,6 @@ if (!isset($_SESSION['id_student'])) {
         <!-- Barre de progression de justification -->
         <div class="justification-progress-section">
             <h2 class="section-heading">
-                <span class="heading-icon">📊</span>
                 Taux de justification des demi-journées d'absence
             </h2>
             <div class="progress-container">
@@ -156,12 +149,12 @@ if (!isset($_SESSION['id_student'])) {
                     style="margin-top: 1.5rem; padding: 1rem; background: <?php echo $half_points_lost > 0 ? '#fee2e2' : '#dcfce7'; ?>; border-radius: 8px; text-align: center;">
                     <span style="font-size: 1rem; color: #4b5563;">
                         <?php if ($half_points_lost > 0): ?>
-                            ⚠️ <strong style="color: #dc2626;"><?php echo $half_points_lost; ?> point(s) perdu(s)</strong>
+                            <strong style="color: #dc2626;"><?php echo $half_points_lost; ?> point(s) perdu(s)</strong>
                             dans la moyenne
                             <span style="display: block; font-size: 0.875rem; margin-top: 0.25rem;">(5 demi-journées non
                                 justifiées = 0,5 point perdu)</span>
                         <?php else: ?>
-                            ✅ <strong style="color: #16a34a;">Aucun point perdu !</strong>
+                            <strong style="color: #16a34a;">Aucun point perdu !</strong>
                         <?php endif; ?>
                     </span>
                 </div>
@@ -171,12 +164,12 @@ if (!isset($_SESSION['id_student'])) {
         <!-- Statut des justificatifs -->
         <div class="proofs-status-section">
             <h2 class="section-heading">
-                <span class="heading-icon">📄</span>
+                <span class="heading-icon"></span>
                 État de vos justificatifs
             </h2>
             <div class="proofs-grid">
                 <a href="student_proofs.php?status=accepted" class="proof-card proof-accepted">
-                    <div class="proof-icon">✅</div>
+                    <div class="proof-icon"></div>
                     <div class="proof-content">
                         <div class="proof-count"><?php echo $stats['accepted_proofs']; ?></div>
                         <div class="proof-label">Acceptés</div>
@@ -185,7 +178,7 @@ if (!isset($_SESSION['id_student'])) {
                 </a>
 
                 <a href="student_proofs.php?status=pending" class="proof-card proof-pending">
-                    <div class="proof-icon">🕐</div>
+                    <div class="proof-icon"></div>
                     <div class="proof-content">
                         <div class="proof-count"><?php echo $stats['pending_proofs']; ?></div>
                         <div class="proof-label">En attente</div>
@@ -194,7 +187,7 @@ if (!isset($_SESSION['id_student'])) {
                 </a>
 
                 <a href="student_proofs.php?status=under_review" class="proof-card proof-review">
-                    <div class="proof-icon">⚠️</div>
+                    <div class="proof-icon"></div>
                     <div class="proof-content">
                         <div class="proof-count"><?php echo $stats['under_review_proofs']; ?></div>
                         <div class="proof-label">En révision</div>
@@ -203,7 +196,7 @@ if (!isset($_SESSION['id_student'])) {
                 </a>
 
                 <a href="student_proofs.php?status=rejected" class="proof-card proof-rejected">
-                    <div class="proof-icon">❌</div>
+                    <div class="proof-icon"></div>
                     <div class="proof-content">
                         <div class="proof-count"><?php echo $stats['rejected_proofs']; ?></div>
                         <div class="proof-label">Refusés</div>
@@ -216,7 +209,7 @@ if (!isset($_SESSION['id_student'])) {
         <!-- Alerte si demi-journées non justifiées -->
         <?php if ($stats['half_days_justifiable'] > 0 && $stats['under_review_proofs'] == 0): ?>
             <div class="alert-box alert-warning">
-                <div class="alert-icon">⚠️</div>
+                <div class="alert-icon"></div>
                 <div class="alert-content">
                     <div class="alert-title">Action requise : Demi-journées non justifiées</div>
                     <div class="alert-message">
@@ -226,7 +219,7 @@ if (!isset($_SESSION['id_student'])) {
                         pénalités.
                     </div>
                     <a href="student_proof_submit.php" class="alert-action">
-                        <span>➕</span> Soumettre un justificatif
+                        Soumettre un justificatif
                     </a>
                 </div>
             </div>
@@ -235,7 +228,7 @@ if (!isset($_SESSION['id_student'])) {
         <!-- Alerte si justificatifs en révision -->
         <?php if ($stats['under_review_proofs'] > 0): ?>
             <div class="alert-box alert-info">
-                <div class="alert-icon">💬</div>
+                <div class="alert-icon"></div>
                 <div class="alert-content">
                     <div class="alert-title">Informations complémentaires requises</div>
                     <div class="alert-message">
@@ -253,8 +246,7 @@ if (!isset($_SESSION['id_student'])) {
         <?php if (count($recentAbsences) > 0): ?>
             <div class="absences-section">
                 <h2 class="section-title">
-                    <span class="status-badge" style="background-color: #e0e7ff; color: #4338ca;">📚 Dernières
-                        absences</span>
+                    <span class="status-badge" style="background-color: #e0e7ff; color: #4338ca;">Dernières absences</span>
                 </h2>
                 <div class="absences-subtitle">Derniers cours manqués</div>
                 <div class="absences-table-container">
@@ -279,28 +271,28 @@ if (!isset($_SESSION['id_student'])) {
                                 $proofStatus = $absence['proof_status'] ?? null;
                                 $modalStatus = 'none';
                                 $statusText = 'Non justifiée';
-                                $statusIcon = '✗';
+                                $statusIcon = '';
                                 $statusClass = 'status-unjustified';
 
                                 if ($proofStatus === 'accepted') {
                                     $modalStatus = 'accepted';
                                     $statusText = 'Justifiée';
-                                    $statusIcon = '✅';
+                                    $statusIcon = '';
                                     $statusClass = 'status-justified';
                                 } elseif ($proofStatus === 'under_review') {
                                     $modalStatus = 'under_review';
                                     $statusText = 'En révision';
-                                    $statusIcon = '⚠️';
+                                    $statusIcon = '';
                                     $statusClass = 'status-under-review';
                                 } elseif ($proofStatus === 'pending') {
                                     $modalStatus = 'pending';
                                     $statusText = 'En attente';
-                                    $statusIcon = '🕐';
+                                    $statusIcon = '';
                                     $statusClass = 'status-pending';
                                 } elseif ($proofStatus === 'rejected') {
                                     $modalStatus = 'rejected';
                                     $statusText = 'Rejeté';
-                                    $statusIcon = '🚫';
+                                    $statusIcon = '';
                                     $statusClass = 'status-unjustified';
                                 }
 
@@ -380,9 +372,11 @@ if (!isset($_SESSION['id_student'])) {
                                         </span>
                                     <td>
                                         <?php if ($absence['is_evaluation']): ?>
-                                            <span class="eval-badge">⚠️ Oui</span>
+                                            <span class="eval-badge">Oui</span>
                                             <?php if (!empty($absence['makeup_id']) && !empty($absence['makeup_scheduled'])): ?>
-                                                <br><span class="makeup-badge" style="background-color: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; display: inline-block;">📝 Rattrapage prévu</span>
+                                                <br><span class="makeup-badge"
+                                                    style="background-color: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; display: inline-block;">Rattrapage
+                                                    prévu</span>
                                             <?php endif; ?>
                                         <?php else: ?>
                                             <span class="no-eval">Non</span>
@@ -409,7 +403,7 @@ if (!isset($_SESSION['id_student'])) {
         <?php if (count($proofsByCategory['under_review']) > 0): ?>
             <div class="absences-section">
                 <h2 class="section-title">
-                    <span class="status-badge status-under-review">⚠️ Justificatifs en révision</span>
+                    <span class="status-badge status-under-review">Justificatifs en révision</span>
                 </h2>
                 <div class="absences-subtitle">Justificatifs nécessitant des informations supplémentaires</div>
                 <div class="absences-table-container">
@@ -458,7 +452,7 @@ if (!isset($_SESSION['id_student'])) {
                                     data-absences="<?php echo $proof['nb_absences'] ?? 0; ?>"
                                     data-half-days="<?php echo $proof['half_days_count'] ?? 0; ?>"
                                     data-submission="<?php echo date('d/m/Y \\à H\\hi', strtotime($proof['submission_date'])); ?>"
-                                    data-status-text="En révision" data-status-icon="⚠️" data-status-class="badge-warning"
+                                    data-status-text="En révision" data-status-icon="" data-status-class="badge-warning"
                                     data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
                                     data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>"
                                     data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
@@ -487,7 +481,7 @@ if (!isset($_SESSION['id_student'])) {
                                     <td><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
                                     <td>
                                         <?php if ($proof['has_exam']): ?>
-                                            <span class="eval-badge">⚠️ Éval</span>
+                                            <span class="eval-badge">Éval</span>
                                         <?php else: ?>
                                             <span class="no-eval">-</span>
                                         <?php endif; ?>
@@ -504,7 +498,7 @@ if (!isset($_SESSION['id_student'])) {
                                         <a href="../../Presenter/get_proof_for_edit.php?proof_id=<?php echo $proof['proof_id']; ?>"
                                             class="btn-add-info" onclick="event.stopPropagation();"
                                             title="Ajouter des informations">
-                                            📝 Compléter
+                                            Compléter
                                         </a>
                                     </td>
                                 </tr>
@@ -523,7 +517,7 @@ if (!isset($_SESSION['id_student'])) {
         <?php if (count($proofsByCategory['pending']) > 0): ?>
             <div class="absences-section">
                 <h2 class="section-title">
-                    <span class="status-badge status-pending">🕐 Justificatifs en attente de validation</span>
+                    <span class="status-badge status-pending">Justificatifs en attente de validation</span>
                 </h2>
                 <div class="absences-subtitle">En attente de vérification par le responsable pédagogique</div>
                 <div class="absences-table-container">
@@ -570,7 +564,7 @@ if (!isset($_SESSION['id_student'])) {
                                     data-absences="<?php echo $proof['nb_absences'] ?? 0; ?>"
                                     data-half-days="<?php echo $proof['half_days_count'] ?? 0; ?>"
                                     data-submission="<?php echo date('d/m/Y \\à H\\hi', strtotime($proof['submission_date'])); ?>"
-                                    data-processing="-" data-status-text="En attente" data-status-icon="🕐"
+                                    data-processing="-" data-status-text="En attente" data-status-icon=""
                                     data-status-class="badge-info" data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
                                     data-comment="" data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
                                     <td>
@@ -598,7 +592,7 @@ if (!isset($_SESSION['id_student'])) {
                                     <td><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
                                     <td>
                                         <?php if ($proof['has_exam']): ?>
-                                            <span class="eval-badge">⚠️ Éval</span>
+                                            <span class="eval-badge">Éval</span>
                                         <?php else: ?>
                                             <span class="no-eval">-</span>
                                         <?php endif; ?>
@@ -619,7 +613,7 @@ if (!isset($_SESSION['id_student'])) {
         <?php if (count($proofsByCategory['accepted']) > 0): ?>
             <div class="absences-section">
                 <h2 class="section-title">
-                    <span class="status-badge status-justified">✅ Justificatifs validés</span>
+                    <span class="status-badge status-justified">Justificatifs validés</span>
                 </h2>
                 <div class="absences-subtitle">Justificatifs acceptés par le responsable pédagogique</div>
                 <div class="absences-table-container">
@@ -668,7 +662,7 @@ if (!isset($_SESSION['id_student'])) {
                                     data-half-days="<?php echo $proof['half_days_count'] ?? 0; ?>"
                                     data-submission="<?php echo date('d/m/Y \\à H\\hi', strtotime($proof['submission_date'])); ?>"
                                     data-processing="<?php echo $proof['processing_date'] ? date('d/m/Y \\à H\\hi', strtotime($proof['processing_date'])) : '-'; ?>"
-                                    data-status-text="Accepté" data-status-icon="✅" data-status-class="badge-success"
+                                    data-status-text="Accepté" data-status-icon="" data-status-class="badge-success"
                                     data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>" data-comment=""
                                     data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
                                     <td>
@@ -698,7 +692,7 @@ if (!isset($_SESSION['id_student'])) {
                                     </td>
                                     <td>
                                         <?php if ($proof['has_exam']): ?>
-                                            <span class="eval-badge">⚠️ Éval</span>
+                                            <span class="eval-badge">Éval</span>
                                         <?php else: ?>
                                             <span class="no-eval">-</span>
                                         <?php endif; ?>
@@ -719,7 +713,7 @@ if (!isset($_SESSION['id_student'])) {
         <?php if (count($proofsByCategory['rejected']) > 0): ?>
             <div class="absences-section">
                 <h2 class="section-title">
-                    <span class="status-badge status-unjustified">❌ Justificatifs refusés</span>
+                    <span class="status-badge status-unjustified">Justificatifs refusés</span>
                 </h2>
                 <div class="absences-subtitle">Justificatifs refusés par le responsable pédagogique</div>
                 <div class="absences-table-container">
@@ -768,7 +762,7 @@ if (!isset($_SESSION['id_student'])) {
                                     data-absences="<?php echo $proof['absence_count'] ?? 0; ?>"
                                     data-submission="<?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?>"
                                     data-processing="<?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : '-'; ?>"
-                                    data-status-text="Refusé" data-status-icon="❌" data-status-class="badge-danger"
+                                    data-status-text="Refusé" data-status-icon="" data-status-class="badge-danger"
                                     data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
                                     data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>"
                                     data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
@@ -799,7 +793,7 @@ if (!isset($_SESSION['id_student'])) {
                                     </td>
                                     <td>
                                         <?php if ($proof['has_exam']): ?>
-                                            <span class="eval-badge">⚠️ Éval</span>
+                                            <span class="eval-badge">Éval</span>
                                         <?php else: ?>
                                             <span class="no-eval">-</span>
                                         <?php endif; ?>
@@ -835,95 +829,97 @@ if (!isset($_SESSION['id_student'])) {
             <div class="modal-body">
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Date :</span>
+                        <span class="modal-label">Date :</span>
                         <span class="modal-value" id="absenceModalDate"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">🕐 Horaire :</span>
+                        <span class="modal-label">Horaire :</span>
                         <span class="modal-value" id="absenceModalTime"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">⏱️ Durée :</span>
+                        <span class="modal-label">Durée :</span>
                         <span class="modal-value" id="absenceModalDuration"></span>
                     </div>
                 </div>
 
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📚 Cours :</span>
+                        <span class="modal-label">Cours :</span>
                         <span class="modal-value" id="absenceModalCourse"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">👨‍🏫 Enseignant :</span>
+                        <span class="modal-label">Enseignant :</span>
                         <span class="modal-value" id="absenceModalTeacher"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">🚪 Salle :</span>
+                        <span class="modal-label">Salle :</span>
                         <span class="modal-value" id="absenceModalRoom"></span>
                     </div>
                 </div>
 
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📝 Type :</span>
+                        <span class="modal-label">Type :</span>
                         <span class="modal-value">
                             <span id="absenceModalType" class="badge"></span>
                         </span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📝 Évaluation :</span>
+                        <span class="modal-label">Évaluation :</span>
                         <span class="modal-value" id="absenceModalEvaluation"></span>
                     </div>
                 </div>
 
                 <!-- Section Évaluation ratée (visible uniquement si is_evaluation) -->
-                <div id="evaluationSection" class="modal-info-group" style="display: none; background-color: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                    <h3 style="color: #856404; margin-bottom: 10px; font-size: 16px;">⚠️ Évaluation ratée</h3>
+                <div id="evaluationSection" class="modal-info-group"
+                    style="display: none; background-color: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <h3 style="color: #856404; margin-bottom: 10px; font-size: 16px;">Évaluation ratée</h3>
                     <div class="modal-info-item">
-                        <span class="modal-label">📚 Évaluation :</span>
+                        <span class="modal-label">Évaluation :</span>
                         <span class="modal-value" id="evaluationCourse"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Date :</span>
+                        <span class="modal-label">Date :</span>
                         <span class="modal-value" id="evaluationDate"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">🕐 Horaire :</span>
+                        <span class="modal-label">Horaire :</span>
                         <span class="modal-value" id="evaluationTime"></span>
                     </div>
                 </div>
 
                 <!-- Section Rattrapage (visible uniquement si makeup existe) -->
-                <div id="makeupSection" class="modal-info-group" style="display: none; background-color: #d1ecf1; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                    <h3 style="color: #0c5460; margin-bottom: 10px; font-size: 16px;">📝 Rattrapage prévu</h3>
+                <div id="makeupSection" class="modal-info-group"
+                    style="display: none; background-color: #d1ecf1; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <h3 style="color: #0c5460; margin-bottom: 10px; font-size: 16px;">Rattrapage prévu</h3>
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Date du rattrapage :</span>
+                        <span class="modal-label">Date du rattrapage :</span>
                         <span class="modal-value" id="makeupDate"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">🕐 Horaire :</span>
+                        <span class="modal-label">Horaire :</span>
                         <span class="modal-value" id="makeupTime"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">⏱️ Durée :</span>
+                        <span class="modal-label">Durée :</span>
                         <span class="modal-value" id="makeupDuration"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">🚪 Salle :</span>
+                        <span class="modal-label">Salle :</span>
                         <span class="modal-value" id="makeupRoom"></span>
                     </div>
                     <div class="modal-info-item" id="makeupResourceItem" style="display: none;">
-                        <span class="modal-label">📚 Matière :</span>
+                        <span class="modal-label">Matière :</span>
                         <span class="modal-value" id="makeupResource"></span>
                     </div>
                     <div class="modal-info-item" id="makeupCommentItem" style="display: none;">
-                        <span class="modal-label">💬 Commentaire :</span>
+                        <span class="modal-label">Commentaire :</span>
                         <span class="modal-value" id="makeupComment"></span>
                     </div>
                 </div>
 
                 <div class="modal-status-section">
-                    <span class="modal-label">🏷️ Statut :</span>
+                    <span class="modal-label">Statut :</span>
                     <span id="absenceModalStatus" class="badge"></span>
                 </div>
             </div>
@@ -939,69 +935,69 @@ if (!isset($_SESSION['id_student'])) {
             <div class="modal-body">
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Début d'absence :</span>
+                        <span class="modal-label">Début d'absence :</span>
                         <span class="modal-value" id="proofModalStartDate"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Fin d'absence :</span>
+                        <span class="modal-label">Fin d'absence :</span>
                         <span class="modal-value" id="proofModalEndDate"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📝 Motif :</span>
+                        <span class="modal-label">Motif :</span>
                         <span class="modal-value" id="proofModalReason"></span>
                     </div>
                     <div class="modal-info-item" id="proofCustomReasonItem" style="display: none;">
-                        <span class="modal-label">ℹ️ Précision :</span>
+                        <span class="modal-label">Précision :</span>
                         <span class="modal-value" id="proofModalCustomReason"></span>
                     </div>
                     <div class="modal-info-item" id="proofStudentCommentItem" style="display: none;">
-                        <span class="modal-label">💬 Commentaire de l'étudiant :</span>
+                        <span class="modal-label">Commentaire de l'étudiant :</span>
                         <span class="modal-value" id="proofModalStudentComment"></span>
                     </div>
                 </div>
 
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">⏱️ Heures ratées :</span>
+                        <span class="modal-label">Heures ratées :</span>
                         <span class="modal-value" id="proofModalHours"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📊 Absences concernées :</span>
+                        <span class="modal-label">Absences concernées :</span>
                         <span class="modal-value" id="proofModalAbsences"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Demi-journées concernées :</span>
+                        <span class="modal-label">Demi-journées concernées :</span>
                         <span class="modal-value" id="proofModalHalfDays"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📝 Évaluation manquée :</span>
+                        <span class="modal-label">Évaluation manquée :</span>
                         <span class="modal-value" id="proofModalExam"></span>
                     </div>
                 </div>
 
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📤 Date de soumission :</span>
+                        <span class="modal-label">Date de soumission :</span>
                         <span class="modal-value" id="proofModalSubmission"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">✅ Date de traitement :</span>
+                        <span class="modal-label">Date de traitement :</span>
                         <span class="modal-value" id="proofModalProcessing"></span>
                     </div>
                 </div>
 
                 <div class="modal-status-section">
-                    <span class="modal-label">🏷️ Statut :</span>
+                    <span class="modal-label">Statut :</span>
                     <span id="proofModalStatus" class="badge"></span>
                 </div>
 
                 <div class="modal-files-section" id="proofFilesSection" style="display: none; margin-top: 20px;">
-                    <span class="modal-label">📎 Fichiers justificatifs :</span>
+                    <span class="modal-label">Fichiers justificatifs :</span>
                     <div id="proofModalFiles" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
                 </div>
 
                 <div class="modal-comment-section" id="proofCommentSection" style="display: none;">
-                    <span class="modal-label">💬 Commentaire du responsable :</span>
+                    <span class="modal-label">Commentaire du responsable :</span>
                     <div class="modal-comment-box" id="proofModalComment"></div>
                 </div>
 
@@ -1010,7 +1006,7 @@ if (!isset($_SESSION['id_student'])) {
                     style="display: none; margin-top: 20px; text-align: center;">
                     <a href="#" id="proofModalCompleteBtn" class="btn-add-info"
                         style="display: inline-block; padding: 12px 24px; text-decoration: none;">
-                        📝 Compléter le justificatif
+                        Compléter le justificatif
                     </a>
                 </div>
             </div>

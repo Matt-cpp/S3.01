@@ -368,3 +368,167 @@ html.dark-mode body {
 .no-transition * {
   transition: none !important;
 }
+
+/* ===== Auth Pages (Login, Registration, Password Reset) ===== */
+.dark-mode body {
+  background-color: var(--bg-primary);
+}
+
+/* Container for auth forms */
+.dark-mode .container {
+  background-color: rgba(45, 45, 45, 0.95);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Form titles */
+.dark-mode .form-title {
+  color: var(--text-primary);
+}
+
+/* Form groups and labels */
+.dark-mode .form-group label {
+  color: var(--text-primary);
+}
+
+/* Password field container */
+.dark-mode .password-input-container {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+}
+
+.dark-mode .password-input-container input {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: none;
+}
+
+.dark-mode .password-toggle {
+  color: var(--text-secondary);
+  background: transparent;
+}
+
+.dark-mode .password-toggle:hover {
+  color: var(--text-primary);
+}
+
+/* Form links */
+.dark-mode .form-container a,
+.dark-mode .form-options a,
+.dark-mode .form-links a {
+  color: var(--primary);
+}
+
+.dark-mode .form-container a:hover,
+.dark-mode .form-options a:hover,
+.dark-mode .form-links a:hover {
+  color: var(--primary-hover);
+}
+
+/* Messages */
+.dark-mode .success-message {
+  background-color: rgba(25, 135, 84, 0.2);
+  border-color: var(--success);
+  color: #75d99f;
+}
+
+.dark-mode .error-message,
+.dark-mode .error-messages {
+  background-color: rgba(220, 53, 69, 0.2);
+  border-color: var(--danger);
+  color: #f5a3ab;
+}
+
+.dark-mode .info-message {
+  background-color: rgba(13, 202, 240, 0.2);
+  border-color: var(--info);
+  color: #7de4f5;
+}
+
+/* Submit button */
+.dark-mode .btn-submit {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+.dark-mode .btn-submit:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+/* Secondary buttons */
+.dark-mode .btn-secondary,
+.dark-mode .btn-resend {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-mode .btn-secondary:hover,
+.dark-mode .btn-resend:hover {
+  background-color: var(--bg-secondary);
+}
+
+/* Paragraph text in auth pages */
+.dark-mode .form-container p,
+.dark-mode .container p {
+  color: var(--text-secondary);
+}
+
+/* ===== History pages styling ===== */
+.dark-mode main {
+  background-color: var(--bg-primary);
+}
+
+.dark-mode h1 {
+  color: var(--text-primary);
+}
+
+/* Filter grid */
+.dark-mode .filter-grid input,
+.dark-mode .filter-grid select {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+
+/* ===== Student pages ===== */
+.dark-mode .page-title {
+  color: var(--text-primary);
+}
+
+.dark-mode .info-container,
+.dark-mode .info-section {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-mode .section-header h2 {
+  color: var(--text-primary);
+}
+
+.dark-mode .section-content p {
+  color: var(--text-secondary);
+}
+
+.dark-mode .highlight-text {
+  color: var(--text-primary);
+}
+
+/* ===== View Proof page ===== */
+.dark-mode .title {
+  color: var(--text-primary);
+}
+
+.dark-mode .info-grid,
+.dark-mode .info-field {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.dark-mode .info-field strong {
+  color: var(--text-secondary);
+}
+

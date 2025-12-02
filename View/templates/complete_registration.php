@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>Finaliser l'inscription</title>
     <link rel="stylesheet" href="../assets/css/style_create_acc.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
 </head>
+
 <body>
     <img src="../img/logoIUT.png" alt="Logo" class="logo">
     <div class="container">
@@ -14,18 +18,20 @@
             <p style="text-align: center; color: #666; margin-bottom: 20px;">
                 Choisissez votre mot de passe pour finaliser votre compte
             </p>
-            
-            <?php 
+
+            <?php
             session_start();
             if (isset($_SESSION['success'])): ?>
                 <div class="success-message">
-                    <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+                    <?php echo $_SESSION['success'];
+                    unset($_SESSION['success']); ?>
                 </div>
             <?php endif; ?>
-            
+
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="error-message">
-                    <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+                    <?php echo $_SESSION['error'];
+                    unset($_SESSION['error']); ?>
                 </div>
             <?php endif; ?>
 
@@ -43,26 +49,28 @@
 
                 <form action="../../controllers/register.php" method="POST" class="register-form">
                     <input type="hidden" name="action" value="complete_registration">
-                    
+
                     <div class="form-group">
                         <label for="password">Mot de passe:</label>
                         <div class="password-wrapper">
-                            <input type="password" id="password" name="password" required minlength="8" placeholder="Au moins 8 caractères">
+                            <input type="password" id="password" name="password" required minlength="8"
+                                placeholder="Au moins 8 caractères">
                             <i class="fas fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
                         </div>
                         <small style="color: #666; font-size: 12px;">Minimum 8 caractères</small>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="confirm_password">Confirmer le mot de passe:</label>
                         <div class="password-wrapper">
-                            <input type="password" id="confirm_password" name="confirm_password" required minlength="8" placeholder="Au moins 8 caractères">
+                            <input type="password" id="confirm_password" name="confirm_password" required minlength="8"
+                                placeholder="Au moins 8 caractères">
                             <i class="far fa-eye toggle-password" onclick="togglePassword('confirm_password', this)"></i>
                         </div>
                     </div>
-                    
+
                     <div id="password-match-message" style="margin-top: 10px; font-size: 12px;"></div>
-                    
+
                     <button type="submit" class="btn-submit" id="submit-btn">Créer le compte</button>
                 </form>
 
@@ -113,7 +121,7 @@
         confirmPassword.addEventListener('input', checkPasswords);
 
         // Validation de la force du mot de passe
-        password.addEventListener('input', function() {
+        password.addEventListener('input', function () {
             const strength = document.getElementById('password-strength');
             if (!strength) {
                 const strengthDiv = document.createElement('div');
@@ -122,10 +130,10 @@
                 strengthDiv.style.marginTop = '5px';
                 password.parentNode.appendChild(strengthDiv);
             }
-            
+
             const strengthElement = document.getElementById('password-strength');
             const value = this.value;
-            
+
             if (value.length < 8) {
                 strengthElement.textContent = 'Trop court (minimum 8 caractères)';
                 strengthElement.style.color = 'red';
@@ -139,4 +147,5 @@
         });
     </script>
 </body>
+
 </html>

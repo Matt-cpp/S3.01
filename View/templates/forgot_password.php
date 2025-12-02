@@ -19,6 +19,8 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
     <meta charset="UTF-8">
     <title>Mot de passe oublié</title>
     <link rel="stylesheet" href="../assets/css/style_create_acc.css">
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
 </head>
 
 <body>
@@ -49,7 +51,8 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
                 <div class="form-group">
                     <label for="email">Email universitaire:</label>
                     <input type="email" id="email" name="email" required placeholder="votre.email@uphf.fr">
-                    <small style="color: #666; font-size: 12px;">Un code de vérification sera envoyé à cette adresse</small>
+                    <small style="color: #666; font-size: 12px;">Un code de vérification sera envoyé à cette
+                        adresse</small>
                 </div>
 
                 <button type="submit" class="btn-submit">Envoyer le code de vérification</button>

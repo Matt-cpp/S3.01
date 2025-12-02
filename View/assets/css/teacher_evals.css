@@ -6,9 +6,9 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #f8f9fa;
-    color: #333;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+    color: #1f2937;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -19,7 +19,7 @@ main {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 2rem auto;
     padding: 2rem;
     width: 100%;
@@ -27,16 +27,21 @@ main {
 
 h1 {
     font-size: 2rem;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 2rem;
-    color: #333;
+    color: #1f2937;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
 }
 
 .section {
     background: white;
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     margin-bottom: 2rem;
 }
 
@@ -45,33 +50,37 @@ h1 {
     gap: 1rem;
     align-items: center;
     margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 12px;
 }
 
 .filter-label {
-    font-weight: 500;
-    color: #333;
+    font-weight: 600;
+    color: #4b5563;
 }
 
 .select-input {
-    padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
     background: white;
-    color: #333;
-    font-size: 14px;
+    color: #374151;
+    font-size: 0.9rem;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .select-input:focus {
     outline: none;
-    border-color: rgb(0, 139, 172);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .table {
     width: 100%;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-collapse: collapse;
     overflow: hidden;
 }
@@ -79,17 +88,20 @@ h1 {
 table th {
     text-align: left;
     padding: 1rem;
-    font-weight: 500;
-    color: #666;
+    font-weight: 600;
+    color: #6b7280;
     background-color: #f9fafb;
     border-bottom: 2px solid #e5e7eb;
-    font-size: 14px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 table td {
     padding: 1rem;
     border-bottom: 1px solid #f3f4f6;
-    font-size: 14px;
+    font-size: 0.9rem;
+    color: #374151;
 }
 
 table tr:hover {
@@ -101,7 +113,7 @@ table tbody tr:last-child td {
 }
 
 footer {
-    background-color: rgb(0, 139, 172);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 2rem;
     margin-top: 2rem;
@@ -110,34 +122,35 @@ footer {
 }
 
 .footer-content {
-    width: 100%;
-    margin: 0;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .team-section {
     background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 1.5rem;
-    margin: 1rem 0;
+    margin: 1rem auto;
+    backdrop-filter: blur(10px);
 }
 
 .team-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 1rem;
     color: #ffffff;
 }
 
 .team-names {
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1.6;
-    color: #e6f7ff;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .footer-info {
     margin-top: 1.5rem;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 @media (max-width: 768px) {
@@ -149,13 +162,22 @@ footer {
         font-size: 1.5rem;
     }
 
+    .section {
+        padding: 1.5rem;
+    }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     table {
-        font-size: 12px;
+        font-size: 0.85rem;
     }
 
     table th,
     table td {
-        padding: 0.5rem;
+        padding: 0.75rem;
     }
 }
 
