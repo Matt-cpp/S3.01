@@ -1,8 +1,6 @@
 <?php
 // teacher_statistics.php
-//require_once __DIR__ . '/../../controllers/auth_guard.php';
-//$user = requireRole('teacher');
-
+// Auth is handled in the presenter
 require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
 ?>
 <!DOCTYPE html>
@@ -111,6 +109,13 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
                     <span class="kpi-value" id="unjustified-absences"><?= $stats['unjustified'] ?? 0 ?></span>
                 </div>
             </div>
+            <div class="kpi-card kpi-purple">
+                <div class="kpi-icon">📝</div>
+                <div class="kpi-content">
+                    <span class="kpi-label">Absences en évaluation</span>
+                    <span class="kpi-value" id="evaluation-absences"><?= $stats['evaluation_absences'] ?? 0 ?></span>
+                </div>
+            </div>
             <div class="kpi-card kpi-orange">
                 <div class="kpi-icon">📈</div>
                 <div class="kpi-content">
@@ -175,6 +180,14 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
             </div>
         </div>
 
+        <!-- Evaluation Absences by Subject Chart -->
+        <div class="chart-card chart-full">
+            <h3>📝 Absences en évaluation par matière</h3>
+            <div class="chart-container-large">
+                <canvas id="evaluationSubjectChart"></canvas>
+            </div>
+        </div>
+
         <!-- Monthly Evolution Chart -->
         <div class="chart-card chart-full">
             <h3>Évolution mensuelle des absences</h3>
@@ -182,9 +195,8 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
                 <canvas id="monthlyChart"></canvas>
             </div>
         </div>
-    </div>
 
-            <!-- Tendances par matière (Top 5) -->
+        <!-- Tendances par matière (Top 5) -->
         <div class="chart-card chart-full">
             <h3>Tendances par matière (Top 5)</h3>
             <div class="chart-container-large">
@@ -311,13 +323,61 @@ require_once __DIR__ . '/../../Presenter/teacher_statistics_presenter.php';
             monthly: <?= json_encode($monthlyStats ?? []) ?>,
             semesters: <?= json_encode($semesterStats ?? []) ?>,
             subjectTrends: <?= json_encode($subjectTrends ?? []) ?>,
-            topStudents: <?= json_encode($topStudents ?? []) ?>
+            topStudents: <?= json_encode($topStudents ?? []) ?>,
+            evaluationSubjects: <?= json_encode($evaluationBySubject ?? []) ?>
         };
+
+        // Evaluation Subject Chart
+        const evaluationSubjectCtx = document.getElementById('evaluationSubjectChart');
+        if (evaluationSubjectCtx && Object.keys(statsData.evaluationSubjects).length > 0) {
+            const evalLabels = Object.keys(statsData.evaluationSubjects);
+            const evalData = Object.values(statsData.evaluationSubjects);
+            
+            new Chart(evaluationSubjectCtx, {
+                type: 'bar',
+                data: {
+                    labels: evalLabels,
+                    datasets: [{
+                        label: 'Absences en évaluation',
+                        data: evalData,
+                        backgroundColor: 'rgba(156, 39, 176, 0.7)',
+                        borderColor: 'rgba(156, 39, 176, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.x} absence(s) en évaluation`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
     </script>
 
     <script>
-        // Data from PHP
-        const statsData = {
+        // Data from PHP (legacy - kept for compatibility)
+        const statsDataOld = {
             courseTypes: <?= json_encode($courseTypeStats ?? ['CM' => 42, 'TD' => 39, 'TP' => 30]) ?>,
             subjects: <?= json_encode($subjectStats ?? []) ?>,
             monthly: <?= json_encode($monthlyStats ?? []) ?>,

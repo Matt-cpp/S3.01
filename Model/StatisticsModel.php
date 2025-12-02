@@ -162,7 +162,8 @@ class StatisticsModel
                 COUNT(DISTINCT CASE WHEN a.justified = false THEN a.id END) as unjustified_absences,
                 COUNT(DISTINCT CASE WHEN cs.course_type = 'CM' THEN a.id END) as cm_absences,
                 COUNT(DISTINCT CASE WHEN cs.course_type = 'TD' THEN a.id END) as td_absences,
-                COUNT(DISTINCT CASE WHEN cs.course_type = 'TP' THEN a.id END) as tp_absences
+                COUNT(DISTINCT CASE WHEN cs.course_type = 'TP' THEN a.id END) as tp_absences,
+                COUNT(DISTINCT CASE WHEN cs.course_type = 'DS' OR cs.is_evaluation = true THEN a.id END) as evaluation_absences
             FROM absences a
             JOIN users u ON a.student_identifier = u.identifier
             JOIN course_slots cs ON a.course_slot_id = cs.id
@@ -178,6 +179,86 @@ class StatisticsModel
         } catch (Exception $e) {
             error_log("Error fetching student statistics: " . $e->getMessage());
             return null;
+        }
+    }
+
+    //Get evaluation absences count
+    public function getEvaluationAbsences($filters = [])
+    {
+        $query = "
+            SELECT COUNT(DISTINCT a.id) as total
+            FROM absences a
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            WHERE (cs.course_type = 'DS' OR cs.is_evaluation = true)
+        ";
+
+        $params = [];
+        $query .= $this->buildFilterConditions($filters, $params);
+
+        try {
+            $result = $this->db->selectOne($query, $params);
+            return $result['total'] ?? 0;
+        } catch (Exception $e) {
+            error_log("Error fetching evaluation absences: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    //Get evaluation absences grouped by resource/subject
+    public function getEvaluationAbsencesByResource($filters = [])
+    {
+        $query = "
+            SELECT 
+                COALESCE(r.label, 'Non spécifié') as resource_label,
+                COUNT(DISTINCT a.id) as total_absences
+            FROM absences a
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            LEFT JOIN resources r ON cs.resource_id = r.id
+            WHERE (cs.course_type = 'DS' OR cs.is_evaluation = true)
+        ";
+
+        $params = [];
+        $query .= $this->buildFilterConditions($filters, $params);
+        $query .= " GROUP BY r.label ORDER BY total_absences DESC LIMIT 10";
+
+        try {
+            return $this->db->select($query, $params);
+        } catch (Exception $e) {
+            error_log("Error fetching evaluation absences by resource: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    //Get justification rate by resource/subject
+    public function getJustificationRateByResource($filters = [])
+    {
+        $query = "
+            SELECT 
+                COALESCE(r.label, 'Non spécifié') as resource_label,
+                COUNT(DISTINCT a.id) as total_absences,
+                COUNT(DISTINCT CASE WHEN p.status = 'accepted' THEN a.id END) as justified_count,
+                CASE 
+                    WHEN COUNT(DISTINCT a.id) > 0 
+                    THEN ROUND((COUNT(DISTINCT CASE WHEN p.status = 'accepted' THEN a.id END)::numeric / COUNT(DISTINCT a.id)::numeric) * 100, 1)
+                    ELSE 0 
+                END as justification_rate
+            FROM absences a
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            LEFT JOIN resources r ON cs.resource_id = r.id
+            LEFT JOIN proof_absences pa ON a.id = pa.absence_id
+            LEFT JOIN proof p ON pa.proof_id = p.id
+            WHERE 1=1
+        ";
+
+        $params = [];
+        $query .= $this->buildFilterConditions($filters, $params);
+        $query .= " GROUP BY r.label HAVING COUNT(DISTINCT a.id) >= 5 ORDER BY justification_rate ASC LIMIT 10";
+
+        try {
+            return $this->db->select($query, $params);
+        } catch (Exception $e) {
+            error_log("Error fetching justification rate by resource: " . $e->getMessage());
+            return [];
         }
     }
 

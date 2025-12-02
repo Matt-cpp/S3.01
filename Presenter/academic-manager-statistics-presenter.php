@@ -57,7 +57,12 @@ class AcademicManagerStatisticsPresenter
     //Get general statistics
     public function getGeneralStats($filters = [])
     {
-        return $this->statisticsModel->getGeneralStatistics($filters);
+        $stats = $this->statisticsModel->getGeneralStatistics($filters);
+        // Add evaluation absences
+        if ($stats) {
+            $stats['evaluation_absences'] = $this->statisticsModel->getEvaluationAbsences($filters);
+        }
+        return $stats;
     }
 
     //Get absences by course type for pie chart
@@ -111,6 +116,50 @@ class AcademicManagerStatisticsPresenter
         return [
             'labels' => $labels,
             'values' => $values
+        ];
+    }
+
+    //Get evaluation absences by resource for bar chart
+    public function getEvaluationResourceData($filters = [])
+    {
+        $data = $this->statisticsModel->getEvaluationAbsencesByResource($filters);
+
+        $labels = [];
+        $values = [];
+
+        foreach ($data as $row) {
+            $labels[] = $row['resource_label'] ?? 'N/A';
+            $values[] = intval($row['total_absences']);
+        }
+
+        return [
+            'labels' => $labels,
+            'values' => $values
+        ];
+    }
+
+    //Get justification rate by resource for bar chart
+    public function getJustificationRateByResource($filters = [])
+    {
+        $data = $this->statisticsModel->getJustificationRateByResource($filters);
+
+        $labels = [];
+        $rates = [];
+        $justified = [];
+        $total = [];
+
+        foreach ($data as $row) {
+            $labels[] = $row['resource_label'] ?? 'N/A';
+            $rates[] = floatval($row['justification_rate']);
+            $justified[] = intval($row['justified_count']);
+            $total[] = intval($row['total_absences']);
+        }
+
+        return [
+            'labels' => $labels,
+            'rates' => $rates,
+            'justified' => $justified,
+            'total' => $total
         ];
     }
 

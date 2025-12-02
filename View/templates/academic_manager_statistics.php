@@ -37,6 +37,8 @@
         $resourceTrends = $presenter->getResourceTrends($filters);
         $semesterData = $presenter->getSemesterData($filters);
         $topStudents = $presenter->getTopAbsentStudents(10, $filters);
+        $evaluationResourceData = $presenter->getEvaluationResourceData($filters);
+        $justificationRateData = $presenter->getJustificationRateByResource($filters);
     }
 
     // Get filter options
@@ -211,6 +213,14 @@
                         </div>
                     </div>
 
+                    <div class="stat-card stat-card-purple">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-content">
+                            <div class="stat-title">Absences en évaluation</div>
+                            <div class="stat-number"><?php echo $studentStats['evaluation_absences'] ?? 0; ?></div>
+                        </div>
+                    </div>
+
                     <div class="stat-card stat-card-info">
                         <div class="stat-icon">📈</div>
                         <div class="stat-content">
@@ -283,6 +293,14 @@
                         </div>
                     </div>
 
+                    <div class="stat-card stat-card-purple">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-content">
+                            <div class="stat-title">Absences en évaluation</div>
+                            <div class="stat-number"><?php echo $generalStats['evaluation_absences'] ?? 0; ?></div>
+                        </div>
+                    </div>
+
                     <div class="stat-card stat-card-warning">
                         <div class="stat-icon">📈</div>
                         <div class="stat-content">
@@ -338,6 +356,16 @@
                 <div class="chart-card">
                     <h3>Répartition par matière (Top 10)</h3>
                     <canvas id="resourceChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3>📝 Absences en évaluation par matière</h3>
+                    <canvas id="evaluationResourceChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3>✅ Taux de justification par matière</h3>
+                    <canvas id="justificationRateChart"></canvas>
                 </div>
 
                 <div class="chart-card chart-card-large">
@@ -597,6 +625,99 @@
                 });
             <?php endif; ?>
 
+            // Evaluation absences by resource chart
+            <?php if (!empty($evaluationResourceData['labels'])): ?>
+                const evaluationResourceData = {
+                    labels: <?php echo json_encode($evaluationResourceData['labels']); ?>,
+                    datasets: [{
+                        label: 'Absences en évaluation',
+                        data: <?php echo json_encode($evaluationResourceData['values']); ?>,
+                        backgroundColor: '#8b5cf6',
+                        borderColor: '#7c3aed',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                };
+
+                new Chart(document.getElementById('evaluationResourceChart'), {
+                    type: 'bar',
+                    data: evaluationResourceData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            <?php endif; ?>
+
+            // Justification rate by resource chart
+            <?php if (!empty($justificationRateData['labels'])): ?>
+                const justificationRateDataChart = {
+                    labels: <?php echo json_encode($justificationRateData['labels']); ?>,
+                    datasets: [{
+                        label: 'Taux de justification (%)',
+                        data: <?php echo json_encode($justificationRateData['rates']); ?>,
+                        backgroundColor: function (context) {
+                            const value = context.parsed.x;
+                            if (value >= 70) return '#10b981';
+                            if (value >= 40) return '#f59e0b';
+                            return '#ef4444';
+                        },
+                        borderColor: function (context) {
+                            const value = context.parsed.x;
+                            if (value >= 70) return '#059669';
+                            if (value >= 40) return '#d97706';
+                            return '#dc2626';
+                        },
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                };
+
+                new Chart(document.getElementById('justificationRateChart'), {
+                    type: 'bar',
+                    data: justificationRateDataChart,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const index = context.dataIndex;
+                                        const justified = <?php echo json_encode($justificationRateData['justified']); ?>[index];
+                                        const total = <?php echo json_encode($justificationRateData['total']); ?>[index];
+                                        return `${context.parsed.x}% (${justified}/${total} absences)`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function (value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            <?php endif; ?>
+
             // Monthly trend chart
             <?php if (!empty($monthlyTrends['months'])): ?>
                 const monthlyTrendData = {
@@ -652,7 +773,7 @@
                     labels: <?php echo json_encode($resourceTrends['months']); ?>,
                     datasets: [
                         <?php foreach ($resourceTrends['datasets'] as $index => $dataset): ?>
-                                                    {
+                                                                            {
                                 label: <?php echo json_encode($dataset['label']); ?>,
                                 data: <?php echo json_encode($dataset['data']); ?>,
                                 borderColor: '<?php echo $dataset['color']; ?>',
@@ -660,7 +781,7 @@
                                 tension: 0.4,
                                 fill: true
                             }<?php echo $index < count($resourceTrends['datasets']) - 1 ? ',' : ''; ?>
-                                        <?php endforeach; ?>
+                                                        <?php endforeach; ?>
                     ]
                 };
 

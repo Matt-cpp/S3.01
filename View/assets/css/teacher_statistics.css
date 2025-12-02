@@ -145,7 +145,7 @@ body {
 /* KPI Cards */
 .kpi-cards {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 15px;
     margin-bottom: 30px;
 }
@@ -172,6 +172,7 @@ body {
 .kpi-green { border-left-color: #4caf50; }
 .kpi-red { border-left-color: #f44336; }
 .kpi-orange { border-left-color: #ff9800; }
+.kpi-purple { border-left-color: #8b5cf6; }
 
 .kpi-icon {
     font-size: 32px;
