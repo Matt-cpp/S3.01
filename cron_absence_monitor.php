@@ -16,6 +16,9 @@ require_once __DIR__ . '/Model/AbsenceMonitoringModel.php';
 require_once __DIR__ . '/Model/email.php';
 require_once __DIR__ . '/Model/env.php';
 
+// Set timezone for cron job
+date_default_timezone_set('Europe/Paris');
+
 // Set up logging
 $logFile = __DIR__ . '/logs/absence_monitor_' . date('Y-m-d') . '.log';
 $logDir = dirname($logFile);
@@ -35,7 +38,7 @@ function logMessage($message, $logFile)
 // We run until 6PM to catch the end-of-day (5PM) detections
 function isSchoolTime()
 {
-    $now = new DateTime();
+    $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
     $dayOfWeek = (int) $now->format('N'); // 1 (Monday) to 7 (Sunday)
     $hour = (int) $now->format('G');
 

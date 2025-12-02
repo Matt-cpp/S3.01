@@ -72,8 +72,9 @@ try {
         exit;
     }
 
-    $last_absence_datetime = new DateTime($last_absence['last_absence_datetime']);
-    $current_datetime = new DateTime();
+    $timezone = new DateTimeZone('Europe/Paris');
+    $last_absence_datetime = new DateTime($last_absence['last_absence_datetime'], $timezone);
+    $current_datetime = new DateTime('now', $timezone);
 
     // Calculate the return to class date (skip weekends)
     $return_date = clone $last_absence_datetime;

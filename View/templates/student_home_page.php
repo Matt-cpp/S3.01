@@ -54,7 +54,6 @@ if (!isset($_SESSION['id_student'])) {
         $temp += 0.5;
     }
     $half_points_lost = $temp;
-    echo ($half_points_lost);
     ?>
 
     <div class="dashboard-container">

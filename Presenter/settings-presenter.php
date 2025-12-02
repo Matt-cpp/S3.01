@@ -62,7 +62,8 @@ class SettingsPresenter
             return 'Non renseignée';
         }
 
-        $date = new DateTime($this->currentUser['birth_date']);
+        $timezone = new DateTimeZone('Europe/Paris');
+        $date = new DateTime($this->currentUser['birth_date'], $timezone);
         return $date->format('d/m/Y');
     }
 
@@ -73,7 +74,8 @@ class SettingsPresenter
             return 'Inconnue';
         }
 
-        $date = new DateTime($this->currentUser['created_at']);
+        $timezone = new DateTimeZone('Europe/Paris');
+        $date = new DateTime($this->currentUser['created_at'], $timezone);
         return $date->format('d/m/Y à H:i');
     }
 

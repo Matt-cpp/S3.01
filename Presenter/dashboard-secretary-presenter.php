@@ -116,8 +116,9 @@ class DashboardSecretaryPresenter
             $endTime = trim($data['end_time']);
 
             // Calculate duration
-            $start = new DateTime($startTime);
-            $end = new DateTime($endTime);
+            $timezone = new DateTimeZone('Europe/Paris');
+            $start = new DateTime($startTime, $timezone);
+            $end = new DateTime($endTime, $timezone);
             $interval = $start->diff($end);
             $duration = ($interval->h * 60) + $interval->i;
 

@@ -19,8 +19,6 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once('../vendor/autoload.php');
 require_once('../Model/database.php');
 
-date_default_timezone_set('Europe/Paris');
-
 if (!isset($_SESSION['reason_data'])) {
     die('Aucune donnée de justificatif trouvée.');
 }
@@ -124,7 +122,8 @@ if ($student_info) {
     }
 
     if (!empty($student_info['birth_date'])) {
-        $birth_date = new DateTime($student_info['birth_date']);
+        $timezone = new DateTimeZone('Europe/Paris');
+        $birth_date = new DateTime($student_info['birth_date'], $timezone);
         $html_content .= '<tr><td><strong>Date de naissance :</strong></td><td>' . $birth_date->format('d/m/Y') . '</td></tr>';
     }
 
@@ -136,13 +135,12 @@ if ($student_info) {
     $html_content .= '<tr><td colspan="2" style="background-color: #e9ecef; font-weight: bold; text-align: center;">DÉTAILS DE L\'ABSENCE</td></tr>';
 }
 
-// Use of the correspondind time zonz
-$datetime_start = new DateTime($reason_data['datetime_start']);
-$datetime_start->setTimezone(new DateTimeZone('Europe/Paris'));
+// Use of the corresponding time zone
+$timezone = new DateTimeZone('Europe/Paris');
+$datetime_start = new DateTime($reason_data['datetime_start'], $timezone);
 $html_content .= '<tr><td><strong>Date et heure de début :</strong></td><td>' . $datetime_start->format('d/m/Y à H:i:s') . '</td></tr>';
 
-$datetime_end = new DateTime($reason_data['datetime_end']);
-$datetime_end->setTimezone(new DateTimeZone('Europe/Paris'));
+$datetime_end = new DateTime($reason_data['datetime_end'], $timezone);
 $html_content .= '<tr><td><strong>Date et heure de fin :</strong></td><td>' . $datetime_end->format('d/m/Y à H:i:s') . '</td></tr>';
 
 $html_content .= '<tr><td><strong>Motif de l\'absence :</strong></td><td>' . htmlspecialchars($reason_data['absence_reason']) . '</td></tr>';

@@ -23,9 +23,6 @@ require_once __DIR__ . '/../Model/AbsenceMonitoringModel.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     session_start();
 
-    // Définir le fuseau horaire pour toutes les dates
-    date_default_timezone_set('Europe/Paris');
-
     try {
         $db = getDatabase();
 

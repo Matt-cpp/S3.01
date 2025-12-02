@@ -62,8 +62,9 @@ class AbsenceMonitoringModel
     public function hasStudentReturnedToClass($studentIdentifier, $lastAbsenceDate)
     {
         // Check if we're past school hours for the last absence date
-        $now = new DateTime();
-        $lastAbsence = new DateTime($lastAbsenceDate);
+        $timezone = new DateTimeZone('Europe/Paris');
+        $now = new DateTime('now', $timezone);
+        $lastAbsence = new DateTime($lastAbsenceDate, $timezone);
         $endOfSchoolDay = clone $lastAbsence;
         $endOfSchoolDay->setTime(17, 0, 0); // 5PM
 

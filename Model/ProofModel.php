@@ -554,7 +554,8 @@ class ProofModel
         if (!$datetimeStr)
             return '';
         try {
-            $date = new DateTime($datetimeStr);
+            $timezone = new DateTimeZone('Europe/Paris');
+            $date = new DateTime($datetimeStr, $timezone);
             // Utiliser IntlDateFormatter si disponible (recommandé depuis PHP 8.1)
             if (class_exists('\IntlDateFormatter')) {
                 // pattern : 02/01/2025 à 14h30

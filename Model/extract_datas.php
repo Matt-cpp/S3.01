@@ -424,7 +424,8 @@ class DataExtractor
         }
 
         // Calculate end time
-        $startDateTime = new DateTime($courseDate . ' ' . $startTime);
+        $timezone = new DateTimeZone('Europe/Paris');
+        $startDateTime = new DateTime($courseDate . ' ' . $startTime, $timezone);
         $endDateTime = clone $startDateTime;
         $endDateTime->add(new DateInterval('PT' . $duration . 'M'));
 

@@ -382,7 +382,8 @@ function processCourseSlot($db, $data, $resourceId, $roomId, $teacherId, $groupI
         return null;
     }
 
-    $startDateTime = new DateTime($courseDate . ' ' . $startTime);
+    $timezone = new DateTimeZone('Europe/Paris');
+    $startDateTime = new DateTime($courseDate . ' ' . $startTime, $timezone);
     $endDateTime = clone $startDateTime;
     $endDateTime->add(new DateInterval('PT' . $durationMinutes . 'M'));
 

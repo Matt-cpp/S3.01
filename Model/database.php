@@ -48,8 +48,18 @@ class Database
     // Private constructor for Singleton pattern
     private function __construct()
     {
+        // Set timezone for PHP operations to Europe/Paris
+        date_default_timezone_set('Europe/Paris');
+        
         try {
             $this->pdo = new PDO($this->getDSN(), $this->getUser(), $this->getPassword(), self::OPTIONS);
+            
+            // Set timezone for PostgreSQL to Europe/Paris
+            $this->pdo->exec("SET TIME ZONE 'Europe/Paris'");
+            
+            // Force UTF-8 encoding for PostgreSQL client connection
+            $this->pdo->exec("SET CLIENT_ENCODING TO 'UTF8'");
+            $this->pdo->exec("SET NAMES 'UTF8'");
         } catch (PDOException $e) {
             error_log("Database connection error: " . $e->getMessage());
             throw new Exception("Unable to connect to the database");

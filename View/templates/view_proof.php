@@ -1,4 +1,7 @@
 <?php
+// Set UTF-8 encoding for proper display of French characters
+header('Content-Type: text/html; charset=utf-8');
+
 require_once __DIR__ . '/../../Presenter/ProofPresenter.php';
 
 $presenter = new ProofPresenter();
@@ -26,21 +29,22 @@ $lockStatus = $viewData['lock_status'] ?? ($islocked ? 'Verrouillé' : 'Déverro
 // Dates formatées: priorité aux champs fournis par le presenter
 $formattedStart = '';
 $formattedEnd = '';
+$timezone = new DateTimeZone('Europe/Paris');
 
 // Use absence_start_datetime and absence_end_datetime if available (from ProofModel)
 if (!empty($proof['absence_start_datetime'])) {
-    $dt = new DateTime($proof['absence_start_datetime']);
-    $formattedStart = $dt->format('d/m/Y \à H\hi');
+    $dt = new DateTime($proof['absence_start_datetime'], $timezone);
+    $formattedStart = $dt->format('d/m/Y \à H\hi');
 } elseif (!empty($proof['absence_start_date'])) {
-    $dt = new DateTime($proof['absence_start_date']);
+    $dt = new DateTime($proof['absence_start_date'], $timezone);
     $formattedStart = $dt->format('d/m/Y');
 }
 
 if (!empty($proof['absence_end_datetime'])) {
-    $dt2 = new DateTime($proof['absence_end_datetime']);
-    $formattedEnd = $dt2->format('d/m/Y \à H\hi');
+    $dt2 = new DateTime($proof['absence_end_datetime'], $timezone);
+    $formattedEnd = $dt2->format('d/m/Y \à H\hi');
 } elseif (!empty($proof['absence_end_date'])) {
-    $dt2 = new DateTime($proof['absence_end_date']);
+    $dt2 = new DateTime($proof['absence_end_date'], $timezone);
     $formattedEnd = $dt2->format('d/m/Y');
 }
 

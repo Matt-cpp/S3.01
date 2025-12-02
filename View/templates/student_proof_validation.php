@@ -77,7 +77,8 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
                     echo '<li><strong>Diplôme(s) :</strong> ' . htmlspecialchars($student_info['degrees']) . '</li>';
                 }
                 if (!empty($student_info['birth_date'])) {
-                    $birth_date = new DateTime($student_info['birth_date']);
+                    $timezone = new DateTimeZone('Europe/Paris');
+                    $birth_date = new DateTime($student_info['birth_date'], $timezone);
                     echo '<li><strong>Date de naissance :</strong> ' . $birth_date->format('d/m/Y') . '</li>';
                 }
                 if (!empty($student_info['email'])) {
@@ -87,15 +88,14 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
             ?>
             <li><strong>Date et heure de début :</strong>
                 <?php
-                $datetime_start = new DateTime($_SESSION['reason_data']['datetime_start']);
-                $datetime_start->setTimezone(new DateTimeZone('Europe/Paris'));
+                $timezone = new DateTimeZone('Europe/Paris');
+                $datetime_start = new DateTime($_SESSION['reason_data']['datetime_start'], $timezone);
                 echo $datetime_start->format('d/m/Y à H:i:s');
                 ?>
             </li>
             <li><strong>Date et heure de fin :</strong>
                 <?php
-                $datetime_end = new DateTime($_SESSION['reason_data']['datetime_end']);
-                $datetime_end->setTimezone(new DateTimeZone('Europe/Paris'));
+                $datetime_end = new DateTime($_SESSION['reason_data']['datetime_end'], $timezone);
                 echo $datetime_end->format('d/m/Y à H:i:s');
                 ?>
             </li>
