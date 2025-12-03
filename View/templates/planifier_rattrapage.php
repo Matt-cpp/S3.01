@@ -90,11 +90,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php foreach ($lesDs as $ds):
                                 $eleves = $planif->getLesEleves($ds['id']);
                                 $nbEleves = count($eleves);
+                                // Format: Groupe — Matière — Date — Heure
+                                $group = $ds['group_code'] ?? '';
+                                $resource = $ds['resource_label'] ?? '';
+                                $date = $ds['course_date'];
+                                $time = $ds['start_time'];
+                                $displayParts = [];
+                                if ($group) $displayParts[] = htmlspecialchars($group);
+                                if ($resource) $displayParts[] = htmlspecialchars($resource);
+                                if ($date) $displayParts[] = htmlspecialchars($date);
+                                if ($time) $displayParts[] = substr($time, 0, 5); // HH:MM
+                                $displayLabel = implode(' — ', $displayParts) ?: ('DS #' . $ds['id']);
+                                // Add student names
+                                $studentNames = [];
+                                foreach ($eleves as $eleve) {
+                                    $studentNames[] = htmlspecialchars($eleve['first_name'] . ' ' . $eleve['last_name']);
+                                }
+                                $studentsList = implode(', ', $studentNames);
+                                $fullDisplay = $displayLabel . ($studentsList ? ' (' . $studentsList . ')' : '');
                                 ?>
                                 <option value="<?php echo htmlspecialchars($ds['id']); ?>"
-                                    data-info="<?php echo $nbEleves; ?> étudiant(s) à rattraper">
-                                    DS du <?php echo htmlspecialchars($ds['course_date']); ?> - ID:
-                                    <?php echo htmlspecialchars($ds['id']); ?>
+                                    data-info="<?php echo $nbEleves; ?> étudiant(s) à rattraper: <?php echo $studentsList; ?>">
+                                    <?php echo $fullDisplay; ?>
                                 </option>
                             <?php endforeach; ?>
                         <?php endif; ?>
