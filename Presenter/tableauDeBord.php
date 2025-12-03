@@ -18,10 +18,12 @@ class backendTableauDeBord
     public function getData($page)
     {
         $offset = $page * 5;
-        $query = "SELECT users.first_name,users.last_name,resources.label,course_slots.course_date,absences.status  
+        $query = "SELECT users.first_name,users.last_name,COALESCE(groups.label,'N/A') as degrees,resources.label,course_slots.course_date,absences.status  
         FROM absences LEFT JOIN users ON absences.student_identifier = users.identifier 
         LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id
         LEFT JOIN resources ON course_slots.resource_id=resources.id
+        LEFT JOIN user_groups on users.id=user_groups.user_id
+        Left JOIN groups on user_groups.group_id=groups.id
         ORDER BY course_slots.course_date DESC, absences.id ASC LIMIT 5 OFFSET :offset";
         return $this->db->select($query, ['offset' => $offset]);
     }
@@ -95,13 +97,14 @@ class backendTableauDeBord
         $tableau = [];
 
         // Ajout des en-têtes comme première ligne
-        $tableau[] = ['Prénom', 'Nom', 'Cours', 'Date', 'Status'];
+        $tableau[] = ['Prénom', 'Nom', 'Groupe', 'Matière', 'Date', 'Status'];
 
         // Remplissage des données
         foreach ($donnees as $ligne) {
             $tableau[] = [
                 $ligne['first_name'],
                 $ligne['last_name'],
+                $ligne['degrees'],
                 $ligne['label'],
                 $ligne['course_date'],
                 $ligne['status']
