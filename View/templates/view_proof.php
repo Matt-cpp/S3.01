@@ -70,7 +70,21 @@ if (!$proof) {
     <script src="../assets/js/view_proof.js" defer></script>
 </head>
 
-<body>
+<body <?php 
+    // Appliquer une couleur de fond selon le statut
+    $currentStatus = $proof['status'] ?? '';
+    $bodyStyle = '';
+    if ($currentStatus === 'accepted') {
+        $bodyStyle = 'style="background-color: #c3e6cb;"'; // Vert plus foncé
+    } elseif ($currentStatus === 'rejected') {
+        $bodyStyle = 'style="background-color: #f5c6cb;"'; // Rouge plus foncé
+    } elseif ($currentStatus === 'under_review') {
+        $bodyStyle = 'style="background-color: #bee5eb;"'; // Bleu
+    } elseif ($currentStatus === 'pending') {
+        $bodyStyle = 'style="background-color: #fff3cd;"'; // Jaune
+    }
+    echo $bodyStyle;
+?>>
     <?php include __DIR__ . '/navbar.php'; ?>
 
     <div class="container">
@@ -117,13 +131,51 @@ if (!$proof) {
 
         <div class="reason-container">
             <div class="info-field">
-                <strong>Motif :</strong>
+                <strong>Motif :</strong>
                 <?= htmlspecialchars($proof['main_reason_label'] ?? $proof['main_reason'] ?? $proof['reason'] ?? '') ?>
             </div>
             <div class="info-field">
                 <strong>Détails:</strong>
                 <?= htmlspecialchars($proof['custom_reason_label'] ?? $proof['custom_reason'] ?? '') ?>
             </div>
+        </div>
+
+        <!-- Commentaire de l'étudiant -->
+        <?php if (!empty($proof['student_comment'])): ?>
+            <div class="reason-container" style="margin-top: 20px;">
+                <div class="info-field">
+                    <strong>Commentaire de l'étudiant :</strong> <?= htmlspecialchars($proof['student_comment']) ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <!-- Section fichiers justificatifs -->
+        <div class="files-section" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+            <strong style="display: block; margin-bottom: 10px; font-size: 16px;">📎 Fichiers justificatifs :</strong>
+            <?php
+            $proofFiles = [];
+            if (!empty($proof['proof_files'])) {
+                $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
+                $proofFiles = is_array($proofFiles) ? $proofFiles : [];
+            }
+
+            if (!empty($proofFiles)): ?>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <?php foreach ($proofFiles as $index => $file): ?>
+                        <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>"
+                            target="_blank" rel="noopener"
+                            title="<?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>"
+                            style="display: inline-block; padding: 10px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px;">
+                            📄 <?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>
+                            <?php if (!empty($file['size'])): ?>
+                                <small style="opacity: 0.9;">(<?= number_format($file['size'] / 1024, 1) ?> Ko)</small>
+                            <?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p style="color: #666; font-style: italic; margin: 0;">Aucun fichier justificatif n'a été fourni.</p>
+            <?php endif; ?>
         </div>
 
         <div class="actions">
@@ -263,61 +315,47 @@ if (!$proof) {
                     <form method="POST" action="view_proof.php" class="action-form">
                         <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
                         <div class="button-container">
-                            <button type="submit" name="validate" value="1" class="btn btn-validate">
-                                <span class="btn-text">Valider</span>
-                            </button>
-                            <button type="submit" name="reject" value="1" class="btn btn-reject" style="margin-left:10px;">
-                                <span class="btn-text">Refuser</span>
-                            </button>
-                            <button type="submit" name="request_info" value="1" class="btn btn-info"
-                                style="margin-left:10px;">
-                                <span class="btn-text">Demander des informations</span>
-                            </button>
+                            <?php 
+                            // Récupérer le statut actuel pour masquer le bouton correspondant
+                            $currentStatus = $proof['status'] ?? '';
+                            // Désactiver les boutons si le justificatif est verrouillé
+                            $disabledAttr = $islocked ? 'disabled' : '';
+                            $disabledStyle = $islocked ? 'opacity: 0.5; cursor: not-allowed;' : '';
+                            $disabledTitle = $islocked ? 'title="Le justificatif est verrouillé"' : '';
+                            ?>
+                            
+                            <?php if ($currentStatus !== 'accepted'): ?>
+                                <button type="submit" name="validate" value="1" class="btn btn-validate" 
+                                    <?= $disabledAttr ?> <?= $disabledTitle ?> 
+                                    style="<?= $disabledStyle ?>">
+                                    <span class="btn-text">Valider</span>
+                                </button>
+                            <?php endif; ?>
+                            
+                            <?php if ($currentStatus !== 'rejected'): ?>
+                                <button type="submit" name="reject" value="1" class="btn btn-reject" 
+                                    <?= $disabledAttr ?> <?= $disabledTitle ?>
+                                    style="margin-left:10px; <?= $disabledStyle ?>">
+                                    <span class="btn-text">Refuser</span>
+                                </button>
+                            <?php endif; ?>
+                            
+                            <?php if ($currentStatus !== 'under_review'): ?>
+                                <button type="submit" name="request_info" value="1" class="btn btn-info"
+                                    <?= $disabledAttr ?> <?= $disabledTitle ?>
+                                    style="margin-left:10px; <?= $disabledStyle ?>">
+                                    <span class="btn-text">Demander des informations</span>
+                                </button>
+                            <?php endif; ?>
+                            
                             <button type="submit" name="split" value="1" class="btn btn-warning"
-                                style="margin-left:10px; background-color: #FF9800;">
+                                <?= $disabledAttr ?> <?= $disabledTitle ?>
+                                style="margin-left:10px; background-color: #FF9800; <?= $disabledStyle ?>">
                                 <span class="btn-text">Scinder</span>
                             </button>
                         </div>
                     </form>
                 </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- Commentaire de l'étudiant -->
-        <?php if (!empty($proof['student_comment'])): ?>
-            <div class="reason-container" style="margin-top: 20px;">
-                <div class="info-field">
-                    <strong>Commentaire de l'étudiant :</strong> <?= htmlspecialchars($proof['student_comment']) ?>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <!-- Section fichiers justificatifs -->
-        <div class="files-section" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-            <strong style="display: block; margin-bottom: 10px; font-size: 16px;">📎 Fichiers justificatifs :</strong>
-            <?php
-            $proofFiles = [];
-            if (!empty($proof['proof_files'])) {
-                $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
-                $proofFiles = is_array($proofFiles) ? $proofFiles : [];
-            }
-
-            if (!empty($proofFiles)): ?>
-                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                    <?php foreach ($proofFiles as $index => $file): ?>
-                        <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>"
-                            target="_blank" rel="noopener"
-                            title="<?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>"
-                            style="display: inline-block; padding: 10px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px;">
-                            📄 <?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>
-                            <?php if (!empty($file['size'])): ?>
-                                <small style="opacity: 0.9;">(<?= number_format($file['size'] / 1024, 1) ?> Ko)</small>
-                            <?php endif; ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p style="color: #666; font-style: italic; margin: 0;">Aucun fichier justificatif n'a été fourni.</p>
             <?php endif; ?>
         </div>
     </div>
