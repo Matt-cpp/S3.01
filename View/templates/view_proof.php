@@ -299,7 +299,7 @@ if (!$proof) {
         <?php endif; ?>
 
         <!-- Section fichiers justificatifs -->
-        <div class="files-section" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+        <div class="files-section">
             <strong style="display: block; margin-bottom: 10px; font-size: 16px;">📎 Fichiers justificatifs :</strong>
             <?php
             $proofFiles = [];
@@ -314,6 +314,7 @@ if (!$proof) {
                         <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>"
                             target="_blank" rel="noopener"
                             title="<?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>"
+                            class="file-link"
                             style="display: inline-block; padding: 10px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px;">
                             📄 <?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>
                             <?php if (!empty($file['size'])): ?>
@@ -323,7 +324,7 @@ if (!$proof) {
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <p style="color: #666; font-style: italic; margin: 0;">Aucun fichier justificatif n'a été fourni.</p>
+                <p style="font-style: italic; margin: 0;">Aucun fichier justificatif n'a été fourni.</p>
             <?php endif; ?>
         </div>
     </div>

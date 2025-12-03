@@ -206,3 +206,37 @@ body {
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.8);
 }
+
+/* Files Section */
+.files-section {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.files-section strong {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.files-section .file-link {
+    display: inline-block;
+    padding: 10px 15px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.files-section .file-link:hover {
+    background: #0056b3;
+}
+
+.files-section p {
+    color: #666;
+    font-style: italic;
+    margin: 0;
+}

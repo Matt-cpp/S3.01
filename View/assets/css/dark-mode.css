@@ -2084,5 +2084,1501 @@ html.dark-mode body {
   }
 }
 
+/* ===== Historique Proof - Filter Grid Border Fix (Enhanced) ===== */
+/* Main form styling for historique_proof - Scoped to avoid breaking login */
+.dark-mode main form.filter-form,
+.dark-mode main form:has(.filter-grid) {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.dark-mode main form .filter-grid,
+.dark-mode form.filter-form .filter-grid {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .filter-grid input[type="text"],
+.dark-mode .filter-grid input[type="date"],
+.dark-mode .filter-grid select {
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .button-container button[type="submit"],
+.dark-mode #filterButton {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.dark-mode .reset-link {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .reset-link:hover {
+  color: var(--primary) !important;
+}
+
+.dark-mode .results-counter {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+/* ===== Student Home Page - Table Hover Fix (Enhanced) ===== */
+.dark-mode .absences-table tbody tr:hover,
+.dark-mode .absences-table tbody tr:hover td,
+.dark-mode .absences-table-container table tbody tr:hover {
+  background: var(--bg-tertiary) !important;
+  background-color: var(--bg-tertiary) !important;
+}
+
+.dark-mode .absences-table tbody tr:nth-child(odd) {
+  background: var(--bg-card);
+}
+
+.dark-mode .absences-table tbody tr:nth-child(even) {
+  background: var(--bg-secondary);
+}
+
+.dark-mode .absences-table tbody tr:nth-child(odd):hover,
+.dark-mode .absences-table tbody tr:nth-child(even):hover {
+  background: var(--bg-tertiary) !important;
+}
+
+/* ===== View Proof - Files Section Fix ===== */
+.dark-mode .files-section,
+.dark-mode div.files-section,
+.dark-mode .container .files-section {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.dark-mode .files-section strong {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .files-section p {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .files-section a {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .files-section a:hover {
+  background: var(--primary-hover) !important;
+}
+
+/* View Proof - General styles */
+.dark-mode .view-proof-page .container,
+.dark-mode body .container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+}
+
+.dark-mode .info-grid {
+  background: var(--bg-card);
+}
+
+.dark-mode .info-field {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dark-mode .info-field strong {
+  color: var(--text-primary);
+}
+
+.dark-mode .dates-container,
+.dark-mode .reason-container {
+  background: var(--bg-card);
+}
+
+.dark-mode .dates-container .info-field,
+.dark-mode .reason-container .info-field {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.dark-mode .rejection-form,
+.dark-mode .validation-form,
+.dark-mode .split-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.dark-mode .rejection-form label,
+.dark-mode .validation-form label,
+.dark-mode .split-form label {
+  color: var(--text-primary);
+}
+
+.dark-mode .rejection-form select,
+.dark-mode .validation-form select,
+.dark-mode .split-form select,
+.dark-mode .rejection-form input,
+.dark-mode .validation-form input,
+.dark-mode .split-form input,
+.dark-mode .rejection-form textarea,
+.dark-mode .validation-form textarea,
+.dark-mode .split-form textarea {
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .split-form small {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .decision-buttons {
+  background: var(--bg-card);
+}
+
+/* ===== Student Proof Submit Page ===== */
+.dark-mode .proof-submit-page,
+.dark-mode body:has(.form-container) {
+  background: var(--bg-primary);
+}
+
+.dark-mode .form-container {
+  background: var(--bg-card) !important;
+}
+
+.dark-mode .form-container h1,
+.dark-mode .form-container h2,
+.dark-mode .form-container h3 {
+  color: var(--text-primary);
+}
+
+.dark-mode .form-container p {
+  color: var(--text-secondary);
+}
+
+.dark-mode .form-container label {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .form-container input[type="text"],
+.dark-mode .form-container input[type="date"],
+.dark-mode .form-container input[type="time"],
+.dark-mode .form-container input[type="datetime-local"],
+.dark-mode .form-container input[type="email"],
+.dark-mode .form-container select,
+.dark-mode .form-container textarea {
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .form-container input::placeholder,
+.dark-mode .form-container textarea::placeholder {
+  color: var(--input-placeholder);
+}
+
+.dark-mode .form-container .submit-btn,
+.dark-mode .form-container button[type="submit"] {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .form-container .submit-btn:hover,
+.dark-mode .form-container button[type="submit"]:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark-mode .file-upload-container,
+.dark-mode .file-upload-area {
+  background: var(--bg-secondary) !important;
+  border: 2px dashed var(--border-color) !important;
+  color: var(--text-secondary);
+}
+
+.dark-mode .file-upload-container:hover,
+.dark-mode .file-upload-area:hover {
+  border-color: var(--primary) !important;
+  background: var(--bg-tertiary) !important;
+}
+
+.dark-mode .file-list,
+.dark-mode .uploaded-files {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.dark-mode .file-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-mode .file-item .file-name {
+  color: var(--text-primary);
+}
+
+.dark-mode .file-item .file-size {
+  color: var(--text-secondary);
+}
+
+.dark-mode .file-item .remove-file {
+  color: #ef4444;
+}
+
+/* ===== Student Proof Validation Page ===== */
+.dark-mode .success-message,
+.dark-mode .success-container {
+  background: rgba(34, 197, 94, 0.15) !important;
+  border: 1px solid #22c55e !important;
+  color: #4ade80 !important;
+}
+
+.dark-mode .warning-message {
+  background: rgba(234, 179, 8, 0.15) !important;
+  border: 1px solid #eab308 !important;
+  color: #facc15 !important;
+}
+
+.dark-mode .pdf-download {
+  background: var(--bg-card);
+}
+
+.dark-mode .btn-pdf {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .btn-pdf:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark-mode h3 {
+  color: var(--text-primary);
+}
+
+.dark-mode ul li {
+  color: var(--text-primary);
+}
+
+.dark-mode ul li strong {
+  color: var(--text-primary);
+}
+
+.dark-mode .stats-box,
+.dark-mode .stats-container {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+}
+
+.dark-mode .stats-box h3,
+.dark-mode .stats-container h3 {
+  color: var(--text-primary);
+}
+
+.dark-mode .stats-box p,
+.dark-mode .stats-container p {
+  color: var(--text-secondary);
+}
+
+.dark-mode .action-buttons a,
+.dark-mode .action-buttons button {
+  background: var(--primary);
+  color: #ffffff !important;
+  border: none;
+}
+
+.dark-mode .action-buttons a:hover,
+.dark-mode .action-buttons button:hover {
+  background: var(--primary-hover);
+}
+
+/* ===== Student Info Page ===== */
+.dark-mode .info-container,
+.dark-mode .student-info-container {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+}
+
+.dark-mode .info-container h1,
+.dark-mode .info-container h2,
+.dark-mode .student-info-container h1,
+.dark-mode .student-info-container h2 {
+  color: var(--text-primary);
+}
+
+.dark-mode .info-section {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.dark-mode .info-section .section-header,
+.dark-mode .info-section h3 {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
+.dark-mode .info-section .info-row,
+.dark-mode .info-row {
+  border-bottom-color: var(--border-color);
+}
+
+.dark-mode .info-section .info-label,
+.dark-mode .info-label {
+  color: var(--text-secondary);
+}
+
+.dark-mode .info-section .info-value,
+.dark-mode .info-value {
+  color: var(--text-primary);
+}
+
+.dark-mode .back-link,
+.dark-mode .back-button {
+  color: var(--text-secondary);
+}
+
+.dark-mode .back-link:hover,
+.dark-mode .back-button:hover {
+  color: var(--primary);
+}
+
+/* Student info additional styles */
+.dark-mode .profile-header {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  border: 1px solid var(--border-color);
+}
+
+.dark-mode .profile-avatar {
+  background: var(--bg-tertiary);
+  border: 3px solid var(--primary);
+}
+
+.dark-mode .profile-name {
+  color: var(--text-primary);
+}
+
+.dark-mode .profile-email {
+  color: var(--text-secondary);
+}
+
+.dark-mode .profile-badge {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+/* ===== General Form & Input Dark Mode Fixes ===== */
+.dark-mode form {
+  background: transparent;
+}
+
+.dark-mode input[type="text"],
+.dark-mode input[type="email"],
+.dark-mode input[type="password"],
+.dark-mode input[type="date"],
+.dark-mode input[type="time"],
+.dark-mode input[type="datetime-local"],
+.dark-mode input[type="number"],
+.dark-mode select,
+.dark-mode textarea {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+  color: var(--input-placeholder);
+}
+
+.dark-mode input:focus,
+.dark-mode select:focus,
+.dark-mode textarea:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* ===== Proof Cards in Lists ===== */
+.dark-mode .proof-card,
+.dark-mode .justificatif-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .proof-card:hover,
+.dark-mode .justificatif-card:hover {
+  border-color: var(--primary) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .proof-card h3,
+.dark-mode .justificatif-card h3 {
+  color: var(--text-primary);
+}
+
+.dark-mode .proof-card p,
+.dark-mode .justificatif-card p {
+  color: var(--text-secondary);
+}
+
+.dark-mode .proof-card .date,
+.dark-mode .justificatif-card .date {
+  color: var(--text-secondary);
+}
+
+.dark-mode .proof-card .status,
+.dark-mode .justificatif-card .status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* ===== Student Info Page - Complete Dark Mode Fixes ===== */
+.dark-mode .info-container {
+  background: var(--bg-card) !important;
+}
+
+.dark-mode .info-section {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px;
+}
+
+.dark-mode .info-section.important-section,
+.dark-mode .info-section.alert-section {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%) !important;
+}
+
+.dark-mode .section-content p {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .highlight-text {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .highlight-text strong {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .link-box {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary);
+}
+
+.dark-mode .link-box strong {
+  color: var(--text-primary);
+}
+
+.dark-mode .link-box a.external-link {
+  color: var(--primary) !important;
+}
+
+.dark-mode .deadline-box {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dark-mode .deadline-box h3 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .deadline-box p {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .example-box {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dark-mode .example-box h4 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .example-box ul li {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .example-box .note {
+  color: var(--text-tertiary) !important;
+}
+
+.dark-mode .warning-box {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--text-primary);
+}
+
+.dark-mode .warning-box.danger {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.dark-mode .warning-box strong {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .info-box {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--text-primary);
+}
+
+.dark-mode .info-box.success {
+  background: rgba(34, 197, 94, 0.15) !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+}
+
+.dark-mode .info-box strong {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .consequence-box {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dark-mode .consequence-box h3 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .consequence-box p {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .consequence-box ul li {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .motifs-grid {
+  gap: 1rem;
+}
+
+.dark-mode .motif-card {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dark-mode .motif-card h4 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .motif-card p {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .steps-container {
+  background: transparent;
+}
+
+.dark-mode .step {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.dark-mode .step-number {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .step-content h4 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .step-content p {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .action-box {
+  background: transparent;
+}
+
+.dark-mode .submit-button,
+.dark-mode .secondary-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: #ffffff !important;
+  text-decoration: none;
+}
+
+.dark-mode .submit-button:hover,
+.dark-mode .secondary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.dark-mode .status-grid {
+  gap: 1rem;
+}
+
+.dark-mode .status-card {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dark-mode .status-card h4 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .status-card p {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .status-card.status-pending {
+  border-left: 4px solid #3b82f6 !important;
+}
+
+.dark-mode .status-card.status-review {
+  border-left: 4px solid #f59e0b !important;
+}
+
+.dark-mode .status-card.status-accepted {
+  border-left: 4px solid #22c55e !important;
+}
+
+.dark-mode .status-card.status-rejected {
+  border-left: 4px solid #ef4444 !important;
+}
+
+.dark-mode .contact-grid {
+  gap: 1rem;
+}
+
+.dark-mode .contact-card {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dark-mode .contact-card h4 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .contact-card p {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .contact-card a {
+  color: var(--primary) !important;
+}
+
+/* ===== Student Proof Submit/Edit - File Preview Section Fixes ===== */
+.dark-mode #files_preview {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dark-mode #files_preview h4 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode #files_list {
+  color: var(--text-primary);
+}
+
+.dark-mode #files_list .file-item,
+.dark-mode .file-preview-item {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px;
+  padding: 0.75rem;
+  color: var(--text-primary);
+}
+
+.dark-mode #total_size {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode #file_size_warning {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid #ef4444 !important;
+  color: #f87171 !important;
+}
+
+/* Existing files list in edit mode */
+.dark-mode .existing-file-item,
+.dark-mode #existing-files-list .existing-file-item {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .existing-file-item div {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .existing-file-item div[style*="color: #666"] {
+  color: var(--text-secondary) !important;
+}
+
+/* New files add section */
+.dark-mode div[style*="background: #e7f3ff"],
+.dark-mode div[style*="background-color: #e7f3ff"] {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.dark-mode div[style*="background: #e7f3ff"] label,
+.dark-mode div[style*="background-color: #e7f3ff"] label {
+  color: var(--primary) !important;
+}
+
+.dark-mode #new-files-container .file-item,
+.dark-mode .new-file-item {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Submission delay warning */
+.dark-mode .manager-comment-section,
+.dark-mode div[style*="background-color: #fff3cd"],
+.dark-mode div[style*="background: #fff3cd"] {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border: 2px solid rgba(245, 158, 11, 0.5) !important;
+}
+
+.dark-mode .manager-comment-section h3,
+.dark-mode div[style*="background-color: #fff3cd"] h3 {
+  color: #fbbf24 !important;
+}
+
+.dark-mode .manager-comment-section p,
+.dark-mode div[style*="background-color: #fff3cd"] p,
+.dark-mode div[style*="color: #856404"] {
+  color: #fde68a !important;
+}
+
+/* ===== Student Home Page - Modal Dark Mode Fixes ===== */
+.dark-mode .modal {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.dark-mode .modal-content,
+.dark-mode #absenceModalContent,
+.dark-mode #proofModalContent {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  color: var(--text-primary);
+}
+
+.dark-mode .modal-close {
+  color: var(--text-secondary);
+  background: transparent;
+}
+
+.dark-mode .modal-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.dark-mode .modal-title {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dark-mode .modal-body {
+  background: var(--bg-card) !important;
+  color: var(--text-primary);
+}
+
+.dark-mode .modal-info-group {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dark-mode .modal-info-item {
+  border-bottom-color: var(--border-color);
+}
+
+.dark-mode .modal-label {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .modal-value {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .modal-status-section {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dark-mode .modal-files-section {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dark-mode .modal-files-section a {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .modal-comment-section {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.dark-mode .modal-comment-box {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px;
+  padding: 0.75rem;
+  color: var(--text-primary) !important;
+}
+
+/* Modal action section */
+.dark-mode .modal-action-section {
+  background: transparent;
+}
+
+.dark-mode .modal-action-section .btn-add-info {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Evaluation section in modal */
+.dark-mode #evaluationSection,
+.dark-mode div[style*="background-color: #fff3cd"][style*="padding: 15px"] {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.dark-mode #evaluationSection h3,
+.dark-mode div[style*="background-color: #fff3cd"] h3[style*="color: #856404"] {
+  color: #fbbf24 !important;
+}
+
+/* Makeup section in modal */
+.dark-mode #makeupSection,
+.dark-mode div[style*="background-color: #d1ecf1"] {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.dark-mode #makeupSection h3,
+.dark-mode div[style*="background-color: #d1ecf1"] h3[style*="color: #0c5460"] {
+  color: #60a5fa !important;
+}
+
+/* ===== Student Absences & Proofs Pages - Table Row Hover Fix ===== */
+.dark-mode #absenceTable tbody tr,
+.dark-mode #proofsTable tbody tr {
+  background: var(--bg-card) !important;
+  transition: background-color 0.2s ease;
+}
+
+.dark-mode #absenceTable tbody tr:hover,
+.dark-mode #proofsTable tbody tr:hover {
+  background: var(--bg-tertiary) !important;
+  background-color: var(--bg-tertiary) !important;
+}
+
+.dark-mode #absenceTable tbody tr:hover td,
+.dark-mode #proofsTable tbody tr:hover td {
+  background: var(--bg-tertiary) !important;
+}
+
+/* Fix alternating row colors with hover */
+.dark-mode #absenceTable tbody tr:nth-child(even),
+.dark-mode #proofsTable tbody tr:nth-child(even) {
+  background: var(--bg-secondary) !important;
+}
+
+.dark-mode #absenceTable tbody tr:nth-child(even):hover,
+.dark-mode #proofsTable tbody tr:nth-child(even):hover,
+.dark-mode #absenceTable tbody tr:nth-child(even):hover td,
+.dark-mode #proofsTable tbody tr:nth-child(even):hover td {
+  background: var(--bg-tertiary) !important;
+}
+
+/* ===== Student Home Page - Justificatifs Table Column Width Fix ===== */
+.dark-mode .absences-table th,
+.dark-mode .absences-table td {
+  white-space: nowrap;
+}
+
+/* Make Heures ratées and Date soumission columns narrower */
+.dark-mode .absences-table th:nth-child(3),
+.dark-mode .absences-table td:nth-child(3) {
+  width: auto;
+  min-width: 80px;
+}
+
+/* ===== Planifier Rattrapage - Border Fix ===== */
+.dark-mode .main-content .section {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px;
+}
+
+.dark-mode .section-title {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .form-row {
+  background: transparent !important;
+  border: none !important;
+}
+
+.dark-mode .form-group {
+  background: transparent !important;
+  border: none !important;
+}
+
+.dark-mode .form-group:not(.filter-group) {
+  border: none !important;
+}
+
+.dark-mode .form-actions {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Fix ugly borders on planifier rattrapage form elements */
+.dark-mode .main-content form {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .main-content .section form {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .main-content .section form .form-group {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* ===== Login Page - Form Fix (Don't break login page) ===== */
+/* Scope the form background to specific pages only, not login */
+.dark-mode main form:not(.login-form):not(.form-container form) {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+/* Exclude forms inside sections from double styling */
+.dark-mode .section form,
+.dark-mode .filter-form,
+.dark-mode main .section form {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* ===== Points Penalty Section Fix ===== */
+.dark-mode .points-penalty,
+.dark-mode div[style*="background: #fee2e2"],
+.dark-mode div[style*="background: #dcfce7"] {
+  background: var(--bg-tertiary) !important;
+}
+
+
+.dark-mode div[style*="background: #fee2e2"] span,
+.dark-mode div[style*="background: #dcfce7"] span {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode div[style*="background: #fee2e2"] strong[style*="color: #dc2626"] {
+  color: #f87171 !important;
+}
+
+.dark-mode div[style*="background: #dcfce7"] strong[style*="color: #16a34a"] {
+  color: #4ade80 !important;
+}
+
+/* ===== Help Text in Forms ===== */
+.dark-mode .help-text {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode p.help-text[style*="color: #e36153ff"],
+.dark-mode p.help-text[style*="color: #6c757d"] {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== Readonly Input Fields ===== */
+.dark-mode input[readonly],
+.dark-mode input[style*="background-color: #e9ecef"] {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-secondary) !important;
+  cursor: not-allowed;
+}
+
+/* ===== Student Proof Submit - Course List & Recap Dark Mode ===== */
+/* Courses container */
+.dark-mode #courses_list,
+.dark-mode #courses_container {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.dark-mode .courses-container {
+  background: transparent;
+}
+
+.dark-mode .course-item {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.dark-mode .course-item.selected {
+  border-color: var(--primary) !important;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%) !important;
+}
+
+.dark-mode .course-item:hover {
+  border-color: var(--primary) !important;
+}
+
+.dark-mode .course-button {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .course-checkbox {
+  background: var(--bg-tertiary);
+}
+
+.dark-mode .course-title {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .course-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .course-details {
+  background: var(--bg-tertiary) !important;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.dark-mode .course-info {
+  color: var(--text-primary);
+}
+
+.dark-mode .course-info .info-label {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .course-info .info-value {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .courses-summary {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  color: var(--text-primary) !important;
+  text-align: center;
+}
+
+.dark-mode .courses-summary strong {
+  color: var(--primary) !important;
+}
+
+/* Absence recap section */
+.dark-mode #absence_recap {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  color: var(--text-primary);
+}
+
+.dark-mode .recap-title {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dark-mode .recap-stats {
+  background: transparent;
+}
+
+.dark-mode .recap-item {
+  background: var(--bg-tertiary) !important;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.dark-mode .recap-label {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .recap-value {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+.dark-mode .recap-empty {
+  color: var(--text-secondary) !important;
+  font-style: italic;
+}
+
+.dark-mode .course-types-list {
+  margin-top: 0.25rem;
+}
+
+.dark-mode .course-type-badge {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+  margin-right: 0.25rem;
+  display: inline-block;
+}
+
+.dark-mode .recap-item.evaluation-alert {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.dark-mode .recap-item.evaluation-alert .recap-value {
+  color: #f87171 !important;
+}
+
+/* ===== Student Proof Validation Page Dark Mode ===== */
+.dark-mode .container {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary);
+}
+
+.dark-mode .container h1 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .container h3 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .container h4 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .container ul {
+  color: var(--text-primary);
+}
+
+.dark-mode .container ul li {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .container ul li strong {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .container p {
+  color: var(--text-secondary);
+}
+
+/* Absence statistics section */
+.dark-mode .absence-statistics {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.dark-mode .absence-statistics h3 {
+  color: var(--text-primary) !important;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.dark-mode .stats-container {
+  background: transparent !important;
+}
+
+.dark-mode .stats-summary {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dark-mode .stat-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-mode .stat-item:last-child {
+  border-bottom: none;
+}
+
+.dark-mode .stat-label {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .stat-value {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+.dark-mode .course-types {
+  margin-top: 0.25rem;
+}
+
+.dark-mode .course-type-tag {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+  margin-right: 0.25rem;
+  display: inline-block;
+}
+
+.dark-mode .stat-item.evaluation-warning {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.dark-mode .stat-item.evaluation-warning .stat-label {
+  color: #fbbf24 !important;
+}
+
+.dark-mode .evaluation-count {
+  color: #fbbf24 !important;
+  font-weight: bold;
+}
+
+/* Courses details section */
+.dark-mode .courses-details {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.dark-mode .courses-details h4 {
+  color: var(--text-primary) !important;
+  margin-bottom: 0.75rem;
+}
+
+.dark-mode .courses-list {
+  background: transparent;
+}
+
+.dark-mode .course-detail-item {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary) !important;
+}
+
+/* Evaluation details section */
+.dark-mode .evaluation-details {
+  background: rgba(245, 158, 11, 0.1) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.dark-mode .evaluation-details h4 {
+  color: #fbbf24 !important;
+  margin-bottom: 0.75rem;
+}
+
+.dark-mode .evaluation-list {
+  background: transparent;
+}
+
+.dark-mode .evaluation-detail {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.dark-mode .eval-header {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .eval-header strong {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .eval-code {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .eval-details {
+  color: var(--text-secondary) !important;
+  margin-top: 0.25rem;
+}
+
+.dark-mode .eval-info {
+  background: var(--bg-tertiary);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  margin-left: 0.25rem;
+  font-size: 0.85em;
+}
+
+/* PDF download section */
+.dark-mode .pdf-download {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.dark-mode .btn-pdf {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: #ffffff !important;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.dark-mode .btn-pdf:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Warning message */
+.dark-mode .warning-message {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  color: #fbbf24 !important;
+}
+
+.dark-mode .warning-message strong {
+  color: #fbbf24 !important;
+}
+
+/* Nested ul styling fix */
+.dark-mode .container ul ul {
+  background: transparent;
+}
+
+.dark-mode .container ul ul li {
+  color: var(--text-secondary) !important;
+}
+
+/* ===== Student Home Page - Justificatifs Table Column Widths ===== */
+/* These tables have 7 columns: Période, Motif, Heures ratées, Date soumission, Évaluation, Commentaire, Action */
+/* Or 6 columns: Période, Motif, Heures ratées, Date soumission, Date validation, Évaluation */
+.absences-section .absences-table:not(:has(th:nth-child(8))) {
+  table-layout: auto;
+}
+
+.absences-section .absences-table:not(:has(th:nth-child(8))) th,
+.absences-section .absences-table:not(:has(th:nth-child(8))) td {
+  white-space: nowrap;
+  padding: 0.75rem 0.5rem;
+}
+
+/* Heures ratées column - narrower */
+.absences-section .absences-table th:nth-child(3):not(:last-child),
+.absences-section .absences-table td:nth-child(3):not(:last-child) {
+  width: auto;
+  min-width: 70px;
+  text-align: center;
+}
+
+/* Date soumission column - narrower */
+.absences-section .absences-table th:nth-child(4):not(:last-child),
+.absences-section .absences-table td:nth-child(4):not(:last-child) {
+  width: auto;
+  min-width: 100px;
+}
+
 
 

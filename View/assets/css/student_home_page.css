@@ -497,6 +497,11 @@
             table-layout: fixed;
         }
 
+        /* Override for proof tables (7 columns or less) - use auto layout */
+        .absences-section:not(:first-of-type) .absences-table {
+            table-layout: auto;
+        }
+
         .absences-table thead {
             background-color: #f9fafb;
         }
@@ -511,7 +516,7 @@
             white-space: nowrap;
         }
 
-        /* Largeurs optimisées des colonnes pour le tableau des absences */
+        /* Largeurs optimisées des colonnes pour le tableau des absences (9 colonnes) */
         .absences-table th:nth-child(1) { width: 8%; }  /* Date */
         .absences-table th:nth-child(2) { width: 9%; }  /* Horaire */
         .absences-table th:nth-child(3) { width: 16%; } /* Cours */
@@ -522,6 +527,11 @@
         .absences-table th:nth-child(8) { width: 12%; }  /* Évaluation */
         .absences-table th:nth-child(9) { width: 12%; } /* Statut */
         .absences-table th:nth-child(10) { width: 11%; } /* Action (pour les justificatifs) */
+
+        /* Reset widths for proof tables (fewer columns) */
+        .absences-section:not(:first-of-type) .absences-table th {
+            width: auto;
+        }
 
         .absences-table td {
             padding: 0.75rem;
