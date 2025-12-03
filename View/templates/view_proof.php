@@ -134,10 +134,12 @@ if (!$proof) {
                 <strong>Motif :</strong>
                 <?= htmlspecialchars($proof['main_reason_label'] ?? $proof['main_reason'] ?? $proof['reason'] ?? '') ?>
             </div>
-            <div class="info-field">
-                <strong>Détails:</strong>
-                <?= htmlspecialchars($proof['custom_reason_label'] ?? $proof['custom_reason'] ?? '') ?>
-            </div>
+            <?php if (!empty($proof['custom_reason_label']) || !empty($proof['custom_reason'])): ?>
+                <div class="info-field">
+                    <strong>Détails:</strong>
+                    <?= htmlspecialchars($proof['custom_reason_label'] ?? $proof['custom_reason'] ?? '') ?>
+                </div>
+            <?php endif; ?>
         </div>
 
         <!-- Commentaire de l'étudiant -->
