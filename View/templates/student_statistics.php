@@ -1,30 +1,48 @@
 <!DOCTYPE html>
 <html lang="fr">
-<?php
-require_once __DIR__ . '/../../controllers/auth_guard.php';
-$user = requireRole('student');
-
-// Use the authenticated user's ID
-if (!isset($_SESSION['id_student'])) {
-    $_SESSION['id_student'] = $user['id'];
-}
-?>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="../img/logoIUT.ico">
-    <title>Mes Statistiques</title>
-
-    <link rel="stylesheet" href="../assets/css/student_proof_submit.css">
+    <title>Mes Statistiques - Étudiant</title>
+    <?php include __DIR__ . '/../includes/theme-helper.php';
+    renderThemeSupport(); ?>
+    <link rel="stylesheet" href="../assets/css/student_statistics.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
+    <?php
+    require_once __DIR__ . '/../../controllers/auth_guard.php';
+    $user = requireRole('student');
+
+    require_once __DIR__ . '/../../Presenter/student_statistics_presenter.php';
+
+    // Get student identifier from user ID
+    $studentIdentifier = StudentStatisticsPresenter::getStudentIdentifierFromUserId($user['id']);
+
+    if (!$studentIdentifier) {
+        echo '<div class="no-data"><p>Impossible de récupérer vos informations.</p></div>';
+        exit;
+    }
+
+    $presenter = new StudentStatisticsPresenter($studentIdentifier);
+
+    // Get filters
+    $filters = $presenter->getFilters();
+
+    // Get statistics data
+    $generalStats = $presenter->getGeneralStats($filters);
+    $courseTypeData = $presenter->getCourseTypeData($filters);
+    $resourceData = $presenter->getResourceData($filters);
+    $monthlyTrends = $presenter->getDetailedMonthlyTrends($filters);
+    $recentAbsences = $presenter->getRecentAbsences(10);
+    ?>
+
     <?php include __DIR__ . '/navbar.php'; ?>
 
-<<<<<<< Updated upstream
-    <h1>Mes Statistiques</h1>
-=======
     <div class="main-content">
         <!-- Header -->
         <div class="stats-header">
@@ -35,7 +53,7 @@ if (!isset($_SESSION['id_student'])) {
         <!-- Filters Section -->
         <div class="filters-container">
             <button class="toggle-filters-btn" onclick="toggleFilters()">
-                <span class="filter-icon"></span>
+                <span class="filter-icon">🔍</span>
                 <span>Filtres</span>
                 <span class="arrow">▼</span>
             </button>
@@ -77,7 +95,7 @@ if (!isset($_SESSION['id_student'])) {
         <?php if ($generalStats): ?>
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon"></div>
+                    <div class="stat-icon">📊</div>
                     <div class="stat-content">
                         <div class="stat-title">Total des absences</div>
                         <div class="stat-number"><?php echo $generalStats['total_absences'] ?? 0; ?></div>
@@ -85,7 +103,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
 
                 <div class="stat-card stat-card-success">
-                    <div class="stat-icon"></div>
+                    <div class="stat-icon">✅</div>
                     <div class="stat-content">
                         <div class="stat-title">Absences justifiées</div>
                         <div class="stat-number"><?php echo $generalStats['justified_absences'] ?? 0; ?></div>
@@ -93,7 +111,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
 
                 <div class="stat-card stat-card-danger">
-                    <div class="stat-icon"></div>
+                    <div class="stat-icon">⚠️</div>
                     <div class="stat-content">
                         <div class="stat-title">Absences non justifiées</div>
                         <div class="stat-number"><?php echo $generalStats['unjustified_absences'] ?? 0; ?></div>
@@ -101,7 +119,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
 
                 <div class="stat-card stat-card-purple">
-                    <div class="stat-icon"></div>
+                    <div class="stat-icon">📝</div>
                     <div class="stat-content">
                         <div class="stat-title">Absences en évaluation</div>
                         <div class="stat-number"><?php echo $generalStats['evaluation_absences'] ?? 0; ?></div>
@@ -109,7 +127,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
 
                 <div class="stat-card stat-card-info">
-                    <div class="stat-icon"></div>
+                    <div class="stat-icon">📈</div>
                     <div class="stat-content">
                         <div class="stat-title">Taux de justification</div>
                         <div class="stat-number">
@@ -124,7 +142,7 @@ if (!isset($_SESSION['id_student'])) {
             </div>
         <?php else: ?>
             <div class="no-data">
-                <div class="no-data-icon"></div>
+                <div class="no-data-icon">🎉</div>
                 <p>Aucune absence enregistrée. Continuez comme ça !</p>
             </div>
         <?php endif; ?>
@@ -183,7 +201,7 @@ if (!isset($_SESSION['id_student'])) {
                                 <td>
                                     <?php echo htmlspecialchars($absence['course_type']); ?>
                                     <?php if ($absence['is_evaluation']): ?>
-                                        <span class="status-badge status-evaluation">Éval</span>
+                                        <span class="status-badge status-evaluation">📝</span>
                                     <?php endif; ?>
                                 </td>
                                 <td><?php echo htmlspecialchars($absence['teacher_name'] ?? 'N/A'); ?></td>
@@ -365,7 +383,6 @@ if (!isset($_SESSION['id_student'])) {
 
         <?php endif; ?>
     </script>
->>>>>>> Stashed changes
 </body>
 
 </html>

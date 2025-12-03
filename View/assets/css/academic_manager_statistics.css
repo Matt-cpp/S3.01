@@ -208,12 +208,24 @@ body {
     color: #6b7280;
 }
 
-/* Stats Grid */
+/* Stats Grid - 2 rows of 3 */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     margin-bottom: 2rem;
+}
+
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .stat-card {
@@ -248,13 +260,10 @@ body {
     background: #dbeafe;
 }
 
-<<<<<<< Updated upstream
-=======
 .stat-card-purple .stat-icon {
     background: #ede9fe;
 }
 
->>>>>>> Stashed changes
 .stat-icon {
     font-size: 2.5rem;
     line-height: 1;
@@ -312,6 +321,29 @@ body {
 .student-header p {
     color: #6b7280;
     font-size: 1rem;
+}
+
+/* Student View - Stats Grid in Single Row (5 columns) */
+.student-view .stats-grid {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+@media (max-width: 1200px) {
+    .student-view .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .student-view .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .student-view .stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Semester Section */

@@ -114,6 +114,44 @@ class AcademicManagerStatisticsPresenter
         ];
     }
 
+    //Get evaluation absences by resource for chart
+    public function getEvaluationResourceData($filters = [])
+    {
+        $data = $this->statisticsModel->getEvaluationAbsencesByResource($filters);
+
+        $labels = [];
+        $values = [];
+
+        foreach ($data as $row) {
+            $labels[] = $row['resource_label'] ?? 'N/A';
+            $values[] = intval($row['total_absences']);
+        }
+
+        return [
+            'labels' => $labels,
+            'values' => $values
+        ];
+    }
+
+    //Get justification rate by resource for chart
+    public function getJustificationRateData($filters = [])
+    {
+        $data = $this->statisticsModel->getJustificationRateByResource($filters);
+
+        $labels = [];
+        $values = [];
+
+        foreach ($data as $row) {
+            $labels[] = $row['resource_label'] ?? 'N/A';
+            $values[] = floatval($row['justification_rate']);
+        }
+
+        return [
+            'labels' => $labels,
+            'values' => $values
+        ];
+    }
+
     //Get monthly trends for line chart
     public function getMonthlyTrends($filters = [])
     {

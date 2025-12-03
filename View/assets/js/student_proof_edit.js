@@ -247,7 +247,7 @@ function updateFileSummary() {
 
   let html =
     '<div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">';
-  html += "<strong>📊 Résumé :</strong><br>";
+  html += "<strong>Résumé :</strong><br>";
   html += `Fichiers actuels : ${existingCount}`;
   if (toDeleteCount > 0) {
     html += ` <span style="color: #dc3545;">(-${toDeleteCount})</span>`;

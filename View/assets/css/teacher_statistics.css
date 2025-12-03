@@ -146,12 +146,24 @@ body {
     box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
 }
 
-/* KPI Cards */
+/* KPI Cards - 2 rows of 3 */
 .kpi-cards {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 15px;
     margin-bottom: 30px;
+}
+
+@media (max-width: 900px) {
+    .kpi-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .kpi-cards {
+        grid-template-columns: 1fr;
+    }
 }
 
 .kpi-card {
@@ -170,16 +182,7 @@ body {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
-<<<<<<< Updated upstream
-.kpi-blue { border-left-color: #4f7cff; }
-.kpi-cyan { border-left-color: #00bcd4; }
-.kpi-green { border-left-color: #4caf50; }
-.kpi-red { border-left-color: #f44336; }
-.kpi-orange { border-left-color: #ff9800; }
-
-=======
 /* Hide empty kpi-icon divs */
->>>>>>> Stashed changes
 .kpi-icon {
     display: none;
 }

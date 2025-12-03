@@ -466,7 +466,7 @@ function displayCourses(courses) {
 
     // Date and time
     coursesHtml += '<div class="course-info">';
-    coursesHtml += '<span class="info-label">📅 Date:</span> ';
+    coursesHtml += '<span class="info-label">Date:</span> ';
     coursesHtml +=
       '<span class="info-value">' +
       course.course_date +
@@ -480,7 +480,7 @@ function displayCourses(courses) {
     // Course type
     if (course.course_type) {
       coursesHtml += '<div class="course-info">';
-      coursesHtml += '<span class="info-label">📚 Type:</span> ';
+      coursesHtml += '<span class="info-label">Type:</span> ';
       coursesHtml +=
         '<span class="info-value">' +
         course.course_type.toUpperCase() +
@@ -491,7 +491,7 @@ function displayCourses(courses) {
     // Teacher
     if (course.teacher) {
       coursesHtml += '<div class="course-info">';
-      coursesHtml += '<span class="info-label">👨‍🏫 Enseignant:</span> ';
+      coursesHtml += '<span class="info-label">Enseignant:</span> ';
       coursesHtml += '<span class="info-value">' + course.teacher + "</span>";
       coursesHtml += "</div>";
     }
@@ -499,7 +499,7 @@ function displayCourses(courses) {
     // Room
     if (course.room) {
       coursesHtml += '<div class="course-info">';
-      coursesHtml += '<span class="info-label">🏠 Salle:</span> ';
+      coursesHtml += '<span class="info-label">Salle:</span> ';
       coursesHtml += '<span class="info-value">' + course.room + "</span>";
       coursesHtml += "</div>";
     }
@@ -726,7 +726,7 @@ function updateAbsenceRecap() {
     JSON.stringify(stats.evaluationDetails);
 
   var recapHtml =
-    '<div class="recap-title">📊 Récapitulatif des absences sélectionnées</div>';
+    '<div class="recap-title">Récapitulatif des absences sélectionnées</div>';
 
   if (stats.totalHours === 0) {
     recapHtml += '<div class="recap-empty">Aucune absence sélectionnée</div>';
@@ -735,8 +735,7 @@ function updateAbsenceRecap() {
 
     // Total hours
     recapHtml += '<div class="recap-item">';
-    recapHtml +=
-      '<span class="recap-label">⏱️ Nombre total d\'heures :</span> ';
+    recapHtml += '<span class="recap-label">Nombre total d\'heures :</span> ';
     recapHtml +=
       '<span class="recap-value">' + stats.totalHours.toFixed(1) + "h</span>";
     recapHtml += "</div>";
@@ -744,7 +743,7 @@ function updateAbsenceRecap() {
     // Half days
     if (stats.halfDays > 0) {
       recapHtml += '<div class="recap-item">';
-      recapHtml += '<span class="recap-label">📅 Demi-journées :</span> ';
+      recapHtml += '<span class="recap-label">Demi-journées :</span> ';
       recapHtml +=
         '<span class="recap-value">' + stats.halfDays.toFixed(1) + "</span>";
       recapHtml += "</div>";
@@ -752,7 +751,7 @@ function updateAbsenceRecap() {
 
     // Course types
     recapHtml += '<div class="recap-item">';
-    recapHtml += '<span class="recap-label">📚 Types de cours :</span>';
+    recapHtml += '<span class="recap-label">Types de cours :</span>';
     recapHtml += '<div class="course-types-list">';
     Object.keys(stats.courseTypes).forEach(function (type) {
       recapHtml +=

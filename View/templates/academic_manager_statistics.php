@@ -33,6 +33,8 @@
         $generalStats = $presenter->getGeneralStats($filters);
         $courseTypeData = $presenter->getCourseTypeData($filters);
         $resourceData = $presenter->getResourceData($filters);
+        $evaluationResourceData = $presenter->getEvaluationResourceData($filters);
+        $justificationRateData = $presenter->getJustificationRateData($filters);
         $monthlyTrends = $presenter->getMonthlyTrends($filters);
         $resourceTrends = $presenter->getResourceTrends($filters);
         $semesterData = $presenter->getSemesterData($filters);
@@ -211,8 +213,6 @@
                         </div>
                     </div>
 
-<<<<<<< Updated upstream
-=======
                     <div class="stat-card stat-card-purple">
                         <div class="stat-icon"></div>
                         <div class="stat-content">
@@ -221,7 +221,6 @@
                         </div>
                     </div>
 
->>>>>>> Stashed changes
                     <div class="stat-card stat-card-info">
                         <div class="stat-icon"></div>
                         <div class="stat-content">
@@ -294,8 +293,6 @@
                         </div>
                     </div>
 
-<<<<<<< Updated upstream
-=======
                     <div class="stat-card stat-card-purple">
                         <div class="stat-icon"></div>
                         <div class="stat-content">
@@ -304,7 +301,6 @@
                         </div>
                     </div>
 
->>>>>>> Stashed changes
                     <div class="stat-card stat-card-warning">
                         <div class="stat-icon"></div>
                         <div class="stat-content">
@@ -362,8 +358,6 @@
                     <canvas id="resourceChart"></canvas>
                 </div>
 
-<<<<<<< Updated upstream
-=======
                 <div class="chart-card">
                     <h3>Absences en évaluation par matière</h3>
                     <canvas id="evaluationResourceChart"></canvas>
@@ -374,7 +368,6 @@
                     <canvas id="justificationRateChart"></canvas>
                 </div>
 
->>>>>>> Stashed changes
                 <div class="chart-card chart-card-large">
                     <h3>Évolution mensuelle des absences</h3>
                     <canvas id="monthlyTrendChart"></canvas>
@@ -416,7 +409,8 @@
                                         </td>
                                         <td>
                                             <a href="?student=<?php echo urlencode($student['identifier']); ?>"
-                                                class="btn btn-sm">Voir détails</a>
+                                                class="btn btn-sm">Voir
+                                                détails</a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -632,6 +626,91 @@
                 });
             <?php endif; ?>
 
+            // Evaluation resource bar chart
+            <?php if (!empty($evaluationResourceData['labels'])): ?>
+                const evaluationResourceData = {
+                    labels: <?php echo json_encode($evaluationResourceData['labels']); ?>,
+                    datasets: [{
+                        label: 'Absences en évaluation',
+                        data: <?php echo json_encode($evaluationResourceData['values']); ?>,
+                        backgroundColor: [
+                            '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3',
+                            '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39'
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 6
+                    }]
+                };
+
+                new Chart(document.getElementById('evaluationResourceChart'), {
+                    type: 'bar',
+                    data: evaluationResourceData,
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            <?php endif; ?>
+
+            // Justification rate by resource chart
+            <?php if (!empty($justificationRateData['labels'])): ?>
+                const justificationRateData = {
+                    labels: <?php echo json_encode($justificationRateData['labels']); ?>,
+                    datasets: [{
+                        label: 'Taux de justification (%)',
+                        data: <?php echo json_encode($justificationRateData['values']); ?>,
+                        backgroundColor: <?php echo json_encode($justificationRateData['values']); ?>.map(value => {
+                            if (value >= 80) return '#22c55e';
+                            if (value >= 50) return '#f59e0b';
+                            return '#ef4444';
+                        }),
+                        borderWidth: 0,
+                        borderRadius: 6
+                    }]
+                };
+
+                new Chart(document.getElementById('justificationRateChart'), {
+                    type: 'bar',
+                    data: justificationRateData,
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.parsed.x + '%';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function (value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            <?php endif; ?>
+
             // Monthly trend chart
             <?php if (!empty($monthlyTrends['months'])): ?>
                 const monthlyTrendData = {
@@ -687,11 +766,7 @@
                     labels: <?php echo json_encode($resourceTrends['months']); ?>,
                     datasets: [
                         <?php foreach ($resourceTrends['datasets'] as $index => $dataset): ?>
-<<<<<<< Updated upstream
-                                                    {
-=======
-                                                                                                    {
->>>>>>> Stashed changes
+                                                                                                                                                                {
                                 label: <?php echo json_encode($dataset['label']); ?>,
                                 data: <?php echo json_encode($dataset['data']); ?>,
                                 borderColor: '<?php echo $dataset['color']; ?>',
@@ -699,11 +774,7 @@
                                 tension: 0.4,
                                 fill: true
                             }<?php echo $index < count($resourceTrends['datasets']) - 1 ? ',' : ''; ?>
-<<<<<<< Updated upstream
-                                        <?php endforeach; ?>
-=======
-                                                                        <?php endforeach; ?>
->>>>>>> Stashed changes
+                                                                                <?php endforeach; ?>
                     ]
                 };
 

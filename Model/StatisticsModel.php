@@ -60,6 +60,53 @@ class StatisticsModel
         }
     }
 
+    //Get evaluation absences by resource/subject
+    public function getEvaluationAbsencesByResource($filters = [])
+    {
+        $query = "
+            SELECT 
+                COALESCE(r.label, 'Non spécifié') as resource_label,
+                COUNT(DISTINCT a.id) as total_absences
+            FROM absences a
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            LEFT JOIN resources r ON cs.resource_id = r.id
+            WHERE cs.is_evaluation = true
+        ";
+
+        $params = [];
+        $query .= $this->buildFilterConditions($filters, $params);
+        $query .= " GROUP BY r.label ORDER BY total_absences DESC LIMIT 10";
+
+        try {
+            return $this->db->select($query, $params);
+        } catch (Exception $e) {
+            error_log("Error fetching evaluation absences by resource: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    //Get evaluation absences count
+    public function getEvaluationAbsencesCount($filters = [])
+    {
+        $query = "
+            SELECT COUNT(DISTINCT a.id) as total
+            FROM absences a
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            WHERE cs.is_evaluation = true
+        ";
+
+        $params = [];
+        $query .= $this->buildFilterConditions($filters, $params);
+
+        try {
+            $result = $this->db->selectOne($query, $params);
+            return $result['total'] ?? 0;
+        } catch (Exception $e) {
+            error_log("Error fetching evaluation absences count: " . $e->getMessage());
+            return 0;
+        }
+    }
+
     //Get absences trends by month
     public function getAbsencesTrendsByMonth($filters = [])
     {
@@ -305,6 +352,7 @@ class StatisticsModel
                 COUNT(DISTINCT a.student_identifier) as total_students,
                 COUNT(DISTINCT CASE WHEN a.justified = true THEN a.id END) as justified_absences,
                 COUNT(DISTINCT CASE WHEN a.justified = false THEN a.id END) as unjustified_absences,
+                COUNT(DISTINCT CASE WHEN cs.is_evaluation = true THEN a.id END) as evaluation_absences,
                 ROUND(AVG(absences_per_student.count), 2) as avg_absences_per_student
             FROM absences a
             JOIN course_slots cs ON a.course_slot_id = cs.id
@@ -404,6 +452,39 @@ class StatisticsModel
             return $this->db->select($query);
         } catch (Exception $e) {
             error_log("Error fetching available years: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    //Get justification rate by resource/subject
+    public function getJustificationRateByResource($filters = [])
+    {
+        $query = "
+            SELECT 
+                COALESCE(r.label, 'Non spécifié') as resource_label,
+                COUNT(DISTINCT a.id) as total_absences,
+                COUNT(DISTINCT CASE WHEN a.justified = true THEN a.id END) as justified_absences,
+                ROUND(
+                    CASE 
+                        WHEN COUNT(DISTINCT a.id) > 0 
+                        THEN (COUNT(DISTINCT CASE WHEN a.justified = true THEN a.id END)::numeric / COUNT(DISTINCT a.id)::numeric) * 100
+                        ELSE 0 
+                    END, 1
+                ) as justification_rate
+            FROM absences a
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            LEFT JOIN resources r ON cs.resource_id = r.id
+            WHERE 1=1
+        ";
+
+        $params = [];
+        $query .= $this->buildFilterConditions($filters, $params);
+        $query .= " GROUP BY r.label HAVING COUNT(DISTINCT a.id) >= 3 ORDER BY justification_rate ASC LIMIT 10";
+
+        try {
+            return $this->db->select($query, $params);
+        } catch (Exception $e) {
+            error_log("Error fetching justification rate by resource: " . $e->getMessage());
             return [];
         }
     }

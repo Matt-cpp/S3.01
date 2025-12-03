@@ -248,76 +248,76 @@ $errorMessage = $presenter->getErrorMessage();
             <div class="modal-body">
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Début d'absence :</span>
+                        <span class="modal-label">Début d'absence :</span>
                         <span class="modal-value" id="modalStartDate"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Fin d'absence :</span>
+                        <span class="modal-label">Fin d'absence :</span>
                         <span class="modal-value" id="modalEndDate"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📝 Motif :</span>
+                        <span class="modal-label">Motif :</span>
                         <span class="modal-value" id="modalReason"></span>
                     </div>
                     <div class="modal-info-item" id="customReasonItem" style="display: none;">
-                        <span class="modal-label">ℹ️ Précision :</span>
+                        <span class="modal-label">Précision :</span>
                         <span class="modal-value" id="modalCustomReason"></span>
                     </div>
                     <div class="modal-info-item" id="studentCommentItem" style="display: none;">
-                        <span class="modal-label">💬 Commentaire de l'étudiant :</span>
+                        <span class="modal-label">Commentaire de l'étudiant :</span>
                         <span class="modal-value" id="modalStudentComment"></span>
                     </div>
                 </div>
 
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">⏱️ Heures ratées :</span>
+                        <span class="modal-label">Heures ratées :</span>
                         <span class="modal-value" id="modalHours"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📊 Absences concernées :</span>
+                        <span class="modal-label">Absences concernées :</span>
                         <span class="modal-value" id="modalAbsences"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Demi-journées concernées :</span>
+                        <span class="modal-label">Demi-journées concernées :</span>
                         <span class="modal-value" id="modalHalfDays"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📝 Évaluation manquée :</span>
+                        <span class="modal-label">Évaluation manquée :</span>
                         <span class="modal-value" id="modalExam"></span>
                     </div>
                 </div>
 
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📤 Date de soumission :</span>
+                        <span class="modal-label">Date de soumission :</span>
                         <span class="modal-value" id="modalSubmission"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">✅ Date de traitement :</span>
+                        <span class="modal-label">Date de traitement :</span>
                         <span class="modal-value" id="modalProcessing"></span>
                     </div>
                 </div>
 
                 <div class="modal-status-section">
-                    <span class="modal-label">🏷️ Statut :</span>
+                    <span class="modal-label">Statut :</span>
                     <span id="modalStatus" class="badge"></span>
                 </div>
 
                 <div class="modal-files-section" id="filesSection" style="display: none; margin-top: 20px;">
-                    <span class="modal-label">📎 Fichiers justificatifs :</span>
+                    <span class="modal-label">Fichiers justificatifs :</span>
                     <div id="modalFiles" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
                 </div>
 
                 <div class="modal-comment-section" id="commentSection" style="display: none;">
-                    <span class="modal-label">💬 Commentaire du responsable :</span>
+                    <span class="modal-label">Commentaire du responsable :</span>
                     <div class="modal-comment-box" id="modalComment"></div>
                 </div>
 
                 <!-- Bouton Modifier (visible uniquement pour les justificatifs en révision) -->
                 <div class="modal-action-section" id="actionSection" style="display: none; margin-top: 20px; text-align: center;">
                     <a href="#" id="modalEditBtn" class="btn-add-info" style="display: inline-block; padding: 12px 24px; text-decoration: none; background-color: #ffc107; color: #000; font-weight: bold;">
-                        ✏️ Modifier le justificatif
+                        Modifier le justificatif
                     </a>
                 </div>
             </div>

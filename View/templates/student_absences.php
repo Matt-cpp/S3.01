@@ -222,7 +222,7 @@ $errorMessage = $presenter->getErrorMessage();
                                     <?php if ($absence['is_evaluation']): ?>
                                         <span class="eval-badge">⚠️ Oui</span>
                                         <?php if (!empty($absence['makeup_id']) && !empty($absence['makeup_scheduled'])): ?>
-                                            <br><span class="makeup-badge" style="background-color: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; display: inline-block;">📝 Rattrapage prévu</span>
+                                            <br><span class="makeup-badge" style="background-color: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; display: inline-block;">Rattrapage prévu</span>
                                         <?php endif; ?>
                                     <?php else: ?>
                                         <span class="no-eval">Non</span>
@@ -251,47 +251,47 @@ $errorMessage = $presenter->getErrorMessage();
             <div class="modal-body">
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Date :</span>
+                        <span class="modal-label">Date :</span>
                         <span class="modal-value" id="modalDate"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">🕐 Horaire :</span>
+                        <span class="modal-label">Horaire :</span>
                         <span class="modal-value" id="modalTime"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">⏱️ Durée :</span>
+                        <span class="modal-label">Durée :</span>
                         <span class="modal-value" id="modalDuration"></span>
                     </div>
                 </div>
 
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📚 Cours :</span>
+                        <span class="modal-label">Cours :</span>
                         <span class="modal-value" id="modalCourse"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">👨‍🏫 Enseignant :</span>
+                        <span class="modal-label">Enseignant :</span>
                         <span class="modal-value" id="modalTeacher"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">🚪 Salle :</span>
+                        <span class="modal-label">Salle :</span>
                         <span class="modal-value" id="modalRoom"></span>
                     </div>
                 </div>
 
                 <div class="modal-info-group">
                     <div class="modal-info-item">
-                        <span class="modal-label">📝 Type :</span>
+                        <span class="modal-label">Type :</span>
                         <span class="modal-value">
                             <span id="modalType" class="badge"></span>
                         </span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📝 Évaluation :</span>
+                        <span class="modal-label">Évaluation :</span>
                         <span class="modal-value" id="modalEvaluation"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📄 Motif :</span>
+                        <span class="modal-label">Motif :</span>
                         <span class="modal-value" id="modalMotif"></span>
                     </div>
                 </div>
@@ -300,50 +300,50 @@ $errorMessage = $presenter->getErrorMessage();
                 <div id="evaluationSection" class="modal-info-group" style="display: none; background-color: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
                     <h3 style="color: #856404; margin-bottom: 10px; font-size: 16px;">⚠️ Évaluation ratée</h3>
                     <div class="modal-info-item">
-                        <span class="modal-label">📚 Évaluation :</span>
+                        <span class="modal-label">Évaluation :</span>
                         <span class="modal-value" id="evaluationCourse"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Date :</span>
+                        <span class="modal-label">Date :</span>
                         <span class="modal-value" id="evaluationDate"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">🕐 Horaire :</span>
+                        <span class="modal-label">Horaire :</span>
                         <span class="modal-value" id="evaluationTime"></span>
                     </div>
                 </div>
 
                 <!-- Section Rattrapage (visible uniquement si makeup existe) -->
                 <div id="makeupSection" class="modal-info-group" style="display: none; background-color: #d1ecf1; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                    <h3 style="color: #0c5460; margin-bottom: 10px; font-size: 16px;">📝 Rattrapage prévu</h3>
+                    <h3 style="color: #0c5460; margin-bottom: 10px; font-size: 16px;">Rattrapage prévu</h3>
                     <div class="modal-info-item">
-                        <span class="modal-label">📅 Date du rattrapage :</span>
+                        <span class="modal-label">Date du rattrapage :</span>
                         <span class="modal-value" id="makeupDate"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">🕐 Horaire :</span>
+                        <span class="modal-label">Horaire :</span>
                         <span class="modal-value" id="makeupTime"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">⏱️ Durée :</span>
+                        <span class="modal-label">Durée :</span>
                         <span class="modal-value" id="makeupDuration"></span>
                     </div>
                     <div class="modal-info-item">
-                        <span class="modal-label">🚪 Salle :</span>
+                        <span class="modal-label">Salle :</span>
                         <span class="modal-value" id="makeupRoom"></span>
                     </div>
                     <div class="modal-info-item" id="makeupResourceItem" style="display: none;">
-                        <span class="modal-label">📚 Matière :</span>
+                        <span class="modal-label">Matière :</span>
                         <span class="modal-value" id="makeupResource"></span>
                     </div>
                     <div class="modal-info-item" id="makeupCommentItem" style="display: none;">
-                        <span class="modal-label">💬 Commentaire :</span>
+                        <span class="modal-label">Commentaire :</span>
                         <span class="modal-value" id="makeupComment"></span>
                     </div>
                 </div>
 
                 <div class="modal-status-section">
-                    <span class="modal-label">🏷️ Statut :</span>
+                    <span class="modal-label">Statut :</span>
                     <span id="modalStatus" class="badge"></span>
                 </div>
             </div>

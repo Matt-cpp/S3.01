@@ -34,9 +34,10 @@ if ($resourceFilter) {
 $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
 
 // Function to get student statistics (for detail view)
-function getStudentStatistics($studentId) {
+function getStudentStatistics($studentId)
+{
     global $db;
-    
+
     try {
         // Get student info from users table
         $studentQuery = "SELECT first_name, last_name, identifier as student_number 
@@ -45,11 +46,11 @@ function getStudentStatistics($studentId) {
         $stmt = $db->prepare($studentQuery);
         $stmt->execute([':id' => $studentId]);
         $student = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$student) {
             return null;
         }
-        
+
         // Get total absences
         $totalQuery = "SELECT COUNT(*) as total 
                        FROM absences a
@@ -57,7 +58,7 @@ function getStudentStatistics($studentId) {
         $stmt = $db->prepare($totalQuery);
         $stmt->execute([':identifier' => $student['student_number']]);
         $total = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-        
+
         // Get justified absences (where proof status is 'accepted')
         $justifiedQuery = "SELECT COUNT(DISTINCT a.id) as count 
                            FROM absences a 
@@ -68,10 +69,10 @@ function getStudentStatistics($studentId) {
         $stmt = $db->prepare($justifiedQuery);
         $stmt->execute([':identifier' => $student['student_number']]);
         $justified = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-        
+
         $unjustified = $total - $justified;
-        $rate = $total > 0 ?  round(($justified / $total) * 100) : 0;
-        
+        $rate = $total > 0 ? round(($justified / $total) * 100) : 0;
+
         // Get absences by course type
         $courseTypeQuery = "SELECT cs.course_type, COUNT(*) as count 
                             FROM absences a
@@ -82,9 +83,9 @@ function getStudentStatistics($studentId) {
         $stmt->execute([':identifier' => $student['student_number']]);
         $courseTypes = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $courseTypes[$row['course_type']] = (int)$row['count'];
+            $courseTypes[$row['course_type']] = (int) $row['count'];
         }
-        
+
         // Get absences by subject (Top 10)
         $subjectQuery = "SELECT 
                             COALESCE(r.label, r.code) as subject_name, 
@@ -101,21 +102,21 @@ function getStudentStatistics($studentId) {
         $subjects = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
             if ($row['subject_name']) {
-                $subjects[$row['subject_name']] = (int)$row['count'];
+                $subjects[$row['subject_name']] = (int) $row['count'];
             }
         }
-        
+
         return [
-            'name' => $student['first_name'] .  ' ' . $student['last_name'],
+            'name' => $student['first_name'] . ' ' . $student['last_name'],
             'student_number' => $student['student_number'] ?? 'N/A',
-            'total' => (int)$total,
-            'justified' => (int)$justified,
-            'unjustified' => (int)$unjustified,
+            'total' => (int) $total,
+            'justified' => (int) $justified,
+            'unjustified' => (int) $unjustified,
             'rate' => $rate,
             'courseTypes' => $courseTypes,
             'subjects' => $subjects
         ];
-        
+
     } catch (PDOException $e) {
         error_log("getStudentStatistics error: " . $e->getMessage());
         return null;
@@ -177,20 +178,31 @@ try {
                        LEFT JOIN course_slots cs ON a.course_slot_id = cs.id
                        INNER JOIN proof_absences pa ON a.id = pa.absence_id
                        INNER JOIN proof p ON pa.proof_id = p.id
-                       " . ($whereClause ? $whereClause .  " AND" : "WHERE") . " p.status = 'accepted'";
+                       " . ($whereClause ? $whereClause . " AND" : "WHERE") . " p.status = 'accepted'";
     $stmt = $db->prepare($justifiedQuery);
     $stmt->execute($params);
-    $justified = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ??  0;
+    $justified = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
     $unjustified = $totalAbsences - $justified;
     $average = $totalStudents > 0 ? $totalAbsences / $totalStudents : 0;
+
+    // Evaluation absences count
+    $evaluationQuery = "SELECT COUNT(*) as total 
+                        FROM absences a 
+                        INNER JOIN users u ON a.student_identifier = u.identifier
+                        LEFT JOIN course_slots cs ON a.course_slot_id = cs.id
+                        " . ($whereClause ? $whereClause . " AND" : "WHERE") . " cs.is_evaluation = true";
+    $stmt = $db->prepare($evaluationQuery);
+    $stmt->execute($params);
+    $evaluationAbsences = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
     $stats = [
         'total_absences' => $totalAbsences,
         'total_students' => $totalStudents,
         'justified' => $justified,
         'unjustified' => $unjustified,
-        'average' => $average
+        'average' => $average,
+        'evaluation_absences' => $evaluationAbsences
     ];
 
     // Course type statistics
@@ -204,7 +216,7 @@ try {
     $stmt->execute($params);
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         if ($row['course_type']) {
-            $courseTypeStats[$row['course_type']] = (int)$row['count'];
+            $courseTypeStats[$row['course_type']] = (int) $row['count'];
         }
     }
 
@@ -224,7 +236,29 @@ try {
     $stmt->execute($params);
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         if ($row['subject_name']) {
-            $subjectStats[$row['subject_name']] = (int)$row['count'];
+            $subjectStats[$row['subject_name']] = (int) $row['count'];
+        }
+    }
+
+    // Evaluation absences by subject (Top 10)
+    $evaluationSubjectQuery = "SELECT 
+                        COALESCE(r.label, r.code) as subject_name, 
+                        COUNT(*) as count 
+                     FROM absences a 
+                     INNER JOIN course_slots cs ON a.course_slot_id = cs.id
+                     INNER JOIN resources r ON cs.resource_id = r.id
+                     INNER JOIN users u ON a.student_identifier = u.identifier
+                     WHERE cs.is_evaluation = true
+                     " . ($conditions ? 'AND ' . implode(' AND ', $conditions) : '') . "
+                     GROUP BY COALESCE(r.label, r.code)
+                     ORDER BY count DESC 
+                     LIMIT 10";
+    $stmt = $db->prepare($evaluationSubjectQuery);
+    $stmt->execute($params);
+    $evaluationSubjectStats = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        if ($row['subject_name']) {
+            $evaluationSubjectStats[$row['subject_name']] = (int) $row['count'];
         }
     }
 
@@ -257,25 +291,25 @@ try {
                      INNER JOIN users u ON a.student_identifier = u. identifier
                      LEFT JOIN proof_absences pa ON a.id = pa.absence_id
                      LEFT JOIN proof p ON pa.proof_id = p.id
-                     " . ($conditions ? 'WHERE ' . implode(' AND ', $conditions) : '') .  "
+                     " . ($conditions ? 'WHERE ' . implode(' AND ', $conditions) : '') . "
                      GROUP BY TO_CHAR(cs.course_date, 'Month YYYY'), DATE_TRUNC('month', cs.course_date)
                      ORDER BY month_date";
     $stmt = $db->prepare($monthlyQuery);
     $stmt->execute($params);
     $monthlyResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
     $monthlyStats = [
         'labels' => [],
         'total' => [],
         'justified' => [],
         'unjustified' => []
     ];
-    
+
     foreach ($monthlyResults as $row) {
         $monthlyStats['labels'][] = trim($row['month']);
-        $monthlyStats['total'][] = (int)$row['total'];
-        $monthlyStats['justified'][] = (int)$row['justified'];
-        $monthlyStats['unjustified'][] = (int)$row['total'] - (int)$row['justified'];
+        $monthlyStats['total'][] = (int) $row['total'];
+        $monthlyStats['justified'][] = (int) $row['justified'];
+        $monthlyStats['unjustified'][] = (int) $row['total'] - (int) $row['justified'];
     }
 
     // ===== TOP STUDENTS (LEADERBOARD) =====
@@ -315,23 +349,23 @@ try {
     $stmt = $db->prepare($subjectTrendsQuery);
     $stmt->execute($params);
     $trendsResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
     // Process trends data
     $months = [];
     $subjectData = [];
-    
+
     foreach ($trendsResults as $row) {
         if (!in_array($row['month'], $months)) {
             $months[] = $row['month'];
         }
-        if ($row['subject'] && ! isset($subjectData[$row['subject']])) {
+        if ($row['subject'] && !isset($subjectData[$row['subject']])) {
             $subjectData[$row['subject']] = [];
         }
         if ($row['subject']) {
-            $subjectData[$row['subject']][$row['month']] = (int)$row['count'];
+            $subjectData[$row['subject']][$row['month']] = (int) $row['count'];
         }
     }
-    
+
     // Get top 5 subjects by total absences
     $subjectTotals = [];
     foreach ($subjectData as $subject => $data) {
@@ -339,7 +373,7 @@ try {
     }
     arsort($subjectTotals);
     $top5Subjects = array_slice(array_keys($subjectTotals), 0, 5);
-    
+
     // Build datasets for Chart.js
     $trendColors = [
         ['border' => '#5c6bc0', 'bg' => 'rgba(92, 107, 192, 0.15)'],
@@ -348,12 +382,12 @@ try {
         ['border' => '#4caf50', 'bg' => 'rgba(76, 175, 80, 0. 1)'],
         ['border' => '#ff9800', 'bg' => 'rgba(255, 152, 0, 0.1)']
     ];
-    
+
     $subjectTrends = [
         'labels' => $months,
         'datasets' => []
     ];
-    
+
     foreach ($top5Subjects as $index => $subject) {
         $data = [];
         foreach ($months as $month) {

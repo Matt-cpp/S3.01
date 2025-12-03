@@ -158,7 +158,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
         if ($stats_hours > 0 || (!empty($cours) && $cours !== '')):
             ?>
             <div class="absence-statistics">
-                <h3>📊 Analyse détaillée des absences</h3>
+                <h3>Analyse détaillée des absences</h3>
                 <div class="stats-container">
                     <?php if ($stats_hours > 0): ?>
                         <div class="stats-summary">

@@ -124,7 +124,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
                 <div class="section-content">
                     <div class="consequence-box">
-                        <h3>📊 Impact sur la moyenne selon le règlement du BUT Informatique</h3>
+                        <h3>Impact sur la moyenne selon le règlement du BUT Informatique</h3>
                         <p class="highlight-text">
                             <strong>Selon le règlement de la formation du BUT Informatique :</strong><br>
                             <span style="font-size: 1.1em; color: #dc2626;">
@@ -138,7 +138,7 @@ if (!isset($_SESSION['id_student'])) {
                     </div>
 
                     <div class="consequence-box">
-                        <h3>📝 Remplacement de la mention "ABS" par un "0"</h3>
+                        <h3>Remplacement de la mention "ABS" par un "0"</h3>
                         <p>
                             Si vous êtes absent(e) à une <strong>évaluation notée</strong> (contrôle continu, examen, TP
                             noté, etc.)
