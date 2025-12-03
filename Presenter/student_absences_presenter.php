@@ -226,9 +226,9 @@ class StudentAbsencesPresenter
             'illness' => 'Maladie',
             'death' => 'Décès',
             'family_obligations' => 'Obligations familiales',
-            'medical_appointment' => 'Rendez-vous médical',
+            'official_summons' => 'Convocation officielle',
             'transport_issue' => 'Problème de transport',
-            'personal_reasons' => 'Raisons personnelles',
+            'rdv_medical' => 'Rendez-vous médical',
             'other' => $customMotif ? htmlspecialchars($customMotif) : 'Autre'
         ];
 

@@ -42,7 +42,9 @@ try {
 
     // Convert datetime format if needed and validate
     $start_date = date('Y-m-d H:i:s', strtotime($datetime_start));
-    $end_date = date('Y-m-d H:i:s', strtotime($datetime_end));
+    // Subtract 1 minute from end date to exclude courses starting exactly at the end time
+    // Example: if end is 11:00, we want to exclude the course starting at 11:00
+    $end_date = date('Y-m-d H:i:s', strtotime($datetime_end . ' -1 minute'));
 
     if (!$start_date || !$end_date) {
         http_response_code(400);

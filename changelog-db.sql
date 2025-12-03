@@ -10,7 +10,7 @@ CREATE TYPE user_role AS ENUM ('student', 'teacher', 'academic_manager', 'secret
 CREATE TYPE course_type AS ENUM ('CM', 'TD', 'TP','BEN', 'TPC', 'DS', 'TDC');
 CREATE TYPE absence_status AS ENUM ('absent', 'present', 'excused', 'unjustified');
 CREATE TYPE justification_status AS ENUM ('pending', 'accepted', 'rejected', 'under_review');
-CREATE TYPE absence_reason AS ENUM ('illness', 'death', 'family_obligations', 'other');
+CREATE TYPE absence_reason AS ENUM ('illness', 'death', 'family_obligations', 'other', 'official_summons', 'transport_issue', 'rdv_medical');
 CREATE TYPE notification_type AS ENUM ('absence_detected', 'course_return', 'justification_processed', 'evaluation_alert');
 CREATE TYPE decision_action AS ENUM ('accept', 'reject', 'request_info', 'unlock');
 

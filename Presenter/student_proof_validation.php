@@ -166,7 +166,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Convert datetime formats to ensure consistency
         $start_timestamp = date('Y-m-d H:i:s', strtotime($datetime_start));
-        $end_timestamp = date('Y-m-d H:i:s', strtotime($datetime_end));
+        // Subtract 1 minute from end date to exclude courses starting exactly at the end time
+        $end_timestamp = date('Y-m-d H:i:s', strtotime($datetime_end . ' -1 minute'));
 
         // Query to verify absences exist for the period (use same logic as AJAX call)
         $sql_check = "
@@ -256,22 +257,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ],
             'deces' => [
                 'db_value' => 'death',
-                'display_name' => 'Décès dans la famille'
+                'display_name' => 'Décès dans l\'entourage'
             ],
             'obligations_familiales' => [
                 'db_value' => 'family_obligations',
                 'display_name' => 'Obligations familiales'
             ],
             'rdv_medical' => [
-                'db_value' => 'other',
+                'db_value' => 'rdv_medical',
                 'display_name' => 'Rendez-vous médical'
             ],
             'convocation_officielle' => [
-                'db_value' => 'other',
+                'db_value' => 'official_summons',
                 'display_name' => 'Convocation officielle (permis, TOIC, etc.)'
             ],
             'transport' => [
-                'db_value' => 'other',
+                'db_value' => 'transport_issue',
                 'display_name' => 'Problème de transport'
             ],
             'autre' => [

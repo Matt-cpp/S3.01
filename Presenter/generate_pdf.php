@@ -172,7 +172,7 @@ $html_content .= '</table>';
 // Add absence statistics if available
 $cours = $reason_data['class_involved'];
 $stats_hours = floatval($reason_data['stats_hours'] ?? 0);
-$stats_halfdays = floatval($reason_data['stats_halfdays'] ?? 0);
+$stats_halfdays = ceil(floatval($reason_data['stats_halfdays'] ?? 0));
 $stats_evaluations = intval($reason_data['stats_evaluations'] ?? 0);
 $stats_course_types = json_decode($reason_data['stats_course_types'] ?? '{}', true);
 $stats_evaluation_details = json_decode($reason_data['stats_evaluation_details'] ?? '[]', true);
@@ -195,11 +195,15 @@ if ($stats_hours > 0 || (!empty($cours) && $cours !== '')) {
     }
 
     if ($total_courses > 0) {
-        $html_content .= '<tr><td><strong>Total :</strong></td><td>' . $total_courses . ' cours avec absence non justifiée</td></tr>';
+        $html_content .= '<tr><td><strong>Total :</strong></td><td>' . $total_courses . ' cours </td></tr>';
     }
 
     if ($stats_hours > 0) {
         $html_content .= '<tr><td><strong>Nombre total d\'heures :</strong></td><td>' . number_format($stats_hours, 1) . 'h</td></tr>';
+    }
+
+    if ($stats_halfdays > 0) {
+        $html_content .= '<tr><td><strong>Nombre de demi-journées :</strong></td><td>' . $stats_halfdays . '</td></tr>';
     }
 
     if (!empty($stats_course_types)) {
@@ -217,6 +221,33 @@ if ($stats_hours > 0 || (!empty($cours) && $cours !== '')) {
     }
 
     $html_content .= '</table>';
+
+    // Add details of missed evaluations if available
+    if ($stats_evaluations > 0 && !empty($stats_evaluation_details)) {
+        $html_content .= '<br pagebreak="true" />';
+        $html_content .= '<h3 style="color: #dc3545;">Détails des évaluations manquées</h3>';
+        $html_content .= '<table border="1" cellpadding="5" cellspacing="0" style="width:100%; border-color: #f5c6cb;">';
+        $html_content .= '<tr style="background-color: #f8d7da; color: #721c24; font-weight: bold;">
+                            <th width="30%">Cours</th>
+                            <th width="15%">Date</th>
+                            <th width="15%">Horaire</th>
+                            <th width="10%">Type</th>
+                            <th width="20%">Enseignant</th>
+                            <th width="10%">Salle</th>
+                          </tr>';
+        
+        foreach ($stats_evaluation_details as $eval) {
+            $html_content .= '<tr>';
+            $html_content .= '<td>' . htmlspecialchars($eval['resource_label'] ?? 'Non spécifié') . '</td>';
+            $html_content .= '<td>' . htmlspecialchars($eval['course_date'] ?? '') . '</td>';
+            $html_content .= '<td>' . htmlspecialchars($eval['start_time'] ?? '') . '-' . htmlspecialchars($eval['end_time'] ?? '') . '</td>';
+            $html_content .= '<td>' . htmlspecialchars($eval['course_type'] ?? '') . '</td>';
+            $html_content .= '<td>' . htmlspecialchars($eval['teacher'] ?? '') . '</td>';
+            $html_content .= '<td>' . htmlspecialchars($eval['room'] ?? '') . '</td>';
+            $html_content .= '</tr>';
+        }
+        $html_content .= '</table>';
+    }
 }
 
 $pdf->writeHTML($html_content);
@@ -239,8 +270,6 @@ if (!empty($proof_files)) {
         // File details
         $pdf->SetFont('helvetica', '', 10);
         $pdf->MultiCell(0, 5, 'Nom : ' . htmlspecialchars($file_info['original_name']), 0, 'L');
-        $file_size_kb = round($file_info['file_size'] / 1024, 2);
-        $pdf->MultiCell(0, 5, 'Taille : ' . $file_size_kb . ' Ko', 0, 'L');
 
         // Construct absolute path to uploads directory
         // Support both 'path' and 'saved_path' keys for compatibility

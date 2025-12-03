@@ -811,6 +811,9 @@ class ProofModel
                 'illness' => 'Maladie',
                 'death' => 'Décès',
                 'family_obligations' => 'Obligations familiales',
+                'rdv_medical' => 'Rendez-vous médical',
+                'official_summons' => 'Convocation officielle',
+                'transport_issue' => 'Problème de transport',
                 'other' => 'Autre',
             ],
         ];
