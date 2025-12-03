@@ -54,7 +54,8 @@
                         <label for="password">Mot de passe:</label>
                         <div class="password-wrapper">
                             <input type="password" id="password" name="password" required minlength="8"
-                                placeholder="Au moins 8 caractères">
+                                placeholder="Au moins 8 caractères"
+                                oncopy="return false" onpaste="return false" oncut="return false">
                             <i class="fas fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
                         </div>
                         <small style="color: #666; font-size: 12px;">Minimum 8 caractères</small>
@@ -64,7 +65,8 @@
                         <label for="confirm_password">Confirmer le mot de passe:</label>
                         <div class="password-wrapper">
                             <input type="password" id="confirm_password" name="confirm_password" required minlength="8"
-                                placeholder="Au moins 8 caractères">
+                                placeholder="Au moins 8 caractères"
+                                oncopy="return false" onpaste="return false" oncut="return false">
                             <i class="far fa-eye toggle-password" onclick="togglePassword('confirm_password', this)"></i>
                         </div>
                     </div>
@@ -121,7 +123,7 @@
         confirmPassword.addEventListener('input', checkPasswords);
 
         // Validation de la force du mot de passe
-        password.addEventListener('input', function () {
+        password.addEventListener('input', function() {
             const strength = document.getElementById('password-strength');
             if (!strength) {
                 const strengthDiv = document.createElement('div');
