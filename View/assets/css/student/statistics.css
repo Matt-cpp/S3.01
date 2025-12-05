@@ -11,12 +11,15 @@ body {
     background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
     min-height: 100vh;
     color: #1f2937;
+    position: relative;
+    padding-bottom: 150px;
 }
 
 .main-content {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 1.5rem;
+    width: 100%;
 }
 
 /* Header */
@@ -57,7 +60,7 @@ body {
 .toggle-filters-btn {
     width: 100%;
     padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #0081A1;
     color: white;
     border: none;
     cursor: pointer;
@@ -70,7 +73,7 @@ body {
 }
 
 .toggle-filters-btn:hover {
-    background: linear-gradient(135deg, #5568d3 0%, #6a4193 100%);
+    background: #006d8a;
 }
 
 .toggle-filters-btn .filter-icon {
@@ -149,13 +152,12 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #0081A1;
     color: white;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #5568d3 0%, #6a4193 100%);
-    transform: translateY(-1px);
+    background: #006d8a;
 }
 
 .btn-secondary {
@@ -186,7 +188,6 @@ body {
 }
 
 .stat-card:hover {
-    transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -362,7 +363,9 @@ body {
     background: white;
     border-top: 1px solid #e5e7eb;
     padding: 1.5rem;
-    margin-top: auto;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
 
 .footer-content {

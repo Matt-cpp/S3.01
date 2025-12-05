@@ -63,7 +63,7 @@ h3 {
 .info-link {
     display: inline-block;
     padding: 0.5rem 1rem;
-    background-color: rgb(0, 139, 172);
+    background-color: #0081A1;
     color: white;
     text-decoration: none;
     border-radius: 6px;
@@ -73,16 +73,15 @@ h3 {
 }
 
 .info-link:hover {
-    background-color: rgb(0, 120, 150);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 139, 172, 0.3);
+    background-color: #006d8a;
+    box-shadow: 0 4px 12px rgba(0, 129, 161, 0.3);
 }
 
 .back-button {
     display: inline-block;
     margin-bottom: 1.5rem;
     padding: 0.75rem 1.5rem;
-    background-color: rgb(0, 139, 172);
+    background-color: #0081A1;
     color: white;
     text-decoration: none;
     border-radius: 6px;
@@ -94,7 +93,7 @@ h3 {
 }
 
 .back-button:hover {
-    background-color: rgb(0, 120, 150);
+    background-color: #006d8a;
 }
 
 .section {
@@ -139,7 +138,7 @@ table tbody tr:last-child td {
 }
 
 footer {
-    background-color: rgb(0, 139, 172);
+    background-color: #0081A1;
     color: white;
     padding: 2rem;
     margin-top: 2rem;

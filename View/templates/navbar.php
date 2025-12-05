@@ -44,7 +44,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </a>
             <a href="/View/templates/student/proof_submit.php"
                 class="nav-link nav-link-primary <?php echo ($current_page == 'proof_submit.php') ? 'active' : ''; ?>">
-                <span class="nav-icon">➕</span>
+                <span class="nav-icon">+</span>
                 <span>Soumettre justificatif</span>
             </a>
         </nav>
@@ -117,7 +117,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </div>
                 <div class="dropdown-divider"></div>
                 <a href="../../../controllers/logout.php" class="dropdown-item logout">
-                    <span class="dropdown-icon">🚪</span>
                     <span>Déconnexion</span>
                 </a>
             </div>

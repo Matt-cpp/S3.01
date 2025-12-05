@@ -53,7 +53,6 @@
         <!-- Filters Section -->
         <div class="filters-container">
             <button class="toggle-filters-btn" onclick="toggleFilters()">
-                <span class="filter-icon">🔍</span>
                 <span>Filtres</span>
                 <span class="arrow">▼</span>
             </button>
@@ -142,7 +141,6 @@
             </div>
         <?php else: ?>
             <div class="no-data">
-                <div class="no-data-icon">🎉</div>
                 <p>Aucune absence enregistrée. Continuez comme ça !</p>
             </div>
         <?php endif; ?>
@@ -239,18 +237,18 @@
 
         // Chart colors
         const chartColors = {
-            primary: '#667eea',
-            secondary: '#764ba2',
+            primary: '#0081A1',
+            secondary: '#006580',
             success: '#10b981',
             danger: '#ef4444',
             warning: '#f59e0b',
-            info: '#3b82f6',
-            purple: '#8b5cf6'
+            info: '#0081A1',
+            purple: '#0081A1'
         };
 
         const colorPalette = [
-            '#667eea', '#764ba2', '#10b981', '#ef4444', '#f59e0b',
-            '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'
+            '#0081A1', '#006580', '#10b981', '#ef4444', '#f59e0b',
+            '#0081A1', '#006580', '#ec4899', '#14b8a6', '#f97316'
         ];
 
         // Chart.js default options

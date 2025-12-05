@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-image: url('../../img/imageIUT.jpg');
+    background-image: url('../img/imageIUT.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -105,7 +105,6 @@ body {
 
 .btn-submit:hover {
     background-color: #0056b3;
-    transform: translateY(-1px);
 }
 
 .login-link {
