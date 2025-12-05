@@ -74,9 +74,13 @@ $evaluations = $table->lesEvaluations();
                                 <td><?php echo htmlspecialchars($eval['start_time']); ?></td>
                                 <td><?php echo htmlspecialchars($eval['nbabs']); ?></td>
                                 <td><?php echo htmlspecialchars($eval['nb_justifications']); ?></td>
+                                <td>
+                                    <a class="info-link" href="infoDs.php?course_slot_id=<?php echo $eval['course_slot_id']; ?>">Voir les détails</a>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
+
                 </tbody>
             </table>
         </div>

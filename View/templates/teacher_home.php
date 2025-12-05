@@ -99,7 +99,20 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
                                 <td><?php echo htmlspecialchars($ligne['degrees']); ?></td>
                                 <td><?php echo htmlspecialchars($ligne['label']); ?></td>
                                 <td><?php echo htmlspecialchars($ligne['course_date']); ?></td>
-                                <td><?php echo htmlspecialchars($ligne['status']); ?></td>
+                                <td><?php 
+                                if ($ligne['status'] == 'excused') {
+                                    echo 'Excusée';
+                                } elseif ($ligne['status'] == 'unjustified') {
+                                    echo 'Non justifiée';
+                                } elseif ($ligne['status'] == 'justified') {
+                                    echo 'Justifiée';
+                                } elseif ($ligne['status'] == 'absent') {
+                                    echo 'Absent';
+                                }
+                                else {
+                                    echo htmlspecialchars($ligne['status']);
+                                }
+                                 ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>

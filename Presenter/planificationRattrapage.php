@@ -28,16 +28,19 @@ class planificationRattrapage
 
     public function getLesDs()
     {
-        $query = "SELECT DISTINCT cs.id, cs.course_date, cs.start_time, r.label
+        $query = "SELECT DISTINCT cs.id, cs.course_date, cs.start_time, 
+                    r.label as resource_label, r.code as resource_code,
+                    g.code as group_code
         FROM course_slots cs
         INNER JOIN absences a ON a.course_slot_id = cs.id
         LEFT JOIN resources r ON cs.resource_id = r.id
+        LEFT JOIN groups g ON cs.group_id = g.id
         LEFT JOIN makeups m ON m.absence_id = a.id
         WHERE cs.teacher_id = " . intval($this->userId) . " 
             AND cs.is_evaluation = true
             AND a.justified = true
             AND m.id IS NULL
-        ORDER BY cs.course_date DESC";
+        ORDER BY cs.course_date DESC, cs.start_time DESC";
 
         $result = $this->db->select($query);
 
@@ -63,7 +66,8 @@ class planificationRattrapage
 
         return $result;
     }
-    public function insererRattrapage($idAbs, $evalId, $studentId, $dateRattrapage, $roomId = null, $durationMinutes = null, $comment = null) {
+    public function insererRattrapage($idAbs, $evalId, $studentId, $dateRattrapage, $roomId = null, $durationMinutes = null, $comment = null)
+    {
         // Insérer le nouveau rattrapage
         $insertQuery = "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, scheduled, makeup_date, room_id, duration_minutes, comment) 
                         VALUES (:absence_id, :evaluation_slot_id, :student_identifier, true, :makeup_date, :room_id, :duration_minutes, :comment)";

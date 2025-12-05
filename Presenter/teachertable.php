@@ -83,21 +83,25 @@ class teacherTable
         $offset = (int) ($page * 5);
         $userId = intval($this->userId);
         if ($this->filtreBool == true) {
-            $query = "SELECT users.first_name, users.last_name, COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date, absences.status, resources.label
+            $query = "SELECT users.first_name, users.last_name, COALESCE(groups.label, 'N/A') as degrees, course_slots.course_date, absences.status, resources.label
             FROM absences 
             LEFT JOIN users ON absences.student_identifier = users.identifier
             LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
             LEFT JOIN resources ON course_slots.resource_id = resources.id
+            LEFT JOIN user_groups ON users.id = user_groups.user_id
+            LEFT JOIN groups ON user_groups.group_id = groups.id
             WHERE course_slots.teacher_id = " . $userId . "
             AND resources.label = '" . addslashes($this->filtre) . "'
             ORDER BY course_slots.course_date DESC
             LIMIT 5 OFFSET " . $offset;
         } else {
-            $query = "SELECT users.first_name, users.last_name, COALESCE(users.degrees,'N/A') as degrees, course_slots.course_date, absences.status, resources.label
+            $query = "SELECT users.first_name, users.last_name, COALESCE(groups.label, 'N/A') as degrees, course_slots.course_date, absences.status, resources.label
             FROM absences 
             LEFT JOIN users ON absences.student_identifier = users.identifier
             LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
             LEFT JOIN resources ON course_slots.resource_id = resources.id
+            LEFT JOIN user_groups ON users.id = user_groups.user_id
+            LEFT JOIN groups ON user_groups.group_id = groups.id
             WHERE course_slots.teacher_id = " . $userId . "
             ORDER BY course_slots.course_date DESC
             LIMIT 5 OFFSET " . $offset;
