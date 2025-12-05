@@ -30,5 +30,5 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Rediriger vers la page de connexion
-header("Location: ../View/templates/login.php");
+header("Location: ../View/templates/shared/login.php");
 exit;

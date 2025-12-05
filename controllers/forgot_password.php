@@ -207,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $_SESSION['error'] = 'Email invalide.';
-                header('Location: ../View/templates/forgot_password.php');
+                header('Location: ../View/templates/shared/forgot_password.php');
                 exit;
             }
 
@@ -215,10 +215,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($result['success']) {
                 $_SESSION['success'] = $result['message'];
                 $_SESSION['reset_email'] = $email;
-                header('Location: ../View/templates/verify_reset_code.php');
+                header('Location: ../View/templates/shared/verify_reset_code.php');
             } else {
                 $_SESSION['error'] = $result['message'];
-                header('Location: ../View/templates/forgot_password.php');
+                header('Location: ../View/templates/shared/forgot_password.php');
             }
             break;
 
@@ -228,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (empty($email) || empty($code)) {
                 $_SESSION['error'] = 'Données manquantes.';
-                header('Location: ../View/templates/verify_reset_code.php');
+                header('Location: ../View/templates/shared/verify_reset_code.php');
                 exit;
             }
 
@@ -236,10 +236,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($result['success']) {
                 $_SESSION['success'] = $result['message'];
                 $_SESSION['reset_code_verified'] = true;
-                header('Location: ../View/templates/reset_password.php');
+                header('Location: ../View/templates/shared/reset_password.php');
             } else {
                 $_SESSION['error'] = $result['message'];
-                header('Location: ../View/templates/verify_reset_code.php');
+                header('Location: ../View/templates/shared/verify_reset_code.php');
             }
             break;
 
@@ -251,13 +251,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (empty($email) || !$codeVerified) {
                 $_SESSION['error'] = 'Session invalide. Veuillez recommencer.';
-                header('Location: ../View/templates/forgot_password.php');
+                header('Location: ../View/templates/shared/forgot_password.php');
                 exit;
             }
 
             if (empty($newPassword) || empty($confirmPassword)) {
                 $_SESSION['error'] = 'Tous les champs sont requis.';
-                header('Location: ../View/templates/reset_password.php');
+                header('Location: ../View/templates/shared/reset_password.php');
                 exit;
             }
 
@@ -267,16 +267,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Nettoyer les variables de session
                 unset($_SESSION['reset_email']);
                 unset($_SESSION['reset_code_verified']);
-                header('Location: ../View/templates/login.php');
+                header('Location: ../View/templates/shared/login.php');
             } else {
                 $_SESSION['error'] = $result['message'];
-                header('Location: ../View/templates/reset_password.php');
+                header('Location: ../View/templates/shared/reset_password.php');
             }
             break;
 
         default:
             $_SESSION['error'] = 'Action invalide.';
-            header('Location: ../View/templates/forgot_password.php');
+            header('Location: ../View/templates/shared/forgot_password.php');
             break;
     }
     exit;

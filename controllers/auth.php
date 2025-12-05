@@ -17,7 +17,7 @@ require_once __DIR__ . '/login.php';
 function requireAuth()
 {
     if (!isLoggedIn()) {
-        header("Location: ../View/templates/login.php");
+        header("Location: ../View/templates/shared/login.php");
         exit;
     }
     return getCurrentUser();
