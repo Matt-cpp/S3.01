@@ -222,7 +222,7 @@ $errorMessage = $presenter->getErrorMessage();
                                     <?php if ($absence['is_evaluation']): ?>
                                         <span class="eval-badge">⚠️ Oui</span>
                                         <?php if (!empty($absence['makeup_id']) && !empty($absence['makeup_scheduled'])): ?>
-                                            <br><span class="makeup-badge" style="background-color: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; display: inline-block;">Rattrapage prévu</span>
+                                            <br><span class="makeup-badge" style="background-color: #17a2b8; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-top: 10px; display: inline-block;">Rattrapage</span>
                                         <?php endif; ?>
                                     <?php else: ?>
                                         <span class="no-eval">Non</span>

@@ -509,13 +509,6 @@ html.dark-mode body {
   color: var(--text-primary);
 }
 
-.dark-mode .section-content p {
-  color: var(--text-secondary);
-}
-
-.dark-mode .highlight-text {
-  color: var(--text-primary);
-}
 
 /* ===== View Proof page ===== */
 .dark-mode .title {
@@ -2574,6 +2567,7 @@ html.dark-mode body {
 }
 
 .dark-mode .section-content p {
+  background: var(--shadow-xl);
   color: var(--text-secondary) !important;
 }
 
@@ -3284,6 +3278,7 @@ html.dark-mode body {
 }
 
 .dark-mode .recap-value {
+  background: var(--bg-card) !important;
   color: var(--text-primary) !important;
   font-weight: 600;
 }
