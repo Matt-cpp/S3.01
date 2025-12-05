@@ -27,7 +27,7 @@ function requireAuth()
 {
     if (!isLoggedIn()) {
         $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-        header("Location: /View/templates/login.php");
+        header("Location: /View/templates/shared/login.php");
         exit;
     }
     return getCurrentUser();
@@ -62,19 +62,19 @@ function redirectToDashboard($role)
 {
     switch ($role) {
         case 'student':
-            header("Location: /View/templates/student_home_page.php");
+            header("Location: /View/templates/student/home.php");
             break;
         case 'teacher':
-            header("Location: /View/templates/teacher_home.php");
+            header("Location: /View/templates/teacher/home.php");
             break;
         case 'academic_manager':
-            header("Location: /View/templates/academic_manager_home.php");
+            header("Location: /View/templates/academic_manager/home.php");
             break;
         case 'secretary':
-            header("Location: /View/templates/secretary_home.php");
+            header("Location: /View/templates/secretary/home.php");
             break;
         default:
-            header("Location: /View/templates/login.php");
+            header("Location: /View/templates/shared/login.php");
     }
 }
 
@@ -85,14 +85,14 @@ function getUserHomePage($role)
 {
     switch ($role) {
         case 'student':
-            return '/View/templates/student_home_page.php';
+            return '/View/templates/student/home.php';
         case 'teacher':
-            return '/View/templates/teacher_home.php';
+            return '/View/templates/teacher/home.php';
         case 'academic_manager':
-            return '/View/templates/academic_manager_home.php';
+            return '/View/templates/academic_manager/home.php';
         case 'secretary':
-            return '/View/templates/secretary_home.php';
+            return '/View/templates/secretary/home.php';
         default:
-            return '/View/templates/login.php';
+            return '/View/templates/shared/login.php';
     }
 }

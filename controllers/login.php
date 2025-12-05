@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                         FROM users WHERE email = :email";
 
                 $user = $db->selectOne($query, [':email' => strtolower($email)]);
-                
+
                 if ($user && password_verify($password, $user['password_hash'])) {
                     // Connexion réussie
                     $_SESSION['user_id'] = $user['id'];
@@ -59,13 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                     } else {
                         // Redirection par défaut selon le rôle
                         if ($user['role'] === 'student') {
-                            header("Location: ../View/templates/student_home_page.php");
+                            header("Location: ../View/templates/student/home.php");
                         } elseif ($user['role'] === 'academic_manager') {
-                            header("Location: ../View/templates/academic_manager_home.php");
+                            header("Location: ../View/templates/academic_manager/home.php");
                         } elseif ($user['role'] === 'teacher') {
-                            header("Location: ../View/templates/teacher_home.php");
+                            header("Location: ../View/templates/teacher/home.php");
                         } elseif ($user['role'] === 'secretary') {
-                            header("Location: ../View/templates/secretary_home.php");
+                            header("Location: ../View/templates/secretary/home.php");
                         }
                     }
                     exit;
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
     // En cas d'erreur, sauvegarder pour affichage
     $_SESSION['login_errors'] = $errors;
     $_SESSION['form_data'] = $_POST;
-    header("Location: ../View/templates/login.php");
+    header("Location: ../View/templates/shared/login.php");
     exit;
 }
 
@@ -109,6 +109,6 @@ function logout()
 {
     session_unset();
     session_destroy();
-    header("Location: ../View/templates/login.php");
+    header("Location: ../View/templates/shared/login.php");
     exit;
 }

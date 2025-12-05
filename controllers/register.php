@@ -231,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $_SESSION['error'] = 'Email invalide.';
-                header('Location: ../View/templates/create_acc.php');
+                header('Location: ../View/templates/shared/create_acc.php');
                 exit;
             }
 
@@ -239,10 +239,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($result['success']) {
                 $_SESSION['success'] = $result['message'];
                 $_SESSION['email_to_verify'] = $email;
-                header('Location: ../View/templates/verify_email.php');
+                header('Location: ../View/templates/shared/verify_email.php');
             } else {
                 $_SESSION['error'] = $result['message'];
-                header('Location: ../View/templates/create_acc.php');
+                header('Location: ../View/templates/shared/create_acc.php');
             }
             break;
 
@@ -252,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (empty($email) || empty($code)) {
                 $_SESSION['error'] = 'Données manquantes.';
-                header('Location: ../View/templates/verify_email.php');
+                header('Location: ../View/templates/shared/verify_email.php');
                 exit;
             }
 
@@ -261,10 +261,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['success'] = $result['message'];
                 $_SESSION['email_verified'] = $email;
                 unset($_SESSION['email_to_verify']);
-                header('Location: ../View/templates/complete_registration.php');
+                header('Location: ../View/templates/shared/complete_registration.php');
             } else {
                 $_SESSION['error'] = $result['message'];
-                header('Location: ../View/templates/verify_email.php');
+                header('Location: ../View/templates/shared/verify_email.php');
             }
             break;
 
@@ -275,7 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (empty($email) || empty($password) || empty($confirmPassword)) {
                 $_SESSION['error'] = 'Tous les champs sont requis.';
-                header('Location: ../View/templates/complete_registration.php');
+                header('Location: ../View/templates/shared/complete_registration.php');
                 exit;
             }
 
@@ -283,16 +283,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($result['success']) {
                 $_SESSION['success'] = $result['message'];
                 unset($_SESSION['email_verified']);
-                header('Location: ../View/templates/login.php');
+                header('Location: ../View/templates/shared/login.php');
             } else {
                 $_SESSION['error'] = $result['message'];
-                header('Location: ../View/templates/complete_registration.php');
+                header('Location: ../View/templates/shared/complete_registration.php');
             }
             break;
 
         default:
             $_SESSION['error'] = 'Action invalide.';
-            header('Location: ../View/templates/create_acc.php');
+            header('Location: ../View/templates/shared/create_acc.php');
             break;
     }
     exit;

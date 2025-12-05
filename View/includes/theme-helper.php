@@ -8,7 +8,7 @@ function renderThemeSupport()
 {
     ?>
     <!-- Dark Mode Support -->
-    <link rel="stylesheet" href="/View/assets/css/dark-mode.css">
+    <link rel="stylesheet" href="/View/assets/css/shared/dark-mode.css">
     <script>
         // Apply theme immediately to prevent flash
         (function () {
@@ -29,7 +29,7 @@ function renderThemeScript()
 {
     ?>
     <!-- Theme Manager Script -->
-    <script src="/View/assets/js/theme.js"></script>
+    <script src="/View/assets/js/shared/theme.js"></script>
     <?php
 }
 
