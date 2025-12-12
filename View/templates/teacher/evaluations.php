@@ -24,6 +24,7 @@ $evaluations = $table->lesEvaluations();
 <html lang="fr">
 
 <head>
+    
     <title>Tableau des Evaluations</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,8 +40,8 @@ $evaluations = $table->lesEvaluations();
     <?php include __DIR__ . '/../navbar.php'; ?>
     <main class="container">
         <h1>Tableau des Evaluations</h1>
-
         <div class="section">
+            <!--Selection du filtre -->
             <form method="GET" class="filter-group">
                 <span class="filter-label">Trier Par :</span>
                 <select class="select-input" name="filtre" onchange="this.form.submit()">
@@ -62,6 +63,7 @@ $evaluations = $table->lesEvaluations();
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- Affiche si aucune évaluations -->
                     <?php if (empty($evaluations)): ?>
                         <tr>
                             <td colspan="5" style="text-align: center; padding: 2rem; color: #666;">
@@ -87,7 +89,7 @@ $evaluations = $table->lesEvaluations();
             </table>
         </div>
     </main>
-
+            <!--Bas de page -->
     <footer class="footer">
         <div class="footer-content">
             <div class="team-section">

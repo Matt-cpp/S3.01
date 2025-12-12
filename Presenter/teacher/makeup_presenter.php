@@ -17,6 +17,7 @@ class planificationRattrapage
         $this->userId = $this->linkTeacherUser($id);
         $this->emailService = new EmailService();
     }
+    //Permet de lier l'id du proffesseur avec l'id de l'utilisateur connecté via le mail
     private function linkTeacherUser(int $id)
     {
         $query = "SELECT teachers.id as id
@@ -26,6 +27,7 @@ class planificationRattrapage
         return $result[0]['id'];
     }
 
+    // Fonction pour récupérer les ds avec des absences justifiées non rattrapées
     public function getLesDs()
     {
         $query = "SELECT DISTINCT cs.id, cs.course_date, cs.start_time, 
