@@ -99,7 +99,7 @@ function updateJobStatus($db, $importId, $status, $processedRows = null, $messag
     // This ensures progress updates are immediately committed and visible
     static $progressPdo = null;
     if ($progressPdo === null) {
-        require_once __DIR__ . '/../../Model/env.php';
+        require_once __DIR__ . '/../../../Model/env.php';
         $host = env('DB_HOST', 'localhost');
         $port = env('DB_PORT', '5432');
         $dbname = env('DB_NAME', 'database');
