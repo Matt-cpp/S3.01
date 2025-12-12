@@ -124,9 +124,11 @@ body.dark-mode {
 }
 
 /* Apply dark mode to body and html */
-.dark-mode,
+.dark-mode {
+  color: var(--text-primary);
+}
+
 html.dark-mode body {
-  background-color: var(--bg-primary);
   color: var(--text-primary);
 }
 
@@ -370,37 +372,21 @@ html.dark-mode body {
   transition: none !important;
 }
 
-/* ===== Auth Pages (Login, Registration, Password Reset) ===== */
-.dark-mode body {
-  background-color: var(--bg-primary);
-  background-image: url('../../../img/imageIUT.jpg') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed !important;
-  position: relative;
+/* Logo - ensure visibility in dark mode */
+.dark-mode .logo,
+.dark-mode .logo img {
+  filter: brightness(1.2) contrast(1.1);
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
-/* Apply filter overlay to darken background image */
-.dark-mode body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 0;
-  pointer-events: none;
-}
+/* ===== Auth Pages (Login, Registration, Password Reset) ===== */
 
 /* Container for auth forms */
 .dark-mode .container {
   background-color: rgba(45, 45, 45, 0.95);
   border-color: var(--border-color);
   color: var(--text-primary);
-  position: relative;
-  z-index: 1;
 }
 
 /* Form titles */
