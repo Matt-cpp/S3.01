@@ -1962,6 +1962,10 @@ html.dark-mode body {
   border: 1px solid var(--border-color);
 }
 
+.dark-mode .logo {
+  filter: brightness(0) invert(1);
+}
+
 /* ===== Teacher Home & Evals - Filter Section Fix ===== */
 .dark-mode .filter-group {
   background: var(--bg-card);

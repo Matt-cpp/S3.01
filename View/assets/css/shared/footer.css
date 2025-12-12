@@ -5,7 +5,8 @@
     padding: 2rem;
     text-align: center;
     width: 100%;
-    
+    border-top: none;
+    margin-top: 0;
 }
 
 .footer-content {
