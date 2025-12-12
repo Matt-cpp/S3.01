@@ -1,4 +1,9 @@
 <?php
+/**
+ * search-resources.php
+ * API pour rechercher des matières (ressources) par code ou libellé
+ */
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../secretary/dashboard-presenter.php';
 

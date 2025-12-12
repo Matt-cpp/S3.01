@@ -1,4 +1,9 @@
 <?php
+/**
+ * search-rooms.php
+ * API pour rechercher des salles par nom ou code
+ */
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../secretary/dashboard-presenter.php';
 

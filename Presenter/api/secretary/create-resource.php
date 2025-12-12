@@ -1,4 +1,9 @@
 <?php
+/**
+ * create-resource.php
+ * API pour créer une nouvelle matière (ressource) dans la base de données
+ */
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../secretary/dashboard-presenter.php';
 

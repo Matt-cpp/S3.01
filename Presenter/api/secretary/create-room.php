@@ -1,4 +1,9 @@
 <?php
+/**
+ * create-room.php
+ * API pour créer une nouvelle salle dans la base de données
+ */
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../secretary/dashboard-presenter.php';
 

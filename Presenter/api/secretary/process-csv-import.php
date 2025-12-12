@@ -1,7 +1,7 @@
 <?php
 /**
- * Background CSV Import Processor
- * This script runs in the background to process CSV imports
+ * process-csv-import.php
+ * Script de traitement en arrière-plan pour importer les données d'un fichier CSV d'absences
  */
 
 // Get command line arguments

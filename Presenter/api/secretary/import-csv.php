@@ -1,4 +1,9 @@
 <?php
+/**
+ * import-csv.php
+ * API pour télécharger et lancer l'import d'un fichier CSV d'absences
+ */
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../../Model/database.php';
 require_once __DIR__ . '/../../secretary/dashboard-presenter.php';

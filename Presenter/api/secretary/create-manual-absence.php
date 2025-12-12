@@ -1,4 +1,9 @@
 <?php
+/**
+ * create-manual-absence.php
+ * API pour créer une absence manuellement (saisie manuelle par le secrétariat)
+ */
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../secretary/dashboard-presenter.php';
 

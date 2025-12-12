@@ -1,4 +1,9 @@
 <?php
+/**
+ * search-students.php
+ * API pour rechercher des étudiants par nom, prénom ou identifiant
+ */
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../secretary/dashboard-presenter.php';
 

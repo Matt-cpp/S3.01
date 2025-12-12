@@ -1,4 +1,9 @@
 <?php
+/**
+ * get-import-history.php
+ * API pour récupérer l'historique des imports CSV et actions du secrétariat
+ */
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../secretary/dashboard-presenter.php';
 

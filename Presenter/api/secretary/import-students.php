@@ -1,4 +1,8 @@
 <?php
+/**
+ * import-students.php
+ * API pour importer une liste d'étudiants depuis un fichier CSV
+ */
 
 header('Content-Type: application/json');
 

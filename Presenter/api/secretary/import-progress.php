@@ -1,4 +1,9 @@
 <?php
+/**
+ * import-progress.php
+ * API pour suivre la progression d'un import CSV en cours
+ */
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../../Model/database.php';
 
