@@ -40,10 +40,10 @@ $proofId = isset($_GET['proof_id']) ? (int) $_GET['proof_id'] : 0;
 $fileIndex = isset($_GET['file_index']) ? (int) $_GET['file_index'] : 0;
 
 // Localisation robuste du dossier uploads (au même niveau que Presenter)
-$projectRoot = dirname(__DIR__);
+$projectRoot = dirname(dirname(__DIR__));
 $candidates = [
     $projectRoot . DIRECTORY_SEPARATOR . 'uploads',
-    __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'uploads',
+    __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'uploads',
 ];
 $baseDir = null;
 foreach ($candidates as $c) {

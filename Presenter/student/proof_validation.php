@@ -408,7 +408,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Ajouter tous les fichiers justificatifs uploadés
             foreach ($uploaded_files as $file_info) {
-                $file_path = __DIR__ . '/../' . $file_info['path'];
+                $file_path = __DIR__ . '/../../' . $file_info['path'];
                 if (file_exists($file_path)) {
                     $attachments[] = [
                         'path' => $file_path,
@@ -425,8 +425,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             $images = [
-                'logoUPHF' => __DIR__ . '/../View/img/UPHF.png',
-                'logoIUT' => __DIR__ . '/../View/img/logoIUT.png'
+                'logoUPHF' => __DIR__ . '/../../View/img/UPHF.png',
+                'logoIUT' => __DIR__ . '/../../View/img/logoIUT.png'
             ];
 
             // Modifier le corps de l'email pour mentionner les fichiers

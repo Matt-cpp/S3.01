@@ -274,7 +274,7 @@ if (!empty($proof_files)) {
         // Construct absolute path to uploads directory
         // Support both 'path' and 'saved_path' keys for compatibility
         $file_path = $file_info['path'] ?? $file_info['saved_path'] ?? '';
-        $upload_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . $file_path;
+        $upload_path = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . $file_path;
         $extension = strtolower(pathinfo($file_info['original_name'], PATHINFO_EXTENSION));
 
         if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
