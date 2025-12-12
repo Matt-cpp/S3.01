@@ -1,4 +1,19 @@
 <?php
+/**
+ * Fichier: proof_validation.php
+ * 
+ * Template de confirmation après soumission d'un justificatif d'absence.
+ * Fonctionnalités principales :
+ * - Affichage du message de succès après soumission
+ * - Récapitulatif complet des informations du justificatif soumis
+ * - Affichage des informations de l'étudiant (nom, prénom, département, diplôme)
+ * - Détails de la période d'absence et des cours concernés
+ * - Motif de l'absence et commentaires éventuels
+ * - Liste des fichiers justificatifs téléchargés
+ * - Option de téléchargement d'un récapitulatif PDF
+ * Les données sont récupérées depuis la session après validation par le Presenter.
+ */
+
 require_once __DIR__ . '/../../../controllers/auth_guard.php';
 $user = requireRole('student');
 
@@ -10,7 +25,8 @@ if (!isset($_SESSION['id_student'])) {
 date_default_timezone_set('Europe/Paris');
 require_once __DIR__ . '/../../Model/database.php';
 
-// Check if we have form data in session (redirected from successful submission)
+// Vérification de la présence des données du justificatif en session
+// Redirection vers le formulaire si aucune donnée n'est disponible
 if (!isset($_SESSION['reason_data'])) {
     // If no data in session, redirect back to form
     header("Location: student_proof.php");
@@ -19,7 +35,7 @@ if (!isset($_SESSION['reason_data'])) {
 
 $student_info = $_SESSION['student_info'] ?? null;
 
-// The uploaded file data should now be in session from the Presenter
+// Récupération des informations du fichier uploadé depuis la session
 $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non disponible';
 ?>
 
@@ -53,6 +69,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
         }
         ?>
 
+        <!-- Formulaire de génération et téléchargement du récapitulatif PDF -->
         <form class="pdf-download" action="../../../Presenter/shared/generate_pdf.php" method="post" target="_blank">
             <input type="hidden" name="action" value="download_pdf_client">
             <button type="submit" class="btn-pdf">

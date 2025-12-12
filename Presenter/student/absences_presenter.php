@@ -1,14 +1,16 @@
 <?php
 
 /**
- * Fichier: student_absences_presenter.php
+ * Fichier: absences_presenter.php
  * 
- * Présentateur des absences étudiant - Gère l'affichage des absences pour un étudiant spécifique.
+ * Présentateur des absences étudiant - Gère l'affichage et le filtrage des absences pour un étudiant spécifique.
  * Fournit des méthodes pour:
  * - Filtrer les absences (dates, statut, type de cours)
- * - Récupérer les absences avec leurs justificatifs
+ * - Récupérer les absences avec leurs justificatifs associés
  * - Formater les données pour l'affichage (statuts, motifs, dates)
- * - Gérer la priorité des statuts de justificatifs
+ * - Gérer la priorité des statuts de justificatifs (accepté > justifié > en attente)
+ * - Calculer le nombre total de demi-journées d'absence
+ * - Traduire les motifs d'absence en français
  * Utilisé par la page "Mes absences" de l'étudiant.
  */
 
@@ -28,6 +30,7 @@ class StudentAbsencesPresenter
         $this->processRequest();
     }
 
+    // Traitement de la requête : extraction et validation des filtres POST
     private function processRequest()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -35,6 +38,7 @@ class StudentAbsencesPresenter
         }
     }
 
+    // Validation et enregistrement des filtres : vérifie la cohérence des dates
     private function validateAndSetFilters()
     {
         // Validation des dates

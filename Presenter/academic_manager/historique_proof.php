@@ -1,4 +1,21 @@
 <?php
+/**
+ * Fichier: historique_proof.php
+ * 
+ * Présentateur de l'historique des justificatifs - Gère l'affichage et le filtrage complet des justificatifs.
+ * Fournit des méthodes pour:
+ * - Filtrer les justificatifs par multiples critères :
+ *   - Recherche par nom d'étudiant
+ *   - Filtrage par période de soumission
+ *   - Filtrage par statut (en attente, accepté, rejeté, en cours d'examen)
+ *   - Filtrage par motif d'absence
+ * - Récupérer les justificatifs avec statistiques (nombre d'absences, heures totales)
+ * - Traduire les statuts et motifs en français
+ * - Vérifier la présence de fichiers justificatifs
+ * - Valider la cohérence des dates saisies
+ * Utilisé par la vue templates/academic_manager/historique_proof.php.
+ */
+
 // Protection de la page avec authentification simple
 require_once __DIR__ . '/../../controllers/auth_guard.php';
 $user = requireAuth();

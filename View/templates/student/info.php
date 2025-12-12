@@ -42,7 +42,7 @@ if (!isset($_SESSION['id_student'])) {
         <h1 class="page-title">Informations et Procédure de Justification</h1>
 
         <div class="info-container">
-            <!-- Section 1: Assiduité obligatoire -->
+            <!-- Section 1: Importance de l'assiduité et règlement intérieur -->
             <section class="info-section important-section">
                 <div class="section-header">
                     <span class="section-icon">⚠️</span>
@@ -71,7 +71,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
             </section>
 
-            <!-- Section 2: Délai de justification -->
+            <!-- Section 2: Explication du délai de justification avec exemples -->
             <section class="info-section">
                 <div class="section-header">
                     <span class="section-icon">⏱️</span>

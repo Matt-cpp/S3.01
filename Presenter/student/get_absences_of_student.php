@@ -3,10 +3,15 @@
 /**
  * Fichier: get_absences_of_student.php
  * 
- * API de récupération des absences - Renvoie la liste des absences non justifiées d'un étudiant.
- * Filtre les absences sur une période donnée (datetime_start et datetime_end).
- * Renvoie les détails des cours concernés (matière, type, horaires, enseignant, salle).
- * Utilisé par AJAX lors de la soumission d'un justificatif pour afficher les cours concernés.
+ * API de récupération des absences - Renvoie la liste des absences non justifiées d'un étudiant sur une période.
+ * Fonctionnalités principales :
+ * - Filtre les absences sur une période (datetime_start et datetime_end)
+ * - Exclut les absences déjà liées à un justificatif (sauf en mode édition)
+ * - Renvoie les détails complets des cours (matière, type, horaires, enseignant, salle)
+ * - Calcule les statistiques (heures, demi-journées, évaluations)
+ * - Détecte les absences aux évaluations
+ * Utilisé par AJAX lors de la soumission/modification d'un justificatif pour afficher les cours concernés.
+ * Format de sortie : JSON avec liste des cours et statistiques.
  */
 
 header('Content-Type: application/json');

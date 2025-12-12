@@ -5,10 +5,15 @@
  * 
  * Présentateur des justificatifs étudiant - Gère l'affichage de la liste des justificatifs d'un étudiant.
  * Fournit des méthodes pour:
- * - Filtrer les justificatifs (dates, statut, motif, présence d'évaluation)
- * - Récupérer les justificatifs avec statistiques (heures, absences, évaluations)
+ * - Filtrer les justificatifs (dates d'absence, statut, motif, présence d'évaluation)
+ * - Récupérer les justificatifs avec statistiques agrégées :
+ *   - Nombre d'absences associées
+ *   - Heures totales manquées
+ *   - Détection d'évaluations ratées
+ *   - Types de cours concernés (JSON)
  * - Formater les données pour l'affichage (badges de statut, dates, périodes)
- * - Traduire les motifs en français
+ * - Traduire les motifs d'absence en français
+ * - Gérer les motifs de rejet/validation depuis la base de données
  * Utilisé par la page "Mes justificatifs" de l'étudiant.
  */
 

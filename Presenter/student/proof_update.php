@@ -1,4 +1,19 @@
 <?php
+/**
+ * Fichier: proof_update.php
+ * 
+ * Gestionnaire de mise à jour de justificatif - Traite la modification d'un justificatif existant.
+ * Fonctionnalités principales :
+ * - Vérification des autorisations (justificatif en révision et appartenant à l'étudiant)
+ * - Gestion des fichiers justificatifs :
+ *   - Suppression des fichiers sélectionnés par l'étudiant
+ *   - Ajout de nouveaux fichiers avec validation (taille, format)
+ *   - Stockage en JSONB dans la colonne proof_files
+ * - Mise à jour du justificatif (motif, cours concernés, commentaire)
+ * - Passage du statut en 'pending' après modification
+ * - Génération d'un PDF récapitulatif mis à jour
+ * - Envoi d'un email de confirmation
+ */
 
 require_once __DIR__ . '/../../Model/database.php';
 
@@ -38,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             throw new Exception('Vous n\'êtes pas autorisé à modifier ce justificatif.');
         }
 
-        // Gérer les fichiers (multiples)
+        // Gestion des fichiers justificatifs (upload, suppression, conservation)
         $upload_dir = __DIR__ . '/../../uploads/';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0755, true);
@@ -55,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // Gérer les suppressions de fichiers
+        // Traitement des fichiers à supprimer (cochés par l'étudiant)
         if (isset($_POST['delete_files']) && is_array($_POST['delete_files'])) {
             foreach ($_POST['delete_files'] as $deleteIndex) {
                 $deleteIndex = (int) $deleteIndex;

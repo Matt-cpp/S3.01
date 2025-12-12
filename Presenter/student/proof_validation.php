@@ -3,17 +3,22 @@
 <?php
 
 /**
- * Fichier: student_proof_validation.php
+ * Fichier: proof_validation.php
  * 
- * Gestionnaire de soumission de justificatif - Traite la soumission d'un justificatif d'absence par un étudiant.
- * Processus complet:
- * 1. Upload et validation du fichier justificatif
+ * Gestionnaire de soumission de justificatif - Traite la soumission complète d'un justificatif d'absence.
+ * Processus complet en plusieurs étapes :
+ * 1. Upload et validation des fichiers justificatifs (multi-fichiers supporté)
+ *    - Validation format (PDF, JPG, PNG, DOC, DOCX, GIF)
+ *    - Validation taille (5MB par fichier, 20MB total)
+ *    - Stockage en JSONB dans proof_files
  * 2. Vérification de l'existence des absences sur la période
- * 3. Enregistrement du justificatif dans la BDD
- * 4. Liaison du justificatif aux absences concernées
- * 5. Génération d'un PDF récapitulatif
- * 6. Envoi d'un email de confirmation avec les pièces jointes
- * 7. Création d'une notification
+ * 3. Enregistrement du justificatif dans la table proof
+ * 4. Liaison du justificatif aux absences concernées (table proof_absences)
+ * 5. Mise à jour du système de monitoring des absences
+ * 6. Génération d'un PDF récapitulatif
+ * 7. Envoi d'un email de confirmation avec pièces jointes
+ * 8. Création d'une notification dans la base de données
+ * Stocke les données en session pour la page de confirmation.
  */
 
 require_once __DIR__ . '/../../Model/database.php';
@@ -29,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Debug: Check if FILES are received
         error_log("POST received - FILES array: " . json_encode($_FILES));
 
-        // Gestion de multiples fichiers
+        // Gestion de l'upload de multiples fichiers justificatifs avec validation complète
         $uploaded_files = [];
         $max_file_size = 5 * 1024 * 1024; // 5MB
         $max_total_size = 20 * 1024 * 1024; // 20MB

@@ -35,7 +35,7 @@ if (!isset($_SESSION['id_student'])) {
     require_once __DIR__ . '/../../../Presenter/shared/session_cache.php';
     require_once __DIR__ . '/../../../Presenter/student/get_info.php';
 
-    // Forcer le rafraîchissement du cache si demandé via ?refresh=1
+    // Gestion du rafraîchissement du cache - Force le rechargement si ?refresh=1 est présent dans l'URL
     $forceRefresh = isset($_GET['refresh']) && $_GET['refresh'] == '1';
 
     // Utiliser les données en session si disponibles et récentes
@@ -50,8 +50,8 @@ if (!isset($_SESSION['id_student'])) {
     $proofsByCategory = $_SESSION['proofsByCategory'];
     $recentAbsences = $_SESSION['recentAbsences'];
 
-    // Calculer le pourcentage de justification basé sur les demi-journées
-    // Si aucune absence (0 demi-journées), on affiche 100%
+    // Calcul du pourcentage de justification
+    // Si aucune absence (0 demi-journées), affichage de 100% pour éviter division par zéro
     $justification_percentage = $stats['total_half_days'] > 0
         ? round(($stats['half_days_justified'] / $stats['total_half_days']) * 100, 1)
         : 100;
@@ -69,7 +69,7 @@ if (!isset($_SESSION['id_student'])) {
     <div class="dashboard-container">
         <h1 class="dashboard-title">Tableau de Bord</h1>
 
-        <!-- Vue d'ensemble principale -->
+        <!-- Vue d'ensemble avec les cartes statistiques principales (3 cartes : total, non justifiées, justifiables) -->
         <div class="overview-section">
             <div class="overview-card primary">
                 <div class="card-content">

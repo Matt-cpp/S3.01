@@ -1,4 +1,15 @@
 <?php
+/**
+ * Fichier: import-progress.php
+ * 
+ * API de suivi de progression d'import - Retourne l'état en temps réel d'une importation CSV.
+ * Fonctionnalités principales :
+ * - Récupération de l'état depuis import_jobs par ID
+ * - Informations retournées : status, total_rows, processed_rows, message
+ * - Permet le polling côté client pour suivre la progression
+ * Utilisé par le dashboard secrétaire pour afficher la barre de progression d'import.
+ */
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../../Model/database.php';
 

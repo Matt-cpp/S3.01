@@ -1,4 +1,20 @@
-<?php 
+<?php
+/**
+ * Fichier: historique.php
+ * 
+ * Template de l'historique des absences pour le responsable pédagogique - Consultation avancée.
+ * Fonctionnalités principales :
+ * - Recherche et filtrage multi-critères :
+ *   - Recherche par nom d'étudiant
+ *   - Filtrage par période (date de début et fin)
+ *   - Filtrage par statut de justification
+ *   - Filtrage par type de cours
+ * - Affichage détaillé de toutes les absences avec justificatifs associés
+ * - Compteur du nombre de résultats trouvés
+ * - Tableau complet avec toutes les informations (date, heure, étudiant, cours, type, évaluation, statut)
+ * Utilise HistoriquePresenter pour gérer les filtres et récupérer les données.
+ */
+
 require_once __DIR__ . '/../../../controllers/auth_guard.php';
 $user = requireRole('academic_manager');
 
@@ -34,6 +50,7 @@ $errorMessage = $presenter->getErrorMessage();
             </div>
         <?php endif; ?>
 
+        <!-- Formulaire de filtrage multi-critères -->
         <form method="POST" action="">
             <div class="filter-grid">
                 <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..." 

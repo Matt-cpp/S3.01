@@ -1,4 +1,17 @@
 <?php
+/**
+ * Fichier: get-absence-details-modal.php
+ * 
+ * API de détails d'absences d'un cours - Retourne les informations complètes pour un cours spécifique.
+ * Fonctionnalités principales :
+ * - Récupération des informations du cours (date, horaire, ressource, salle)
+ * - Liste des absences détectées pour ce cours
+ * - Informations des étudiants absents
+ * - Statut de justification pour chaque absence
+ * - Réservé aux enseignants (auth_guard)
+ * Utilisé par la modal de détails d'absences dans la vue enseignant.
+ */
+
 // API pour récupérer les détails des absences d'un cours
 header('Content-Type: application/json');
 

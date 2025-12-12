@@ -1,4 +1,22 @@
 <?php
+/**
+ * Fichier: statistics-presenter.php
+ * 
+ * Présentateur des statistiques responsable pédagogique - Gère les statistiques avancées et graphiques.
+ * Fournit des méthodes pour:
+ * - Gérer les filtres multi-critères (dates, groupe, ressource, type de cours, semestre, année, étudiant)
+ * - Récupérer les statistiques générales (total, heures, demi-journées, évaluations, taux justification)
+ * - Générer des données pour graphiques Chart.js :
+ *   - Répartition par type de cours (camembert)
+ *   - Répartition par ressource/matière (barres)
+ *   - Évolution mensuelle (ligne)
+ *   - Répartition par semestre
+ *   - Top étudiants les plus absents
+ * - Calculer le taux de justification par période
+ * - Fournir des statistiques individuelles par étudiant
+ * - Fournir les options de filtres (groupes, ressources, années)
+ * Utilise StatisticsModel et UserModel pour les requêtes.
+ */
 
 require_once __DIR__ . '/../../Model/StatisticsModel.php';
 require_once __DIR__ . '/../../Model/UserModel.php';
@@ -14,7 +32,8 @@ class AcademicManagerStatisticsPresenter
         $this->userModel = new UserModel();
     }
 
-    //Get filters from request
+    // Récupère et valide les filtres depuis les paramètres GET de l'URL
+    // @return array - Tableau associatif des filtres actifs
     public function getFilters()
     {
         $filters = [];

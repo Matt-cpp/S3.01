@@ -1,3 +1,21 @@
+<?php
+/**
+ * Fichier: statistics.php
+ * 
+ * Template de statistiques d'absences pour les étudiants - Affiche des visualisations graphiques et des analyses.
+ * Fonctionnalités principales :
+ * - Vue d'ensemble des statistiques générales (total absences, heures manquées, demi-journées)
+ * - Graphiques interactifs avec Chart.js :
+ *   - Répartition par type de cours (CM, TD, TP, DS)
+ *   - Répartition par matière/ressource
+ *   - Évolution mensuelle des absences
+ * - Système de filtrage (par période, type de cours)
+ * - Liste des absences récentes
+ * - Cartes statistiques colorées pour visualisation rapide
+ * - Export possible des données via les graphiques
+ * Utilise Chart.js pour la génération des graphiques interactifs.
+ */
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -20,7 +38,7 @@
 
     require_once __DIR__ . '/../../../Presenter/student/statistics_presenter.php';
 
-    // Get student identifier from user ID
+    // Récupération de l'identifiant étudiant à partir de l'ID utilisateur
     $studentIdentifier = StudentStatisticsPresenter::getStudentIdentifierFromUserId($user['id']);
 
     if (!$studentIdentifier) {
@@ -30,10 +48,10 @@
 
     $presenter = new StudentStatisticsPresenter($studentIdentifier);
 
-    // Get filters
+    // Récupération des filtres appliqués
     $filters = $presenter->getFilters();
 
-    // Get statistics data
+    // Récupération de toutes les données statistiques pour l'affichage
     $generalStats = $presenter->getGeneralStats($filters);
     $courseTypeData = $presenter->getCourseTypeData($filters);
     $resourceData = $presenter->getResourceData($filters);
@@ -50,7 +68,7 @@
             <p class="subtitle">Vue d'ensemble de vos absences</p>
         </div>
 
-        <!-- Filters Section -->
+        <!-- Section de filtrage des statistiques -->
         <div class="filters-container">
             <button class="toggle-filters-btn" onclick="toggleFilters()">
                 <span class="filter-icon">🔍</span>
@@ -91,7 +109,7 @@
             </div>
         </div>
 
-        <!-- Summary Cards -->
+        <!-- Cartes récapitulatives des statistiques principales -->
         <?php if ($generalStats): ?>
             <div class="stats-grid">
                 <div class="stat-card">

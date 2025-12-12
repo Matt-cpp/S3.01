@@ -1,13 +1,17 @@
 <?php
 
 /**
- * Fichier: student_get_info.php
+ * Fichier: get_info.php
  * 
- * Service de récupération d'informations étudiant - Fournit les statistiques et données d'un étudiant.
+ * Service de récupération d'informations étudiant - Fournit les statistiques et données pour le tableau de bord.
  * Fonctions principales:
- * - getStudentIdentifier(): Récupère l'identifiant d'un étudiant
- * - getAbsenceStatistics(): Calcule les stats d'absences (heures, justifiées, non justifiées)
- * - getRecentAbsences(): Récupère les dernières absences
+ * - getStudentIdentifier(): Récupère l'identifiant d'un étudiant depuis son ID utilisateur
+ * - getAbsenceStatistics(): Calcule les stats d'absences complètes
+ *   - Compte total d'absences (cours manqués)
+ *   - Calcul des demi-journées (matin/après-midi) avec déduplication
+ *   - Demi-journées justifiées/non justifiées/justifiables
+ *   - Heures totales manquées
+ * - getRecentAbsences(): Récupère les dernières absences avec détails
  * - getProofsByCategory(): Récupère les justificatifs classés par statut
  * Utilisé pour le tableau de bord étudiant et le cache de session.
  */
