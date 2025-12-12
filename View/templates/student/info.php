@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="fr">
 <?php
+/**
+ * Fichier: info.php
+ * 
+ * Template d'information pour les étudiants - Gère l'affichage des informations et procédures relatives à la justification des absences.
+ * Contient des sections détaillées sur:
+ * - L'importance de l'assiduité
+ * - Le délai de justification des absences
+ * - Les conséquences des absences non justifiées
+ * - Les motifs acceptables de justification
+ * - La procédure de soumission d'un justificatif
+ * - Le suivi des justificatifs soumis
+ * - Les contacts pour assistance
+ * Utilisé par la page d'information des étudiants.
+ */
 require_once __DIR__ . '/../../../controllers/auth_guard.php';
 $user = requireRole('student');
 
@@ -372,6 +386,20 @@ if (!isset($_SESSION['id_student'])) {
             </section>
         </div>
     </main>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="team-section">
+                <h3 class="team-title">Équipe de développement</h3>
+                <div class="team-names">
+                    <p>CIPOLAT Matteo • BOLTZ Louis • NAVREZ Louis • COLLARD Yony • BISIAUX Ambroise • FOURNIER
+                        Alexandre</p>
+                </div>
+            </div>
+            <div class="footer-info">
+                <p>&copy; 2025 UPHF - Système de gestion des absences</p>
+            </div>
+        </div>
+    </footer>
 </body>
 
 </html>

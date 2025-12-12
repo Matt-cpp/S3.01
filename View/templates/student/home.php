@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="fr">
 <?php
+/**
+ * Fichier: home.php
+ * 
+ * Template pour la page d'accueil des étudiants. Affiche un tableau de bord avec :
+ * - Vue d'ensemble des absences (demis-journées, total...)
+ * - Barre de progression de justification
+ * - Statut des justificatifs
+ * - Liste des dernières absences
+ * - Justificatifs par catégorie
+ */
 require_once __DIR__ . '/../../../controllers/auth_guard.php';
 $user = requireRole('student');
 
