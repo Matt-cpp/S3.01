@@ -67,6 +67,7 @@ if ($courseSlotId <= 0) {
 
         <a href="home.php" class="back-link">← Retour au tableau de bord</a>
     </main>
+    <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </body>
 
 </html>

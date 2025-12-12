@@ -765,8 +765,7 @@
                 const resourceTrendData = {
                     labels: <?php echo json_encode($resourceTrends['months']); ?>,
                     datasets: [
-                        <?php foreach ($resourceTrends['datasets'] as $index => $dataset): ?>
-                                                                                                                                                                                        {
+                        <?php foreach ($resourceTrends['datasets'] as $index => $dataset): ?>                                                                                                                                                                   {
                                 label: <?php echo json_encode($dataset['label']); ?>,
                                 data: <?php echo json_encode($dataset['data']); ?>,
                                 borderColor: '<?php echo $dataset['color']; ?>',
@@ -822,5 +821,6 @@
         <?php endif; ?>
     </script>
 </body>
+<?php include __DIR__ . '/../../includes/footer.php'; ?>
 
 </html>

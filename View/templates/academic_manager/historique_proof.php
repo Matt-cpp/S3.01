@@ -29,7 +29,7 @@ $errorMessage = $presenter->getErrorMessage();
 <body>
     <?php include __DIR__ . '/../navbar.php'; ?>
     <main>
-        <h1 style="text-align: center; margin-bottom: 30px; font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Historique des justificatifs</h1>
+        <h1 style="text-align: center; margin-bottom: 30px; font-size: 2rem; font-weight: 700; color: #0081A1;">Historique des justificatifs</h1>
         
         <?php if (!empty($errorMessage)): ?>
             <div class="error-message">
@@ -172,19 +172,6 @@ $errorMessage = $presenter->getErrorMessage();
         </table>
 
     </main>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="team-section">
-                <h3 class="team-title">Équipe de développement</h3>
-                <div class="team-names">
-                    <p>CIPOLAT Matteo • BOLTZ Louis • NAVREZ Louis • COLLARD Yony • BISIAUX Ambroise • FOURNIER Alexandre</p>
-                </div>
-            </div>
-            <div class="footer-info">
-                <p>&copy; 2025 UPHF - Système de gestion des absences</p>
-            </div>
-        </div>
-    </footer>
+    <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </body>
 </html>

@@ -142,6 +142,7 @@ if (!isset($_SESSION['id_student'])) {
             </div>
         </form>
     </main>
+    <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </body>
 
 </html>

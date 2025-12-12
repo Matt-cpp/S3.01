@@ -3,6 +3,9 @@ body {
     margin: 0;
     padding: 20px;
     background: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
@@ -128,7 +131,6 @@ body {
 }
 
 .btn:hover {
-    transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
@@ -189,7 +191,7 @@ body {
 }
 
 .footer {
-    background-color: rgb(0, 139, 172);
+    background-color: #0081A1;
     color: white;
     padding: 2rem;
     margin-top: auto;

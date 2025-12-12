@@ -1,0 +1,57 @@
+/* Footer Styles - Shared across all pages */
+.footer {
+    background: #0081A1;
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    width: 100%;
+    border-top: none;
+    margin-top: 0;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.team-section {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem auto;
+    backdrop-filter: blur(10px);
+}
+
+.team-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #ffffff;
+}
+
+.team-names {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.footer-info {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Responsive footer */
+@media (max-width: 768px) {
+    .footer {
+        padding: 1.5rem 1rem;
+    }
+    
+    .team-section {
+        padding: 1rem;
+    }
+    
+    .team-names {
+        font-size: 0.85rem;
+    }
+}

@@ -37,11 +37,7 @@
             font-size: 2rem;
             font-weight: 700;
             margin-bottom: 2rem;
-            color: #1f2937;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #0081A1;
         }
 
         /* Overview Section - Cartes principales */
@@ -76,7 +72,6 @@
         }
 
         .overview-card:hover {
-            transform: translateY(-3px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
@@ -275,7 +270,6 @@
         }
 
         .proof-card:hover {
-            transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0,0,0,0.15);
         }
 
@@ -390,19 +384,18 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.65rem 1.25rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0081A1;
             color: white;
             text-decoration: none;
             border-radius: 8px;
             font-weight: 600;
             font-size: 0.95rem;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 4px rgba(0, 129, 161, 0.3);
         }
 
         .alert-action:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(0, 129, 161, 0.4);
         }
 
         .alert-action span {
@@ -575,7 +568,6 @@
 
         .btn-more:hover {
             background-color: #e5e7eb;
-            transform: translateY(-1px);
         }
 
         .section-subtitle {
@@ -702,7 +694,7 @@
         }
 
         .btn-history {
-            background: rgb(0, 139, 172);
+            background: #0081A1;
             color: white;
             border: none;
             padding: 0.75rem 2rem;
@@ -718,13 +710,12 @@
         }
 
         .btn-history:hover {
-            background: rgb(0, 120, 150);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 139, 172, 0.3);
+            background: #006d8a;
+            box-shadow: 0 4px 8px rgba(0, 129, 161, 0.3);
         }
 
         .footer {
-            background-color: rgb(0, 139, 172);
+            background-color: #0081A1;
             color: white;
             padding: 2rem;
             margin-top: auto;
@@ -929,12 +920,10 @@
 
         .btn-add-info:hover {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(251, 191, 36, 0.4);
         }
 
         .btn-add-info:active {
-            transform: translateY(0);
             box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
         }
 
@@ -945,7 +934,6 @@
 
         .clickable-row:hover {
             background-color: #e3f2fd !important;
-            transform: scale(1.01);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
@@ -1025,7 +1013,6 @@
         .modal-close:hover {
             color: #333;
             background-color: #f0f0f0;
-            transform: rotate(90deg);
         }
 
         .modal-title {

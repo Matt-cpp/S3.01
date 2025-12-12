@@ -293,5 +293,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </script>
 </body>
+<?php include __DIR__ . '/../../includes/footer.php'; ?>
 
 </html>

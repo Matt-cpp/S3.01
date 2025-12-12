@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once __DIR__ . '/../../../controllers/auth_guard.php';
 $user = requireRole('academic_manager');
 
@@ -16,6 +16,7 @@ $errorMessage = $presenter->getErrorMessage();
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -25,6 +26,7 @@ $errorMessage = $presenter->getErrorMessage();
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
 </head>
+
 <body>
     <?php include __DIR__ . '/../navbar.php'; ?>
     <main>
@@ -36,11 +38,11 @@ $errorMessage = $presenter->getErrorMessage();
 
         <form method="POST" action="">
             <div class="filter-grid">
-                <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..." 
+                <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..."
                     value="<?php echo htmlspecialchars($filters['name'] ?? ''); ?>">
-                <input type="date" name="firstDateFilter" id="firstDateFilter" 
+                <input type="date" name="firstDateFilter" id="firstDateFilter"
                     value="<?php echo htmlspecialchars($filters['start_date'] ?? ''); ?>">
-                <input type="date" name="lastDateFilter" id="lastDateFilter" 
+                <input type="date" name="lastDateFilter" id="lastDateFilter"
                     value="<?php echo htmlspecialchars($filters['end_date'] ?? ''); ?>">
                 <select name="JustificationStatusFilter" id="JustificationStatusFilter">
                     <option value="">Tous les statuts</option>
@@ -53,8 +55,8 @@ $errorMessage = $presenter->getErrorMessage();
                 <select name="courseTypeFilter" id="courseTypeFilter">
                     <option value="">Tous les types</option>
                     <?php foreach ($courseTypes as $type): ?>
-                        <option value="<?php echo htmlspecialchars($type['course_type']); ?>" 
-                                <?php echo (($filters['course_type'] ?? '') === $type['course_type']) ? 'selected' : ''; ?>>
+                        <option value="<?php echo htmlspecialchars($type['course_type']); ?>"
+                            <?php echo (($filters['course_type'] ?? '') === $type['course_type']) ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($type['course_type']); ?>
                         </option>
                     <?php endforeach; ?>
@@ -104,46 +106,46 @@ $errorMessage = $presenter->getErrorMessage();
                             <td><?php echo htmlspecialchars($absence['course_type'] ?? 'Non spécifié'); ?></td>
                             <td><?php echo htmlspecialchars($presenter->translateMotif($absence['motif'])); ?></td>
                             <td class="status-cell">
-                                <?php 
-                                    $status = $presenter->getStatus($absence);
-                                    $statusClass = '';
-                                    switch($status) {
-                                        case 'En attente':
-                                            $statusClass = 'status-en-attente';
-                                            break;
-                                        case 'Acceptée':
-                                            $statusClass = 'status-acceptee';
-                                            break;
-                                        case 'Rejetée':
-                                            $statusClass = 'status-rejetee';
-                                            break;
-                                        case 'En cours d\'examen':
-                                            $statusClass = 'status-en-cours';
-                                            break;
-                                        case 'Justifiée':
-                                            $statusClass = 'status-justifiee';
-                                            break;
-                                        case 'Non justifiée':
-                                            $statusClass = 'status-non-justifiee';
-                                            break;
-                                        default:
-                                            $statusClass = 'status-default';
-                                    }
+                                <?php
+                                $status = $presenter->getStatus($absence);
+                                $statusClass = '';
+                                switch ($status) {
+                                    case 'En attente':
+                                        $statusClass = 'status-en-attente';
+                                        break;
+                                    case 'Acceptée':
+                                        $statusClass = 'status-acceptee';
+                                        break;
+                                    case 'Rejetée':
+                                        $statusClass = 'status-rejetee';
+                                        break;
+                                    case 'En cours d\'examen':
+                                        $statusClass = 'status-en-cours';
+                                        break;
+                                    case 'Justifiée':
+                                        $statusClass = 'status-justifiee';
+                                        break;
+                                    case 'Non justifiée':
+                                        $statusClass = 'status-non-justifiee';
+                                        break;
+                                    default:
+                                        $statusClass = 'status-default';
+                                }
                                 ?>
                                 <span class="status-text <?php echo $statusClass; ?>">
                                     <?php echo htmlspecialchars($status); ?>
                                 </span>
                             </td>
                             <td>
-                                <?php 
+                                <?php
                                 $files = $presenter->getProofFiles($absence);
                                 if (!empty($files)): ?>
                                     <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                                         <?php foreach ($files as $index => $file): ?>
-                                            <a href="../../../Presenter/student/view_upload_proof.php?proof_id=<?php echo $absence['proof_id']; ?>&file_index=<?php echo $index; ?>" 
-                                               target="_blank"
-                                               title="<?php echo htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)); ?>"
-                                               style="padding: 4px 8px; background: #4338ca; color: white; text-decoration: none; border-radius: 3px; font-size: 12px;">
+                                            <a href="../../../Presenter/student/view_upload_proof.php?proof_id=<?php echo $absence['proof_id']; ?>&file_index=<?php echo $index; ?>"
+                                                target="_blank"
+                                                title="<?php echo htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)); ?>"
+                                                style="padding: 4px 8px; background: #4338ca; color: white; text-decoration: none; border-radius: 3px; font-size: 12px;">
                                                 📄 <?php echo ($index + 1); ?>
                                             </a>
                                         <?php endforeach; ?>
@@ -159,6 +161,7 @@ $errorMessage = $presenter->getErrorMessage();
         </table>
 
     </main>
-
+    <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </body>
+
 </html>

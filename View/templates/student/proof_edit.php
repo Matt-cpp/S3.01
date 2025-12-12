@@ -226,6 +226,7 @@ $editData = $_SESSION['edit_proof'];
             </div>
         </form>
     </main>
+    <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </body>
 
 </html>

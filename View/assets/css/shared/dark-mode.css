@@ -23,8 +23,8 @@
   --border-dark: #adb5bd;
   
   /* UI colors */
-  --primary: #007bff;
-  --primary-hover: #0056b3;
+  --primary: #0081A1;
+  --primary-hover: #0081A1;
   --success: #28a745;
   --success-hover: #218838;
   --warning: #ffc107;
@@ -42,9 +42,9 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   
   /* Input colors */
-  --input-bg: #ffffff;
+  --input-bg: #0081A1;
   --input-border: #ced4da;
-  --input-focus-border: #80bdff;
+  --input-focus-border: #0081A1;
   --input-placeholder: #6c757d;
   
   /* Table colors */
@@ -53,7 +53,7 @@
   --table-border: #dee2e6;
   
   /* Footer */
-  --footer-bg: #343a40;
+  --footer-bg: #303437;
   --footer-text: #ffffff;
   
   /* Navbar */
@@ -68,8 +68,8 @@ html.dark-mode,
 body.dark-mode {
   /* Primary colors */
   --bg-primary: #1a1a1a;
-  --bg-secondary: #2d2d2d;
-  --bg-tertiary: #3a3a3a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #4f4e4e;
   --bg-card: #2d2d2d;
   
   /* Text colors */
@@ -84,8 +84,8 @@ body.dark-mode {
   --border-dark: #6c757d;
   
   /* UI colors - slightly adjusted for dark mode */
-  --primary: #0d6efd;
-  --primary-hover: #0a58ca;
+  --primary: #0081A1;
+  --primary-hover: #0081A1;
   --success: #198754;
   --success-hover: #146c43;
   --warning: #ffc107;
@@ -105,7 +105,7 @@ body.dark-mode {
   /* Input colors */
   --input-bg: #2d2d2d;
   --input-border: #495057;
-  --input-focus-border: #0d6efd;
+  --input-focus-border: #0081A1;
   --input-placeholder: #6c757d;
   
   /* Table colors */
@@ -114,19 +114,22 @@ body.dark-mode {
   --table-border: #495057;
   
   /* Footer */
-  --footer-bg: #0d0d0d;
+  --footer-bg: #1a1a1a;
   --footer-text: #e9ecef;
   
   /* Navbar */
   --navbar-bg: #2d2d2d;
   --navbar-text: #e9ecef;
   --navbar-border: #495057;
+  
 }
 
 /* Apply dark mode to body and html */
-.dark-mode,
+.dark-mode {
+  color: var(--text-primary);
+}
+
 html.dark-mode body {
-  background-color: var(--bg-primary);
   color: var(--text-primary);
 }
 
@@ -228,8 +231,8 @@ html.dark-mode body {
 }
 
 .dark-mode .nav-link.active {
-  background: #3730a3;
-  color: #e0e7ff;
+  background: #0081A1;
+  color: #ffffff;
 }
 
 /* Footer */
@@ -359,6 +362,7 @@ html.dark-mode body {
   background: rgba(220, 53, 69, 0.1);
 }
 
+
 /* Smooth transition for theme changes */
 * {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
@@ -369,10 +373,15 @@ html.dark-mode body {
   transition: none !important;
 }
 
-/* ===== Auth Pages (Login, Registration, Password Reset) ===== */
-.dark-mode body {
-  background-color: var(--bg-primary);
+/* Logo - ensure visibility in dark mode */
+.dark-mode .logo,
+.dark-mode .logo img {
+  filter: brightness(1.2) contrast(1.1);
+  opacity: 1 !important;
+  visibility: visible !important;
 }
+
+/* ===== Auth Pages (Login, Registration, Password Reset) ===== */
 
 /* Container for auth forms */
 .dark-mode .container {
@@ -527,7 +536,7 @@ html.dark-mode body {
 
 /* ===== Settings Page ===== */
 .dark-mode .settings-section {
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  background: var(--bg-card);
   color: var(--text-primary);
 }
 
@@ -1022,13 +1031,12 @@ html.dark-mode body {
 
 /* ===== Alert Action Button Fix ===== */
 .dark-mode .alert-action {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: #0081A1 !important;
   color: #ffffff !important;
 }
 
 .dark-mode .alert-action:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 129, 161, 0.4);
 }
 
 /* ===== Student Home Page - Proof Cards Enhanced ===== */
@@ -1643,11 +1651,7 @@ html.dark-mode body {
 
 /* ===== Student Statistics Page ===== */
 .dark-mode .stats-header h1 {
-  color: var(--text-primary) !important;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #0081A1 !important;
 }
 
 .dark-mode .recent-section {
@@ -1877,10 +1881,7 @@ html.dark-mode body {
 }
 
 .dark-mode .form-title {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #0081A1;
 }
 
 .dark-mode .form-container,
@@ -1961,6 +1962,10 @@ html.dark-mode body {
   border: 1px solid var(--border-color);
 }
 
+.dark-mode .logo {
+  filter: brightness(0) invert(1);
+}
+
 /* ===== Teacher Home & Evals - Filter Section Fix ===== */
 .dark-mode .filter-group {
   background: var(--bg-card);
@@ -2002,11 +2007,7 @@ html.dark-mode body {
 }
 
 .dark-mode .page-title {
-  color: var(--text-primary);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #0081A1;
 }
 
 .dark-mode .form-group label {
@@ -2193,7 +2194,7 @@ html.dark-mode body {
 }
 
 .dark-mode .info-field {
-  background: var(--bg-secondary);
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1rem;
@@ -2737,15 +2738,14 @@ html.dark-mode body {
 
 .dark-mode .submit-button,
 .dark-mode .secondary-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: #0081A1 !important;
   color: #ffffff !important;
   text-decoration: none;
 }
 
 .dark-mode .submit-button:hover,
 .dark-mode .secondary-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 129, 161, 0.4);
 }
 
 .dark-mode .status-grid {
@@ -2992,7 +2992,7 @@ html.dark-mode body {
 }
 
 .dark-mode .modal-action-section .btn-add-info {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: #0081A1 !important;
   color: #ffffff !important;
 }
 
@@ -3523,7 +3523,7 @@ html.dark-mode body {
 }
 
 .dark-mode .btn-pdf {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: #0081A1 !important;
   color: #ffffff !important;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -3532,8 +3532,7 @@ html.dark-mode body {
 }
 
 .dark-mode .btn-pdf:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 129, 161, 0.4);
 }
 
 /* Warning message */
