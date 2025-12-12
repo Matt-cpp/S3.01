@@ -646,6 +646,7 @@ function calculateHoursBetween(startTime, endTime) {
 }
 
 // Function to calculate absence recap statistics
+// Règle : 1 demi-journée comptée si >= 1 minute d'absence dans le créneau 8h-12h30 ou 12h30-18h30
 function calculateAbsenceStats() {
   var stats = {
     totalHours: 0,
@@ -656,6 +657,7 @@ function calculateAbsenceStats() {
   };
 
   var selectedCourses = [];
+  var periodDurations = {}; // Object to track duration per date per period
   var checkboxes = document.querySelectorAll('[id^="course_"]');
 
   checkboxes.forEach(function (checkbox) {
@@ -669,11 +671,41 @@ function calculateAbsenceStats() {
         var hours = calculateHoursBetween(course.start_time, course.end_time);
         stats.totalHours += hours;
 
-        // Count half-days (assuming 4+ hours = half day)
-        if (hours >= 4) {
-          stats.halfDays += 0.5;
-        } else if (hours >= 2) {
-          stats.halfDays += 0.25;
+        // Parse times to calculate period durations
+        var startParts = course.start_time.split(":");
+        var startHour = parseInt(startParts[0]);
+        var startMinute = parseInt(startParts[1]);
+        var startInMinutes = startHour * 60 + startMinute;
+
+        var endParts = course.end_time.split(":");
+        var endHour = parseInt(endParts[0]);
+        var endMinute = parseInt(endParts[1]);
+        var endInMinutes = endHour * 60 + endMinute;
+
+        var durationMinutes = endInMinutes - startInMinutes;
+        var afternoonThreshold = 750; // 12:30 = 750 minutes
+
+        var date = course.course_date;
+        if (!periodDurations[date]) {
+          periodDurations[date] = {
+            morning_minutes: 0,
+            afternoon_minutes: 0,
+          };
+        }
+
+        // Calculate time in each period (8h-12h30 morning, 12h-18h30 afternoon)
+        if (startInMinutes < afternoonThreshold && endInMinutes <= afternoonThreshold) {
+          // Entirely in the morning
+          periodDurations[date].morning_minutes += durationMinutes;
+        } else if (startInMinutes >= afternoonThreshold) {
+          // Entirely in the afternoon
+          periodDurations[date].afternoon_minutes += durationMinutes;
+        } else {
+          // Spans both periods - split the duration
+          var morningPart = afternoonThreshold - startInMinutes;
+          var afternoonPart = endInMinutes - afternoonThreshold;
+          periodDurations[date].morning_minutes += morningPart;
+          periodDurations[date].afternoon_minutes += afternoonPart;
         }
 
         // Count course types
@@ -701,6 +733,16 @@ function calculateAbsenceStats() {
       }
     }
   });
+
+  // Count half-days: 1 half-day if >= 1 minute in that period
+  for (var date in periodDurations) {
+    if (periodDurations[date].morning_minutes >= 1) {
+      stats.halfDays++;
+    }
+    if (periodDurations[date].afternoon_minutes >= 1) {
+      stats.halfDays++;
+    }
+  }
 
   return stats;
 }

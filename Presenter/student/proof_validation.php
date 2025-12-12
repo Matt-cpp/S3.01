@@ -386,7 +386,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Generate PDF summary using the generate_pdf.php logic
             $pdf_filename = 'Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf';
-            $pdf_path = __DIR__ . '/../uploads/' . $pdf_filename;
+            $pdf_path = __DIR__ . '/../../uploads/' . $pdf_filename;
 
             // Simulate POST data for PDF generation
             $_POST['action'] = 'download_pdf_server';
@@ -394,7 +394,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Capture the PDF output by including the generate_pdf.php file
             ob_start();
-            include __DIR__ . '/generate_pdf.php';
+            include __DIR__ . '/../shared/generate_pdf.php';
             ob_end_clean();
 
             // Check if PDF was generated successfully

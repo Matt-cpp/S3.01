@@ -371,7 +371,7 @@ $errorMessage = $presenter->getErrorMessage();
         </div>
     </div>
 
-    <script src="../assets/js/shared/absence_modal.js"></script>
+    <script src="../../assets/js/shared/absence_modal.js"></script>
 
     <footer class="footer">
         <div class="footer-content">

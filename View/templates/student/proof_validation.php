@@ -23,7 +23,7 @@ if (!isset($_SESSION['id_student'])) {
 }
 
 date_default_timezone_set('Europe/Paris');
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../../Model/database.php';
 
 // Vérification de la présence des données du justificatif en session
 // Redirection vers le formulaire si aucune donnée n'est disponible

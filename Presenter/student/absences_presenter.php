@@ -166,25 +166,7 @@ class StudentAbsencesPresenter
 
             // Trier les résultats par date et heure décroissantes (plus récent en premier)
             usort($results, function ($a, $b) {
-                // Définir la priorité des statuts (1 = plus important)
-                $statusPriority = [
-                    'accepted' => 1,
-                    'under_review' => 2,
-                    'pending' => 3,
-                    'rejected' => 4,
-                    null => 5,  // Non justifiée
-                    '' => 5     // Non justifiée
-                ];
-
-                $priorityA = $statusPriority[$a['proof_status'] ?? null] ?? 5;
-                $priorityB = $statusPriority[$b['proof_status'] ?? null] ?? 5;
-
-                // D'abord trier par priorité de statut
-                if ($priorityA !== $priorityB) {
-                    return $priorityA - $priorityB;
-                }
-
-                // Ensuite par date décroissante (plus récent en premier)
+                // Trier par date décroissante (plus récent en premier)
                 $dateCompare = strtotime($b['course_date']) - strtotime($a['course_date']);
                 if ($dateCompare !== 0) {
                     return $dateCompare;
@@ -298,8 +280,8 @@ class StudentAbsencesPresenter
             $date = $absence['course_date'];
             $startTime = $absence['start_time'];
 
-            // Déterminer la période (matin si < 12:00, sinon après-midi)
-            $period = (strtotime($startTime) < strtotime('12:00:00')) ? 'morning' : 'afternoon';
+            // Déterminer la période (matin si < 12:30, sinon après-midi)
+            $period = (strtotime($startTime) < strtotime('12:30:00')) ? 'morning' : 'afternoon';
 
             // Créer une clé unique pour cette demi-journée
             $key = $date . '_' . $period;

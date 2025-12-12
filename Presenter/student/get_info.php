@@ -79,7 +79,7 @@ function getAbsenceStatistics($student_identifier)
             SELECT 
                 course_date,
                 CASE 
-                    WHEN start_time < '12:00:00' THEN 'morning'
+                    WHEN start_time < '12:30:00' THEN 'morning'
                     ELSE 'afternoon'
                 END as period,
                 MAX(CASE WHEN proof_status = 'accepted' THEN 1 ELSE 0 END) as is_justified,
@@ -218,7 +218,7 @@ function getProofsByCategory($student_identifier)
             BOOL_OR(cs.is_evaluation) as has_exam,
             STRING_AGG(DISTINCT r.code, ', ') as course_codes,
             STRING_AGG(DISTINCT r.label, ' | ') as course_names,
-            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:30:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
             MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
             MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
         FROM proof p
@@ -249,7 +249,7 @@ function getProofsByCategory($student_identifier)
             COUNT(DISTINCT pa.absence_id) as nb_absences,
             COALESCE(SUM(cs.duration_minutes) / 60.0, 0) as total_hours_missed,
             BOOL_OR(cs.is_evaluation) as has_exam,
-            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:30:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
             MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
             MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
         FROM proof p
@@ -282,7 +282,7 @@ function getProofsByCategory($student_identifier)
             BOOL_OR(cs.is_evaluation) as has_exam,
             STRING_AGG(DISTINCT r.code, ', ') as course_codes,
             STRING_AGG(DISTINCT r.label, ' | ') as course_names,
-            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:30:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
             MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
             MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
         FROM proof p
@@ -317,7 +317,7 @@ function getProofsByCategory($student_identifier)
             BOOL_OR(cs.is_evaluation) as has_exam,
             STRING_AGG(DISTINCT r.code, ', ') as course_codes,
             STRING_AGG(DISTINCT r.label, ' | ') as course_names,
-            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+            COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:30:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
             MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
             MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
         FROM proof p

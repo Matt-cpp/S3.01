@@ -383,7 +383,7 @@ if ($_POST['action'] === 'download_pdf_client') {
     $pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'D');
 }
 if ($_POST['action'] === 'download_pdf_server') {
-    $save_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $_POST['name_file'];
+    $save_path = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $_POST['name_file'];
     $pdf->Output($save_path, 'F');
 }
 // $pdf->Output('Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf', 'I');
