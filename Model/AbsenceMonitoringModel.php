@@ -21,6 +21,7 @@ class AbsenceMonitoringModel
         $query = "
             SELECT 
                 a.student_identifier,
+                u.id as student_id,
                 MIN(cs.course_date) as absence_start_date,
                 MAX(cs.course_date) as absence_end_date,
                 MAX(cs.course_date) as last_absence_date,
@@ -42,7 +43,7 @@ class AbsenceMonitoringModel
                 AND am.is_justified = TRUE
                 AND cs.course_date BETWEEN am.absence_period_start AND am.absence_period_end
             )
-            GROUP BY a.student_identifier, u.email, u.first_name, u.last_name
+            GROUP BY a.student_identifier, u.id, u.email, u.first_name, u.last_name
             HAVING MAX(cs.course_date) >= CURRENT_DATE - INTERVAL '7 days'
         ";
 
@@ -101,20 +102,47 @@ class AbsenceMonitoringModel
     }
 
     //Record that a student has returned to class
-    public function recordStudentReturn($studentIdentifier, $absenceStartDate, $absenceEndDate, $lastAbsenceDate)
+    public function recordStudentReturn($studentIdOrIdentifier, $absenceStartDateOrIdentifier, $absenceEndDateOrStartDate = null, $lastAbsenceDateOrEndDate = null, $lastAbsenceDateFinal = null)
     {
-        // First, get the student_id from the identifier
-        $userQuery = "SELECT id FROM users WHERE identifier = :identifier";
-        try {
-            $user = $this->db->selectOne($userQuery, [':identifier' => $studentIdentifier]);
-            if (!$user) {
-                error_log("User not found for identifier: " . $studentIdentifier);
+        // Handle two possible call signatures:
+        // 1. recordStudentReturn($studentId, $studentIdentifier, $startDate, $endDate, $lastAbsenceDate)
+        // 2. recordStudentReturn($studentIdentifier, $startDate, $endDate, $lastAbsenceDate)
+
+        $studentId = null;
+        $studentIdentifier = null;
+        $absenceStartDate = null;
+        $absenceEndDate = null;
+        $lastAbsenceDate = null;
+
+        if ($lastAbsenceDateFinal !== null) {
+            // 5 params: studentId, identifier, startDate, endDate, lastAbsenceDate
+            $studentId = $studentIdOrIdentifier;
+            $studentIdentifier = $absenceStartDateOrIdentifier;
+            $absenceStartDate = $absenceEndDateOrStartDate;
+            $absenceEndDate = $lastAbsenceDateOrEndDate;
+            $lastAbsenceDate = $lastAbsenceDateFinal;
+        } else {
+            // 4 params: identifier, startDate, endDate, lastAbsenceDate
+            $studentIdentifier = $studentIdOrIdentifier;
+            $absenceStartDate = $absenceStartDateOrIdentifier;
+            $absenceEndDate = $absenceEndDateOrStartDate;
+            $lastAbsenceDate = $lastAbsenceDateOrEndDate;
+        }
+
+        // If student_id not provided, look it up from identifier
+        if ($studentId === null) {
+            $userQuery = "SELECT id FROM users WHERE LOWER(identifier) = LOWER(:identifier)";
+            try {
+                $user = $this->db->selectOne($userQuery, [':identifier' => $studentIdentifier]);
+                if (!$user) {
+                    error_log("User not found for identifier: " . $studentIdentifier);
+                    return null;
+                }
+                $studentId = $user['id'];
+            } catch (Exception $e) {
+                error_log("Error fetching user ID: " . $e->getMessage());
                 return null;
             }
-            $studentId = $user['id'];
-        } catch (Exception $e) {
-            error_log("Error fetching user ID: " . $e->getMessage());
-            return null;
         }
 
         $query = "
@@ -137,7 +165,7 @@ class AbsenceMonitoringModel
                 ':absence_end' => $absenceEndDate,
                 ':last_absence' => $lastAbsenceDate
             ]);
-            return $result ? $result['id'] : null;
+            return $result ? true : false;
         } catch (Exception $e) {
             error_log("Error recording student return: " . $e->getMessage());
             return null;

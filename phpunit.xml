@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="Tests/bootstrap.php"
+         colors="true"
+         stopOnFailure="false"
+         stopOnError="false"
+         failOnWarning="false"
+         failOnRisky="false"
+         beStrictAboutOutputDuringTests="true"
+         cacheDirectory=".phpunit.cache">
+    
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>Tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>Tests/Integration</directory>
+        </testsuite>
+        <testsuite name="Functional">
+            <directory>Tests/Functional</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <!-- Test Database Configuration -->
+        <env name="DB_HOST" value="188.245.222.176"/>
+        <env name="DB_NAME" value="GestionAbsence"/>
+        <env name="DB_USER" value="gestion_user"/>
+        <env name="DB_PASSWORD" value="strongpassword123"/>
+        <env name="DB_PORT" value="55432"/>
+        
+        <!-- Application Settings -->
+        <env name="TESTING" value="true"/>
+        <env name="ENVIRONMENT" value="test"/>
+        <env name="SYSTEM_USER_ID" value="1"/>
+        
+        <!-- Disable actual email sending during tests -->
+        <env name="DISABLE_EMAILS" value="true"/>
+        
+        <!-- Timezone -->
+        <env name="TIMEZONE" value="Europe/Paris"/>
+    </php>
+
+    <!--
+    Coverage Report Configuration (disabled - requires Xdebug)
+    <coverage>
+        <report>
+            <html outputDirectory="Tests/coverage/html"/>
+            <text outputFile="php://stdout" showOnlySummary="true"/>
+        </report>
+    </coverage>
+    -->
+
+    <!-- Source files for coverage -->
+    <source>
+        <include>
+            <directory suffix=".php">Model</directory>
+            <directory suffix=".php">Presenter</directory>
+        </include>
+        <exclude>
+            <directory>vendor</directory>
+            <directory>Tests</directory>
+            <directory>View</directory>
+        </exclude>
+    </source>
+</phpunit>

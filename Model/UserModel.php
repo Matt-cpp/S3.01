@@ -6,9 +6,9 @@ class UserModel
 {
     private $db;
 
-    public function __construct()
+    public function __construct($db = null)
     {
-        $this->db = getDatabase();
+        $this->db = $db ?? getDatabase();
     }
 
     //Get user information by ID
@@ -58,7 +58,7 @@ class UserModel
                 created_at,
                 updated_at
             FROM users
-            WHERE identifier = :identifier
+            WHERE UPPER(identifier) = UPPER(:identifier)
         ";
 
         try {
@@ -133,7 +133,7 @@ class UserModel
     //Check if email is already taken by another user
     public function isEmailTaken($email, $excludeUserId = null)
     {
-        $query = "SELECT COUNT(*) as count FROM users WHERE email = :email";
+        $query = "SELECT COUNT(*) as count FROM users WHERE UPPER(email) = UPPER(:email)";
         $params = [':email' => $email];
 
         if ($excludeUserId) {

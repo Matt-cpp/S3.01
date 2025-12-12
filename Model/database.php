@@ -17,6 +17,9 @@ class Database
 {
     private static $instance = null;
     private $pdo;
+    private static $testPdo = null; // For testing: inject PDO connection
+    private $transactionDepth = 0; // Track transaction depth for nested transaction support
+    private static $inTestMode = false; // Prevent commits/rollbacks in test mode
 
     // Connection parameters from .env file
     private function getDSN(): string
@@ -48,15 +51,21 @@ class Database
     // Private constructor for Singleton pattern
     private function __construct()
     {
+        // If test PDO is set, use it instead of creating new connection
+        if (self::$testPdo !== null) {
+            $this->pdo = self::$testPdo;
+            return;
+        }
+
         // Set timezone for PHP operations to Europe/Paris
         date_default_timezone_set('Europe/Paris');
-        
+
         try {
             $this->pdo = new PDO($this->getDSN(), $this->getUser(), $this->getPassword(), self::OPTIONS);
-            
+
             // Set timezone for PostgreSQL to Europe/Paris
             $this->pdo->exec("SET TIME ZONE 'Europe/Paris'");
-            
+
             // Force UTF-8 encoding for PostgreSQL client connection
             $this->pdo->exec("SET CLIENT_ENCODING TO 'UTF8'");
             $this->pdo->exec("SET NAMES 'UTF8'");
@@ -67,7 +76,9 @@ class Database
     }
 
     // Prevent cloning the instance to avoid multiple connections
-    private function __clone() {}
+    private function __clone()
+    {
+    }
 
     // Prevent unserializing the Singleton instance to avoid multiple connections
     public function __wakeup()
@@ -82,6 +93,25 @@ class Database
             self::$instance = new self();
         }
         return self::$instance;
+    }
+
+    /**
+     * Set a test PDO connection for testing purposes
+     * This allows tests to inject their transactional PDO
+     */
+    public static function setTestConnection(?\PDO $pdo): void
+    {
+        self::$testPdo = $pdo;
+        self::$inTestMode = ($pdo !== null);
+        self::$instance = null; // Reset instance to use new connection
+    }
+
+    /**
+     * Reset transaction depth (for testing)
+     */
+    public function resetTransactionDepth(): void
+    {
+        $this->transactionDepth = 0;
     }
 
     // Returns the PDO object for queries
@@ -109,7 +139,8 @@ class Database
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($params);
-            return $stmt->fetch();
+            $result = $stmt->fetch();
+            return $result === false ? null : $result;
         } catch (PDOException $e) {
             error_log("Error executing SELECT: " . $e->getMessage());
             throw new Exception("Error retrieving data");
@@ -143,20 +174,71 @@ class Database
 
     public function beginTransaction(): bool
     {
-        return $this->pdo->beginTransaction();
+        // If already in a transaction, just increment depth counter
+        if ($this->pdo->inTransaction()) {
+            $this->transactionDepth++;
+            return true;
+        }
+        $result = $this->pdo->beginTransaction();
+        if ($result) {
+            $this->transactionDepth = 1;
+        }
+        return $result;
     }
 
     // Commits a transaction
 
     public function commit(): bool
     {
-        return $this->pdo->commit();
+        // In test mode, never actually commit - just decrement depth
+        if (self::$inTestMode) {
+            if ($this->transactionDepth > 0) {
+                $this->transactionDepth--;
+            }
+            return true;
+        }
+
+        // Only commit if we're at the outermost transaction level
+        if ($this->transactionDepth > 1) {
+            $this->transactionDepth--;
+            return true;
+        }
+        if (!$this->pdo->inTransaction()) {
+            $this->transactionDepth = 0;
+            return true;
+        }
+        $result = $this->pdo->commit();
+        if ($result) {
+            $this->transactionDepth = 0;
+        }
+        return $result;
     }
 
     // Rolls back a transaction
     public function rollBack(): bool
     {
-        return $this->pdo->rollBack();
+        // In test mode, never actually rollback - just decrement depth
+        if (self::$inTestMode) {
+            if ($this->transactionDepth > 0) {
+                $this->transactionDepth--;
+            }
+            return true;
+        }
+
+        // Only rollback if we're at the outermost transaction level
+        if ($this->transactionDepth > 1) {
+            $this->transactionDepth--;
+            return true;
+        }
+        if (!$this->pdo->inTransaction()) {
+            $this->transactionDepth = 0;
+            return true;
+        }
+        $result = $this->pdo->rollBack();
+        if ($result) {
+            $this->transactionDepth = 0;
+        }
+        return $result;
     }
 
     // Checks if a transaction is active
