@@ -262,6 +262,15 @@ class ProofPresenter
                     }
                 }
 
+                // Vérification que les périodes ne coupent pas un créneau de cours en plein milieu
+                $splitValidation = $this->model->validateSplitPeriods($proofId, $periods);
+                if (!$splitValidation['valid']) {
+                    $data['showSplitForm'] = true;
+                    $data['splitError'] = $splitValidation['error'];
+                    $this->enrichViewData($data);
+                    return $data;
+                }
+
                 // Debug: afficher les périodes
                 error_log("DEBUG splitProofMultiple - periods: " . json_encode($periods));
 

@@ -584,6 +584,102 @@ class ProofModel
         }
     }
 
+    /**
+     * Valide que les périodes de scission ne coupent pas un créneau de cours en plein milieu
+     * et que chaque période aura au moins une absence assignée
+     */
+    public function validateSplitPeriods(int $proofId, array $periods): array
+    {
+        try {
+            // Récupérer tous les créneaux de cours liés à ce justificatif
+            $sqlSlots = "SELECT DISTINCT 
+                            cs.id as slot_id,
+                            cs.course_date,
+                            cs.start_time,
+                            cs.end_time,
+                            (cs.course_date || ' ' || cs.start_time)::timestamp as slot_start,
+                            (cs.course_date || ' ' || cs.end_time)::timestamp as slot_end
+                        FROM proof_absences pa
+                        JOIN absences a ON pa.absence_id = a.id
+                        JOIN course_slots cs ON a.course_slot_id = cs.id
+                        WHERE pa.proof_id = :proof_id
+                        ORDER BY cs.course_date, cs.start_time";
+            
+            $slots = $this->db->select($sqlSlots, ['proof_id' => $proofId]);
+            
+            if (empty($slots)) {
+                return [
+                    'valid' => false,
+                    'error' => "Aucune absence n'est liée à ce justificatif. La scission est impossible."
+                ];
+            }
+            
+            if (count($slots) < 2) {
+                return [
+                    'valid' => false,
+                    'error' => "Ce justificatif n'a qu'un seul créneau de cours lié. La scission est impossible car il n'y a qu'une seule absence à distribuer."
+                ];
+            }
+            
+            // Vérifier que chaque limite de période (fin d'une période / début de la suivante)
+            // ne coupe pas un créneau en plein milieu
+            for ($i = 0; $i < count($periods) - 1; $i++) {
+                $periodEnd = strtotime($periods[$i]['end']);
+                $periodNextStart = strtotime($periods[$i + 1]['start']);
+                
+                foreach ($slots as $slot) {
+                    $slotStart = strtotime($slot['slot_start']);
+                    $slotEnd = strtotime($slot['slot_end']);
+                    
+                    // Vérifier si la fin de période coupe le créneau
+                    if ($periodEnd > $slotStart && $periodEnd < $slotEnd) {
+                        return [
+                            'valid' => false,
+                            'error' => "La fin de la période " . ($i + 1) . " (" . $periods[$i]['end'] . ") coupe le créneau de cours du " 
+                                     . $slot['course_date'] . " (" . substr($slot['start_time'], 0, 5) . " - " . substr($slot['end_time'], 0, 5) . ") en plein milieu. "
+                                     . "Veuillez ajuster les heures pour terminer avant " . substr($slot['start_time'], 0, 5) 
+                                     . " ou après " . substr($slot['end_time'], 0, 5) . "."
+                        ];
+                    }
+                }
+            }
+            
+            // Vérifier que chaque période aura au moins une absence
+            foreach ($periods as $index => $period) {
+                $periodStart = strtotime($period['start']);
+                $periodEnd = strtotime($period['end']);
+                $hasAbsence = false;
+                
+                foreach ($slots as $slot) {
+                    $slotStart = strtotime($slot['slot_start']);
+                    $slotEnd = strtotime($slot['slot_end']);
+                    
+                    // Un créneau est dans la période si son début est >= début période et < fin période
+                    if ($slotStart >= $periodStart && $slotStart < $periodEnd) {
+                        $hasAbsence = true;
+                        break;
+                    }
+                }
+                
+                if (!$hasAbsence) {
+                    return [
+                        'valid' => false,
+                        'error' => "La période " . ($index + 1) . " (" . $period['start'] . " → " . $period['end'] . ") ne contient aucun créneau de cours. Chaque période doit couvrir au moins une absence."
+                    ];
+                }
+            }
+            
+            return ['valid' => true, 'error' => null];
+            
+        } catch (Exception $e) {
+            error_log("Erreur validateSplitPeriods: " . $e->getMessage());
+            return [
+                'valid' => false,
+                'error' => "Erreur lors de la validation: " . $e->getMessage()
+            ];
+        }
+    }
+
     // Scinde un justificatif en N périodes distinctes
     public function splitProofMultiple(int $proofId, array $periods, string $reason, ?int $userId = null): bool
     {
@@ -596,6 +692,43 @@ class ProofModel
             }
 
             $newProofIds = [];
+            $periodDates = []; // Stockera les dates réelles basées sur les cours
+            
+            // D'abord, déterminer les dates réelles basées sur les cours pour chaque période
+            foreach ($periods as $index => $period) {
+                // Récupérer la date/heure min et max des cours dans cette période
+                $sqlGetDates = "
+                    SELECT 
+                        MIN(cs.course_date || ' ' || cs.start_time) as real_start,
+                        MAX(cs.course_date || ' ' || cs.end_time) as real_end
+                    FROM proof_absences pa
+                    JOIN absences a ON pa.absence_id = a.id
+                    JOIN course_slots cs ON a.course_slot_id = cs.id
+                    WHERE pa.proof_id = :proof_id
+                      AND (cs.course_date || ' ' || cs.end_time)::timestamp >= :start_datetime::timestamp
+                      AND (cs.course_date || ' ' || cs.start_time)::timestamp <= :end_datetime::timestamp
+                ";
+                
+                $result = $this->db->selectOne($sqlGetDates, [
+                    'proof_id' => $proofId,
+                    'start_datetime' => $period['start'],
+                    'end_datetime' => $period['end']
+                ]);
+                
+                if ($result && $result['real_start'] && $result['real_end']) {
+                    $periodDates[$index] = [
+                        'start_date' => substr($result['real_start'], 0, 10),
+                        'end_date' => substr($result['real_end'], 0, 10)
+                    ];
+                } else {
+                    // Fallback sur les dates saisies si aucun cours trouvé
+                    $periodDates[$index] = [
+                        'start_date' => substr($period['start'], 0, 10),
+                        'end_date' => substr($period['end'], 0, 10)
+                    ];
+                }
+            }
+            
             $sqlInsert = "INSERT INTO proof (
                 student_identifier, absence_start_date, absence_end_date,
                 concerned_courses, main_reason, custom_reason, file_path,
@@ -615,8 +748,8 @@ class ProofModel
                 
                 $this->db->execute($sqlInsert, [
                     'student_identifier' => $proof['student_identifier'],
-                    'start_date' => substr($period['start'], 0, 10),
-                    'end_date' => substr($period['end'], 0, 10),
+                    'start_date' => $periodDates[$index]['start_date'],
+                    'end_date' => $periodDates[$index]['end_date'],
                     'concerned_courses' => $proof['concerned_courses'] ?? null,
                     'main_reason' => $proof['main_reason'],
                     'custom_reason' => $proof['custom_reason'],
@@ -660,6 +793,30 @@ class ProofModel
                     'start_datetime' => $period['start'],
                     'end_datetime' => $period['end']
                 ]);
+            }
+
+            // Mettre à jour les dates des nouveaux justificatifs basées sur les cours réellement assignés
+            $sqlUpdateDates = "
+                UPDATE proof SET
+                    absence_start_date = (
+                        SELECT MIN(cs.course_date)
+                        FROM proof_absences pa
+                        JOIN absences a ON pa.absence_id = a.id
+                        JOIN course_slots cs ON a.course_slot_id = cs.id
+                        WHERE pa.proof_id = :proof_id
+                    ),
+                    absence_end_date = (
+                        SELECT MAX(cs.course_date)
+                        FROM proof_absences pa
+                        JOIN absences a ON pa.absence_id = a.id
+                        JOIN course_slots cs ON a.course_slot_id = cs.id
+                        WHERE pa.proof_id = :proof_id
+                    )
+                WHERE id = :proof_id
+            ";
+            
+            foreach ($newProofIds as $newProofId) {
+                $this->db->execute($sqlUpdateDates, ['proof_id' => $newProofId]);
             }
 
             // Note: L'historique de scission n'est pas enregistré car 'split' n'est pas une action valide
