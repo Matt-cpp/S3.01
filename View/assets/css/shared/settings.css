@@ -17,17 +17,6 @@
     --radius: 16px;
 }
 
-/* Dark mode variables */
-body.dark-mode {
-    --text-primary: #e5e7eb;
-    --text-secondary: #9ca3af;
-    --text-light: #6b7280;
-    --bg-primary: #1f2937;
-    --bg-secondary: #111827;
-    --border-color: #374151;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
 body {
     background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
     color: var(--text-primary);
@@ -36,6 +25,14 @@ body {
     flex-direction: column;
     transition: background-color 0.3s ease, color 0.3s ease;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* Dark mode background override for settings page */
+.dark-mode body {
+    background: var(--bg-primary) !important;
 }
 
 .main-content {
@@ -44,6 +41,7 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .settings-container {

@@ -330,6 +330,7 @@ require_once __DIR__ . '/../../../Presenter/teacher/statistics_presenter.php';
     </script>
     <script src="/View/assets/js/teacher/statistics.js"></script>
     <?php renderThemeScript(); ?>
+    <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </body>
 
 </html>

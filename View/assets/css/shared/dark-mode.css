@@ -23,8 +23,8 @@
   --border-dark: #adb5bd;
   
   /* UI colors */
-  --primary: #007bff;
-  --primary-hover: #0056b3;
+  --primary: #0081A1;
+  --primary-hover: #0081A1;
   --success: #28a745;
   --success-hover: #218838;
   --warning: #ffc107;
@@ -42,9 +42,9 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   
   /* Input colors */
-  --input-bg: #ffffff;
+  --input-bg: #0081A1;
   --input-border: #ced4da;
-  --input-focus-border: #80bdff;
+  --input-focus-border: #0081A1;
   --input-placeholder: #6c757d;
   
   /* Table colors */
@@ -53,7 +53,7 @@
   --table-border: #dee2e6;
   
   /* Footer */
-  --footer-bg: #343a40;
+  --footer-bg: #303437;
   --footer-text: #ffffff;
   
   /* Navbar */
@@ -68,8 +68,8 @@ html.dark-mode,
 body.dark-mode {
   /* Primary colors */
   --bg-primary: #1a1a1a;
-  --bg-secondary: #2d2d2d;
-  --bg-tertiary: #3a3a3a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #4f4e4e;
   --bg-card: #2d2d2d;
   
   /* Text colors */
@@ -84,8 +84,8 @@ body.dark-mode {
   --border-dark: #6c757d;
   
   /* UI colors - slightly adjusted for dark mode */
-  --primary: #0d6efd;
-  --primary-hover: #0a58ca;
+  --primary: #0081A1;
+  --primary-hover: #0081A1;
   --success: #198754;
   --success-hover: #146c43;
   --warning: #ffc107;
@@ -105,7 +105,7 @@ body.dark-mode {
   /* Input colors */
   --input-bg: #2d2d2d;
   --input-border: #495057;
-  --input-focus-border: #0d6efd;
+  --input-focus-border: #0081A1;
   --input-placeholder: #6c757d;
   
   /* Table colors */
@@ -114,13 +114,14 @@ body.dark-mode {
   --table-border: #495057;
   
   /* Footer */
-  --footer-bg: #0d0d0d;
+  --footer-bg: #1a1a1a;
   --footer-text: #e9ecef;
   
   /* Navbar */
   --navbar-bg: #2d2d2d;
   --navbar-text: #e9ecef;
   --navbar-border: #495057;
+  
 }
 
 /* Apply dark mode to body and html */
@@ -230,8 +231,8 @@ html.dark-mode body {
 }
 
 .dark-mode .nav-link.active {
-  background: #3730a3;
-  color: #e0e7ff;
+  background: #0081A1;
+  color: #ffffff;
 }
 
 /* Footer */
@@ -535,7 +536,7 @@ html.dark-mode body {
 
 /* ===== Settings Page ===== */
 .dark-mode .settings-section {
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  background: var(--bg-card);
   color: var(--text-primary);
 }
 
@@ -2189,7 +2190,7 @@ html.dark-mode body {
 }
 
 .dark-mode .info-field {
-  background: var(--bg-secondary);
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1rem;

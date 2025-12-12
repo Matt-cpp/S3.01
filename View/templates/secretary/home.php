@@ -245,6 +245,7 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
 
     <script src="/View/assets/js/secretary/dashboard.js"></script>
     <?php renderThemeScript(); ?>
+    <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </body>
 
 </html>
