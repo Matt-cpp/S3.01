@@ -65,34 +65,18 @@ if (!$proof) {
 
 <!DOCTYPE html>
 <html lang="fr">
+<meta charset="UTF-8">
 
 <head>
-    <meta charset="UTF-8">
     <title>Validation des justificatifs</title>
     <link rel="stylesheet" href="../../assets/css/academic_manager/view_proof.css">
-    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <script src="../../assets/js/academic_manager/view_proof.js" defer></script>
 </head>
 
-<body <?php 
-    // Appliquer une couleur de fond selon le statut
-    $currentStatus = $proof['status'] ?? '';
-    $bodyStyle = '';
-    if ($currentStatus === 'accepted') {
-        $bodyStyle = 'style="background-color: #c3e6cb;"'; // Vert plus foncé
-    } elseif ($currentStatus === 'rejected') {
-        $bodyStyle = 'style="background-color: #f5c6cb;"'; // Rouge plus foncé
-    } elseif ($currentStatus === 'under_review') {
-        $bodyStyle = 'style="background-color: #bee5eb;"'; // Bleu
-    } elseif ($currentStatus === 'pending') {
-        $bodyStyle = 'style="background-color: #fff3cd;"'; // Jaune
-    }
-    echo $bodyStyle;
-?>>
+<body>
     <?php include __DIR__ . '/../navbar.php'; ?>
-
     <div class="container">
         <h1 class="title">Validation des justificatifs</h1>
 
@@ -113,7 +97,7 @@ if (!$proof) {
             </div>
             <div class="info-field">
                 <strong>Verrouillage:</strong> <?= htmlspecialchars($lockStatus) ?>
-                <form method="POST" action="view_proof.php" style="display:inline-block; margin-left:10px;">
+                <form method="POST" action="view_proof.php" class="lock-form">
                     <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
                     <?php if ($islocked): ?>
                         <input type="hidden" name="lock_action" value="unlock">
@@ -150,7 +134,7 @@ if (!$proof) {
 
         <!-- Commentaire de l'étudiant -->
         <?php if (!empty($proof['student_comment'])): ?>
-            <div class="reason-container" style="margin-top: 20px;">
+            <div class="reason-container student-comment">
                 <div class="info-field">
                     <strong>Commentaire de l'étudiant :</strong> <?= htmlspecialchars($proof['student_comment']) ?>
                 </div>
@@ -158,8 +142,8 @@ if (!$proof) {
         <?php endif; ?>
 
         <!-- Section fichiers justificatifs -->
-        <div class="files-section" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-            <strong style="display: block; margin-bottom: 10px; font-size: 16px;">📎 Fichiers justificatifs :</strong>
+        <div class="files-section">
+            <strong class="files-title">📎 Fichiers justificatifs :</strong>
             <?php
             $proofFiles = [];
             if (!empty($proof['proof_files'])) {
@@ -168,21 +152,20 @@ if (!$proof) {
             }
 
             if (!empty($proofFiles)): ?>
-                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <div class="files-list">
                     <?php foreach ($proofFiles as $index => $file): ?>
                         <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>"
-                            target="_blank" rel="noopener"
-                            title="<?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>"
-                            style="display: inline-block; padding: 10px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px;">
+                            target="_blank" rel="noopener" class="file-link"
+                            title="<?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>">
                             📄 <?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>
                             <?php if (!empty($file['size'])): ?>
-                                <small style="opacity: 0.9;">(<?= number_format($file['size'] / 1024, 1) ?> Ko)</small>
+                                <small class="file-size">(<?= number_format($file['size'] / 1024, 1) ?> Ko)</small>
                             <?php endif; ?>
                         </a>
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <p style="color: #666; font-style: italic; margin: 0;">Aucun fichier justificatif n'a été fourni.</p>
+                <p class="no-files">Aucun fichier justificatif n'a été fourni.</p>
             <?php endif; ?>
         </div>
 
@@ -220,7 +203,7 @@ if (!$proof) {
                             <option value="Autre" <?= (isset($_POST['rejection_reason']) && $_POST['rejection_reason'] === 'Autre') ? 'selected' : '' ?>>Autre</option>
                         </select>
                     </div>
-                    <div class="form-group" id="new-reason-group" style="display: none;">
+                    <div class="form-group hidden" id="new-reason-group">
                         <label for="new_rejection_reason">Nouveau motif :</label>
                         <input type="text" name="new_rejection_reason" id="new_rejection_reason"
                             value="<?= htmlspecialchars($_POST['new_rejection_reason'] ?? '') ?>">
@@ -255,7 +238,7 @@ if (!$proof) {
                             <option value="Autre" <?= (isset($_POST['validation_reason']) && $_POST['validation_reason'] === 'Autre') ? 'selected' : '' ?>>Autre</option>
                         </select>
                     </div>
-                    <div class="form-group" id="new-validation-reason-group" style="display: none;">
+                    <div class="form-group hidden" id="new-validation-reason-group">
                         <label for="new_validation_reason">Nouveau motif :</label>
                         <input type="text" name="new_validation_reason" id="new_validation_reason"
                             value="<?= htmlspecialchars($_POST['new_validation_reason'] ?? '') ?>">
@@ -279,24 +262,23 @@ if (!$proof) {
             <?php elseif ($showSplitForm): ?>
                 <form method="POST" class="split-form" id="splitForm">
                     <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
-                    <h3 style="margin-bottom: 20px;">Scinder le justificatif en plusieurs périodes</h3>
+                    <h3 class="split-title">Scinder le justificatif en plusieurs périodes</h3>
 
-                    <div class="form-group" style="margin-bottom: 20px;">
+                    <div class="form-group">
                         <label for="num_periods">Nombre de périodes à créer :</label>
-                        <select name="num_periods" id="num_periods" onchange="updatePeriodFields()"
-                            style="padding: 8px; font-size: 16px;">
+                        <select name="num_periods" id="num_periods" onchange="updatePeriodFields()">
                             <option value="2" selected>2 périodes</option>
                             <option value="3">3 périodes</option>
                             <option value="4">4 périodes</option>
                             <option value="5">5 périodes</option>
                         </select>
-                        <small style="color: #666; display: block; margin-top: 5px;">
-                            💡 Exemple : Si le justificatif couvre lundi-vendredi mais seul mercredi est valide,
+                        <small class="help-text">
+                            Exemple : Si le justificatif couvre lundi-vendredi mais seul mercredi est valide,
                             créez 3 périodes (lundi-mardi, mercredi, jeudi-vendredi)
                         </small>
                     </div>
 
-                    <div id="periodsContainer" style="display: grid; gap: 20px; margin-bottom: 20px;">
+                    <div id="periodsContainer" class="periods-container">
                         <!-- Les périodes seront générées dynamiquement par JavaScript -->
                     </div>
 
@@ -323,7 +305,7 @@ if (!$proof) {
                     <form method="POST" action="view_proof.php" class="action-form">
                         <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
                         <div class="button-container">
-                            <?php 
+                            <?php
                             // Récupérer le statut actuel pour masquer le bouton correspondant
                             $currentStatus = $proof['status'] ?? '';
                             // Désactiver les boutons si le justificatif est verrouillé
@@ -331,34 +313,30 @@ if (!$proof) {
                             $disabledStyle = $islocked ? 'opacity: 0.5; cursor: not-allowed;' : '';
                             $disabledTitle = $islocked ? 'title="Le justificatif est verrouillé"' : '';
                             ?>
-                            
+
                             <?php if ($currentStatus !== 'accepted'): ?>
-                                <button type="submit" name="validate" value="1" class="btn btn-validate" 
-                                    <?= $disabledAttr ?> <?= $disabledTitle ?> 
-                                    style="<?= $disabledStyle ?>">
+                                <button type="submit" name="validate" value="1" class="btn btn-validate <?= $islocked ? 'btn-disabled' : '' ?>"
+                                    <?= $disabledAttr ?> <?= $disabledTitle ?>>
                                     <span class="btn-text">Valider</span>
                                 </button>
                             <?php endif; ?>
-                            
+
                             <?php if ($currentStatus !== 'rejected'): ?>
-                                <button type="submit" name="reject" value="1" class="btn btn-reject" 
-                                    <?= $disabledAttr ?> <?= $disabledTitle ?>
-                                    style="margin-left:10px; <?= $disabledStyle ?>">
+                                <button type="submit" name="reject" value="1" class="btn btn-reject <?= $islocked ? 'btn-disabled' : '' ?>"
+                                    <?= $disabledAttr ?> <?= $disabledTitle ?>>
                                     <span class="btn-text">Refuser</span>
                                 </button>
                             <?php endif; ?>
-                            
+
                             <?php if ($currentStatus !== 'under_review'): ?>
-                                <button type="submit" name="request_info" value="1" class="btn btn-info"
-                                    <?= $disabledAttr ?> <?= $disabledTitle ?>
-                                    style="margin-left:10px; <?= $disabledStyle ?>">
+                                <button type="submit" name="request_info" value="1" class="btn btn-info <?= $islocked ? 'btn-disabled' : '' ?>"
+                                    <?= $disabledAttr ?> <?= $disabledTitle ?>>
                                     <span class="btn-text">Demander des informations</span>
                                 </button>
                             <?php endif; ?>
-                            
-                            <button type="submit" name="split" value="1" class="btn btn-warning"
-                                <?= $disabledAttr ?> <?= $disabledTitle ?>
-                                style="margin-left:10px; background-color: #FF9800; <?= $disabledStyle ?>">
+
+                            <button type="submit" name="split" value="1" class="btn btn-warning <?= $islocked ? 'btn-disabled' : '' ?>"
+                                <?= $disabledAttr ?> <?= $disabledTitle ?>>
                                 <span class="btn-text">Scinder</span>
                             </button>
                         </div>
@@ -367,75 +345,35 @@ if (!$proof) {
             <?php endif; ?>
         </div>
 
-        <!-- Commentaire de l'étudiant -->
-        <?php if (!empty($proof['student_comment'])): ?>
-            <div class="reason-container" style="margin-top: 20px;">
-                <div class="info-field">
-                    <strong>Commentaire de l'étudiant :</strong> <?= htmlspecialchars($proof['student_comment']) ?>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <!-- Section fichiers justificatifs -->
-        <div class="files-section">
-            <strong style="display: block; margin-bottom: 10px; font-size: 16px;">📎 Fichiers justificatifs :</strong>
-            <?php
-            $proofFiles = [];
-            if (!empty($proof['proof_files'])) {
-                $proofFiles = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
-                $proofFiles = is_array($proofFiles) ? $proofFiles : [];
+        <script>
+            // Initialiser au chargement de la page si le formulaire de scission est affiché
+            if (document.getElementById('num_periods')) {
+                const startDate = '<?= htmlspecialchars($proof['absence_start_date'] ?? '') ?>';
+                const endDate = '<?= htmlspecialchars($proof['absence_end_date'] ?? '') ?>';
+                updatePeriodFields(startDate, endDate);
             }
 
-            if (!empty($proofFiles)): ?>
-                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                    <?php foreach ($proofFiles as $index => $file): ?>
-                        <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>"
-                            target="_blank" rel="noopener"
-                            title="<?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>"
-                            class="file-link"
-                            style="display: inline-block; padding: 10px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px;">
-                            📄 <?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>
-                            <?php if (!empty($file['size'])): ?>
-                                <small style="opacity: 0.9;">(<?= number_format($file['size'] / 1024, 1) ?> Ko)</small>
-                            <?php endif; ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p style="font-style: italic; margin: 0;">Aucun fichier justificatif n'a été fourni.</p>
-            <?php endif; ?>
-        </div>
+            // Gestion des select "Autre"
+            (function() {
+                const rejSel = document.getElementById('rejection_reason');
+                const rejGrp = document.getElementById('new-reason-group');
+                if (rejSel && rejGrp) {
+                    const toggle = () => rejGrp.style.display = (rejSel.value === 'Autre') ? 'block' : 'none';
+                    rejSel.addEventListener('change', toggle);
+                    toggle();
+                }
+                const valSel = document.getElementById('validation_reason');
+                const valGrp = document.getElementById('new-validation-reason-group');
+                if (valSel && valGrp) {
+                    const toggleV = () => valGrp.style.display = (valSel.value === 'Autre') ? 'block' : 'none';
+                    valSel.addEventListener('change', toggleV);
+                    toggleV();
+                }
+            })();
+        </script>
     </div>
 
-    <script>
-        // Initialiser au chargement de la page si le formulaire de scission est affiché
-        if (document.getElementById('num_periods')) {
-            const startDate = '<?= htmlspecialchars($proof['absence_start_date'] ?? '') ?>';
-            const endDate = '<?= htmlspecialchars($proof['absence_end_date'] ?? '') ?>';
-            updatePeriodFields(startDate, endDate);
-        }
-
-        // Gestion des select "Autre"
-        (function () {
-            const rejSel = document.getElementById('rejection_reason');
-            const rejGrp = document.getElementById('new-reason-group');
-            if (rejSel && rejGrp) {
-                const toggle = () => rejGrp.style.display = (rejSel.value === 'Autre') ? 'block' : 'none';
-                rejSel.addEventListener('change', toggle);
-                toggle();
-            }
-            const valSel = document.getElementById('validation_reason');
-            const valGrp = document.getElementById('new-validation-reason-group');
-            if (valSel && valGrp) {
-                const toggleV = () => valGrp.style.display = (valSel.value === 'Autre') ? 'block' : 'none';
-                valSel.addEventListener('change', toggleV);
-                toggleV();
-            }
-        })();
-    </script>
-
     <?php include __DIR__ . '/../../includes/footer.php'; ?>
-
 </body>
 
 </html>

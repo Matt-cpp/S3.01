@@ -1,244 +1,354 @@
-body {
-    font-family: Arial, sans-serif;
+* {
     margin: 0;
-    padding: 20px;
-    background: #f5f5f5;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+    color: #1f2937;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
-
-.logo {
-    height: 50px;
-}
-
-.header-icons {
-    display: flex;
-    gap: 20px;
+    overflow-x: hidden;
 }
 
 .container {
+    max-width: 1000px;
+    width: calc(100% - 2rem);
+    margin: 2rem auto;
+    padding: 2rem;
     background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    max-width: 800px;
-    margin: 0 auto;
+    border-radius: 16px;
 }
 
 .title {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0081A1;
 }
 
 .info-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    margin-bottom: 30px;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .info-field {
-    padding: 10px;
+    padding: 1rem;
     background: #f8f9fa;
-    border-radius: 4px;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
+}
+
+
+.info-field strong {
+    display: block;
+    color: #6b7280;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .dates-container {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
 }
 
-.reason-container {
-    margin-bottom: 20px;
+@media (max-width: 768px) {
+    .dates-container {
+        grid-template-columns: 1fr;
+    }
 }
 
-.download-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 4px;
-    text-decoration: none;
-    width: fit-content;
-}
-
-.actions {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    margin-top: 30px;
-}
-
-.validate-btn {
-    background: linear-gradient(to right, #2ecc71, #27ae60);
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 25px;
-    cursor: pointer;
-}
-
-.reject-btn {
-    background: linear-gradient(to right, #e74c3c, #c0392b);
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 25px;
-    cursor: pointer;
-}
-
-.info-btn {
-    background: #f1c40f;
-    color: black;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 25px;
-    cursor: pointer;
-}
-/* Ajouter ces styles CSS */
-.actions {
-    margin-top: 40px;
+.reason-container,
+.files-section {
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 .button-container {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 100%;
 }
 
-.btn {
-    font-family: 'Segoe UI', sans-serif;
-    padding: 12px 30px;
-    border-radius: 30px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 500;
-    transition: transform 0.2s, box-shadow 0.2s;
-    min-width: 160px;
-    text-align: center;
+.actions {
+    width: 100%;
+    margin-top: 2rem;
 }
 
-.btn:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+/* Lock form */
+.lock-form {
+    display: inline-block;
+    margin-left: 10px;
 }
 
-.btn-validate {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-    color: white;
+/* Student comment */
+.student-comment {
+    margin-top: 20px;
 }
 
-.btn-reject {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    color: white;
+/* Files section */
+.files-section {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
 }
 
-.btn-info {
-    background: linear-gradient(135deg, #f1c40f, #f39c12);
-    color: black;
+.files-title {
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #374151;
+    font-weight: 600;
 }
 
-.btn-cancel {
-    background: #95a5a6;
+.files-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.file-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #0081A1;
     color: white;
     text-decoration: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-.rejection-form {
-    max-width: 500px;
-    margin: 0 auto;
+.file-link:hover {
+    background: #006d87;
+}
+
+.file-size {
+    opacity: 0.9;
+}
+
+.no-files {
+    color: #6b7280;
+    font-style: italic;
+    margin: 0;
+}
+
+/* Forms */
+.rejection-form,
+.validation-form,
+.split-form {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 16px;
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
+}
+
+.form-group.hidden {
+    display: none;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
 }
 
+.form-group input[type="text"],
 .form-group select,
 .form-group textarea {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: all 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #0081A1;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.help-text {
+    color: #6b7280;
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
 }
 
 .error {
     color: #e74c3c;
-    margin-bottom: 15px;
+    background: #fee2e2;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
     text-align: center;
+    border: 1px solid #fecaca;
+    font-weight: 500;
 }
 
-.section-footer {
-    text-align: center;
-    padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
 }
 
-.footer {
+/* Split form specific */
+.split-title {
+    color: #0081A1;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+}
+
+.periods-container {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Buttons */
+.btn {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn:hover:not(:disabled):not(.btn-disabled) {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.btn:disabled,
+.btn.btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-validate {
     background-color: #0081A1;
     color: white;
-    padding: 2rem;
-    margin-top: auto;
-    text-align: center;
 }
 
-.footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-}
 
-.footer-info {
-    margin-top: 1.5rem;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-/* Files Section */
-.files-section {
-    margin: 20px 0;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.files-section strong {
-    display: block;
-    margin-bottom: 10px;
-    font-size: 16px;
-}
-
-.files-section .file-link {
-    display: inline-block;
-    padding: 10px 15px;
-    background: #007bff;
+.btn-reject {
+    background-color: #0081A1;
     color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 14px;
 }
 
-.files-section .file-link:hover {
-    background: #0056b3;
+.btn-info {
+    background-color: #0081A1;
+    color: white;
 }
 
-.files-section p {
-    color: #666;
-    font-style: italic;
-    margin: 0;
+
+.btn-warning {
+    background-color: #0081A1;
+    color: white;
+}
+
+
+.btn-cancel {
+    background-color: #0081A1;
+    color: white;
+}
+
+.btn-lock,
+.btn-unlock {
+    background-color: #0081A1;
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    min-width: auto;
+}
+
+.btn-lock:hover,
+.btn-unlock:hover {
+    background: #006d87;
+}
+
+.decision-buttons {
+    width: 100%;
+}
+
+.action-form {
+    width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .title {
+        font-size: 1.5rem;
+    }
+    
+    .button-container {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
 }
