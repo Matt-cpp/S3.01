@@ -24,7 +24,7 @@ class AbsenceModel
     public function getAllAbsences($filters = [])
     {
         $query = "
-            SELECT DISTINCT ON (a.id)
+            SELECT
                 a.id as absence_id,
                 CONCAT(u.first_name, ' ', u.last_name) as student_name,
                 u.identifier as student_identifier,
@@ -97,7 +97,7 @@ class AbsenceModel
             $query .= " AND " . implode(" AND ", $conditions);
         }
 
-        $query .= " ORDER BY a.id, cs.course_date DESC, cs.start_time DESC";
+        $query .= " ORDER BY cs.course_date DESC, cs.start_time DESC, a.id";
 
         try {
             return $this->db->select($query, $params);
@@ -118,13 +118,5 @@ class AbsenceModel
             error_log("Erreur lors de la récupération des types de cours: " . $e->getMessage());
             return [];
         }
-    }
-
-    //Récupère le nom d'un utilisateur
-    public function getUserName()
-    {
-        $result = $this->db->select("SELECT first_name, last_name FROM users");
-        $name = !empty($result) ? $result[0] : null;
-        return $name ? $name['first_name'] . ' ' . $name['last_name'] : '';
     }
 }

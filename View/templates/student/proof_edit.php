@@ -30,9 +30,9 @@ $editData = $_SESSION['edit_proof'];
     renderThemeSupport(); ?>
     <script>
         // Pass PHP session data to JavaScript
-        window.studentId = <?php echo $_SESSION['id_student'] ?? 1; ?>;
+        window.studentId = <?php echo json_encode($_SESSION['id_student'] ?? null); ?>;
         window.isEditing = true;
-        window.editProofId = <?php echo $editData['proof_id'] ?? 'null'; ?>;
+        window.editProofId = <?php echo json_encode($editData['proof_id'] ?? null); ?>;
     </script>
     <!-- Load proof_submit.js for course loading and date validation -->
     <script src="../../assets/js/student/proof_submit.js"></script>

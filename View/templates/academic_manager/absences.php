@@ -4,10 +4,11 @@
 <head>
     <title>Absences - Responsable Pédagogique</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
-    <link rel="stylesheet" href="../../assets/css/shared/accueil.css">
-    <link rel="stylesheet" href="../../assets/css/academic_manager/navbar.css">
+    <link rel="stylesheet" href="../../assets/css/shared/base.css">
+    <link rel="stylesheet" href="../../assets/css/academic_manager/absences.css">
 </head>
 
 <body>
@@ -67,8 +68,56 @@
 
                     foreach ($tabel as $row) {
                         echo "<tr>";
+                        $cellIndex = 0;
                         foreach ($row as $cell) {
-                            echo "<td>" . htmlspecialchars($cell) . "</td>";
+                            if ($cellIndex === 5) {
+                                $statusClass = '';
+                                $statusValue = strtolower(trim($cell));
+
+                                switch ($statusValue) {
+                                    case 'absent':
+                                        $statusClass = 'status-rejetee';
+                                        break;
+                                    case 'présent':
+                                    case 'present':
+                                        $statusClass = 'status-acceptee';
+                                        break;
+                                    case 'excusé':
+                                    case 'excuse':
+                                        $statusClass = 'status-justifiee';
+                                        break;
+                                    case 'non justifié':
+                                    case 'non justifie':
+                                        $statusClass = 'status-non-justifiee';
+                                        break;
+                                    case 'en attente':
+                                        $statusClass = 'status-en-attente';
+                                        break;
+                                    case 'acceptée':
+                                    case 'acceptee':
+                                        $statusClass = 'status-acceptee';
+                                        break;
+                                    case 'rejetée':
+                                    case 'rejetee':
+                                        $statusClass = 'status-rejetee';
+                                        break;
+                                    case 'en cours d\'examen':
+                                    case 'en cours':
+                                        $statusClass = 'status-en-cours';
+                                        break;
+                                    case 'justifiée':
+                                    case 'justifiee':
+                                        $statusClass = 'status-justifiee';
+                                        break;
+                                    default:
+                                        $statusClass = 'status-default';
+                                }
+
+                                echo '<td class="status-cell"><span class="status-text ' . $statusClass . '">' . htmlspecialchars($cell) . '</span></td>';
+                            } else {
+                                echo "<td>" . htmlspecialchars($cell) . "</td>";
+                            }
+                            $cellIndex++;
                         }
                         echo "</tr>";
                     }

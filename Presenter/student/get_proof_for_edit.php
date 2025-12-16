@@ -50,8 +50,12 @@ try {
     }
 
     // Vérifier que le justificatif appartient bien à l'étudiant connecté
-    // FIXME: À adapter quand le système d'authentification sera en place
-    $studentId = $_SESSION['id_student'] ?? 1;
+    if (!isset($_SESSION['id_student'])) {
+        $_SESSION['error_message'] = "Veuillez vous connecter pour accéder à cette page.";
+        header('Location: ../../View/templates/shared/login.php');
+        exit();
+    }
+    $studentId = $_SESSION['id_student'];
     $studentInfo = $db->selectOne("SELECT identifier FROM users WHERE id = :student_id", ['student_id' => $studentId]);
 
     if (!$studentInfo || $proof['student_identifier'] !== $studentInfo['identifier']) {
@@ -105,11 +109,9 @@ try {
     // Rediriger vers la page de modification
     header('Location: ../../View/templates/student/proof_edit.php');
     exit();
-
 } catch (Exception $e) {
     error_log("Erreur dans get_proof_for_edit.php : " . $e->getMessage());
     $_SESSION['error_message'] = "Une erreur est survenue lors du chargement du justificatif.";
     header('Location: ../../View/templates/student/proofs.php');
     exit();
 }
-

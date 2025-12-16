@@ -23,14 +23,14 @@
             session_start();
             if (isset($_SESSION['success'])): ?>
                 <div class="success-message">
-                    <?php echo $_SESSION['success'];
+                    <?php echo htmlspecialchars($_SESSION['success']);
                     unset($_SESSION['success']); ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="error-message">
-                    <?php echo $_SESSION['error'];
+                    <?php echo htmlspecialchars($_SESSION['error']);
                     unset($_SESSION['error']); ?>
                 </div>
             <?php endif; ?>
@@ -123,7 +123,7 @@
         confirmPassword.addEventListener('input', checkPasswords);
 
         // Validation de la force du mot de passe
-        password.addEventListener('input', function () {
+        password.addEventListener('input', function() {
             const strength = document.getElementById('password-strength');
             if (!strength) {
                 const strengthDiv = document.createElement('div');

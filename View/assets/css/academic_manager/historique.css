@@ -198,14 +198,11 @@ button[type="submit"] {
 }
 
 /* Styles pour les cellules de statut */
-.status-cell {
-    text-align: center;
-}
 
 .status-text {
     padding: 6px 12px;
     border-radius: 20px;
-    font-size: 9px;
+    font-size: 0.75rem;
     font-weight: 600;
     text-align: center;
     display: inline-block;
@@ -393,39 +390,7 @@ button[type="submit"] {
     border-bottom: none;
 }
 
-/* Status badge styles for proof table */
-.status-text {
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 500;
-    display: inline-block;
-}
-
-.status-en-attente {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.status-acceptee {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-.status-rejetee {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
-.status-en-cours {
-    background-color: #d1ecf1;
-    color: #0c5460;
-}
-
-.status-default {
-    background-color: #e2e3e5;
-    color: #383d41;
-}
+/* Duplicate styles removed - using unified styles above */
 
 /* Page title */
 .page-title {

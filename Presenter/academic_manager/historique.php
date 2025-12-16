@@ -72,12 +72,6 @@ class HistoriquePresenter
     }
 
 
-    public function getUserName()
-    {
-        return $this->absenceModel->getUserName();
-    }
-
-
     public function getFilters()
     {
         return $this->filters;
