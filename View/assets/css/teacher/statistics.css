@@ -14,9 +14,9 @@ body {
 }
 
 .statistics-container {
-    max-width: 1400px;
+    width: 80%;
     margin: 0 auto;
-    padding: 20px;
+    padding: 2rem;
 }
 
 /* Header Section */

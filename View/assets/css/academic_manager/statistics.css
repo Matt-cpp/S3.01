@@ -16,7 +16,7 @@ body {
 }
 
 .main-content {
-    max-width: 1400px;
+    width: 80%;
     margin: 2rem auto;
     padding: 0 2rem;
 }
@@ -67,9 +67,7 @@ body {
     transition: all 0.3s ease;
 }
 
-.toggle-filters-btn:hover {
-    background: linear-gradient(135deg, #5568d3 0%, #6a4193 100%);
-}
+
 
 .toggle-filters-btn .filter-icon {
     font-size: 1.3rem;
@@ -493,9 +491,6 @@ body {
     border-bottom: 1px solid #e5e7eb;
 }
 
-.students-table tbody tr {
-    transition: background 0.2s ease;
-}
 
 .students-table tbody tr:hover {
     background: #f9fafb;
@@ -553,13 +548,9 @@ body {
 .btn-primary {
     background: #0081A1;
     color: white;
-    box-shadow: 0 2px 8px rgba(0, 129, 161, 0.3);
 }
 
-.btn-primary:hover {
-    background: #006d8a;
-    box-shadow: 0 4px 12px rgba(0, 129, 161, 0.4);
-}
+
 
 .btn-secondary {
     background: #f3f4f6;
@@ -611,39 +602,6 @@ body {
     color: #1e40af;
 }
 
-/* Footer */
-.footer {
-    background: white;
-    margin-top: 3rem;
-    padding: 2rem;
-    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.footer-content {
-    max-width: 1400px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.team-section {
-    margin-bottom: 1rem;
-}
-
-.team-title {
-    font-size: 1.1rem;
-    color: #374151;
-    margin-bottom: 0.5rem;
-}
-
-.team-names p {
-    color: #6b7280;
-    font-size: 0.95rem;
-}
-
-.footer-info p {
-    color: #9ca3af;
-    font-size: 0.9rem;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
