@@ -288,7 +288,7 @@ if (!$proof) {
 
                     <div class="form-group">
                         <label for="num_periods">Nombre de périodes à créer :</label>
-                        <select name="num_periods" id="num_periods" onchange="updatePeriodFields()">
+                        <select name="num_periods" id="num_periods">
                             <option value="2" selected>2 périodes</option>
                             <option value="3">3 périodes</option>
                             <option value="4">4 périodes</option>
@@ -368,12 +368,29 @@ if (!$proof) {
         </div>
 
         <script>
-            // Initialiser au chargement de la page si le formulaire de scission est affiché
-            if (document.getElementById('num_periods')) {
-                const startDate = '<?= htmlspecialchars($proof['absence_start_date'] ?? '') ?>';
-                const endDate = '<?= htmlspecialchars($proof['absence_end_date'] ?? '') ?>';
-                updatePeriodFields(startDate, endDate);
+            // Variables globales pour les dates du justificatif
+            const proofStartDate = '<?= htmlspecialchars($proof['absence_start_date'] ?? '') ?>';
+            const proofEndDate = '<?= htmlspecialchars($proof['absence_end_date'] ?? '') ?>';
+            
+            // Fonction wrapper pour updatePeriodFields avec les dates du justificatif
+            function updatePeriodFieldsWrapper() {
+                if (typeof updatePeriodFields === 'function') {
+                    updatePeriodFields(proofStartDate, proofEndDate);
+                }
             }
+            
+            // Initialiser au chargement de la page si le formulaire de scission est affiché
+            document.addEventListener('DOMContentLoaded', function() {
+                if (document.getElementById('num_periods')) {
+                    // Attendre que le script externe soit chargé
+                    setTimeout(function() {
+                        updatePeriodFieldsWrapper();
+                    }, 50);
+                    
+                    // Ajouter l'événement onchange
+                    document.getElementById('num_periods').addEventListener('change', updatePeriodFieldsWrapper);
+                }
+            });
 
             // Gestion des select "Autre"
             (function() {
