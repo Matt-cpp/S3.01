@@ -10,6 +10,7 @@ redirectIfAuthenticated();
     <meta charset="UTF-8">
     <title>Créer un compte</title>
     <link rel="stylesheet" href="../../assets/css/shared/create_acc.css">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
 </head>

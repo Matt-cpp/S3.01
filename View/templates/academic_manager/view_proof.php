@@ -92,6 +92,7 @@ if (!$proof) {
 <head>
     <title>Validation des justificatifs</title>
     <link rel="stylesheet" href="../../assets/css/academic_manager/view_proof.css">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <script src="../../assets/js/academic_manager/view_proof.js" defer></script>

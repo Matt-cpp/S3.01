@@ -82,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="../../assets/css/teacher/planifier_rattrapage.css">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <style>
         <?php include __DIR__ . '/../../assets/css/teacher/planifier_rattrapage.css'; ?>
     </style>

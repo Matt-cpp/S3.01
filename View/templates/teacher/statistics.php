@@ -15,6 +15,7 @@ require_once __DIR__ . '/../../../Presenter/teacher/statistics_presenter.php';
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="/View/assets/css/teacher/statistics.css">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 

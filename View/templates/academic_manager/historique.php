@@ -38,6 +38,7 @@ $errorMessage = $presenter->getErrorMessage();
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../assets/css/academic_manager/historique.css">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <title>Historique des absences</title>
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>

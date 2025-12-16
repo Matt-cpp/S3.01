@@ -64,7 +64,7 @@ if (!isset($_SESSION['id_student'])) {
                             <strong>Règlement intérieur :</strong><br>
                             <a href="https://recueildesactes.uphf.fr/download/f3c230cc-c68b-45b0-b1b9-b7e60868b6ce"
                                 target="_blank" class="external-link">
-                                Consultez le règlement intérieur complet (PDF)
+                                Consultez le règlement intérieur complet ici (PDF)
                             </a>
                         </div>
                     </div>

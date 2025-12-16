@@ -23,6 +23,7 @@ if ($courseSlotId <= 0) {
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="<?php echo __DIR__ . '/../assets/css/information_DS.css?v=' . time(); ?>">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <style>
         <?php include __DIR__ . '/../../assets/css/teacher/information_DS.css'; ?>
     </style>

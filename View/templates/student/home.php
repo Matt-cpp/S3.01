@@ -39,7 +39,7 @@ if (!isset($_SESSION['id_student'])) {
     $forceRefresh = isset($_GET['refresh']) && $_GET['refresh'] == '1';
 
     // Utiliser les données en session si disponibles et récentes
-    if ($forceRefresh || !isset($_SESSION['stats']) || !isset($_SESSION['proofsByCategory']) || !isset($_SESSION['recentAbsences']) || !isset($_SESSION['stats']['total_absences_count']) || shouldRefreshCache(15)) {
+    if ($forceRefresh || !isset($_SESSION['stats']) || !isset($_SESSION['proofsByCategory']) || !isset($_SESSION['recentAbsences']) || !isset($_SESSION['stats']['total_absences_count']) || shouldRefreshCache(20)) {
         $_SESSION['stats'] = getAbsenceStatistics($_SESSION['id_student']);
         $_SESSION['proofsByCategory'] = getProofsByCategory($_SESSION['id_student']);
         $_SESSION['recentAbsences'] = getRecentAbsences($_SESSION['id_student'], 5);

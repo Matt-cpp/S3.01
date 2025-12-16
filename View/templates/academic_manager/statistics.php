@@ -28,6 +28,7 @@
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="../../assets/css/academic_manager/navbar.css">
     <link rel="stylesheet" href="../../assets/css/academic_manager/statistics.css">
+        <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 

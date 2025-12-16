@@ -9,8 +9,9 @@
     renderThemeSupport(); ?>
 </head>
 
-<body>
-    <img src="../../img/logoIUT.png" alt="Logo" class="logo">
+    <title>Vérification</title>
+    <link rel="stylesheet" href="../../assets/css/shared/create_acc.css">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <div class="container">
         <div class="form-container">
             <h1 class="form-title">Créer un compte - Étape 2/3</h1>

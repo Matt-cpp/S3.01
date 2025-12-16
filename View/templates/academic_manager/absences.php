@@ -20,6 +20,7 @@
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="../../assets/css/shared/accueil.css">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <link rel="stylesheet" href="../../assets/css/academic_manager/navbar.css">
 </head>
 

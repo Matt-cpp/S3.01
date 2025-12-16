@@ -28,6 +28,7 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="/View/assets/css/secretary/dashboard.css">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
 </head>
 
 <body>

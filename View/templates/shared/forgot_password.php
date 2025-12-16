@@ -19,6 +19,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
     <meta charset="UTF-8">
     <title>Mot de passe oublié</title>
     <link rel="stylesheet" href="../../assets/css/shared/create_acc.css">
+        <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
 </head>
