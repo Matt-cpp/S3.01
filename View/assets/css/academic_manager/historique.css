@@ -138,8 +138,7 @@ input[type="text"], input[type="date"], select {
 
 input[type="text"]:focus, input[type="date"]:focus, select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #0081A1;
 }
 
 button[type="submit"] {
@@ -154,9 +153,6 @@ button[type="submit"] {
     transition: all 0.3s ease;
 }
 
-button[type="submit"]:hover {
-    box-shadow: 0 6px 12px rgba(0, 129, 161, 0.35);
-}
 
 .reset-link {
     background: #6b7280;
@@ -314,7 +310,7 @@ button[type="submit"]:hover {
 .btn-view {
     display: inline-block;
     padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-color: #0081A1;
     color: white;
     text-decoration: none;
     border-radius: 8px;
@@ -323,29 +319,13 @@ button[type="submit"]:hover {
     transition: all 0.3s ease;
 }
 
-.btn-view:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.35);
-}
 
 .no-proof {
     color: #6c757d;
     font-style: italic;
 }
 
-/* Footer styles */
-.footer {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 2rem;
-    margin-top: 3rem;
-    text-align: center;
-}
 
-.footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-}
 
 .team-section {
     background-color: rgba(255, 255, 255, 0.1);
@@ -378,9 +358,6 @@ button[type="submit"]:hover {
     color: rgba(255, 255, 255, 0.7);
 }
 
-.footer-info p {
-    margin: 0;
-}
 
 /* Additional table styling for proof history */
 #proofTable {
