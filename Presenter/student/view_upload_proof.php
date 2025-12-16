@@ -27,7 +27,7 @@ $fileIndex = isset($_GET['file_index']) ? (int) $_GET['file_index'] : 0;
 $projectRoot = dirname(__DIR__);
 $candidates = [
     $projectRoot . DIRECTORY_SEPARATOR . 'uploads',
-    __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'uploads',
+    __DIR__ . DIRECTORY_SEPARATOR . '../..' . DIRECTORY_SEPARATOR . 'uploads',
 ];
 $baseDir = null;
 foreach ($candidates as $c) {
@@ -273,7 +273,7 @@ header('Content-Type: text/html; charset=utf-8');
             <iframe src="<?= $rawUrl ?>" title="<?= $clientNameHtml ?>" style="width:100%;height:100%;border:0;"></iframe>
         <?php else: ?>
             <div>
-                <p>Type non prévisualisable : <?= htmlspecialchars($mime, ENT_QUOTES, 'UTF-8') ?></p>
+                <p>Type non prévisualisable : Veuillez télécharger le fichier et l'ouvrir avec l'application adéquate</p>
                 <p><a href="<?= $rawUrl ?>">Télécharger le fichier</a></p>
             </div>
         <?php endif; ?>

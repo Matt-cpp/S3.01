@@ -70,7 +70,7 @@ class ProofModel
             $absences = $this->db->select($sqlAbs, [
                 'proof_id' => $proofId
             ]);
-            
+
             if ($absences && count($absences) > 0) {
                 $first = $absences[0];
                 $last = $absences[count($absences) - 1];
@@ -92,11 +92,11 @@ class ProofModel
     private function extractProofFiles(array $proof): array
     {
         $files = [];
-        
+
         // 1. Vérifier le champ proof_files (JSONB)
         if (!empty($proof['proof_files'])) {
             $jsonFiles = $proof['proof_files'];
-            
+
             // Si c'est une chaîne JSON, la décoder
             if (is_string($jsonFiles)) {
                 $decoded = json_decode($jsonFiles, true);
@@ -104,26 +104,41 @@ class ProofModel
                     $jsonFiles = $decoded;
                 }
             }
-            
-            // Si c'est un tableau, extraire les chemins
+
+            // Si c'est un tableau, extraire les fichiers avec path et name
             if (is_array($jsonFiles)) {
                 foreach ($jsonFiles as $file) {
-                    if (is_string($file)) {
-                        $files[] = $file;
-                    } elseif (is_array($file) && isset($file['path'])) {
-                        $files[] = $file['path'];
+                    if (is_array($file) && isset($file['path'])) {
+                        // Fichier avec structure complète {path, name}
+                        $files[] = [
+                            'path' => $file['path'],
+                            'name' => $file['name'] ?? basename($file['path'])
+                        ];
                     } elseif (is_array($file) && isset($file['file_path'])) {
-                        $files[] = $file['file_path'];
+                        // Fichier avec structure alternative {file_path}
+                        $files[] = [
+                            'path' => $file['file_path'],
+                            'name' => $file['name'] ?? basename($file['file_path'])
+                        ];
+                    } elseif (is_string($file)) {
+                        // Fichier simple (juste le chemin)
+                        $files[] = [
+                            'path' => $file,
+                            'name' => basename($file)
+                        ];
                     }
                 }
             }
         }
-        
+
         // 2. Fallback sur file_path si proof_files est vide
         if (empty($files) && !empty($proof['file_path'])) {
-            $files[] = $proof['file_path'];
+            $files[] = [
+                'path' => $proof['file_path'],
+                'name' => basename($proof['file_path'])
+            ];
         }
-        
+
         return $files;
     }
 
@@ -359,6 +374,14 @@ class ProofModel
                 'rejection_reason' => $reason,
                 'comment' => $comment
             ]);
+
+            // Update linked absences to mark them as justified
+            $this->updateAbsencesForProof(
+                $proof['student_identifier'],
+                $proof['absence_start_date'],
+                $proof['absence_end_date'],
+                'accepted'
+            );
 
             $this->db->commit();
             return true;
@@ -604,63 +627,63 @@ class ProofModel
                         JOIN course_slots cs ON a.course_slot_id = cs.id
                         WHERE pa.proof_id = :proof_id
                         ORDER BY cs.course_date, cs.start_time";
-            
+
             $slots = $this->db->select($sqlSlots, ['proof_id' => $proofId]);
-            
+
             if (empty($slots)) {
                 return [
                     'valid' => false,
                     'error' => "Aucune absence n'est liée à ce justificatif. La scission est impossible."
                 ];
             }
-            
+
             if (count($slots) < 2) {
                 return [
                     'valid' => false,
                     'error' => "Ce justificatif n'a qu'un seul créneau de cours lié. La scission est impossible car il n'y a qu'une seule absence à distribuer."
                 ];
             }
-            
+
             // Vérifier que chaque limite de période (fin d'une période / début de la suivante)
             // ne coupe pas un créneau en plein milieu
             for ($i = 0; $i < count($periods) - 1; $i++) {
                 $periodEnd = strtotime($periods[$i]['end']);
                 $periodNextStart = strtotime($periods[$i + 1]['start']);
-                
+
                 foreach ($slots as $slot) {
                     $slotStart = strtotime($slot['slot_start']);
                     $slotEnd = strtotime($slot['slot_end']);
-                    
+
                     // Vérifier si la fin de période coupe le créneau
                     if ($periodEnd > $slotStart && $periodEnd < $slotEnd) {
                         return [
                             'valid' => false,
-                            'error' => "La fin de la période " . ($i + 1) . " (" . $periods[$i]['end'] . ") coupe le créneau de cours du " 
-                                     . $slot['course_date'] . " (" . substr($slot['start_time'], 0, 5) . " - " . substr($slot['end_time'], 0, 5) . ") en plein milieu. "
-                                     . "Veuillez ajuster les heures pour terminer avant " . substr($slot['start_time'], 0, 5) 
-                                     . " ou après " . substr($slot['end_time'], 0, 5) . "."
+                            'error' => "La fin de la période " . ($i + 1) . " (" . $periods[$i]['end'] . ") coupe le créneau de cours du "
+                                . $slot['course_date'] . " (" . substr($slot['start_time'], 0, 5) . " - " . substr($slot['end_time'], 0, 5) . ") en plein milieu. "
+                                . "Veuillez ajuster les heures pour terminer avant " . substr($slot['start_time'], 0, 5)
+                                . " ou après " . substr($slot['end_time'], 0, 5) . "."
                         ];
                     }
                 }
             }
-            
+
             // Vérifier que chaque période aura au moins une absence
             foreach ($periods as $index => $period) {
                 $periodStart = strtotime($period['start']);
                 $periodEnd = strtotime($period['end']);
                 $hasAbsence = false;
-                
+
                 foreach ($slots as $slot) {
                     $slotStart = strtotime($slot['slot_start']);
                     $slotEnd = strtotime($slot['slot_end']);
-                    
+
                     // Un créneau est dans la période si son début est >= début période et < fin période
                     if ($slotStart >= $periodStart && $slotStart < $periodEnd) {
                         $hasAbsence = true;
                         break;
                     }
                 }
-                
+
                 if (!$hasAbsence) {
                     return [
                         'valid' => false,
@@ -668,9 +691,9 @@ class ProofModel
                     ];
                 }
             }
-            
+
             return ['valid' => true, 'error' => null];
-            
+
         } catch (Exception $e) {
             error_log("Erreur validateSplitPeriods: " . $e->getMessage());
             return [
@@ -685,6 +708,11 @@ class ProofModel
     {
         $this->db->beginTransaction();
         try {
+            // Validate input
+            if (empty($periods)) {
+                throw new Exception("Au moins une période est requise pour scinder un justificatif");
+            }
+
             // Récupérer le justificatif original
             $proof = $this->getProofDetails($proofId);
             if (!$proof) {
@@ -693,7 +721,7 @@ class ProofModel
 
             $newProofIds = [];
             $periodDates = []; // Stockera les dates réelles basées sur les cours
-            
+
             // D'abord, déterminer les dates réelles basées sur les cours pour chaque période
             foreach ($periods as $index => $period) {
                 // Récupérer la date/heure min et max des cours dans cette période
@@ -708,13 +736,13 @@ class ProofModel
                       AND (cs.course_date || ' ' || cs.end_time)::timestamp >= :start_datetime::timestamp
                       AND (cs.course_date || ' ' || cs.start_time)::timestamp <= :end_datetime::timestamp
                 ";
-                
+
                 $result = $this->db->selectOne($sqlGetDates, [
                     'proof_id' => $proofId,
                     'start_datetime' => $period['start'],
                     'end_datetime' => $period['end']
                 ]);
-                
+
                 if ($result && $result['real_start'] && $result['real_end']) {
                     $periodDates[$index] = [
                         'start_date' => substr($result['real_start'], 0, 10),
@@ -728,7 +756,7 @@ class ProofModel
                     ];
                 }
             }
-            
+
             $sqlInsert = "INSERT INTO proof (
                 student_identifier, absence_start_date, absence_end_date,
                 concerned_courses, main_reason, custom_reason, file_path,
@@ -741,17 +769,46 @@ class ProofModel
 
             // Créer un justificatif pour chaque période
             foreach ($periods as $index => $period) {
+                // Construire les dates de début et fin depuis les champs fournis
+                // Support format 1: 'start' et 'end' (datetime complets)
+                // Support format 2: 'startDate', 'endDate', 'startTime', 'endTime' (séparés)
+                $startDatetime = null;
+                $endDatetime = null;
+
+                if (isset($period['start']) && !empty($period['start'])) {
+                    $startDatetime = $period['start'];
+                } elseif (isset($period['startDate']) && isset($period['startTime'])) {
+                    $startDatetime = $period['startDate'] . ' ' . $period['startTime'];
+                } elseif (isset($period['startDate'])) {
+                    $startDatetime = $period['startDate'] . ' 00:00:00';
+                }
+
+                if (isset($period['end']) && !empty($period['end'])) {
+                    $endDatetime = $period['end'];
+                } elseif (isset($period['endDate']) && isset($period['endTime'])) {
+                    $endDatetime = $period['endDate'] . ' ' . $period['endTime'];
+                } elseif (isset($period['endDate'])) {
+                    $endDatetime = $period['endDate'] . ' 23:59:59';
+                }
+
+                // Extraire les dates seules (YYYY-MM-DD) pour absence_start_date et absence_end_date
+                $startDate = $startDatetime ? substr($startDatetime, 0, 10) : null;
+                $endDate = $endDatetime ? substr($endDatetime, 0, 10) : null;
+
+                // Déterminer le motif (reason) pour ce justificatif
+                $periodReason = isset($period['reason']) ? $period['reason'] : $proof['main_reason'];
+
                 // Définir le statut : 'accepted' si validate=true, sinon 'pending'
                 $status = (!empty($period['validate']) && $period['validate'] === true) ? 'accepted' : 'pending';
-                
+
                 error_log("DEBUG: Inserting proof with status: $status, validate=" . var_export($period['validate'], true));
-                
+
                 $this->db->execute($sqlInsert, [
                     'student_identifier' => $proof['student_identifier'],
-                    'start_date' => $periodDates[$index]['start_date'],
-                    'end_date' => $periodDates[$index]['end_date'],
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
                     'concerned_courses' => $proof['concerned_courses'] ?? null,
-                    'main_reason' => $proof['main_reason'],
+                    'main_reason' => $periodReason,
                     'custom_reason' => $proof['custom_reason'],
                     'file_path' => $proof['file_path'] ?? null,
                     'student_comment' => $proof['student_comment'] ?? null,
@@ -760,8 +817,8 @@ class ProofModel
                     'manager_comment' => 'Scindé depuis justificatif #' . $proofId . ' (période ' . ($index + 1) . ') : ' . $reason
                 ]);
                 $newProofId = $this->db->lastInsertId();
-                $newProofIds[] = $newProofId;
-                
+                $newProofIds[] = ['id' => $newProofId, 'start' => $startDatetime, 'end' => $endDatetime];
+
                 // Si validé, enregistrer dans l'historique avec action 'accept'
                 if ($status === 'accepted' && $userId !== null) {
                     $sqlHistoryValidation = "INSERT INTO decision_history
@@ -786,12 +843,12 @@ class ProofModel
                   AND (cs.course_date || ' ' || cs.end_time)::timestamp >= :start_datetime::timestamp
                   AND (cs.course_date || ' ' || cs.start_time)::timestamp <= :end_datetime::timestamp";
 
-            foreach ($periods as $index => $period) {
+            foreach ($newProofIds as $proofData) {
                 $this->db->execute($sqlInsertAbsences, [
-                    'new_proof_id' => $newProofIds[$index],
+                    'new_proof_id' => $proofData['id'],
                     'old_proof_id' => $proofId,
-                    'start_datetime' => $period['start'],
-                    'end_datetime' => $period['end']
+                    'start_datetime' => $proofData['start'],
+                    'end_datetime' => $proofData['end']
                 ]);
             }
 
@@ -814,7 +871,7 @@ class ProofModel
                     )
                 WHERE id = :proof_id
             ";
-            
+
             foreach ($newProofIds as $newProofId) {
                 $this->db->execute($sqlUpdateDates, ['proof_id' => $newProofId]);
             }
@@ -839,7 +896,9 @@ class ProofModel
         } catch (Exception $e) {
             $this->db->rollBack();
             error_log("Erreur splitProofMultiple : " . $e->getMessage());
-            if (session_status() === PHP_SESSION_NONE) {@session_start();}
+            if (session_status() === PHP_SESSION_NONE) {
+                @session_start();
+            }
             $_SESSION['last_model_error'] = "splitProofMultiple: " . $e->getMessage();
             return false;
         }
@@ -866,7 +925,7 @@ class ProofModel
                 :concerned_courses, :main_reason, :custom_reason, :file_path,
                 :student_comment, 'pending', :submission_date, :manager_comment
             )";
-            
+
             $this->db->execute($sql1, [
                 'student_identifier' => $proof['student_identifier'],
                 'start_date' => $split1Start,
@@ -906,7 +965,7 @@ class ProofModel
                 WHERE pa.proof_id = :old_proof_id
                   AND (cs.course_date || ' ' || cs.end_time)::timestamp >= :start_datetime::timestamp
                   AND (cs.course_date || ' ' || cs.start_time)::timestamp <= :end_datetime::timestamp";
-            
+
             $this->db->execute($sqlUpdateAbs1, [
                 'new_proof_id' => $newProofId1,
                 'old_proof_id' => $proofId,
@@ -941,7 +1000,9 @@ class ProofModel
         } catch (Exception $e) {
             $this->db->rollBack();
             error_log("Erreur splitProof : " . $e->getMessage());
-            if (session_status() === PHP_SESSION_NONE) {@session_start();}
+            if (session_status() === PHP_SESSION_NONE) {
+                @session_start();
+            }
             $_SESSION['last_model_error'] = "splitProof: " . $e->getMessage();
             return false;
         }
@@ -958,10 +1019,10 @@ class ProofModel
         $maps = [
             'status' => [
                 'pending' => 'En attente',
-                'approved' => 'Validé',
-                'accepted' => 'Validé',
-                'rejected' => 'Refusé',
-                'under_review' => 'En cours d\'examen',
+                'approved' => 'Accepté',
+                'accepted' => 'Accepté',
+                'rejected' => 'Rejeté',
+                'under_review' => 'En révision',
                 'split' => 'Scindé',
             ],
             'reason' => [
@@ -1015,6 +1076,7 @@ class ProofModel
         $sql = "
             SELECT 
                 p.id AS proof_id,
+                p.id AS id,
                 p.student_identifier,
                 p.absence_start_date,
                 p.absence_end_date,

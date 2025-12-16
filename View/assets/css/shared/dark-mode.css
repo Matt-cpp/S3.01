@@ -1318,6 +1318,27 @@ html.dark-mode body {
   color: var(--text-primary);
 }
 
+.dark-mode .ds-info-panel {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+.dark-mode .ds-info-panel 
+.ds-info-label{
+  color: var(--text-secondary);
+}
+
+.dark-mode .ds-info-panel .ds-info-value{
+  color: var(--text-primary);
+}
+
+.dark-mode .ds-info-panel .ds-students-list li {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+
+
 /* Academic Manager specific */
 .dark-mode .student-search-container {
   background: var(--bg-card);

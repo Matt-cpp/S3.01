@@ -324,7 +324,7 @@ $errorMessage = $presenter->getErrorMessage();
         </div>
     </div>
 
-    <script src="../assets/js/proof_modal.js"></script>
+    <script src="../../assets/js/student/proof_modal.js"></script>
 
     <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </body>
