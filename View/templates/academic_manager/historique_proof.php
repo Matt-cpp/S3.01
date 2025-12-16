@@ -1,4 +1,24 @@
-<?php 
+<?php
+/**
+ * Fichier: historique_proof.php
+ * 
+ * Template de l'historique des justificatifs pour le responsable pédagogique - Consultation et gestion.
+ * Fonctionnalités principales :
+ * - Recherche et filtrage multi-critères :
+ *   - Recherche par nom d'étudiant
+ *   - Filtrage par période de soumission (date de début et fin)
+ *   - Filtrage par statut du justificatif (en attente, accepté, rejeté, en examen)
+ *   - Filtrage par motif d'absence
+ * - Affichage détaillé de tous les justificatifs avec statistiques
+ * - Compteur du nombre de résultats trouvés
+ * - Tableau complet avec :
+ *   - Informations étudiant et période d'absence
+ *   - Nombre d'absences et heures totales couvertes
+ *   - Motif, statut et badge visuel
+ *   - Lien vers visualisation détaillée
+ * Utilise HistoriqueProofPresenter pour gérer les filtres et récupérer les données.
+ */
+
 require_once __DIR__ . '/../../../controllers/auth_guard.php';
 $user = requireRole('academic_manager');
 
@@ -37,6 +57,7 @@ $errorMessage = $presenter->getErrorMessage();
             </div>
         <?php endif; ?>
 
+        <!-- Formulaire de filtrage multi-critères des justificatifs -->
         <form method="POST" action="">
             <div class="filter-grid">
                 <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..." 

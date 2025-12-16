@@ -4,9 +4,13 @@
  * Fichier: check_proof_submission_delay.php
  * 
  * API de vérification du délai de soumission - Vérifie si un étudiant a dépassé le délai pour soumettre un justificatif.
- * Calcule le délai de 48h (2 jours ouvrés) après le retour en cours de l'étudiant.
- * Renvoie un avertissement JSON si le délai est dépassé.
- * Utilisé par AJAX lors de la soumission d'un justificatif.
+ * Logique de calcul :
+ * - Récupère la dernière absence non justifiée de l'étudiant
+ * - Calcule la date de retour en cours (en excluant les week-ends)
+ * - Ajoute 48h ouvrées (2 jours ouvrables) au retour
+ * - Compare avec la date actuelle
+ * Renvoie un avertissement JSON si le délai est dépassé ou proche de l'expiration.
+ * Utilisé par AJAX lors de la soumission d'un justificatif pour alerter l'étudiant.
  */
 
 header('Content-Type: application/json');

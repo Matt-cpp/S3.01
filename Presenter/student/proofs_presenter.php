@@ -5,10 +5,15 @@
  * 
  * Présentateur des justificatifs étudiant - Gère l'affichage de la liste des justificatifs d'un étudiant.
  * Fournit des méthodes pour:
- * - Filtrer les justificatifs (dates, statut, motif, présence d'évaluation)
- * - Récupérer les justificatifs avec statistiques (heures, absences, évaluations)
+ * - Filtrer les justificatifs (dates d'absence, statut, motif, présence d'évaluation)
+ * - Récupérer les justificatifs avec statistiques agrégées :
+ *   - Nombre d'absences associées
+ *   - Heures totales manquées
+ *   - Détection d'évaluations ratées
+ *   - Types de cours concernés (JSON)
  * - Formater les données pour l'affichage (badges de statut, dates, périodes)
- * - Traduire les motifs en français
+ * - Traduire les motifs d'absence en français
+ * - Gérer les motifs de rejet/validation depuis la base de données
  * Utilisé par la page "Mes justificatifs" de l'étudiant.
  */
 
@@ -63,6 +68,7 @@ class StudentProofsPresenter
     {
         $db = Database::getInstance()->getConnection();
 
+        // Requête principale pour récupérer les justificatifs avec les informations de base
         $query = "
             SELECT 
                 p.id as proof_id,
@@ -80,7 +86,7 @@ class StudentProofsPresenter
                 COUNT(DISTINCT pa.absence_id) as absence_count,
                 SUM(cs.duration_minutes) as total_duration_minutes,
                 MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) as has_exam,
-                COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:00:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+                COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:30:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
                 MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
                 MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
             FROM proof p
@@ -162,15 +168,99 @@ class StudentProofsPresenter
             $stmt->execute($params);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Calculer les heures manquées
+            // Calculer les heures manquées et les demi-journées pour chaque justificatif
             foreach ($results as &$proof) {
                 $proof['total_hours_missed'] = ($proof['total_duration_minutes'] ?? 0) / 60;
+                
+                // Calculer les demi-journées (>= 1h dans la période 8h-12h30 ou 12h30-18h30)
+                $proof['half_days_count'] = $this->calculateHalfDaysForProof($db, $proof['proof_id']);
             }
 
             return $results;
         } catch (Exception $e) {
             error_log("Erreur lors de la récupération des justificatifs: " . $e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Calcule le nombre de demi-journées pour un justificatif
+     * Règle : 1 demi-journée comptée si >= 1 minute d'absence dans le créneau 8h-12h30 ou 12h30-18h30
+     */
+    private function calculateHalfDaysForProof($db, $proofId)
+    {
+        $query = "
+            SELECT 
+                cs.course_date,
+                cs.start_time,
+                cs.end_time,
+                cs.duration_minutes
+            FROM proof_absences pa
+            JOIN absences a ON pa.absence_id = a.id
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            WHERE pa.proof_id = :proof_id
+        ";
+
+        try {
+            $stmt = $db->prepare($query);
+            $stmt->execute([':proof_id' => $proofId]);
+            $absences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Group by date and calculate duration per period
+            $periodDurations = [];
+
+            foreach ($absences as $absence) {
+                $date = $absence['course_date'];
+                $durationMinutes = (int) ($absence['duration_minutes'] ?? 0);
+
+                // Parse times
+                $startParts = explode(':', $absence['start_time']);
+                $startInMinutes = ((int) $startParts[0] * 60) + (int) $startParts[1];
+
+                $endParts = explode(':', $absence['end_time']);
+                $endInMinutes = ((int) $endParts[0] * 60) + (int) $endParts[1];
+
+                // Threshold: 12:30 = 750 minutes
+                $afternoonThreshold = 750;
+
+                if (!isset($periodDurations[$date])) {
+                    $periodDurations[$date] = [
+                        'morning_minutes' => 0,
+                        'afternoon_minutes' => 0
+                    ];
+                }
+
+                // Calculate time in each period (8h-12h30 morning, 12h30-18h30 afternoon)
+                if ($startInMinutes < $afternoonThreshold && $endInMinutes <= $afternoonThreshold) {
+                    // Entirely in the morning
+                    $periodDurations[$date]['morning_minutes'] += $durationMinutes;
+                } elseif ($startInMinutes >= $afternoonThreshold) {
+                    // Entirely in the afternoon
+                    $periodDurations[$date]['afternoon_minutes'] += $durationMinutes;
+                } else {
+                    // Spans both periods - split the duration
+                    $morningPart = $afternoonThreshold - $startInMinutes;
+                    $afternoonPart = $endInMinutes - $afternoonThreshold;
+                    $periodDurations[$date]['morning_minutes'] += $morningPart;
+                    $periodDurations[$date]['afternoon_minutes'] += $afternoonPart;
+                }
+            }
+
+            // Count half-days (1 if >= 1 minute in that period)
+            $totalHalfDays = 0;
+            foreach ($periodDurations as $date => $periods) {
+                if ($periods['morning_minutes'] >= 1) {
+                    $totalHalfDays++;
+                }
+                if ($periods['afternoon_minutes'] >= 1) {
+                    $totalHalfDays++;
+                }
+            }
+
+            return $totalHalfDays;
+        } catch (Exception $e) {
+            error_log("Erreur lors du calcul des demi-journées pour le justificatif: " . $e->getMessage());
+            return 0;
         }
     }
 

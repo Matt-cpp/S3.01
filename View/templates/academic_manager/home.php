@@ -1,3 +1,17 @@
+<?php
+/**
+ * Fichier: home.php
+ * 
+ * Template du tableau de bord du responsable pédagogique - Affiche une vue d'ensemble des absences.
+ * Fonctionnalités principales :
+ * - Affichage de cartes statistiques (absences du jour, du mois, non justifiées, justificatifs en attente)
+ * - Liste paginnée des absences récentes avec détails complets
+ * - Tableau des justificatifs récemment soumis (5 derniers)
+ * - Système de pagination pour parcourir l'historique
+ * - Liens rapides vers les pages de gestion détaillées
+ * Utilise AcademicManagerDashboardPresenter pour récupérer les données.
+ */
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -27,6 +41,7 @@
     ?>
     <?php include __DIR__ . '/../navbar.php'; ?>
 
+    <!-- Section des cartes statistiques (KPIs) -->
     <div class="main-content">
         <div class="stats-grid">
             <div class="stat-card">

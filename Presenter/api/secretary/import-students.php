@@ -1,7 +1,17 @@
 <?php
 /**
- * import-students.php
- * API pour importer une liste d'étudiants depuis un fichier CSV
+ * Fichier: import-students.php
+ * 
+ * API d'importation d'étudiants - Traite un fichier CSV pour importer des étudiants dans le système.
+ * Fonctionnalités principales :
+ * - Validation du fichier CSV uploadé (format, structure)
+ * - Parsing du CSV avec gestion du BOM et des encodages
+ * - Mapping des colonnes (case-insensitive)
+ * - Création/mise à jour des étudiants dans la table users
+ * - Gestion des groupes et associations
+ * - Logs des succès et erreurs
+ * - Import en batch pour de meilleures performances
+ * Utilisé par le dashboard secrétaire pour l'import massif d'étudiants.
  */
 
 header('Content-Type: application/json');

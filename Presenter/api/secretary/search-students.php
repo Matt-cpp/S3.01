@@ -1,7 +1,14 @@
 <?php
 /**
- * search-students.php
- * API pour rechercher des étudiants par nom, prénom ou identifiant
+ * Fichier: search-students.php
+ * 
+ * API de recherche d'étudiants - Recherche rapide d'étudiants par nom/prénom/identifiant.
+ * Fonctionnalités principales :
+ * - Recherche avec minimum 2 caractères
+ * - Recherche dans first_name, last_name et identifier
+ * - Retourne les résultats au format JSON
+ * - Utilise DashboardSecretaryPresenter pour la logique de recherche
+ * Utilisé par l'autocomplétion dans les formulaires secrétaire.
  */
 
 header('Content-Type: application/json');

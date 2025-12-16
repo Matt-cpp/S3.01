@@ -3,13 +3,17 @@
 /**
  * Fichier: dashboard.php
  * 
- * Présentateur du tableau de bord - Gère l'affichage du tableau de bord principal des absences.
+ * Présentateur du tableau de bord responsable pédagogique - Gère l'affichage et les statistiques du dashboard.
  * Fournit des méthodes pour:
- * - Récupérer les absences récentes avec pagination (5 par page)
- * - Calculer les statistiques (absences du jour, du mois, non justifiées)
- * - Générer un tableau formaté pour l'affichage
- * - Gérer la navigation entre les pages
- * Utilisé par la page d'accueil des gestionnaires/administrateurs.
+ * - Récupérer les absences récentes avec pagination (5 absences par page)
+ * - Calculer les statistiques temps réel :
+ *   - Absences du jour (aujourd'hui)
+ *   - Cumul des absences du mois en cours
+ *   - Total des absences non justifiées
+ * - Générer un tableau formaté pour l'affichage HTML
+ * - Gérer la navigation entre les pages (pagination)
+ * - Traduire les statuts d'absence en français
+ * Utilisé par la page d'accueil du responsable pédagogique (home.php).
  */
 
 class AcademicManagerDashboardPresenter
@@ -25,7 +29,10 @@ class AcademicManagerDashboardPresenter
         $this->db = Database::getInstance();
         $this->alldata = $this->db->select('SELECT * FROM absences');
     }
-    // sert a faire la requete principale du tableau
+
+    // Récupère les données d'absences avec jointures pour une page spécifique
+    // @param int $page - Numéro de page (0-indexed)
+    // @return array - Tableau des absences avec infos complètes (utilisateur, cours, ressource)
     public function getData($page)
     {
         $offset = $page * 5;

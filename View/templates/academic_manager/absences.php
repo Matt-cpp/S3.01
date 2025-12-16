@@ -1,3 +1,16 @@
+<?php
+/**
+ * Fichier: absences.php
+ * 
+ * Template de gestion des absences pour le responsable pédagogique - Liste complète des absences.
+ * Fonctionnalités principales :
+ * - Affichage paginné de toutes les absences du système
+ * - Tableau avec informations clés (date, heure, étudiant, cours, type, statut)
+ * - Navigation par pagination pour parcourir l'historique complet
+ * - Lien vers l'historique détaillé avec filtres avancés
+ * Utilise AcademicManagerDashboardPresenter pour récupérer les données paginnées.
+ */
+?>
 <!DOCTYPE html>
 <html lang="fr">
 

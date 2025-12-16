@@ -1,7 +1,13 @@
 <?php
 /**
- * get-import-history.php
- * API pour récupérer l'historique des imports CSV et actions du secrétariat
+ * Fichier: get-import-history.php
+ * 
+ * API d'historique d'importation - Récupère l'historique complet des actions d'import.
+ * Fonctionnalités principales :
+ * - Récupération de l'historique depuis la table import_history
+ * - Liste chronologique des actions (imports, créations, erreurs)
+ * - Retourne les données au format JSON
+ * Utilisé par le dashboard secrétaire pour afficher le journal des importations.
  */
 
 header('Content-Type: application/json');

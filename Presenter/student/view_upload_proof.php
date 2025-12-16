@@ -1,8 +1,23 @@
 <?php declare(strict_types=1);
+/**
+ * Fichier: view_upload_proof.php
+ * 
+ * Visualiseur de fichiers justificatifs - Permet l'affichage sécurisé des fichiers téléchargés.
+ * Fonctionnalités principales :
+ * - Lecture des fichiers depuis proof_files (JSONB) ou file_path (ancien système)
+ * - Support de plusieurs fichiers par justificatif (multi-fichiers)
+ * - Détection automatique du type MIME pour affichage correct
+ * - Mode debug pour diagnostic des problèmes
+ * - Mode raw pour affichage brut du fichier
+ * - Localisation robuste du dossier uploads
+ * - Envoi des bons headers HTTP pour téléchargement/affichage
+ * Utilisé pour visualiser les justificatifs soumis par les étudiants.
+ */
 
 session_start();
 require_once __DIR__ . '/../../Model/database.php';
 
+// Fonction utilitaire pour renvoyer une erreur HTTP
 function http_err(int $code, string $msg): void
 {
     http_response_code($code);
@@ -18,16 +33,17 @@ function getDb()
     return null;
 }
 
+// Paramètres de la requête (debug, raw mode, proof_id, file_index)
 $debug = isset($_GET['debug']) ? (int) $_GET['debug'] : 0;
 $rawMode = isset($_GET['raw']) ? (int) $_GET['raw'] : 0;
 $proofId = isset($_GET['proof_id']) ? (int) $_GET['proof_id'] : 0;
 $fileIndex = isset($_GET['file_index']) ? (int) $_GET['file_index'] : 0;
 
 // Localisation robuste du dossier uploads (au même niveau que Presenter)
-$projectRoot = dirname(__DIR__);
+$projectRoot = dirname(dirname(__DIR__));
 $candidates = [
     $projectRoot . DIRECTORY_SEPARATOR . 'uploads',
-    __DIR__ . DIRECTORY_SEPARATOR . '../..' . DIRECTORY_SEPARATOR . 'uploads',
+    __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'uploads',
 ];
 $baseDir = null;
 foreach ($candidates as $c) {

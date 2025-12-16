@@ -1,7 +1,14 @@
 <?php
 /**
- * create-resource.php
- * API pour créer une nouvelle matière (ressource) dans la base de données
+ * Fichier: create-resource.php
+ * 
+ * API de création de ressource - Permet au secrétaire de créer une nouvelle ressource/matière.
+ * Fonctionnalités principales :
+ * - Validation du code de ressource (requis)
+ * - Création de la ressource dans la table resources
+ * - Vérification des doublons
+ * - Retourne les informations de la ressource créée
+ * Utilisé par le formulaire de création manuelle d'absence quand une ressource n'existe pas.
  */
 
 header('Content-Type: application/json');

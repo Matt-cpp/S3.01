@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="fr">
 <?php
+/**
+ * Fichier: home.php
+ * 
+ * Template pour la page d'accueil des étudiants. Affiche un tableau de bord avec :
+ * - Vue d'ensemble des absences (demis-journées, total...)
+ * - Barre de progression de justification
+ * - Statut des justificatifs
+ * - Liste des dernières absences
+ * - Justificatifs par catégorie
+ */
 require_once __DIR__ . '/../../../controllers/auth_guard.php';
 $user = requireRole('student');
 
@@ -25,7 +35,7 @@ if (!isset($_SESSION['id_student'])) {
     require_once __DIR__ . '/../../../Presenter/shared/session_cache.php';
     require_once __DIR__ . '/../../../Presenter/student/get_info.php';
 
-    // Forcer le rafraîchissement du cache si demandé via ?refresh=1
+    // Gestion du rafraîchissement du cache - Force le rechargement si ?refresh=1 est présent dans l'URL
     $forceRefresh = isset($_GET['refresh']) && $_GET['refresh'] == '1';
 
     // Utiliser les données en session si disponibles et récentes
@@ -40,8 +50,8 @@ if (!isset($_SESSION['id_student'])) {
     $proofsByCategory = $_SESSION['proofsByCategory'];
     $recentAbsences = $_SESSION['recentAbsences'];
 
-    // Calculer le pourcentage de justification basé sur les demi-journées
-    // Si aucune absence (0 demi-journées), on affiche 100%
+    // Calcul du pourcentage de justification
+    // Si aucune absence (0 demi-journées), affichage de 100% pour éviter division par zéro
     $justification_percentage = $stats['total_half_days'] > 0
         ? round(($stats['half_days_justified'] / $stats['total_half_days']) * 100, 1)
         : 100;
@@ -59,7 +69,7 @@ if (!isset($_SESSION['id_student'])) {
     <div class="dashboard-container">
         <h1 class="dashboard-title">Tableau de Bord</h1>
 
-        <!-- Vue d'ensemble principale -->
+        <!-- Vue d'ensemble avec les cartes statistiques principales (3 cartes : total, non justifiées, justifiables) -->
         <div class="overview-section">
             <div class="overview-card primary">
                 <div class="card-content">
@@ -101,7 +111,10 @@ if (!isset($_SESSION['id_student'])) {
                 <div class="card-content">
                     <div class="card-label">Ce mois-ci</div>
                     <div class="card-value"><?php echo $stats['half_days_this_month']; ?></div>
-                    <div class="card-description">Demi-journées en <?php echo date('F Y'); ?></div>
+                    <div class="card-description">Demi-journées en <?php 
+                        $mois_fr = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+                        echo $mois_fr[date('n') - 1] . ' ' . date('Y'); 
+                    ?></div>
                 </div>
             </div>
 

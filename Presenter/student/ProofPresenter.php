@@ -5,10 +5,16 @@
  * 
  * Présentateur de justificatif - Gère la logique métier pour l'affichage et le traitement des justificatifs.
  * Fournit des méthodes pour:
- * - Gérer les actions sur un justificatif (valider, rejeter, demander des infos)
- * - Préparer les données pour l'affichage
- * - Gérer les formulaires de rejet avec motifs
- * Utilisé par les gestionnaires pour traiter les justificatifs soumis.
+ * - Gérer les actions sur un justificatif :
+ *   - Validation (acceptation du justificatif)
+ *   - Rejet (avec sélection de motifs prédéfinis)
+ *   - Demande d'informations complémentaires (passage en révision)
+ *   - Verrouillage/déverrouillage du justificatif
+ * - Préparer les données pour l'affichage (formulaires, détails)
+ * - Enregistrer l'historique des décisions dans decision_history
+ * - Envoyer des emails de notification aux étudiants
+ * - Gérer les formulaires de rejet/validation avec motifs multiples
+ * Utilisé par les responsables académiques pour traiter les justificatifs soumis.
  */
 
 require_once __DIR__ . '/../../Model/ProofModel.php';

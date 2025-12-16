@@ -1,3 +1,22 @@
+<?php
+/**
+ * Fichier: statistics.php
+ * 
+ * Template des statistiques pour le responsable pédagogique - Analyse complète et interactive des absences.
+ * Fonctionnalités principales :
+ * - Mode double : statistiques générales OU statistiques par étudiant
+ * - Filtres avancés (dates, groupe, ressource, année, type de cours, étudiant)
+ * - Cartes statistiques récapitulatives (total, heures, demi-journées, évaluations, taux de justification)
+ * - Graphiques interactifs avec Chart.js :
+ *   - Répartition par type de cours (camembert)
+ *   - Répartition par ressource/matière (barres horizontales)
+ *   - Évolution mensuelle des absences (ligne)
+ *   - Répartition par semestre
+ *   - Top 10 des étudiants les plus absents
+ * - Export de données possible via les graphiques
+ * Utilise AcademicManagerStatisticsPresenter pour les données et calculs.
+ */
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -765,7 +784,8 @@
                 const resourceTrendData = {
                     labels: <?php echo json_encode($resourceTrends['months']); ?>,
                     datasets: [
-                        <?php foreach ($resourceTrends['datasets'] as $index => $dataset): ?>                                                                                                                                                                   {
+                        <?php foreach ($resourceTrends['datasets'] as $index => $dataset): ?>
+                                                                                                                                                                                                                {
                                 label: <?php echo json_encode($dataset['label']); ?>,
                                 data: <?php echo json_encode($dataset['data']); ?>,
                                 borderColor: '<?php echo $dataset['color']; ?>',
@@ -773,7 +793,7 @@
                                 tension: 0.4,
                                 fill: true
                             }<?php echo $index < count($resourceTrends['datasets']) - 1 ? ',' : ''; ?>
-                                                                                                <?php endforeach; ?>
+                                                                                                                <?php endforeach; ?>
                     ]
                 };
 

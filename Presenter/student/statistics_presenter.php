@@ -1,14 +1,16 @@
 <?php
 /**
- * Fichier: student_statistics_presenter.php
+ * Fichier: statistics_presenter.php
  * 
- * Présentateur des statistiques étudiant - Gère l'affichage des statistiques d'absences pour l'étudiant connecté.
+ * Présentateur des statistiques étudiant - Gère l'affichage des statistiques d'absences.
  * Fournit des méthodes pour:
- * - Récupérer les statistiques globales de l'étudiant
- * - Récupérer les absences par type de cours
- * - Récupérer les absences par matière
- * - Récupérer l'évolution des absences dans le temps
- * Utilisé par la page "Mes statistiques" de l'étudiant.
+ * - Récupérer les statistiques globales (total absences, heures, demi-journées, évaluations)
+ * - Récupérer les absences par type de cours (pour graphique camembert)
+ * - Récupérer les absences par matière/ressource (pour graphique barres)
+ * - Récupérer l'évolution mensuelle des absences (pour graphique ligne)
+ * - Gérer les filtres (dates, type de cours)
+ * - Récupérer la liste des absences récentes avec détails
+ * Utilisé par la page "Mes statistiques" de l'étudiant avec Chart.js.
  */
 
 require_once __DIR__ . '/../../Model/StatisticsModel.php';

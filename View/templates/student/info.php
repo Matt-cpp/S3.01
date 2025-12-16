@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="fr">
 <?php
+/**
+ * Fichier: info.php
+ * 
+ * Template d'information pour les étudiants - Gère l'affichage des informations et procédures relatives à la justification des absences.
+ * Contient des sections détaillées sur:
+ * - L'importance de l'assiduité
+ * - Le délai de justification des absences
+ * - Les conséquences des absences non justifiées
+ * - Les motifs acceptables de justification
+ * - La procédure de soumission d'un justificatif
+ * - Le suivi des justificatifs soumis
+ * - Les contacts pour assistance
+ * Utilisé par la page d'information des étudiants.
+ */
 require_once __DIR__ . '/../../../controllers/auth_guard.php';
 $user = requireRole('student');
 
@@ -28,7 +42,7 @@ if (!isset($_SESSION['id_student'])) {
         <h1 class="page-title">Informations et Procédure de Justification</h1>
 
         <div class="info-container">
-            <!-- Section 1: Assiduité obligatoire -->
+            <!-- Section 1: Importance de l'assiduité et règlement intérieur -->
             <section class="info-section important-section">
                 <div class="section-header">
                     <span class="section-icon">⚠️</span>
@@ -57,7 +71,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
             </section>
 
-            <!-- Section 2: Délai de justification -->
+            <!-- Section 2: Explication du délai de justification avec exemples -->
             <section class="info-section">
                 <div class="section-header">
                     <span class="section-icon">⏱️</span>

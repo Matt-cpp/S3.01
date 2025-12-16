@@ -1,3 +1,18 @@
+<?php
+/**
+ * Fichier: absences.php
+ * 
+ * Template de gestion des absences pour les étudiants - Affiche la liste complète des absences de l'étudiant.
+ * Fonctionnalités principales :
+ * - Liste détaillée de toutes les absences avec informations (date, horaire, cours, enseignant, salle, durée)
+ * - Système de filtrage avancé (par date, statut, type de cours)
+ * - Affichage du statut de justification pour chaque absence
+ * - Modal de détails pour chaque absence avec informations complètes
+ * - Gestion des absences aux évaluations et des rattrapages prévus
+ * - Compteur du nombre total de demi-journées manquées
+ * Utilise le système de cache de session pour optimiser les performances.
+ */
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <?php
@@ -13,11 +28,13 @@ require_once __DIR__ . '/../../../Presenter/shared/session_cache.php';
 require_once __DIR__ . '/../../../Presenter/student/absences_presenter.php';
 require_once __DIR__ . '/../../../Presenter/student/get_info.php';
 
+// Récupération de l'identifiant étudiant depuis la session
 $student_identifier = getStudentIdentifier($_SESSION['id_student']);
 
+// Initialisation du presenter pour gérer les données d'absences
 $presenter = new StudentAbsencesPresenter($student_identifier);
 
-// Utiliser les données en session si disponibles et récentes
+// Utilisation du cache de session pour optimiser les performances (refresh toutes les 15 minutes)
 if (!isset($_SESSION['Absences']) || (!isset($_SESSION['CourseTypes']) || !isset($_SESSION['Filters']) || !isset($_SESSION['ErrorMessage'])) || shouldRefreshCache(15)) {
     
     $absences = $presenter->getAbsences();
@@ -57,7 +74,7 @@ $errorMessage = $presenter->getErrorMessage();
         <?php endif; ?>
 
         <?php
-        // Display success message if there's one in session
+        // Affichage du message de succès stocké en session (après soumission/modification d'un justificatif)
         if (isset($_SESSION['success_message'])) {
             echo '<div class="success-message" style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 20px;">';
             echo '<strong>✅ Succès:</strong> ' . htmlspecialchars($_SESSION['success_message']);
@@ -73,8 +90,10 @@ $errorMessage = $presenter->getErrorMessage();
         }
         ?>
 
+        <!-- Formulaire de filtrage des absences -->
         <form method="POST" class="filter-form">
             <div class="filter-grid">
+                <!-- Filtre par date de début -->
                 <div class="filter-input">
                     <label for="firstDateFilter">Date de début</label>
                     <input type="date" name="firstDateFilter" id="firstDateFilter" 
@@ -123,6 +142,7 @@ $errorMessage = $presenter->getErrorMessage();
             <strong>Nombre d'absences trouvées: <?php echo count($absences); ?> • Demi-journées manquées: <?php echo $presenter->getTotalHalfDays($absences); ?></strong>
         </div>
 
+        <!-- Tableau des absences avec toutes les informations détaillées -->
         <div class="table-container">
             <table id="absenceTable">
                 <thead>
@@ -149,6 +169,7 @@ $errorMessage = $presenter->getErrorMessage();
                     <?php else: ?>
                         <?php foreach ($absences as $absence): ?>
                             <?php 
+                            // Préparation des données pour l'affichage de chaque absence
                             $courseType = strtoupper($absence['course_type'] ?? 'Autre');
                             $badge_class = '';
                             
@@ -350,7 +371,7 @@ $errorMessage = $presenter->getErrorMessage();
         </div>
     </div>
 
-    <script src="../assets/js/shared/absence_modal.js"></script>
+    <script src="../../assets/js/shared/absence_modal.js"></script>
 
     <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </body>

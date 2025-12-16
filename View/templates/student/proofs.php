@@ -1,3 +1,19 @@
+<?php
+/**
+ * Fichier: proofs.php
+ * 
+ * Template de gestion des justificatifs pour les étudiants - Affiche la liste de tous les justificatifs soumis.
+ * Fonctionnalités principales :
+ * - Liste complète des justificatifs avec leur statut (accepté, en attente, en révision, refusé)
+ * - Système de filtrage avancé (par date d'absence, statut, motif)
+ * - Affichage des détails de chaque justificatif (dates, motif, fichiers)
+ * - Visualisation des absences associées à chaque justificatif
+ * - Actions disponibles : modification (si en attente ou en révision), consultation des fichiers
+ * - Affichage du commentaire du responsable pour les justificatifs refusés ou en révision
+ * - Compteur du nombre total de justificatifs
+ * Utilise le système de cache de session pour optimiser les performances.
+ */
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <?php
@@ -17,7 +33,7 @@ $student_identifier = getStudentIdentifier($_SESSION['id_student']);
 
 $presenter = new StudentProofsPresenter($student_identifier);
 
-// Ne pas utiliser le cache si on a des paramètres GET (filtres depuis la page d'accueil)
+// Gestion intelligente du cache : désactivé si filtres GET présents (venant de la page d'accueil)
 $useCache = empty($_GET['status']);
 
 // Utiliser les données en session si disponibles et récentes (défini dans session_cache.php), par défaut 1 minutes
@@ -72,8 +88,10 @@ $errorMessage = $presenter->getErrorMessage();
         }
         ?>
 
+        <!-- Formulaire de filtrage des justificatifs -->
         <form method="POST" class="filter-form">
             <div class="filter-grid">
+                <!-- Filtre par date de début d'absence -->
                 <div class="filter-input">
                     <label for="firstDateFilter">Date de début d'absence</label>
                     <input type="date" name="firstDateFilter" id="firstDateFilter" 

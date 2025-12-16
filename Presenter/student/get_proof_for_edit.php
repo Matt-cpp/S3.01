@@ -1,4 +1,17 @@
 <?php
+/**
+ * Fichier: get_proof_for_edit.php
+ * 
+ * Préparateur de modification de justificatif - Charge les données d'un justificatif pour modification.
+ * Fonctionnalités principales :
+ * - Vérification des autorisations (justificatif en révision et appartenant à l'étudiant)
+ * - Récupération des informations du justificatif depuis la base de données
+ * - Chargement des fichiers existants (depuis proof_files JSONB)
+ * - Formatage des dates pour le formulaire HTML5 (datetime-local)
+ * - Stockage des données en session pour le formulaire de modification
+ * Redirige vers le formulaire proof_edit.php avec les données préparées.
+ */
+
 session_start();
 
 require_once __DIR__ . '/../../Model/database.php';
@@ -42,7 +55,7 @@ try {
         exit();
     }
 
-    // Vérifier que le justificatif est bien en révision
+    // Vérifier que le justificatif est bien en révision (seule modification possible)
     if ($proof['status'] !== 'under_review') {
         $_SESSION['error_message'] = "Seuls les justificatifs en révision peuvent être modifiés.";
         header('Location: ../../View/templates/student/proofs.php');

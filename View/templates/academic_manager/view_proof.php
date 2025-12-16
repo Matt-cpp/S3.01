@@ -1,4 +1,26 @@
 <?php
+/**
+ * Fichier: view_proof.php
+ * 
+ * Template de visualisation et traitement d'un justificatif pour le responsable pédagogique.
+ * Fonctionnalités principales :
+ * - Affichage détaillé du justificatif avec toutes ses informations :
+ *   - Informations étudiant (nom, prénom, identifiant, email)
+ *   - Période d'absence avec dates précises
+ *   - Motif d'absence et commentaire étudiant
+ *   - Fichiers justificatifs avec visualisation
+ *   - Liste des absences couvertes par le justificatif
+ * - Actions disponibles selon le statut :
+ *   - Validation (avec motifs multiples)
+ *   - Rejet (avec motifs multiples)
+ *   - Demande d'informations complémentaires
+ *   - Verrouillage/Déverrouillage
+ * - Historique des décisions précédentes avec détails
+ * - Codes couleur selon le statut (vert=accepté, rouge=rejeté, jaune=en attente, bleu=en révision)
+ * - Formulaires modaux pour chaque action
+ * Utilise ProofPresenter pour gérer la logique métier et les actions.
+ */
+
 // Set UTF-8 encoding for proper display of French characters
 header('Content-Type: text/html; charset=utf-8');
 

@@ -1,4 +1,18 @@
 <?php
+/**
+ * Fichier: update-password.php
+ * 
+ * API de modification de mot de passe - Permet à un utilisateur de changer son mot de passe.
+ * Fonctionnalités principales :
+ * - Vérification du mot de passe actuel
+ * - Validation du nouveau mot de passe (minimum 8 caractères)
+ * - Hachage sécurisé du nouveau mot de passe (password_hash)
+ * - Mise à jour dans la base de données
+ * - Gestion des erreurs avec messages explicites
+ * Reçoit les données en JSON (current_password, new_password).
+ * Utilisé par tous les utilisateurs depuis la page paramètres.
+ */
+
 header('Content-Type: application/json');
 
 // Start session

@@ -1,7 +1,16 @@
 <?php
 /**
- * import-csv.php
- * API pour télécharger et lancer l'import d'un fichier CSV d'absences
+ * Fichier: import-csv.php
+ * 
+ * API d'import de fichier CSV - Gestion de l'upload et enregistrement initial d'un fichier CSV.
+ * Fonctionnalités principales :
+ * - Validation du fichier uploadé (type CSV uniquement)
+ * - Génération d'un ID unique pour l'import
+ * - Sauvegarde du fichier dans le dossier uploads/imports/
+ * - Comptage du nombre total de lignes dans le CSV
+ * - Création d'un enregistrement dans import_jobs avec statut 'pending'
+ * - Retourne l'ID d'import pour le traitement asynchrone
+ * Utilisé par le dashboard secrétaire pour démarrer un processus d'importation.
  */
 
 header('Content-Type: application/json');

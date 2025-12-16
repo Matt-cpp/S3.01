@@ -1,7 +1,26 @@
 <?php
 /**
- * process-csv-import.php
- * Script de traitement en arrière-plan pour importer les données d'un fichier CSV d'absences
+ * Fichier: process-csv-import.php
+ * 
+ * Processeur d'importation CSV en arrière-plan - Exécute l'import complet d'un fichier CSV de manière asynchrone.
+ * Fonctionnalités principales :
+ * - Exécution en ligne de commande (CLI) avec arguments
+ * - Mise à jour du statut dans import_jobs (processing -> completed/failed)
+ * - Traitement ligne par ligne du CSV avec mise à jour de progression
+ * - Parsing et validation des données (dates, heures, identifiants)
+ * - Création/mise à jour des entités :
+ *   - Utilisateurs (étudiants, enseignants)
+ *   - Groupes et associations
+ *   - Ressources (matières)
+ *   - Salles
+ *   - Créneaux de cours (course_slots)
+ *   - Absences
+ * - Gestion des erreurs et logs détaillés dans import_history
+ * - Import en batch pour optimiser les performances
+ * Appelé par import-csv.php via exec() pour traitement asynchrone.
+ * 
+ * Background CSV Import Processor
+ * This script runs in the background to process CSV imports
  */
 
 // Get command line arguments

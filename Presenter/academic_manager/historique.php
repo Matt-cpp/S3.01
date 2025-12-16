@@ -3,12 +3,17 @@
 /**
  * Fichier: historique.php
  * 
- * Présentateur de l'historique des absences - Gère l'affichage de l'historique complet des absences.
+ * Présentateur de l'historique des absences - Gère l'affichage et le filtrage complet de l'historique.
  * Fournit des méthodes pour:
- * - Filtrer les absences (nom, dates, statut de justification, type de cours)
- * - Récupérer les données formatées pour l'affichage
- * - Traduire les statuts et motifs en français
- * Utilisé par la vue templates/historique.php.
+ * - Filtrer les absences par multiples critères :
+ *   - Recherche par nom d'étudiant (first_name, last_name)
+ *   - Filtrage par période (date de début et fin)
+ *   - Filtrage par statut de justification (en attente, acceptée, rejetée, en examen, non justifiée)
+ *   - Filtrage par type de cours (CM, TD, TP, DS, etc.)
+ * - Récupérer les données formatées avec jointures (utilisateur, cours, justificatifs)
+ * - Traduire les statuts et motifs en français pour l'affichage
+ * - Valider la cohérence des dates saisies
+ * Utilisé par la vue templates/academic_manager/historique.php.
  */
 
 // Protection de la page avec authentification simple
