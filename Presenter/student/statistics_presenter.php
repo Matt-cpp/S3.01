@@ -31,6 +31,34 @@ class StudentStatisticsPresenter
     }
 
     /**
+     * Format resource label to show "CODE : LABEL" format
+     * Example: "INFFIS2-DEVELOPPEMENT ORIENTE OBJETS (T3BUTINFFI-R2.01)" => "R2.01 : DEVELOPPEMENT ORIENTE OBJETS"
+     */
+    private function formatResourceLabel($fullLabel)
+    {
+        if (empty($fullLabel) || $fullLabel === 'N/A') {
+            return 'N/A';
+        }
+
+        // Extract code from parentheses (e.g., "R2.01" from "T3BUTINFFI-R2.01")
+        if (preg_match('/\(([^)]+)\)/', $fullLabel, $matches)) {
+            $fullCode = $matches[1];
+            // Get the resource code (part after last hyphen)
+            $codeParts = explode('-', $fullCode);
+            $code = end($codeParts);
+
+            // Extract label (part before parentheses, after first hyphen)
+            if (preg_match('/^[^-]+-(.+?)\s*\(/', $fullLabel, $labelMatches)) {
+                $label = trim($labelMatches[1]);
+                return $code . ' : ' . $label;
+            }
+        }
+
+        // Fallback to original label if pattern doesn't match
+        return $fullLabel;
+    }
+
+    /**
      * Get the student's identifier from their user ID
      */
     public static function getStudentIdentifierFromUserId($userId)
@@ -126,7 +154,7 @@ class StudentStatisticsPresenter
         $values = [];
 
         foreach ($data as $row) {
-            $labels[] = $row['resource_label'] ?? 'N/A';
+            $labels[] = $this->formatResourceLabel($row['resource_label'] ?? 'N/A');
             $values[] = intval($row['total_absences']);
         }
 
@@ -268,7 +296,16 @@ class StudentStatisticsPresenter
             $stmt->bindValue(':student_identifier', $this->studentIdentifier);
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
-            return $stmt->fetchAll();
+            $absences = $stmt->fetchAll();
+            
+            // Format resource labels
+            foreach ($absences as &$absence) {
+                if (isset($absence['resource_name'])) {
+                    $absence['resource_name'] = $this->formatResourceLabel($absence['resource_name']);
+                }
+            }
+            
+            return $absences;
         } catch (Exception $e) {
             error_log("Error fetching recent absences: " . $e->getMessage());
             return [];

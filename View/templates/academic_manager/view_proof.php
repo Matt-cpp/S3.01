@@ -177,7 +177,7 @@ if (!$proof) {
             if (!empty($proofFiles)): ?>
                 <div class="files-list">
                     <?php foreach ($proofFiles as $index => $file): ?>
-                        <a href="../../Presenter/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>"
+                        <a href="../../../Presenter/Student/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>"
                             target="_blank" rel="noopener" class="file-link"
                             title="<?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>">
                             📄 <?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>

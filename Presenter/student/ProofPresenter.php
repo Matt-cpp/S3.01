@@ -487,7 +487,7 @@ class ProofPresenter
      */
     private function getStudentEmail($studentIdentifier)
     {
-        require_once __DIR__ . '/../Model/database.php';
+        require_once __DIR__ . '/../../Model/database.php';
         $db = getDatabase();
 
         try {

@@ -38,8 +38,12 @@ class ForgotPasswordController
             $stmt->execute([$email]);
             $user = $stmt->fetch();
 
+            // Pour des raisons de sécurité, on retourne toujours un message de succès
+            // même si l'email n'existe pas, pour ne pas révéler l'existence du compte
             if (!$user) {
-                return ['success' => false, 'message' => 'Aucun compte associé à cette adresse email.'];
+                // Simuler un délai pour éviter les attaques par timing
+                usleep(random_int(100000, 300000)); // 0.1 à 0.3 secondes
+                return ['success' => true, 'message' => 'Un email a été envoyé si le compte existe.'];
             }
 
             // Générer un code de vérification à 6 chiffres
@@ -66,13 +70,16 @@ class ForgotPasswordController
             $result = $this->emailService->sendEmail($email, $subject, $body, true, [], $images);
 
             if ($result['success']) {
-                return ['success' => true, 'message' => 'Un code de vérification a été envoyé à votre adresse email.'];
+                return ['success' => true, 'message' => 'Un email a été envoyé si le compte existe.'];
             } else {
-                return ['success' => false, 'message' => 'Erreur lors de l\'envoi de l\'email: ' . $result['message']];
+                // Ne pas révéler l'erreur d'envoi pour des raisons de sécurité
+                error_log('Email sending failed: ' . $result['message']);
+                return ['success' => true, 'message' => 'Un email a été envoyé si le compte existe.'];
             }
         } catch (Exception $e) {
             error_log("Error in sendResetCode: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur système: ' . $e->getMessage()];
+            // Pour la sécurité, on retourne toujours un succès même en cas d'erreur
+            return ['success' => true, 'message' => 'Un email a été envoyé si le compte existe.'];
         }
     }
 

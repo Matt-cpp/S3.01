@@ -78,7 +78,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
         </form>
 
         <h3>Récapitulatif de votre demande :</h3>
-        <ul>
+        <ul id="summary-list-validation">
             <?php
             if ($student_info) {
                 echo '<li><strong>Informations de l\'étudiant :</strong> ';
@@ -131,7 +131,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
             $file_count = is_array($proof_files) ? count($proof_files) : 0;
 
             if ($file_count > 0):
-            ?>
+                ?>
                 <li><strong>Fichier(s) justificatif(s) :</strong> <?php echo $file_count; ?>
                     fichier<?php echo $file_count > 1 ? 's' : ''; ?>
                     <ul style="margin-top: 5px;">
@@ -173,7 +173,7 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
 
         // Show statistics section if we have hours data OR course data
         if ($stats_hours > 0 || (!empty($cours) && $cours !== '')):
-        ?>
+            ?>
             <div class="absence-statistics">
                 <h3>Analyse détaillée des absences</h3>
                 <div class="stats-container">

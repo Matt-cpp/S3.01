@@ -3,6 +3,34 @@
 
 require_once __DIR__ . '/../../Model/Database.php';
 
+/**
+ * Format resource label to show "CODE : LABEL" format
+ * Example: "INFFIS2-DEVELOPPEMENT ORIENTE OBJETS (T3BUTINFFI-R2.01)" => "R2.01 : DEVELOPPEMENT ORIENTE OBJETS"
+ */
+function formatResourceLabel($fullLabel)
+{
+    if (empty($fullLabel) || $fullLabel === 'N/A') {
+        return 'N/A';
+    }
+
+    // Extract code from parentheses (e.g., "R2.01" from "T3BUTINFFI-R2.01")
+    if (preg_match('/\(([^)]+)\)/', $fullLabel, $matches)) {
+        $fullCode = $matches[1];
+        // Get the resource code (part after last hyphen)
+        $codeParts = explode('-', $fullCode);
+        $code = end($codeParts);
+
+        // Extract label (part before parentheses, after first hyphen)
+        if (preg_match('/^[^-]+-(.+?)\s*\(/', $fullLabel, $labelMatches)) {
+            $label = trim($labelMatches[1]);
+            return $code . ' : ' . $label;
+        }
+    }
+
+    // Fallback to original label if pattern doesn't match
+    return $fullLabel;
+}
+
 // Get filter parameters
 $studentFilter = $_GET['student'] ?? '';
 $semesterFilter = $_GET['semester'] ?? '';
@@ -236,7 +264,8 @@ try {
     $stmt->execute($params);
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         if ($row['subject_name']) {
-            $subjectStats[$row['subject_name']] = (int) $row['count'];
+            $formattedLabel = formatResourceLabel($row['subject_name']);
+            $subjectStats[$formattedLabel] = (int) $row['count'];
         }
     }
 
@@ -258,7 +287,8 @@ try {
     $evaluationSubjectStats = [];
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         if ($row['subject_name']) {
-            $evaluationSubjectStats[$row['subject_name']] = (int) $row['count'];
+            $formattedLabel = formatResourceLabel($row['subject_name']);
+            $evaluationSubjectStats[$formattedLabel] = (int) $row['count'];
         }
     }
 
@@ -358,11 +388,12 @@ try {
         if (!in_array($row['month'], $months)) {
             $months[] = $row['month'];
         }
-        if ($row['subject'] && !isset($subjectData[$row['subject']])) {
-            $subjectData[$row['subject']] = [];
-        }
         if ($row['subject']) {
-            $subjectData[$row['subject']][$row['month']] = (int) $row['count'];
+            $formattedLabel = formatResourceLabel($row['subject']);
+            if (!isset($subjectData[$formattedLabel])) {
+                $subjectData[$formattedLabel] = [];
+            }
+            $subjectData[$formattedLabel][$row['month']] = (int) $row['count'];
         }
     }
 

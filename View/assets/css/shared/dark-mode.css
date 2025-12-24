@@ -287,6 +287,10 @@ html.dark-mode body {
   color: var(--primary);
 }
 
+.dark-mode .btn-view-action{
+  color: white;
+}
+
 .dark-mode a:hover {
   color: var(--primary-hover);
 }
@@ -399,6 +403,11 @@ html.dark-mode body {
 .dark-mode .form-group label {
   color: var(--text-primary);
 }
+
+.dark-mode #files-summary-size {
+  background: rgb(0 0 0 / 0%) !important;
+}
+
 
 /* Password field container */
 .dark-mode .password-input-container {
@@ -2265,6 +2274,12 @@ html.dark-mode body {
   color: var(--text-primary) !important;
 }
 
+.dark-mode #summary-list-validation{
+  background-color: none !important;
+}
+
+
+
 .dark-mode .split-form small {
   color: var(--text-secondary) !important;
 }
@@ -3380,7 +3395,7 @@ html.dark-mode body {
 
 /* Absence statistics section */
 .dark-mode .absence-statistics {
-  background: var(--bg-secondary) !important;
+  background: none !important;
   border: 1px solid var(--border-color) !important;
   border-radius: 12px;
   padding: 1.5rem;
@@ -3407,6 +3422,7 @@ html.dark-mode body {
 }
 
 .dark-mode .stat-item {
+  background-color: var(--bg-card);
   padding: 0.5rem 0;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
@@ -3421,6 +3437,7 @@ html.dark-mode body {
 }
 
 .dark-mode .stat-value {
+  background-color: var(--bg-tertiary);
   color: var(--text-primary) !important;
   font-weight: 600;
 }
@@ -3458,7 +3475,7 @@ html.dark-mode body {
 
 /* Courses details section */
 .dark-mode .courses-details {
-  background: var(--bg-tertiary) !important;
+  background: none !important;
   border: 1px solid var(--border-color) !important;
   border-radius: 8px;
   padding: 1rem;
@@ -3475,7 +3492,7 @@ html.dark-mode body {
 }
 
 .dark-mode .course-detail-item {
-  background: var(--bg-secondary) !important;
+  background: none !important;
   border: 1px solid var(--border-color) !important;
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
@@ -3502,7 +3519,7 @@ html.dark-mode body {
 }
 
 .dark-mode .evaluation-detail {
-  background: var(--bg-secondary) !important;
+  background: none !important;
   border: 1px solid var(--border-color) !important;
   border-radius: 6px;
   padding: 0.75rem;
@@ -3527,6 +3544,7 @@ html.dark-mode body {
 }
 
 .dark-mode .eval-info {
+  color: white;
   background: var(--bg-tertiary);
   padding: 0.125rem 0.375rem;
   border-radius: 4px;

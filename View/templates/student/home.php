@@ -111,9 +111,9 @@ if (!isset($_SESSION['id_student'])) {
                 <div class="card-content">
                     <div class="card-label">Ce mois-ci</div>
                     <div class="card-value"><?php echo $stats['half_days_this_month']; ?></div>
-                    <div class="card-description">Demi-journées en <?php 
-                        $mois_fr = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-                        echo $mois_fr[date('n') - 1] . ' ' . date('Y'); 
+                    <div class="card-description">Demi-journées en <?php
+                    $mois_fr = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+                    echo $mois_fr[date('n') - 1] . ' ' . date('Y');
                     ?></div>
                 </div>
             </div>
@@ -508,7 +508,7 @@ if (!isset($_SESSION['id_student'])) {
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <a href="../../Presenter/get_proof_for_edit.php?proof_id=<?php echo $proof['proof_id']; ?>"
+                                        <a href="../../../Presenter/Student/get_proof_for_edit.php?proof_id=<?php echo $proof['proof_id']; ?>"
                                             class="btn-add-info" onclick="event.stopPropagation();"
                                             title="Ajouter des informations">
                                             Compléter

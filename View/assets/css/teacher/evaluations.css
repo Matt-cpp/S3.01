@@ -110,7 +110,7 @@ table tbody tr:last-child td {
 
 .info-button {
     padding: 0.6rem 1.2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary);
     color: white;
     border: none;
     border-radius: 8px;
