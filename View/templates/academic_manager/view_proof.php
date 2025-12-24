@@ -80,7 +80,7 @@ if (!empty($proof['formatted_end'])) {
 
 if (!$proof) {
     echo "<p>Aucun justificatif trouvé pour cet ID.</p>";
-    echo '<a href="choose_proof.php">← Retour</a>';
+    echo '<a href="home.php">← Retour</a>';
     exit;
 }
 ?>

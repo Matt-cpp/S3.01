@@ -833,15 +833,16 @@ class ProofModel
             }
 
             // Réassigner les absences aux nouveaux justificatifs selon les périodes
-            // Un créneau est inclus s'il chevauche la période (pas nécessairement entièrement contenu)
+            // Un créneau est assigné à la période où son heure de DÉBUT tombe
+            // Condition: start_time >= début_période ET start_time < fin_période
             $sqlInsertAbsences = "INSERT INTO proof_absences (proof_id, absence_id)
                 SELECT :new_proof_id, pa.absence_id
                 FROM proof_absences pa
                 JOIN absences a ON pa.absence_id = a.id
                 JOIN course_slots cs ON a.course_slot_id = cs.id
                 WHERE pa.proof_id = :old_proof_id
-                  AND (cs.course_date || ' ' || cs.end_time)::timestamp >= :start_datetime::timestamp
-                  AND (cs.course_date || ' ' || cs.start_time)::timestamp <= :end_datetime::timestamp";
+                  AND (cs.course_date || ' ' || cs.start_time)::timestamp >= :start_datetime::timestamp
+                  AND (cs.course_date || ' ' || cs.start_time)::timestamp < :end_datetime::timestamp";
 
             foreach ($newProofIds as $proofData) {
                 $this->db->execute($sqlInsertAbsences, [
@@ -872,8 +873,8 @@ class ProofModel
                 WHERE id = :proof_id
             ";
 
-            foreach ($newProofIds as $newProofId) {
-                $this->db->execute($sqlUpdateDates, ['proof_id' => $newProofId]);
+            foreach ($newProofIds as $proofData) {
+                $this->db->execute($sqlUpdateDates, ['proof_id' => $proofData['id']]);
             }
 
             // Note: L'historique de scission n'est pas enregistré car 'split' n'est pas une action valide

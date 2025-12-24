@@ -283,7 +283,7 @@ class ProofPresenter
                 // Appel au modèle pour créer les justificatifs
                 $ok = $this->model->splitProofMultiple($proofId, $periods, $splitReason, $currentUserId);
                 if ($ok) {
-                    $data['redirect'] = 'choose_proof.php?message=split_success';
+                    $data['redirect'] = 'home.php?message=split_success';
                 } else {
                     $data['showSplitForm'] = true;
                     if (session_status() === PHP_SESSION_NONE) {
