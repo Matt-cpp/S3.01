@@ -37,7 +37,7 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
             <form action="../../../controllers/login.php" method="POST" class="login-form">
                 <div class="form-group">
                     <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" placeholder="prenom.nom@uhpf.fr"
+                    <input type="email" id="email" name="email" placeholder="prenom.nom@uphf.fr"
                         value="<?php echo htmlspecialchars($formData['email'] ?? ''); ?>" required>
                 </div>
 

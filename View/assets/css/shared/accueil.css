@@ -22,9 +22,8 @@ body {
 
 .main-content {
     padding: 2rem;
-    max-width: 1400px;
+    width: 80%;
     margin: 0 auto;
-    width: 100%;
 }
 
 /* Stats Header */
@@ -164,7 +163,7 @@ body {
     margin-bottom: 1.5rem;
 }
 
-        .table {
+.table {
     width: 100%;
     border-collapse: collapse;
     border-radius: 12px;
@@ -323,22 +322,6 @@ body {
     text-decoration: none;
 }
 
-.btn-history:hover {
-    box-shadow: 0 6px 12px rgba(0, 129, 161, 0.35);
-}
-
-.footer {
-    background: #0081A1;
-    color: white;
-    padding: 2rem;
-    margin-top: auto;
-    text-align: center;
-}
-
-.footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-}
 
 .team-section {
     background-color: rgba(255, 255, 255, 0.1);
@@ -361,11 +344,6 @@ body {
     color: rgba(255, 255, 255, 0.9);
 }
 
-.footer-info {
-    margin-top: 1.5rem;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7);
-}
 
 @media (max-width: 768px) {
     .header {
@@ -401,21 +379,25 @@ body {
 }
 
 .badge-warning {
-    background-color: #ffc107;
-    color: #000;
+    background-color: #fff3cd;
+    color: #664d03;
+    border: 1px solid #f0ad4e;
 }
 
 .badge-success {
-    background-color: #28a745;
-    color: white;
+    background-color: #d1e7dd;
+    color: #0a3622;
+    border: 1px solid #198754;
 }
 
 .badge-danger {
-    background-color: #dc3545;
-    color: white;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #dc3545;
 }
 
 .badge-info {
-    background-color: #17a2b8;
-    color: white;
+    background-color: #cff4fc;
+    color: #055160;
+    border: 1px solid #0dcaf0;
 }

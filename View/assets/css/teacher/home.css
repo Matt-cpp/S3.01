@@ -77,9 +77,8 @@ body {
 
 .main-content {
     padding: 2rem;
-    max-width: 1400px;
+    width: 80%;
     margin: 0 auto;
-    width: 100%;
     flex: 1;
 }
 

@@ -49,7 +49,7 @@ $errorMessage = $presenter->getErrorMessage();
 <body>
     <?php include __DIR__ . '/../navbar.php'; ?>
     <main>
-        <h1 style="text-align: center; margin-bottom: 30px; font-size: 2rem; font-weight: 700; color: #0081A1;">Historique des justificatifs</h1>
+        <h1 class="page-title">Historique des justificatifs</h1>
         
         <?php if (!empty($errorMessage)): ?>
             <div class="error-message">
@@ -131,7 +131,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 <?php 
                                     echo htmlspecialchars($presenter->translateReason($proof['main_reason']));
                                     if (!empty($proof['custom_reason'])) {
-                                        echo '<br><small style="color: #6c757d;">(' . htmlspecialchars($proof['custom_reason']) . ')</small>';
+                                        echo '<br><small class="custom-reason-text">(' . htmlspecialchars($proof['custom_reason']) . ')</small>';
                                     }
                                 ?>
                             </td>
@@ -165,12 +165,12 @@ $errorMessage = $presenter->getErrorMessage();
                                 <?php 
                                 $files = $presenter->getProofFiles($proof);
                                 if (!empty($files)): ?>
-                                    <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                    <div class="file-links-container">
                                         <?php foreach ($files as $index => $file): ?>
                                             <a href="../../../Presenter/student/view_upload_proof.php?proof_id=<?php echo $proof['proof_id']; ?>&file_index=<?php echo $index; ?>" 
                                                target="_blank"
                                                title="<?php echo htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)); ?>"
-                                               style="padding: 4px 8px; background: #4338ca; color: white; text-decoration: none; border-radius: 3px; font-size: 12px;">
+                                               class="file-link">
                                                 📄 <?php echo ($index + 1); ?>
                                             </a>
                                         <?php endforeach; ?>
@@ -181,8 +181,7 @@ $errorMessage = $presenter->getErrorMessage();
                             </td>
                             <td>
                                 <a href="<?php echo htmlspecialchars($presenter->getProofDetailsUrl($proof['proof_id'])); ?>" 
-                                   class="btn-view" 
-                                   style="display: inline-block; padding: 6px 12px; background-color: #4338ca; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">
+                                   class="btn-view-action">
                                     Voir
                                 </a>
                             </td>

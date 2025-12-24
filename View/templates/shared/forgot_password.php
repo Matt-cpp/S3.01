@@ -35,14 +35,14 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
 
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="success-message">
-                    <?php echo $_SESSION['success'];
+                    <?php echo htmlspecialchars($_SESSION['success']);
                     unset($_SESSION['success']); ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="error-message">
-                    <?php echo $_SESSION['error'];
+                    <?php echo htmlspecialchars($_SESSION['error']);
                     unset($_SESSION['error']); ?>
                 </div>
             <?php endif; ?>

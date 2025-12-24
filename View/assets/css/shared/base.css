@@ -1,0 +1,101 @@
+/* Base styles - Shared across all pages */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+    color: #1f2937;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#logo {
+    height: auto;
+    width: 150px;
+}
+
+.main-content {
+    padding: 2rem;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Common Sections */
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #0081A1;
+}
+
+.section-subtitle {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Common Buttons */
+.btn {
+    padding: 0.6rem 1.25rem;
+    border: none;
+    background: #0081A1;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    background: #006d87;
+    box-shadow: 0 4px 8px rgba(0, 129, 161, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+}
+
+/* History Section */
+.history-section {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn-history {
+    background: #0081A1;
+    color: white;
+    border: none;
+    padding: 0.85rem 2rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.btn-history:hover {
+    background: #006d87;
+    box-shadow: 0 6px 12px rgba(0, 129, 161, 0.35);
+    transform: translateY(-2px);
+}
+
+

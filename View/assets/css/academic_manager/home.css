@@ -1,0 +1,171 @@
+/* Home Page Styles - Academic Manager */
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 129, 161, 0.1);
+    transition: all 0.3s ease;
+    border-left: 4px solid #0081A1;
+}
+
+.stat-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 129, 161, 0.2);
+    transform: translateY(-2px);
+}
+
+.stat-title {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #0081A1;
+    line-height: 1;
+}
+
+/* Sections */
+.absences-section {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.pagination-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* Table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table th {
+    text-align: left;
+    padding: 1rem;
+    font-weight: 600;
+    color: #6b7280;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e5e7eb;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.9rem;
+    color: #374151;
+}
+
+.table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* Empty message */
+.empty-message {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Status badges */
+
+.status-text {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    display: inline-block;
+    letter-spacing: 0.5px;
+    border: 2px solid transparent;
+    min-width: 80px;
+}
+
+.status-en-attente {
+    background-color: #fff3cd;
+    color: #664d03;
+    border: 1px solid #f0ad4e;
+}
+
+.status-acceptee {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #28a745;
+}
+
+.status-rejetee {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #dc3545;
+}
+
+.status-en-cours {
+    background-color: #cff4fc;
+    color: #055160;
+    border: 1px solid #0dcaf0;
+}
+
+.status-justifiee {
+    background-color: #d1e7dd;
+    color: #0a3622;
+    border: 1px solid #198754;
+}
+
+.status-non-justifiee {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #dc3545;
+}
+
+.status-default {
+    background-color: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+}

@@ -18,10 +18,13 @@
 <head>
     <title>Tableau de bord - Responsable Pédagogique</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="../../assets/css/shared/accueil.css">
     <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
+    <link rel="stylesheet" href="../../assets/css/shared/base.css">
+    <link rel="stylesheet" href="../../assets/css/academic_manager/home.css">
 </head>
 
 <body>
@@ -97,8 +100,50 @@
 
                     foreach ($tabel as $row) {
                         echo "<tr>";
+                        $cellIndex = 0;
                         foreach ($row as $cell) {
-                            echo "<td>" . htmlspecialchars($cell) . "</td>";
+                            if ($cellIndex === 5) {
+                                $statusClass = '';
+                                $statusValue = strtolower(trim($cell));
+
+                                switch ($statusValue) {
+                                    case 'absent':
+                                        $statusClass = 'status-rejetee';
+                                        break;
+                                    case 'présent':
+                                        $statusClass = 'status-acceptee';
+                                        break;
+                                    case 'excusé':
+
+                                        $statusClass = 'status-justifiee';
+                                        break;
+                                    case 'non justifié':
+                                        $statusClass = 'status-non-justifiee';
+                                        break;
+                                    case 'en attente':
+                                        $statusClass = 'status-en-attente';
+                                        break;
+                                    case 'acceptée':
+                                        $statusClass = 'status-acceptee';
+                                        break;
+                                    case 'rejetée':
+                                        $statusClass = 'status-rejetee';
+                                        break;
+                                    case 'en cours d\'examen':
+                                        $statusClass = 'status-en-cours';
+                                        break;
+                                    case 'justifiée':
+                                        $statusClass = 'status-justifiee';
+                                        break;
+                                    default:
+                                        $statusClass = 'status-default';
+                                }
+
+                                echo '<td class="status-cell"><span class="status-text ' . $statusClass . '">' . htmlspecialchars($cell) . '</span></td>';
+                            } else {
+                                echo "<td>" . htmlspecialchars($cell) . "</td>";
+                            }
+                            $cellIndex++;
                         }
                         echo "</tr>";
                     }
@@ -131,7 +176,7 @@
                 <tbody>
                     <?php if (empty($recentProofs)): ?>
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 20px; color: #6c757d;">
+                            <td colspan="7" class="empty-message">
                                 Aucun justificatif récent
                             </td>
                         </tr>
@@ -145,34 +190,32 @@
                                 <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_end_date']))); ?></td>
                                 <td><?php echo htmlspecialchars($proofModel->translate('reason', $proof['main_reason'])); ?>
                                 </td>
-                                <td>
+                                <td class="status-cell">
                                     <?php
                                     $statusText = $proofModel->translate('status', $proof['status']);
                                     $statusClass = '';
                                     switch ($proof['status']) {
                                         case 'pending':
-                                            $statusClass = 'badge-warning';
+                                            $statusClass = 'status-en-attente';
                                             break;
                                         case 'accepted':
-                                            $statusClass = 'badge-success';
+                                            $statusClass = 'status-acceptee';
                                             break;
                                         case 'rejected':
-                                            $statusClass = 'badge-danger';
+                                            $statusClass = 'status-rejetee';
                                             break;
                                         case 'under_review':
-                                            $statusClass = 'badge-info';
+                                            $statusClass = 'status-en-cours';
                                             break;
                                     }
                                     ?>
-                                    <span class="badge <?php echo $statusClass; ?>"
-                                        style="padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                    <span class="status-text <?php echo $statusClass; ?>">
                                         <?php echo htmlspecialchars($statusText); ?>
                                     </span>
                                 </td>
                                 <td>
                                     <a href="view_proof.php?proof_id=<?php echo urlencode($proof['proof_id']); ?>"
-                                        class="btn btn-sm"
-                                        style="padding: 6px 12px; background-color: #4338ca; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; display: inline-block;">
+                                        class="btn btn-sm">
                                         Voir
                                     </a>
                                 </td>

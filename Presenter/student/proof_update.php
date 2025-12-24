@@ -46,7 +46,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Vérifier que le justificatif appartient bien à l'étudiant connecté
-        $studentId = $_SESSION['id_student'] ?? 1;
+        if (!isset($_SESSION['id_student'])) {
+            throw new Exception('Veuillez vous connecter pour effectuer cette action.');
+        }
+        $studentId = $_SESSION['id_student'];
         $studentInfo = $db->selectOne("SELECT identifier FROM users WHERE id = :student_id", ['student_id' => $studentId]);
 
         if (!$studentInfo || $existingProof['student_identifier'] !== $studentInfo['identifier']) {
@@ -254,7 +257,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['success_message'] = 'Votre justificatif a été modifié avec succès et repassé en attente de validation.';
         header('Location: ../../View/templates/student/proofs.php');
         exit();
-
     } catch (Exception $e) {
         error_log("Erreur dans student_proof_update.php : " . $e->getMessage());
         $_SESSION['error_message'] = $e->getMessage();
@@ -272,4 +274,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header('Location: ../../View/templates/student/proofs.php');
     exit();
 }
-

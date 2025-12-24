@@ -23,14 +23,14 @@
             session_start();
             if (isset($_SESSION['success'])): ?>
                 <div class="success-message">
-                    <?php echo $_SESSION['success'];
+                    <?php echo htmlspecialchars($_SESSION['success']);
                     unset($_SESSION['success']); ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="error-message">
-                    <?php echo $_SESSION['error'];
+                    <?php echo htmlspecialchars($_SESSION['error']);
                     unset($_SESSION['error']); ?>
                 </div>
             <?php endif; ?>
@@ -94,7 +94,7 @@
         }
 
         // Auto-format du code (optionnel)
-        document.getElementById('reset_code').addEventListener('input', function (e) {
+        document.getElementById('reset_code').addEventListener('input', function(e) {
             // Supprimer tout caractère non-numérique
             this.value = this.value.replace(/\D/g, '');
         });

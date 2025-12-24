@@ -110,7 +110,7 @@ $errorMessage = $presenter->getErrorMessage();
             <tbody>
                 <?php if (empty($absences)): ?>
                     <tr>
-                        <td colspan="7" class="no-results">
+                        <td colspan="8" class="no-results">
                             Aucune absence trouvée avec les critères sélectionnés.
                         </td>
                     </tr>
