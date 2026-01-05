@@ -143,6 +143,9 @@ class ProofPresenter
                         'rejected'
                     );
 
+                    // Verrouiller automatiquement le justificatif après le rejet
+                    $this->model->verrouiller($proofId);
+
                     // Send email notification to student
                     $this->sendProofRejectionEmail($data['proof'], $rejectionReason, $rejectionDetails);
 
@@ -195,6 +198,9 @@ class ProofPresenter
                         $data['proof']['absence_end_date'],
                         'accepted'
                     );
+
+                    // Verrouiller automatiquement le justificatif après la validation
+                    $this->model->verrouiller($proofId);
 
                     // Send email notification to student
                     $this->sendProofAcceptedEmail($data['proof'], $validationReason, $validationDetails);
