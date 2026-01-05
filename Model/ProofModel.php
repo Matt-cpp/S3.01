@@ -819,7 +819,7 @@ class ProofModel
                 $newProofId = $this->db->lastInsertId();
                 $newProofIds[] = ['id' => $newProofId, 'start' => $startDatetime, 'end' => $endDatetime];
 
-                // Si validé, enregistrer dans l'historique avec action 'accept'
+                // Si validé, enregistrer dans l'historique avec action 'accept' et verrouiller
                 if ($status === 'accepted' && $userId !== null) {
                     $sqlHistoryValidation = "INSERT INTO decision_history
                         (justification_id, user_id, action, old_status, new_status, comment, created_at)
@@ -829,6 +829,10 @@ class ProofModel
                         'user_id' => $userId,
                         'comment' => 'Validé automatiquement lors de la scission'
                     ]);
+
+                    // Verrouiller automatiquement le justificatif validé lors de la scission
+                    $sqlLock = "UPDATE proof SET locked = 'true' WHERE id = :id";
+                    $this->db->execute($sqlLock, ['id' => $newProofId]);
                 }
             }
 
