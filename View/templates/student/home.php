@@ -11,15 +11,16 @@ if (!isset($_SESSION['id_student'])) {
 ?>
 
 <head>
-    <title>Accueil Étudiant</title>
+    <title data-translate="page_title">Accueil Étudiant</title>
     <meta charset="UTF-8">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="../../assets/css/student/home.css">
+    <link rel="stylesheet" href="../../assets/css/shared/language-switcher.css">
     <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
 </head>
 
-<body>
+<body data-page="student_home">
     <?php
     include __DIR__ . '/../navbar.php';
     require_once __DIR__ . '/../../../Presenter/shared/session_cache.php';
@@ -57,33 +58,33 @@ if (!isset($_SESSION['id_student'])) {
     ?>
 
     <div class="dashboard-container">
-        <h1 class="dashboard-title">Tableau de Bord</h1>
+        <h1 class="dashboard-title" data-translate="dashboard_title">Tableau de Bord</h1>
 
         <!-- Vue d'ensemble principale -->
         <div class="overview-section">
             <div class="overview-card primary">
                 <div class="card-content">
-                    <div class="card-label">Demi-journées manquées</div>
+                    <div class="card-label" data-translate="half_days_missed">Demi-journées manquées</div>
                     <div class="card-value"><?php echo $stats['total_half_days']; ?></div>
-                    <div class="card-description">Total de demi-journées d'absence</div>
+                    <div class="card-description" data-translate="total_half_days_desc">Total de demi-journées d'absence</div>
                 </div>
             </div>
 
             <div class="overview-card danger">
                 <div class="card-content">
-                    <div class="card-label">Demi-journées non justifiées</div>
+                    <div class="card-label" data-translate="half_days_unjustified">Demi-journées non justifiées</div>
                     <div class="card-value"><?php echo $stats['half_days_unjustified']; ?></div>
                     <div class="card-description">
-                        <?php echo $stats['half_days_unjustified'] > 0 ? 'ATTENTION !' : 'Aucune à justifier'; ?>
+                        <?php echo $stats['half_days_unjustified'] > 0 ? '<span data-translate="warning">ATTENTION !</span>' : '<span data-translate="none_to_justify">Aucune à justifier</span>'; ?>
                     </div>
                 </div>
             </div>
 
             <div class="overview-card warning">
                 <div class="card-content">
-                    <div class="card-label">Demi-journées justifiables</div>
+                    <div class="card-label" data-translate="half_days_justifiable">Demi-journées justifiables</div>
                     <div class="card-value"><?php echo $stats['half_days_justifiable']; ?></div>
-                    <div class="card-description">
+                    <div class="card-description" data-translate="without_proof">
                         Sans justificatif ou en revue
                     </div>
                 </div>
@@ -91,39 +92,39 @@ if (!isset($_SESSION['id_student'])) {
 
             <div class="overview-card success">
                 <div class="card-content">
-                    <div class="card-label">Demi-journées justifiées</div>
+                    <div class="card-label" data-translate="half_days_justified">Demi-journées justifiées</div>
                     <div class="card-value"><?php echo $stats['half_days_justified']; ?></div>
-                    <div class="card-description">Sur <?php echo $stats['total_half_days']; ?> demi-journées</div>
+                    <div class="card-description"><span data-translate="on_half_days">Sur</span> <?php echo $stats['total_half_days']; ?> <span>demi-journées</span></div>
                 </div>
             </div>
 
             <div class="overview-card info">
                 <div class="card-content">
-                    <div class="card-label">Ce mois-ci</div>
+                    <div class="card-label" data-translate="this_month">Ce mois-ci</div>
                     <div class="card-value"><?php echo $stats['half_days_this_month']; ?></div>
-                    <div class="card-description">Demi-journées en <?php echo date('F Y'); ?></div>
+                    <div class="card-description"><span data-translate="half_days_in">Demi-journées en</span> <?php echo date('F Y'); ?></div>
                 </div>
             </div>
 
             <div class="overview-card secondary">
                 <div class="card-content">
-                    <div class="card-label">Total absences</div>
+                    <div class="card-label" data-translate="total_absences">Total absences</div>
                     <div class="card-value"><?php echo $stats['total_absences_count']; ?></div>
-                    <div class="card-description">Cours manqués au total</div>
+                    <div class="card-description" data-translate="courses_missed">Cours manqués au total</div>
                 </div>
             </div>
         </div>
 
         <!-- Barre de progression de justification -->
         <div class="justification-progress-section">
-            <h2 class="section-heading">
+            <h2 class="section-heading" data-translate="justification_rate">
                 Taux de justification des demi-journées d'absence
             </h2>
             <div class="progress-container">
                 <div class="progress-info">
                     <span class="progress-label">
-                        <strong><?php echo $stats['half_days_justified']; ?> demi-journées justifiées</strong>
-                        sur <?php echo $stats['total_half_days']; ?> demi-journées d'absence totales
+                        <strong><?php echo $stats['half_days_justified']; ?> <span data-translate="justified_half_days">demi-journées justifiées</span></strong>
+                        <span data-translate="on_total">sur</span> <?php echo $stats['total_half_days']; ?> <span data-translate="total_absence_half_days">demi-journées d'absence totales</span>
                     </span>
                     <span class="progress-percentage"><?php echo $justification_percentage; ?>%</span>
                 </div>
@@ -135,26 +136,26 @@ if (!isset($_SESSION['id_student'])) {
                 <div class="progress-legend">
                     <span class="legend-item">
                         <span class="legend-color good"></span>
-                        Bon (≥80%)
+                        <span data-translate="good">Bon (≥80%)</span>
                     </span>
                     <span class="legend-item">
                         <span class="legend-color medium"></span>
-                        Moyen (50-79%)
+                        <span data-translate="medium">Moyen (50-79%)</span>
                     </span>
                     <span class="legend-item">
                         <span class="legend-color low"></span>
-                        Faible (<50%) </span>
+                        <span data-translate="low">Faible (<50%)< /span>
+                        </span>
                 </div>
                 <div class="points-penalty"
                     style="margin-top: 1.5rem; padding: 1rem; background: <?php echo $half_points_lost > 0 ? '#fee2e2' : '#dcfce7'; ?>; border-radius: 8px; text-align: center;">
                     <span style="font-size: 1rem; color: #4b5563;">
                         <?php if ($half_points_lost > 0): ?>
-                            <strong style="color: #dc2626;"><?php echo $half_points_lost; ?> point(s) perdu(s)</strong>
-                            dans la moyenne
-                            <span style="display: block; font-size: 0.875rem; margin-top: 0.25rem;">(5 demi-journées non
-                                justifiées = 0,5 point perdu)</span>
+                            <strong style="color: #dc2626;"><?php echo $half_points_lost; ?> <span data-translate="points_lost">point(s) perdu(s)</span></strong>
+                            <span data-translate="in_average">dans la moyenne</span>
+                            <span style="display: block; font-size: 0.875rem; margin-top: 0.25rem;" data-translate="penalty_rule">(5 demi-journées non justifiées = 0,5 point perdu)</span>
                         <?php else: ?>
-                            <strong style="color: #16a34a;">Aucun point perdu !</strong>
+                            <strong style="color: #16a34a;" data-translate="no_points_lost">Aucun point perdu !</strong>
                         <?php endif; ?>
                     </span>
                 </div>
@@ -165,15 +166,15 @@ if (!isset($_SESSION['id_student'])) {
         <div class="proofs-status-section">
             <h2 class="section-heading">
                 <span class="heading-icon"></span>
-                État de vos justificatifs
+                <span data-translate="proofs_status">État de vos justificatifs</span>
             </h2>
             <div class="proofs-grid">
                 <a href="proofs.php?status=accepted" class="proof-card proof-accepted">
                     <div class="proof-icon"></div>
                     <div class="proof-content">
                         <div class="proof-count"><?php echo $stats['accepted_proofs']; ?></div>
-                        <div class="proof-label">Acceptés</div>
-                        <div class="proof-description">Justificatifs validés</div>
+                        <div class="proof-label" data-translate="accepted">Acceptés</div>
+                        <div class="proof-description" data-translate="validated_proofs">Justificatifs validés</div>
                     </div>
                 </a>
 
@@ -181,8 +182,8 @@ if (!isset($_SESSION['id_student'])) {
                     <div class="proof-icon"></div>
                     <div class="proof-content">
                         <div class="proof-count"><?php echo $stats['pending_proofs']; ?></div>
-                        <div class="proof-label">En attente</div>
-                        <div class="proof-description">En cours d'examen</div>
+                        <div class="proof-label" data-translate="pending">En attente</div>
+                        <div class="proof-description" data-translate="under_review_desc">En cours d'examen</div>
                     </div>
                 </a>
 
@@ -190,8 +191,8 @@ if (!isset($_SESSION['id_student'])) {
                     <div class="proof-icon"></div>
                     <div class="proof-content">
                         <div class="proof-count"><?php echo $stats['under_review_proofs']; ?></div>
-                        <div class="proof-label">En révision</div>
-                        <div class="proof-description">Infos complémentaires demandées</div>
+                        <div class="proof-label" data-translate="under_review">En révision</div>
+                        <div class="proof-description" data-translate="additional_info_requested">Infos complémentaires demandées</div>
                     </div>
                 </a>
 
@@ -199,8 +200,8 @@ if (!isset($_SESSION['id_student'])) {
                     <div class="proof-icon"></div>
                     <div class="proof-content">
                         <div class="proof-count"><?php echo $stats['rejected_proofs']; ?></div>
-                        <div class="proof-label">Refusés</div>
-                        <div class="proof-description">Non acceptés</div>
+                        <div class="proof-label" data-translate="rejected">Refusés</div>
+                        <div class="proof-description" data-translate="not_accepted">Non acceptés</div>
                     </div>
                 </a>
             </div>
@@ -211,14 +212,12 @@ if (!isset($_SESSION['id_student'])) {
             <div class="alert-box alert-warning">
                 <div class="alert-icon"></div>
                 <div class="alert-content">
-                    <div class="alert-title">Action requise : Demi-journées non justifiées</div>
+                    <div class="alert-title" data-translate="action_required">Action requise : Demi-journées non justifiées</div>
                     <div class="alert-message">
-                        Vous avez <strong><?php echo $stats['half_days_justifiable']; ?> demi-journée(s) d'absence non
-                            justifiée(s)</strong>.
-                        Pensez à soumettre vos justificatifs dans les 48h suivant votre retour en cours pour éviter des
-                        pénalités.
+                        <span data-translate="you_have">Vous avez</span> <strong><?php echo $stats['half_days_justifiable']; ?> <span data-translate="unjustified_half_days_alert">demi-journée(s) d'absence non justifiée(s)</span></strong>.
+                        <span data-translate="submit_within_48h">Pensez à soumettre vos justificatifs dans les 48h suivant votre retour en cours pour éviter des pénalités.</span>
                     </div>
-                    <a href="proof_submit.php" class="alert-action">
+                    <a href="proof_submit.php" class="alert-action" data-translate="submit_proof">
                         Soumettre un justificatif
                     </a>
                 </div>
@@ -230,12 +229,12 @@ if (!isset($_SESSION['id_student'])) {
             <div class="alert-box alert-info">
                 <div class="alert-icon"></div>
                 <div class="alert-content">
-                    <div class="alert-title">Informations complémentaires requises</div>
+                    <div class="alert-title" data-translate="additional_info_title">Informations complémentaires requises</div>
                     <div class="alert-message">
-                        Vous avez <strong><?php echo $stats['under_review_proofs']; ?> justificatif(s) en révision</strong>.
-                        L'équipe pédagogique a besoin d'informations supplémentaires.
+                        <span data-translate="you_have">Vous avez</span> <strong><?php echo $stats['under_review_proofs']; ?> <span data-translate="proofs_under_review">justificatif(s) en révision</span></strong>.
+                        <span data-translate="team_needs_info">L'équipe pédagogique a besoin d'informations supplémentaires.</span>
                     </div>
-                    <a href="proofs.php?status=under_review" class="alert-action">
+                    <a href="proofs.php?status=under_review" class="alert-action" data-translate="view_my_proofs">
                         Consulter mes justificatifs
                     </a>
                 </div>
@@ -246,22 +245,22 @@ if (!isset($_SESSION['id_student'])) {
         <?php if (count($recentAbsences) > 0): ?>
             <div class="absences-section">
                 <h2 class="section-title">
-                    <span class="status-badge" style="background-color: #e0e7ff; color: #4338ca;">Dernières absences</span>
+                    <span class="status-badge" style="background-color: #e0e7ff; color: #4338ca;" data-translate="recent_absences">Dernières absences</span>
                 </h2>
-                <div class="absences-subtitle">Derniers cours manqués</div>
+                <div class="absences-subtitle" data-translate="recent_courses_missed">Derniers cours manqués</div>
                 <div class="absences-table-container">
                     <table class="absences-table">
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Horaire</th>
-                                <th>Cours</th>
-                                <th>Enseignant</th>
-                                <th>Salle</th>
-                                <th>Durée</th>
-                                <th>Type</th>
-                                <th>Évaluation</th>
-                                <th>Statut</th>
+                                <th data-translate="date">Date</th>
+                                <th data-translate="time">Horaire</th>
+                                <th data-translate="course">Cours</th>
+                                <th data-translate="teacher">Enseignant</th>
+                                <th data-translate="room">Salle</th>
+                                <th data-translate="duration">Durée</th>
+                                <th data-translate="type">Type</th>
+                                <th data-translate="evaluation">Évaluation</th>
+                                <th data-translate="status">Statut</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1013,6 +1012,7 @@ if (!isset($_SESSION['id_student'])) {
         </div>
     </div>
 
+    <script src="../../assets/js/translations.js"></script>
     <script src="../../assets/js/student/home_modals.js"></script>
     <?php renderThemeScript(); ?>
 
