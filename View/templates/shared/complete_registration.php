@@ -125,13 +125,14 @@
 
         // Validation de la force du mot de passe
         password.addEventListener('input', function() {
-            const strength = document.getElementById('password-strength');
+            let strength = document.getElementById('password-strength');
             if (!strength) {
                 const strengthDiv = document.createElement('div');
                 strengthDiv.id = 'password-strength';
                 strengthDiv.style.fontSize = '12px';
                 strengthDiv.style.marginTop = '5px';
-                password.parentNode.appendChild(strengthDiv);
+                // Ajouter après le password-wrapper (pas à l'intérieur) pour ne pas décaler l'œil
+                password.closest('.form-group').appendChild(strengthDiv);
             }
 
             const strengthElement = document.getElementById('password-strength');

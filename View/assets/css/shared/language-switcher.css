@@ -1,0 +1,60 @@
+/* Style pour le bouton de changement de langue - Design simple blanc */
+.lang-toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lang-toggle-btn:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.lang-toggle-btn:active {
+    background: #eee;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Style pour les éléments traduits - transition douce */
+[data-translate] {
+    transition: opacity 0.15s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .lang-toggle-btn {
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}
+
+/* Mode sombre */
+body.dark-theme .lang-toggle-btn,
+[data-theme="dark"] .lang-toggle-btn {
+    background: #2d2d2d;
+    color: #fff;
+    border-color: #444;
+}
+
+body.dark-theme .lang-toggle-btn:hover,
+[data-theme="dark"] .lang-toggle-btn:hover {
+    background: #3d3d3d;
+    border-color: #555;
+}
