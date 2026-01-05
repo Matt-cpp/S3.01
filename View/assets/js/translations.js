@@ -297,6 +297,17 @@ function applyTranslations() {
     if (pageTranslations['page_title']) {
         document.title = pageTranslations['page_title'];
     }
+
+    // Formater les dates avec le mois selon la langue
+    document.querySelectorAll('.current-month-year').forEach(element => {
+        const dateStr = element.getAttribute('data-date');
+        if (dateStr) {
+            const date = new Date(dateStr);
+            const options = { year: 'numeric', month: 'long' };
+            const locale = lang === 'fr' ? 'fr-FR' : 'en-US';
+            element.textContent = date.toLocaleDateString(locale, options);
+        }
+    });
 }
 
 // Fonction pour mettre à jour le bouton de langue

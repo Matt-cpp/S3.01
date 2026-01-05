@@ -114,12 +114,9 @@ if (!isset($_SESSION['id_student'])) {
                 <div class="card-content">
                     <div class="card-label" data-translate="this_month">Ce mois-ci</div>
                     <div class="card-value"><?php echo $stats['half_days_this_month']; ?></div>
-                    <div class="card-description">Demi-journées en <?php
-                    $mois_fr = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-                    echo $mois_fr[date('n') - 1] . ' ' . date('Y');
-                    ?></div>
                     <div class="card-description"><span data-translate="half_days_in">Demi-journées en</span>
-                        <?php echo date('F Y'); ?></div>
+                        <span class="current-month-year" data-date="<?php echo date('Y-m-01'); ?>"></span>
+                    </div>
                 </div>
             </div>
 

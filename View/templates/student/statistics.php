@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier: statistics.php
  * 
@@ -340,8 +341,7 @@
             <?php if (!empty($monthlyTrends['months'])): ?>
                 const monthlyTrendData = {
                     labels: <?php echo json_encode($monthlyTrends['months']); ?>,
-                    datasets: [
-                        {
+                    datasets: [{
                             label: 'Total',
                             data: <?php echo json_encode($monthlyTrends['total']); ?>,
                             borderColor: chartColors.primary,
@@ -393,7 +393,8 @@
 
         <?php endif; ?>
     </script>
+
+    <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </body>
-<?php include __DIR__ . '/../../includes/footer.php'; ?>
 
 </html>

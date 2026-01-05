@@ -2275,7 +2275,7 @@ html.dark-mode body {
 }
 
 .dark-mode #summary-list-validation{
-  background-color: none !important;
+  background-color: var(--bg-card);
 }
 
 

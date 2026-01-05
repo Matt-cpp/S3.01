@@ -11,14 +11,15 @@ body {
     background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
     min-height: 100vh;
     color: #1f2937;
-    position: relative;
-    padding-bottom: 150px;
+    display: flex;
+    flex-direction: column;
 }
 
 .main-content {
     width: 80%;
     margin: 2rem auto;
     padding: 0 2rem;
+    flex: 1;
 }
 
 /* Header */
@@ -357,31 +358,6 @@ body {
     color: #92400e;
 }
 
-/* Footer */
-.footer-info {
-    margin-top: 1.5rem;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.footer {
-    background-color: rgb(0, 139, 172);
-    color: white;
-    padding: 2rem;
-    margin-top: auto;
-    text-align: center;
-}
-
-.footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.section-footer {
-    text-align: center;
-    padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-}
 
 
 /* Responsive */
