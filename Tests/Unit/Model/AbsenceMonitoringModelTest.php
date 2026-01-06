@@ -36,8 +36,18 @@ class AbsenceMonitoringModelTest extends TestCase
 
     public function testGetStudentsWithOngoingAbsencesReturnsRecentAbsences(): void
     {
-        // Arrange: Create absences in the last 7 days
-        $recentDate = date('Y-m-d', strtotime('-3 days'));
+        // Arrange: Create absences in the last 7 days (ensure weekday)
+        // Find the most recent weekday (Monday-Friday)
+        $recentDate = date('Y-m-d', strtotime('-1 day'));
+        $dayOfWeek = date('N', strtotime($recentDate)); // 1 (Monday) to 7 (Sunday)
+        
+        // If it's a weekend, go back to Friday
+        if ($dayOfWeek == 6) { // Saturday
+            $recentDate = date('Y-m-d', strtotime($recentDate . ' -1 day'));
+        } elseif ($dayOfWeek == 7) { // Sunday
+            $recentDate = date('Y-m-d', strtotime($recentDate . ' -2 days'));
+        }
+        
         $courseSlot = AbsencesFixture::createCourseSlot($this->getConnection(), [
             'course_date' => $recentDate
         ]);
@@ -398,10 +408,32 @@ class AbsenceMonitoringModelTest extends TestCase
 
     public function testCalculateHalfDaysMultipleDays(): void
     {
-        // Arrange: Create absences over 3 days (2 morning + 1 afternoon)
-        $day1 = date('Y-m-d', strtotime('-2 days'));
-        $day2 = date('Y-m-d', strtotime('-1 day'));
-        $day3 = date('Y-m-d');
+        // Arrange: Create absences over 3 consecutive weekdays (Mon-Fri only)
+        $today = date('Y-m-d');
+        $dayOfWeek = date('N', strtotime($today)); // 1 (Monday) to 7 (Sunday)
+        
+        // Ensure we have 3 consecutive weekdays
+        if ($dayOfWeek == 1) { // Monday - can't go back 2 weekdays, use Mon, Tue, Wed
+            $day1 = $today; // Monday
+            $day2 = date('Y-m-d', strtotime('+1 day')); // Tuesday
+            $day3 = date('Y-m-d', strtotime('+2 days')); // Wednesday
+        } elseif ($dayOfWeek == 2) { // Tuesday - use Mon, Tue, Wed
+            $day1 = date('Y-m-d', strtotime('-1 day')); // Monday
+            $day2 = $today; // Tuesday
+            $day3 = date('Y-m-d', strtotime('+1 day')); // Wednesday
+        } elseif ($dayOfWeek == 6) { // Saturday - use Wed, Thu, Fri
+            $day1 = date('Y-m-d', strtotime('-3 days')); // Wednesday
+            $day2 = date('Y-m-d', strtotime('-2 days')); // Thursday
+            $day3 = date('Y-m-d', strtotime('-1 day')); // Friday
+        } elseif ($dayOfWeek == 7) { // Sunday - use Wed, Thu, Fri
+            $day1 = date('Y-m-d', strtotime('-4 days')); // Wednesday
+            $day2 = date('Y-m-d', strtotime('-3 days')); // Thursday
+            $day3 = date('Y-m-d', strtotime('-2 days')); // Friday
+        } else { // Wed-Fri: use current day and 2 previous days (all weekdays)
+            $day1 = date('Y-m-d', strtotime('-2 days'));
+            $day2 = date('Y-m-d', strtotime('-1 day'));
+            $day3 = $today;
+        }
 
         // Day 1: Morning only
         $slot1 = AbsencesFixture::createCourseSlot($this->getConnection(), [

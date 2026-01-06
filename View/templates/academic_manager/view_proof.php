@@ -90,7 +90,7 @@ if (!$proof) {
 <meta charset="UTF-8">
 
 <head>
-    <title>Validation des justificatifs</title>
+    <title>Validation du justificatif</title>
     <link rel="stylesheet" href="../../assets/css/academic_manager/view_proof.css">
     <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
@@ -101,7 +101,7 @@ if (!$proof) {
 <body>
     <?php include __DIR__ . '/../navbar.php'; ?>
     <div class="container">
-        <h1 class="title">Validation des justificatifs</h1>
+        <h1 class="title">Validation du justificatif</h1>
 
         <div class="info-grid">
             <div class="info-field">

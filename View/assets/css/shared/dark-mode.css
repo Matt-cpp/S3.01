@@ -2245,7 +2245,7 @@ html.dark-mode body {
 
 .dark-mode .dates-container .info-field,
 .dark-mode .reason-container .info-field {
-  background: var(--bg-secondary);
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
 }
 

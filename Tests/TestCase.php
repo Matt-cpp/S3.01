@@ -21,17 +21,24 @@ abstract class TestCase extends PHPUnitTestCase
         parent::setUpBeforeClass();
 
         if (self::$pdo === null) {
+            // PHPUnit loads environment variables into $_ENV and $_SERVER
+            $dbHost = $_ENV['DB_HOST'] ?? $_SERVER['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
+            $dbPort = $_ENV['DB_PORT'] ?? $_SERVER['DB_PORT'] ?? getenv('DB_PORT') ?: '5432';
+            $dbName = $_ENV['DB_NAME'] ?? $_SERVER['DB_NAME'] ?? getenv('DB_NAME') ?: 'test_absence_db';
+            $dbUser = $_ENV['DB_USER'] ?? $_SERVER['DB_USER'] ?? getenv('DB_USER') ?: 'postgres';
+            $dbPassword = $_ENV['DB_PASSWORD'] ?? $_SERVER['DB_PASSWORD'] ?? getenv('DB_PASSWORD') ?: 'postgres';
+            
             $dsn = sprintf(
                 'pgsql:host=%s;port=%s;dbname=%s',
-                getenv('DB_HOST') ?: 'localhost',
-                getenv('DB_PORT') ?: '5432',
-                getenv('DB_NAME') ?: 'test_absence_db'
+                $dbHost,
+                $dbPort,
+                $dbName
             );
 
             self::$pdo = new \PDO(
                 $dsn,
-                getenv('DB_USER') ?: 'postgres',
-                getenv('DB_PASSWORD') ?: 'postgres',
+                $dbUser,
+                $dbPassword,
                 [
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                     \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
