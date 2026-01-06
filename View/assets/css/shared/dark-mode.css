@@ -717,6 +717,10 @@ html.dark-mode body {
   color: var(--text-secondary);
 }
 
+.dark-mode .selected-info.active {
+  background-color: var(--bg-card);
+}
+
 .dark-mode .duration-btn {
   background: var(--bg-tertiary);
   border-color: var(--border-color);
