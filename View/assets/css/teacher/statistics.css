@@ -280,6 +280,7 @@ body {
 }
 
 .chart-card {
+    margin-bottom: 10px;
     background: white;
     border-radius: 16px;
     padding: 25px;

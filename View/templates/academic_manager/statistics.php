@@ -28,7 +28,7 @@
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="../../assets/css/academic_manager/navbar.css">
     <link rel="stylesheet" href="../../assets/css/academic_manager/statistics.css">
-        <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
@@ -465,7 +465,7 @@
             }
 
             searchTimeout = setTimeout(() => {
-                fetch(`../../Presenter/api/secretary/search-students.php?q=${encodeURIComponent(query)}`)
+                fetch(`../../../Presenter/api/secretary/search-students.php?q=${encodeURIComponent(query)}`)
                     .then(response => response.json())
                     .then(data => {
                         const resultsDiv = document.getElementById('searchResults');
@@ -771,7 +771,7 @@
                     labels: <?php echo json_encode($resourceTrends['months']); ?>,
                     datasets: [
                         <?php foreach ($resourceTrends['datasets'] as $index => $dataset): ?>
-                                                                                                                                                                                                                {
+                                                                                                                                                                                                                            {
                                 label: <?php echo json_encode($dataset['label']); ?>,
                                 data: <?php echo json_encode($dataset['data']); ?>,
                                 borderColor: '<?php echo $dataset['color']; ?>',
@@ -779,7 +779,7 @@
                                 tension: 0.4,
                                 fill: true
                             }<?php echo $index < count($resourceTrends['datasets']) - 1 ? ',' : ''; ?>
-                                                                                                                <?php endforeach; ?>
+                                                                                                                        <?php endforeach; ?>
                     ]
                 };
 

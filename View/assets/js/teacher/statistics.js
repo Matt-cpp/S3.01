@@ -403,7 +403,7 @@ function applyFilters() {
   if (resource) params.append("resource", resource);
 
   // Reload page with filters
-  window.location.href = `teacher_statistics.php?${params.toString()}`;
+  window.location.href = `statistics.php?${params.toString()}`;
 }
 
 // ===== TENDANCES PAR MATIÈRE (Top 5) =====
