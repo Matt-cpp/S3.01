@@ -403,7 +403,8 @@ if (!isset($_SESSION['id_student'])) {
                                             <span class="eval-badge" data-translate="yes">Oui</span>
                                             <?php if (!empty($absence['makeup_id']) && !empty($absence['makeup_scheduled'])): ?>
                                                 <br><span class="makeup-badge"
-                                                    style="background-color: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; display: inline-block;" data-translate="makeup_scheduled">Rattrapage
+                                                    style="background-color: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; display: inline-block;"
+                                                    data-translate="makeup_scheduled">Rattrapage
                                                     prévu</span>
                                             <?php endif; ?>
                                         <?php else: ?>
@@ -431,9 +432,11 @@ if (!isset($_SESSION['id_student'])) {
         <?php if (count($proofsByCategory['under_review']) > 0): ?>
             <div class="absences-section">
                 <h2 class="section-title">
-                    <span class="status-badge status-under-review" data-translate="proofs_under_review">Justificatifs en révision</span>
+                    <span class="status-badge status-under-review" data-translate="proofs_under_review">Justificatifs en
+                        révision</span>
                 </h2>
-                <div class="absences-subtitle" data-translate="proofs_needing_info">Justificatifs nécessitant des informations supplémentaires</div>
+                <div class="absences-subtitle" data-translate="proofs_needing_info">Justificatifs nécessitant des
+                    informations supplémentaires</div>
                 <div class="absences-table-container">
                     <table class="absences-table">
                         <thead>
@@ -458,6 +461,8 @@ if (!isset($_SESSION['id_student'])) {
                                     'illness' => 'Maladie',
                                     'death' => 'Décès',
                                     'family_obligations' => 'Obligations familiales',
+                                    'official_summons' => 'Convocation officielle',
+                                    'transport_issue' => 'Problème de transport',
                                     'other' => 'Autre'
                                 ];
                                 $reasonText = $reasons[$proof['main_reason']] ?? $proof['main_reason'];
@@ -497,6 +502,8 @@ if (!isset($_SESSION['id_student'])) {
                                             'illness' => 'Maladie',
                                             'death' => 'Décès',
                                             'family_obligations' => 'Obligations familiales',
+                                            'official_summons' => 'Convocation officielle',
+                                            'transport_issue' => 'Problème de transport',
                                             'other' => 'Autre'
                                         ];
                                         echo $reasons[$proof['main_reason']] ?? $proof['main_reason'];
@@ -545,9 +552,11 @@ if (!isset($_SESSION['id_student'])) {
         <?php if (count($proofsByCategory['pending']) > 0): ?>
             <div class="absences-section">
                 <h2 class="section-title">
-                    <span class="status-badge status-pending" data-translate="proofs_pending_validation">Justificatifs en attente de validation</span>
+                    <span class="status-badge status-pending" data-translate="proofs_pending_validation">Justificatifs en
+                        attente de validation</span>
                 </h2>
-                <div class="absences-subtitle" data-translate="awaiting_verification">En attente de vérification par le responsable pédagogique</div>
+                <div class="absences-subtitle" data-translate="awaiting_verification">En attente de vérification par le
+                    responsable pédagogique</div>
                 <div class="absences-table-container">
                     <table class="absences-table">
                         <thead>
@@ -571,6 +580,7 @@ if (!isset($_SESSION['id_student'])) {
                                     'death' => 'Décès',
                                     'family_obligations' => 'Obligations familiales',
                                     'official_summons' => 'Convocation officielle',
+                                    'transport_issue' => 'Problème de transport',
                                     'other' => 'Autre'
                                 ];
                                 $reasonText = $reasons[$proof['main_reason']] ?? $proof['main_reason'];
@@ -610,6 +620,7 @@ if (!isset($_SESSION['id_student'])) {
                                             'death' => 'Décès',
                                             'family_obligations' => 'Obligations familiales',
                                             'official_summons' => 'Convocation officielle',
+                                            'transport_issue' => 'Problème de transport',
                                             'other' => 'Autre'
                                         ];
                                         echo $reasons[$proof['main_reason']] ?? $proof['main_reason'];
@@ -643,9 +654,11 @@ if (!isset($_SESSION['id_student'])) {
         <?php if (count($proofsByCategory['accepted']) > 0): ?>
             <div class="absences-section">
                 <h2 class="section-title">
-                    <span class="status-badge status-justified" data-translate="validated_proofs">Justificatifs validés</span>
+                    <span class="status-badge status-justified" data-translate="validated_proofs">Justificatifs
+                        validés</span>
                 </h2>
-                <div class="absences-subtitle" data-translate="proofs_accepted_by_manager">Justificatifs acceptés par le responsable pédagogique</div>
+                <div class="absences-subtitle" data-translate="proofs_accepted_by_manager">Justificatifs acceptés par le
+                    responsable pédagogique</div>
                 <div class="absences-table-container">
                     <table class="absences-table">
                         <thead>
@@ -670,6 +683,7 @@ if (!isset($_SESSION['id_student'])) {
                                     'death' => 'Décès',
                                     'family_obligations' => 'Obligations familiales',
                                     'official_summons' => 'Convocation officielle',
+                                    'transport_issue' => 'Problème de transport',
                                     'other' => 'Autre'
                                 ];
                                 $reasonText = $reasons[$proof['main_reason']] ?? $proof['main_reason'];
@@ -709,6 +723,8 @@ if (!isset($_SESSION['id_student'])) {
                                             'illness' => 'Maladie',
                                             'death' => 'Décès',
                                             'family_obligations' => 'Obligations familiales',
+                                            'official_summons' => 'Convocation officielle',
+                                            'transport_issue' => 'Problème de transport',
                                             'other' => 'Autre'
                                         ];
                                         echo $reasons[$proof['main_reason']] ?? $proof['main_reason'];
@@ -744,9 +760,11 @@ if (!isset($_SESSION['id_student'])) {
         <?php if (count($proofsByCategory['rejected']) > 0): ?>
             <div class="absences-section">
                 <h2 class="section-title">
-                    <span class="status-badge status-unjustified" data-translate="rejected_proofs">Justificatifs refusés</span>
+                    <span class="status-badge status-unjustified" data-translate="rejected_proofs">Justificatifs
+                        refusés</span>
                 </h2>
-                <div class="absences-subtitle" data-translate="proofs_rejected_by_manager">Justificatifs refusés par le responsable pédagogique</div>
+                <div class="absences-subtitle" data-translate="proofs_rejected_by_manager">Justificatifs refusés par le
+                    responsable pédagogique</div>
                 <div class="absences-table-container">
                     <table class="absences-table">
                         <thead>
@@ -772,6 +790,7 @@ if (!isset($_SESSION['id_student'])) {
                                     'death' => 'Décès',
                                     'family_obligations' => 'Obligations familiales',
                                     'official_summons' => 'Convocation officielle',
+                                    'transport_issue' => 'Problème de transport',
                                     'other' => 'Autre'
                                 ];
                                 $reasonText = $reasons[$proof['main_reason']] ?? $proof['main_reason'];
@@ -812,6 +831,7 @@ if (!isset($_SESSION['id_student'])) {
                                             'death' => 'Décès',
                                             'family_obligations' => 'Obligations familiales',
                                             'official_summons' => 'Convocation officielle',
+                                            'transport_issue' => 'Problème de transport',
                                             'other' => 'Autre'
                                         ];
                                         echo $reasons[$proof['main_reason']] ?? $proof['main_reason'];
@@ -906,7 +926,8 @@ if (!isset($_SESSION['id_student'])) {
                 <!-- Section Évaluation ratée (visible uniquement si is_evaluation) -->
                 <div id="evaluationSection" class="modal-info-group"
                     style="display: none; background-color: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                    <h3 style="color: #856404; margin-bottom: 10px; font-size: 16px;" data-translate="missed_evaluation">Évaluation ratée</h3>
+                    <h3 style="color: #856404; margin-bottom: 10px; font-size: 16px;"
+                        data-translate="missed_evaluation">Évaluation ratée</h3>
                     <div class="modal-info-item">
                         <span class="modal-label" data-translate="evaluation">Évaluation :</span>
                         <span class="modal-value" id="evaluationCourse"></span>
@@ -924,7 +945,8 @@ if (!isset($_SESSION['id_student'])) {
                 <!-- Section Rattrapage (visible uniquement si makeup existe) -->
                 <div id="makeupSection" class="modal-info-group"
                     style="display: none; background-color: #d1ecf1; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                    <h3 style="color: #0c5460; margin-bottom: 10px; font-size: 16px;" data-translate="makeup_scheduled">Rattrapage prévu</h3>
+                    <h3 style="color: #0c5460; margin-bottom: 10px; font-size: 16px;" data-translate="makeup_scheduled">
+                        Rattrapage prévu</h3>
                     <div class="modal-info-item">
                         <span class="modal-label" data-translate="makeup_date">Date du rattrapage :</span>
                         <span class="modal-value" id="makeupDate"></span>
@@ -1038,7 +1060,8 @@ if (!isset($_SESSION['id_student'])) {
                 <div class="modal-action-section" id="proofActionSection"
                     style="display: none; margin-top: 20px; text-align: center;">
                     <a href="#" id="proofModalCompleteBtn" class="btn-add-info"
-                        style="display: inline-block; padding: 12px 24px; text-decoration: none;" data-translate="complete_proof">
+                        style="display: inline-block; padding: 12px 24px; text-decoration: none;"
+                        data-translate="complete_proof">
                         Compléter le justificatif
                     </a>
                 </div>
