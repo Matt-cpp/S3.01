@@ -186,4 +186,164 @@ class UserModel
             ];
         }
     }
+
+    /**
+     * Delete a student and all related data to leave no trace in the database.
+     * Operates inside a transaction and attempts to remove rows from all tables
+     * that reference the student's `identifier` or `id`.
+     *
+     * @param string $identifier Student identifier (may be NULL for users without identifier)
+     * @return bool True on success, false on failure
+     */
+    public function deleteStudentCascade(string $identifier): bool
+    {
+        try {
+            // Find user by identifier (case-insensitive)
+            $user = $this->getUserByIdentifier($identifier);
+            if (!$user) {
+                return false; // nothing to delete
+            }
+
+            $userId = $user['id'];
+            $email = $user['email'] ?? null;
+
+            // Begin transaction
+            $this->db->beginTransaction();
+
+            // Remove decision history related to proofs of this student
+            $sql = "DELETE FROM decision_history WHERE justification_id IN (SELECT id FROM proof WHERE student_identifier = :identifier)";
+            $this->db->execute($sql, [':identifier' => $identifier]);
+
+            // Remove decision history entries created by or processed by this user
+            $sql = "DELETE FROM decision_history WHERE user_id = :user_id";
+            $this->db->execute($sql, [':user_id' => $userId]);
+
+            // Delete proofs (will cascade to proof_absences via ON DELETE CASCADE)
+            $sql = "DELETE FROM proof WHERE student_identifier = :identifier";
+            $this->db->execute($sql, [':identifier' => $identifier]);
+
+            // Remove any proof_absences that reference absences of this student (defensive)
+            $sql = "DELETE FROM proof_absences WHERE absence_id IN (SELECT id FROM absences WHERE student_identifier = :identifier)";
+            $this->db->execute($sql, [':identifier' => $identifier]);
+
+            // Delete notifications
+            $sql = "DELETE FROM notifications WHERE student_identifier = :identifier";
+            $this->db->execute($sql, [':identifier' => $identifier]);
+
+            // Delete makeups
+            $sql = "DELETE FROM makeups WHERE student_identifier = :identifier";
+            $this->db->execute($sql, [':identifier' => $identifier]);
+
+            // Delete absence monitoring records referencing either student id or identifier
+            $sql = "DELETE FROM absence_monitoring WHERE student_identifier = :identifier OR student_id = :user_id";
+            $this->db->execute($sql, [':identifier' => $identifier, ':user_id' => $userId]);
+
+            // Delete absences (will cascade to proof_absences via ON DELETE CASCADE)
+            $sql = "DELETE FROM absences WHERE student_identifier = :identifier";
+            $this->db->execute($sql, [':identifier' => $identifier]);
+
+            // Remove user-group links
+            $sql = "DELETE FROM user_groups WHERE user_id = :user_id";
+            $this->db->execute($sql, [':user_id' => $userId]);
+
+            // Remove email_verifications for this email (if present)
+            if (!empty($email)) {
+                $sql = "DELETE FROM email_verifications WHERE UPPER(email) = UPPER(:email)";
+                $this->db->execute($sql, [':email' => $email]);
+            }
+
+            // Finally delete the user record
+            $sql = "DELETE FROM users WHERE id = :user_id";
+            $this->db->execute($sql, [':user_id' => $userId]);
+
+            // Commit transaction
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            error_log("Error deleting student cascade: " . $e->getMessage());
+            try {
+                $this->db->rollBack();
+            } catch (Exception $e2) {
+                // ignore rollback errors
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Delete a student and all related data using the user's numeric id.
+     * This complements deleteStudentCascade(string $identifier) and is the
+     * preferred method when the caller has the user's `id`.
+     *
+     * @param int $userId
+     * @return bool
+     */
+    public function deleteStudentCascadeById(int $userId): bool
+    {
+        try {
+            // Find user by id
+            $user = $this->getUserById($userId);
+            if (!$user) {
+                return false; // nothing to delete
+            }
+
+            $identifier = $user['identifier'] ?? null;
+            $email = $user['email'] ?? null;
+
+            $this->db->beginTransaction();
+
+            // Decision history referencing proofs for this student (if identifier available)
+            if (!empty($identifier)) {
+                $sql = "DELETE FROM decision_history WHERE justification_id IN (SELECT id FROM proof WHERE student_identifier = :identifier)";
+                $this->db->execute($sql, [':identifier' => $identifier]);
+            }
+
+            // Decision history entries created by / processed by this user
+            $sql = "DELETE FROM decision_history WHERE user_id = :user_id";
+            $this->db->execute($sql, [':user_id' => $userId]);
+
+            // Delete proofs (by identifier)
+            if (!empty($identifier)) {
+                $sql = "DELETE FROM proof WHERE student_identifier = :identifier";
+                $this->db->execute($sql, [':identifier' => $identifier]);
+
+                // Defensive cleanup for proof_absences that reference absences of this student
+                $sql = "DELETE FROM proof_absences WHERE absence_id IN (SELECT id FROM absences WHERE student_identifier = :identifier)";
+                $this->db->execute($sql, [':identifier' => $identifier]);
+
+                // Delete notifications, makeups and absences by identifier
+                $this->db->execute("DELETE FROM notifications WHERE student_identifier = :identifier", [':identifier' => $identifier]);
+                $this->db->execute("DELETE FROM makeups WHERE student_identifier = :identifier", [':identifier' => $identifier]);
+                $this->db->execute("DELETE FROM absences WHERE student_identifier = :identifier", [':identifier' => $identifier]);
+
+                // absence_monitoring rows by identifier
+                $this->db->execute("DELETE FROM absence_monitoring WHERE student_identifier = :identifier", [':identifier' => $identifier]);
+            }
+
+            // Also remove monitoring rows referencing the numeric student id
+            $this->db->execute("DELETE FROM absence_monitoring WHERE student_id = :user_id", [':user_id' => $userId]);
+
+            // Remove user-group links
+            $this->db->execute("DELETE FROM user_groups WHERE user_id = :user_id", [':user_id' => $userId]);
+
+            // Remove email_verifications for this email (if present)
+            if (!empty($email)) {
+                $this->db->execute("DELETE FROM email_verifications WHERE UPPER(email) = UPPER(:email)", [':email' => $email]);
+            }
+
+            // Finally delete the user record
+            $this->db->execute("DELETE FROM users WHERE id = :user_id", [':user_id' => $userId]);
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            error_log("Error deleting student cascade by id: " . $e->getMessage());
+            try {
+                $this->db->rollBack();
+            } catch (Exception $e2) {
+                // ignore
+            }
+            return false;
+        }
+    }
 }
