@@ -17,7 +17,7 @@
  */
 
 // Protection de la page avec authentification simple
-require_once __DIR__ . '/../../controllers/auth_guard.php';
+require_once __DIR__ . '/../shared/auth_guard.php';
 $user = requireAuth();
 
 require_once __DIR__ . '/../../Model/ProofModel.php';

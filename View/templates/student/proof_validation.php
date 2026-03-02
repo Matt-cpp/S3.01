@@ -14,7 +14,7 @@
  * Les données sont récupérées depuis la session après validation par le Presenter.
  */
 
-require_once __DIR__ . '/../../../controllers/auth_guard.php';
+require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('student');
 
 // Use the authenticated user's ID
@@ -23,7 +23,6 @@ if (!isset($_SESSION['id_student'])) {
 }
 
 date_default_timezone_set('Europe/Paris');
-require_once __DIR__ . '/../../../Model/database.php';
 
 // Vérification de la présence des données du justificatif en session
 // Redirection vers le formulaire si aucune donnée n'est disponible

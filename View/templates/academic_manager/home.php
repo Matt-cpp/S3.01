@@ -29,19 +29,13 @@
 
 <body>
     <?php
-    require_once __DIR__ . '/../../../controllers/auth_guard.php';
+    require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
     $user = requireRole('academic_manager');
 
     require_once __DIR__ . '/../../../Presenter/academic_manager/dashboard.php';
-    require_once __DIR__ . '/../../../Model/ProofModel.php';
-    require_once __DIR__ . '/../../../Model/database.php';
     $donnes = new AcademicManagerDashboardPresenter();
-    $proofModel = new ProofModel();
-    $recentProofs = $proofModel->getRecentProofs(5); // Get 5 most recent proofs
-    
-    // Récupérer le nombre de justificatifs en attente
-    $db = Database::getInstance();
-    $pendingProofsCount = $db->select("SELECT COUNT(*) as count FROM proof WHERE status = 'pending'")[0]['count'];
+    $recentProofs = $donnes->getRecentProofs(5);
+    $pendingProofsCount = $donnes->pendingProofsCount();
     ?>
     <?php include __DIR__ . '/../navbar.php'; ?>
 
@@ -188,11 +182,11 @@
                                 <td><?php echo htmlspecialchars($proof['group_label'] ?? 'N/A'); ?></td>
                                 <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_start_date']))); ?></td>
                                 <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_end_date']))); ?></td>
-                                <td><?php echo htmlspecialchars($proofModel->translate('reason', $proof['main_reason'])); ?>
+                                <td><?php echo htmlspecialchars($donnes->translateProof('reason', $proof['main_reason'])); ?>
                                 </td>
                                 <td class="status-cell">
                                     <?php
-                                    $statusText = $proofModel->translate('status', $proof['status']);
+                                    $statusText = $donnes->translateProof('status', $proof['status']);
                                     $statusClass = '';
                                     switch ($proof['status']) {
                                         case 'pending':

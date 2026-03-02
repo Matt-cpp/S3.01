@@ -34,7 +34,7 @@
 
 <body>
     <?php
-    require_once __DIR__ . '/../../../controllers/auth_guard.php';
+    require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
     $user = requireRole('student');
 
     require_once __DIR__ . '/../../../Presenter/student/statistics_presenter.php';
@@ -342,29 +342,29 @@
                 const monthlyTrendData = {
                     labels: <?php echo json_encode($monthlyTrends['months']); ?>,
                     datasets: [{
-                            label: 'Total',
-                            data: <?php echo json_encode($monthlyTrends['total']); ?>,
-                            borderColor: chartColors.primary,
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                            fill: true,
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Justifiées',
-                            data: <?php echo json_encode($monthlyTrends['justified']); ?>,
-                            borderColor: chartColors.success,
-                            backgroundColor: 'transparent',
-                            borderDash: [5, 5],
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Non justifiées',
-                            data: <?php echo json_encode($monthlyTrends['unjustified']); ?>,
-                            borderColor: chartColors.danger,
-                            backgroundColor: 'transparent',
-                            borderDash: [5, 5],
-                            tension: 0.4
-                        }
+                        label: 'Total',
+                        data: <?php echo json_encode($monthlyTrends['total']); ?>,
+                        borderColor: chartColors.primary,
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Justifiées',
+                        data: <?php echo json_encode($monthlyTrends['justified']); ?>,
+                        borderColor: chartColors.success,
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Non justifiées',
+                        data: <?php echo json_encode($monthlyTrends['unjustified']); ?>,
+                        borderColor: chartColors.danger,
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    }
                     ]
                 };
 

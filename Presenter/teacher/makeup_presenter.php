@@ -68,6 +68,68 @@ class planificationRattrapage
 
         return $result;
     }
+
+    /**
+     * Récupère toutes les salles disponibles
+     */
+    public function getAllRooms()
+    {
+        return $this->db->select("SELECT id, code FROM rooms ORDER BY code ASC");
+    }
+
+    /**
+     * Récupère ou crée une salle par code
+     * @return int|null L'ID de la salle
+     */
+    public function getOrCreateRoom($salleId, $newSalleCode)
+    {
+        if ($salleId && $salleId !== 'new') {
+            return intval($salleId);
+        }
+
+        if (!$newSalleCode) {
+            return null;
+        }
+
+        $existingRoom = $this->db->selectOne("SELECT id FROM rooms WHERE code = :code", [':code' => $newSalleCode]);
+        if ($existingRoom) {
+            return $existingRoom['id'];
+        }
+
+        $this->db->execute("INSERT INTO rooms (code) VALUES (:code)", [':code' => $newSalleCode]);
+        return $this->db->lastInsertId();
+    }
+
+    /**
+     * Planifie un rattrapage pour tous les élèves d'un DS
+     * @return array ['success' => bool, 'message' => string, 'count' => int]
+     */
+    public function scheduleMakeups($dsId, $date, $duree, $salleId, $newSalleCode, $comment)
+    {
+        if (!$dsId || !$date || !$duree) {
+            return ['success' => false, 'message' => 'Veuillez remplir tous les champs obligatoires.', 'count' => 0];
+        }
+
+        $roomId = $this->getOrCreateRoom($salleId, $newSalleCode);
+        $lesEleves = $this->getLesEleves($dsId);
+        $count = 0;
+
+        foreach ($lesEleves as $eleve) {
+            $this->insererRattrapage(
+                $eleve['id'],
+                $dsId,
+                $eleve['identifier'],
+                $date,
+                $roomId,
+                intval($duree),
+                $comment
+            );
+            $count++;
+        }
+
+        return ['success' => true, 'message' => "Rattrapage planifié avec succès pour {$count} étudiant(s) !", 'count' => $count];
+    }
+
     public function insererRattrapage($idAbs, $evalId, $studentId, $dateRattrapage, $roomId = null, $durationMinutes = null, $comment = null)
     {
         // Insérer le nouveau rattrapage

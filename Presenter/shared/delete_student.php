@@ -1,8 +1,8 @@
 <?php
-// controllers/delete_student.php
+// Presenter/shared/delete_student.php
 // Deletes a student and all associated data from the database.
 
-require_once __DIR__ . '/../Model/UserModel.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN'));
 
@@ -17,7 +17,8 @@ if ($isCli) {
     global $argv;
     $opts = [];
     foreach ($argv as $idx => $arg) {
-        if ($idx === 0) continue;
+        if ($idx === 0)
+            continue;
         if (strpos($arg, '--') === 0) {
             $arg = substr($arg, 2);
         }
@@ -35,8 +36,8 @@ if ($isCli) {
 if (empty($id) || !is_numeric($id)) {
     if ($isCli) {
         fwrite(STDERR, "Error: Missing or invalid id parameter\n");
-        fwrite(STDERR, "Usage: php controllers/delete_student.php 123\n");
-        fwrite(STDERR, "Or: php controllers/delete_student.php --id=123\n");
+        fwrite(STDERR, "Usage: php Presenter/shared/delete_student.php 123\n");
+        fwrite(STDERR, "Or: php Presenter/shared/delete_student.php --id=123\n");
         exit(1);
     } else {
         http_response_code(400);
@@ -47,7 +48,7 @@ if (empty($id) || !is_numeric($id)) {
 
 
 $model = new UserModel();
-$ok = $model->deleteStudentCascadeById((int)$id);
+$ok = $model->deleteStudentCascadeById((int) $id);
 
 if ($ok) {
     if ($isCli) {

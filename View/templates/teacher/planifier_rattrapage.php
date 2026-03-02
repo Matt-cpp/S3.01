@@ -1,75 +1,38 @@
 <?php
-require_once __DIR__ . '/../../../controllers/auth_guard.php';
+require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/makeup_presenter.php';
-require_once __DIR__ . '/../../../Model/database.php';
 
 // ID du professeur from session
 $teacherId = $user['id'];
 $planif = new planificationRattrapage($teacherId);
-$db = Database::getInstance();
 
 // Récupérer les DS à rattraper
 $lesDs = $planif->getLesDs();
 
 // Récupérer toutes les salles existantes
-$rooms = $db->select("SELECT id, code FROM rooms ORDER BY code ASC");
+$rooms = $planif->getAllRooms();
 
 $message = '';
 $messageType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $dsId = $_POST['matiere'] ?? null;
-    $date = $_POST['date'] ?? null;
-    $duree = $_POST['duree'] ?? null;
-    $salleId = $_POST['salle_id'] ?? null;
-    $newSalleCode = trim($_POST['new_salle'] ?? '');
-    $comment = $_POST['comment'] ?? null;
+    $result = $planif->scheduleMakeups(
+        $_POST['matiere'] ?? null,
+        $_POST['date'] ?? null,
+        $_POST['duree'] ?? null,
+        $_POST['salle_id'] ?? null,
+        trim($_POST['new_salle'] ?? ''),
+        $_POST['comment'] ?? null
+    );
 
-    // Determine room ID
-    $roomId = null;
-    if ($salleId && $salleId !== 'new') {
-        // Use existing room
-        $roomId = intval($salleId);
-    } elseif ($newSalleCode) {
-        // Check if room already exists
-        $existingRoom = $db->selectOne("SELECT id FROM rooms WHERE code = :code", [':code' => $newSalleCode]);
-        if ($existingRoom) {
-            $roomId = $existingRoom['id'];
-        } else {
-            // Create new room
-            $db->execute("INSERT INTO rooms (code) VALUES (:code)", [':code' => $newSalleCode]);
-            $roomId = $db->lastInsertId();
-            // Refresh rooms list
-            $rooms = $db->select("SELECT id, code FROM rooms ORDER BY code ASC");
-        }
-    }
+    $message = $result['message'];
+    $messageType = $result['success'] ? 'success' : 'error';
 
-    if ($dsId && $date && $duree) {
-        $lesEleves = $planif->getLesEleves($dsId);
-
-        $count = 0;
-        foreach ($lesEleves as $eleve) {
-            $planif->insererRattrapage(
-                $eleve['id'],
-                $dsId,
-                $eleve['identifier'],
-                $date,
-                $roomId,
-                intval($duree),
-                $comment
-            );
-            $count++;
-        }
-
-        $message = "Rattrapage planifié avec succès pour {$count} étudiant(s) !";
-        $messageType = 'success';
-
+    if ($result['success']) {
         $lesDs = $planif->getLesDs();
-    } else {
-        $message = "Veuillez remplir tous les champs obligatoires.";
-        $messageType = 'error';
+        $rooms = $planif->getAllRooms();
     }
 }
 ?>

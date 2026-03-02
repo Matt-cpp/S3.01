@@ -15,7 +15,7 @@
  * - Les contacts pour assistance
  * Utilisé par la page d'information des étudiants.
  */
-require_once __DIR__ . '/../../../controllers/auth_guard.php';
+require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('student');
 
 // Use the authenticated user's ID

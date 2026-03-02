@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Nouveau mot de passe</title>
     <link rel="stylesheet" href="../../assets/css/shared/create_acc.css">
-        <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
@@ -48,7 +48,7 @@
                     ✓ Code vérifié pour : <strong><?php echo htmlspecialchars($_SESSION['reset_email']); ?></strong>
                 </div>
 
-                <form action="../../../controllers/forgot_password.php" method="POST" class="register-form">
+                <form action="../../../Presenter/shared/forgot_password_presenter.php" method="POST" class="register-form">
                     <input type="hidden" name="action" value="reset_password">
 
                     <div class="form-group">
@@ -123,7 +123,7 @@
         confirmPassword.addEventListener('input', checkPasswords);
 
         // Validation de la force du mot de passe
-        password.addEventListener('input', function() {
+        password.addEventListener('input', function () {
             const strength = document.getElementById('password-strength');
             if (!strength) {
                 const strengthDiv = document.createElement('div');

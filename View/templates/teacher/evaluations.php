@@ -1,6 +1,6 @@
 <?php
 // Page affichant les évaluations avec des élèves absents pour les professeurs
-require_once __DIR__ . '/../../../controllers/auth_guard.php';
+require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/evaluations_presenter.php';
@@ -24,7 +24,7 @@ $evaluations = $table->lesEvaluations();
 <html lang="fr">
 
 <head>
-    
+
     <title>Tableau des Evaluations</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -80,7 +80,9 @@ $evaluations = $table->lesEvaluations();
                                 <td><?php echo htmlspecialchars($eval['nbabs']); ?></td>
                                 <td><?php echo htmlspecialchars($eval['nb_justifications']); ?></td>
                                 <td>
-                                    <button class="info-button" onclick="window.location.href='information_DS.php?course_slot_id=<?php echo $eval['course_slot_id']; ?>'">Voir les détails</button>
+                                    <button class="info-button"
+                                        onclick="window.location.href='information_DS.php?course_slot_id=<?php echo $eval['course_slot_id']; ?>'">Voir
+                                        les détails</button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -90,7 +92,7 @@ $evaluations = $table->lesEvaluations();
             </table>
         </div>
     </main>
-    
+
     <?php renderThemeScript(); ?>
 </body>
 <?php include __DIR__ . '/../../includes/footer.php'; ?>

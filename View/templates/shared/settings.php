@@ -11,7 +11,7 @@
 </head>
 <body>
     <?php
-    require_once __DIR__ . '/../../../controllers/auth_guard.php';
+    require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
     $authUser = requireAuth(); // Available to all authenticated users
     
     require_once __DIR__ . '/../../../Presenter/shared/settings-presenter.php';

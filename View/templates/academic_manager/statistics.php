@@ -34,7 +34,7 @@
 
 <body>
     <?php
-    require_once __DIR__ . '/../../../controllers/auth_guard.php';
+    require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
     $user = requireRole('academic_manager');
 
     require_once __DIR__ . '/../../../Presenter/academic_manager/statistics-presenter.php';
@@ -771,7 +771,7 @@
                     labels: <?php echo json_encode($resourceTrends['months']); ?>,
                     datasets: [
                         <?php foreach ($resourceTrends['datasets'] as $index => $dataset): ?>
-                                                                                                                                                                                                                            {
+                                                                                                                                                                                                                                        {
                                 label: <?php echo json_encode($dataset['label']); ?>,
                                 data: <?php echo json_encode($dataset['data']); ?>,
                                 borderColor: '<?php echo $dataset['color']; ?>',
@@ -779,7 +779,7 @@
                                 tension: 0.4,
                                 fill: true
                             }<?php echo $index < count($resourceTrends['datasets']) - 1 ? ',' : ''; ?>
-                                                                                                                        <?php endforeach; ?>
+                                                                                                                                <?php endforeach; ?>
                     ]
                 };
 

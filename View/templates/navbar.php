@@ -11,7 +11,7 @@ $user_email = $_SESSION['user_email'] ?? 'email@example.com';
 $user_role = $_SESSION['user_role'] ?? 'student';
 
 // Get home page URL based on role
-require_once __DIR__ . '/../../controllers/auth_guard.php';
+require_once __DIR__ . '/../../Presenter/shared/auth_guard.php';
 $home_url = getUserHomePage($user_role);
 
 // Déterminer la page actuelle pour les étudiants
@@ -116,7 +116,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     </div>
                 </div>
                 <div class="dropdown-divider"></div>
-                <a href="../../../controllers/logout.php" class="dropdown-item logout">
+                <a href="../../../Presenter/shared/logout_presenter.php" class="dropdown-item logout">
                     <span>Déconnexion</span>
                 </a>
             </div>

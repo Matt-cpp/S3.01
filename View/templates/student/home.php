@@ -11,7 +11,7 @@
  * - Liste des dernières absences
  * - Justificatifs par catégorie
  */
-require_once __DIR__ . '/../../../controllers/auth_guard.php';
+require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('student');
 
 // Use the authenticated user's ID
@@ -33,38 +33,17 @@ if (!isset($_SESSION['id_student'])) {
 <body data-page="student_home">
     <?php
     include __DIR__ . '/../navbar.php';
-    require_once __DIR__ . '/../../../Presenter/shared/session_cache.php';
-    require_once __DIR__ . '/../../../Presenter/student/get_info.php';
+    require_once __DIR__ . '/../../../Presenter/student/dashboard_presenter.php';
 
-    // Gestion du rafraîchissement du cache - Force le rechargement si ?refresh=1 est présent dans l'URL
+    // Gestion du rafraîchissement du cache
     $forceRefresh = isset($_GET['refresh']) && $_GET['refresh'] == '1';
 
-    // Utiliser les données en session si disponibles et récentes
-    if ($forceRefresh || !isset($_SESSION['stats']) || !isset($_SESSION['proofsByCategory']) || !isset($_SESSION['recentAbsences']) || !isset($_SESSION['stats']['total_absences_count']) || shouldRefreshCache(20)) {
-        $_SESSION['stats'] = getAbsenceStatistics($_SESSION['id_student']);
-        $_SESSION['proofsByCategory'] = getProofsByCategory($_SESSION['id_student']);
-        $_SESSION['recentAbsences'] = getRecentAbsences($_SESSION['id_student'], 5);
-        updateCacheTimestamp();
-    }
-
-    $stats = $_SESSION['stats'];
-    $proofsByCategory = $_SESSION['proofsByCategory'];
-    $recentAbsences = $_SESSION['recentAbsences'];
-
-    // Calcul du pourcentage de justification
-    // Si aucune absence (0 demi-journées), affichage de 100% pour éviter division par zéro
-    $justification_percentage = $stats['total_half_days'] > 0
-        ? round(($stats['half_days_justified'] / $stats['total_half_days']) * 100, 1)
-        : 100;
-
-    // Calculer les demi-points perdus (5 demi-journées non justifiées = 0,5 point perdu)
-    $half_points_lost = (int) $stats['half_days_unjustified'] / 10;
-    $temp = 0;
-    while ($half_points_lost >= 0.5) {
-        $half_points_lost -= 0.5;
-        $temp += 0.5;
-    }
-    $half_points_lost = $temp;
+    $dashboard = new StudentDashboardPresenter($_SESSION['id_student'], $forceRefresh);
+    $stats = $dashboard->getStats();
+    $proofsByCategory = $dashboard->getProofsByCategory();
+    $recentAbsences = $dashboard->getRecentAbsences();
+    $justification_percentage = $dashboard->getJustificationPercentage();
+    $half_points_lost = $dashboard->getHalfPointsLost();
     ?>
 
     <div class="dashboard-container">

@@ -1,6 +1,6 @@
 <?php
 //Page Principake du tableau de bord enseignant
-require_once __DIR__ . '/../../../controllers/auth_guard.php';
+require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/dashboard.php';

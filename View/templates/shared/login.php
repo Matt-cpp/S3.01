@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/../../../controllers/auth_guard.php';
+require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 redirectIfAuthenticated();
 
 $errors = $_SESSION['login_errors'] ?? [];
@@ -35,17 +35,19 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
                 </div>
             <?php endif; ?>
 
-            <form action="../../../controllers/login.php" method="POST" class="login-form">
+            <form action="../../../Presenter/shared/login_presenter.php" method="POST" class="login-form">
                 <div class="form-group">
                     <label for="email" data-translate="email_label">Email:</label>
-                    <input type="email" id="email" name="email" placeholder="prenom.nom@uphf.fr" data-translate="email_placeholder"
+                    <input type="email" id="email" name="email" placeholder="prenom.nom@uphf.fr"
+                        data-translate="email_placeholder"
                         value="<?php echo htmlspecialchars($formData['email'] ?? ''); ?>" required>
                 </div>
 
                 <div class="form-group">
                     <label for="password" data-translate="password_label">Mot de passe:</label>
                     <div class="password-wrapper">
-                        <input type="password" id="password" name="password" placeholder="********" data-translate="password_placeholder" required>
+                        <input type="password" id="password" name="password" placeholder="********"
+                            data-translate="password_placeholder" required>
                         <i class="far fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
                     </div>
                 </div>
@@ -53,8 +55,10 @@ unset($_SESSION['login_errors'], $_SESSION['form_data']);
             </form>
 
             <div class="login-link">
-                <p><span data-translate="no_account">Pas de compte?</span> <a href="create_acc.php" data-translate="create_account">Créer un compte</a></p>
-                <p><span data-translate="forgot_password">Mot de passe oublié?</span> <a href="forgot_password.php" data-translate="reset_password">Réinitialiser</a></p>
+                <p><span data-translate="no_account">Pas de compte?</span> <a href="create_acc.php"
+                        data-translate="create_account">Créer un compte</a></p>
+                <p><span data-translate="forgot_password">Mot de passe oublié?</span> <a href="forgot_password.php"
+                        data-translate="reset_password">Réinitialiser</a></p>
             </div>
         </div>
     </div>

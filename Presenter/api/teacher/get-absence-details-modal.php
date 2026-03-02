@@ -15,7 +15,7 @@
 // API pour récupérer les détails des absences d'un cours
 header('Content-Type: application/json');
 
-require_once __DIR__ . '/../../../controllers/auth_guard.php';
+require_once __DIR__ . '/../../shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../teacher/evaluations_presenter.php';

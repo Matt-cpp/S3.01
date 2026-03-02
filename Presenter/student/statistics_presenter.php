@@ -15,7 +15,7 @@
 
 require_once __DIR__ . '/../../Model/StatisticsModel.php';
 require_once __DIR__ . '/../../Model/database.php';
-require_once __DIR__ . '/../../controllers/auth_guard.php';
+require_once __DIR__ . '/../shared/auth_guard.php';
 
 class StudentStatisticsPresenter
 {
@@ -297,14 +297,14 @@ class StudentStatisticsPresenter
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
             $absences = $stmt->fetchAll();
-            
+
             // Format resource labels
             foreach ($absences as &$absence) {
                 if (isset($absence['resource_name'])) {
                     $absence['resource_name'] = $this->formatResourceLabel($absence['resource_name']);
                 }
             }
-            
+
             return $absences;
         } catch (Exception $e) {
             error_log("Error fetching recent absences: " . $e->getMessage());

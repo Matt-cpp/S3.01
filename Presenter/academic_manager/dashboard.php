@@ -21,13 +21,42 @@ class AcademicManagerDashboardPresenter
     private $page;
     private $alldata;
     private $db;
+    private $proofModel;
+
     //constructeur
     public function __construct()
     {
         $this->page = 0;
         require_once __DIR__ . '/../../Model/database.php';
+        require_once __DIR__ . '/../../Model/ProofModel.php';
         $this->db = Database::getInstance();
         $this->alldata = $this->db->select('SELECT * FROM absences');
+        $this->proofModel = new ProofModel();
+    }
+
+    /**
+     * Récupère le nombre de justificatifs en attente
+     */
+    public function pendingProofsCount()
+    {
+        $result = $this->db->select("SELECT COUNT(*) as count FROM proof WHERE status = 'pending'");
+        return $result[0]['count'];
+    }
+
+    /**
+     * Récupère les justificatifs récents
+     */
+    public function getRecentProofs($limit = 5)
+    {
+        return $this->proofModel->getRecentProofs($limit);
+    }
+
+    /**
+     * Traduit un champ via le ProofModel
+     */
+    public function translateProof($field, $value)
+    {
+        return $this->proofModel->translate($field, $value);
     }
 
     // Récupère les données d'absences avec jointures pour une page spécifique

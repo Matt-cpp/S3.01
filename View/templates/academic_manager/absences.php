@@ -27,7 +27,7 @@
 
 <body>
     <?php
-    require_once __DIR__ . '/../../../controllers/auth_guard.php';
+    require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
     $user = requireRole('academic_manager');
 
     require_once __DIR__ . '/../../../Presenter/academic_manager/dashboard.php';

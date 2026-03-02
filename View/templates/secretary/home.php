@@ -13,7 +13,7 @@
  * Utilisé par les secrétaires pour enregistrer les absences des étudiants.
  */
 
-require_once __DIR__ . '/../../../controllers/auth_guard.php';
+require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('secretary');
 
 require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';

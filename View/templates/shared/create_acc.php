@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/../../../controllers/auth_guard.php';
+require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 redirectIfAuthenticated();
 ?>
 <!DOCTYPE html>
@@ -38,7 +38,7 @@ redirectIfAuthenticated();
                 </div>
             <?php endif; ?>
 
-            <form action="../../../controllers/register.php" method="POST" class="register-form">
+            <form action="../../../Presenter/shared/register_presenter.php" method="POST" class="register-form">
                 <input type="hidden" name="action" value="send_code">
                 <div class="form-group">
                     <label for="email">Email universitaire:</label>

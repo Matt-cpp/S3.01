@@ -1,16 +1,7 @@
 <?php
 session_start();
-
-// Vérifier si l'utilisateur est déjà connecté
-if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
-    // Rediriger selon le rôle
-    if ($_SESSION['user_role'] === 'student') {
-        header("Location: historique.php");
-    } else {
-        header("Location: admin_dashboard.php");
-    }
-    exit;
-}
+require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
+redirectIfAuthenticated();
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -19,7 +10,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
     <meta charset="UTF-8">
     <title>Mot de passe oublié</title>
     <link rel="stylesheet" href="../../assets/css/shared/create_acc.css">
-        <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
+    <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
 </head>
@@ -47,7 +38,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
                 </div>
             <?php endif; ?>
 
-            <form action="../../../controllers/forgot_password.php" method="POST" class="register-form">
+            <form action="../../../Presenter/shared/forgot_password_presenter.php" method="POST" class="register-form">
                 <input type="hidden" name="action" value="send_reset_code">
                 <div class="form-group">
                     <label for="email">Email universitaire:</label>

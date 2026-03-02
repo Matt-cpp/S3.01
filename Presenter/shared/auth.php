@@ -11,7 +11,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/login.php';
+require_once __DIR__ . '/login_presenter.php';
 
 // Vérifier si l'utilisateur est connecté
 function requireAuth()
