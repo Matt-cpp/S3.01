@@ -208,7 +208,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="view_proof.php?proof_id=<?php echo urlencode($proof['proof_id']); ?>"
+                                    <a href="/View/templates/academic_manager/view_proof.php?proof_id=<?php echo urlencode($proof['proof_id']); ?>"
                                         class="btn btn-sm">
                                         Voir
                                     </a>
