@@ -26,6 +26,16 @@
     // Confirmations pour les actions de validation et rejet
     const rejectionForm = document.querySelector('.rejection-form');
     const validationForm = document.querySelector('.validation-form');
+    const verouillageForm = document.querySelector('.lock-form');
+
+    if (verouillageForm) {
+        verouillageForm.addEventListener('submit', function(e) {
+            if (e.target.name === 'lock' || e.submitter.name === 'lock') {
+                const confirmed = confirm('Êtes-vous certain de vouloir verrouiller ce justificatif ?');
+                if (!confirmed) e.preventDefault();
+            }
+        });
+    }
 
     if (rejectionForm) {
         rejectionForm.addEventListener('submit', function(e) {
