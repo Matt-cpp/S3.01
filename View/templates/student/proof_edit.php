@@ -42,6 +42,8 @@ $editData = $_SESSION['edit_proof'];
     <title>Modification Justificatif Élève</title>
 
     <link rel="stylesheet" href="../../assets/css/student/proof_submit.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <script>

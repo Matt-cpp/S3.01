@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Vérification du code</title>
     <link rel="stylesheet" href="../../assets/css/shared/create_acc.css">
+    <link rel="stylesheet" href="../../assets/css/shared/language-switcher.css">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
 </head>
@@ -99,6 +100,7 @@
         this.value = this.value.replace(/\D/g, '');
     });
 </script>
+<script src="../../assets/js/translations.js"></script>
 </body>
 
 </html>

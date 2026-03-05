@@ -41,6 +41,8 @@ $errorMessage = $presenter->getErrorMessage();
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../assets/css/academic_manager/historique.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
     <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <title>Historique des justificatifs</title>
     <?php include __DIR__ . '/../../includes/theme-helper.php';
@@ -123,11 +125,11 @@ $errorMessage = $presenter->getErrorMessage();
                 <?php else: ?>
                     <?php foreach ($proofs as $proof): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars(($proof['last_name'] ?? '') . ' ' . ($proof['first_name'] ?? '')); ?></td>
-                            <td><?php echo htmlspecialchars($proof['group_label'] ?? 'N/A'); ?></td>
-                            <td><?php echo htmlspecialchars($presenter->formatDate($proof['absence_start_date'])); ?></td>
-                            <td><?php echo htmlspecialchars($presenter->formatDate($proof['absence_end_date'])); ?></td>
-                            <td>
+                            <td data-label="Étudiant"><?php echo htmlspecialchars(($proof['last_name'] ?? '') . ' ' . ($proof['first_name'] ?? '')); ?></td>
+                            <td data-label="Groupe"><?php echo htmlspecialchars($proof['group_label'] ?? 'N/A'); ?></td>
+                            <td data-label="Début"><?php echo htmlspecialchars($presenter->formatDate($proof['absence_start_date'])); ?></td>
+                            <td data-label="Fin"><?php echo htmlspecialchars($presenter->formatDate($proof['absence_end_date'])); ?></td>
+                            <td data-label="Motif">
                                 <?php 
                                     echo htmlspecialchars($presenter->translateReason($proof['main_reason']));
                                     if (!empty($proof['custom_reason'])) {
@@ -135,7 +137,7 @@ $errorMessage = $presenter->getErrorMessage();
                                     }
                                 ?>
                             </td>
-                            <td class="status-cell">
+                            <td data-label="Statut" class="status-cell">
                                 <?php 
                                     $status = $presenter->translateStatus($proof['status']);
                                     $statusClass = '';
@@ -160,8 +162,8 @@ $errorMessage = $presenter->getErrorMessage();
                                     <?php echo htmlspecialchars($status); ?>
                                 </span>
                             </td>
-                            <td><?php echo htmlspecialchars($presenter->formatDate($proof['submission_date'])); ?></td>
-                            <td>
+                            <td data-label="Soumis le"><?php echo htmlspecialchars($presenter->formatDate($proof['submission_date'])); ?></td>
+                            <td data-label="Fichier">
                                 <?php 
                                 $files = $presenter->getProofFiles($proof);
                                 if (!empty($files)): ?>
@@ -179,7 +181,7 @@ $errorMessage = $presenter->getErrorMessage();
                                     <span class="no-proof">-</span>
                                 <?php endif; ?>
                             </td>
-                            <td>
+                            <td data-label="Action">
                                 <a href="<?php echo htmlspecialchars($presenter->getProofDetailsUrl($proof['proof_id'])); ?>" 
                                    class="btn-view-action">
                                     Voir

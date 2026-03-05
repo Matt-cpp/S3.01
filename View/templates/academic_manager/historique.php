@@ -38,6 +38,8 @@ $errorMessage = $presenter->getErrorMessage();
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../assets/css/academic_manager/historique.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
     <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <title>Historique des absences</title>
     <?php include __DIR__ . '/../../includes/theme-helper.php';
@@ -117,13 +119,13 @@ $errorMessage = $presenter->getErrorMessage();
                 <?php else: ?>
                     <?php foreach ($absences as $absence): ?>
                         <tr class="<?php echo $absence['status'] ? 'status-justified' : 'status-unjustified'; ?>">
-                            <td><?php echo htmlspecialchars($absence['student_name']); ?></td>
-                            <td><?php echo htmlspecialchars($absence['course']); ?></td>
-                            <td><?php echo htmlspecialchars($presenter->formatDate($absence['date'])); ?></td>
-                            <td><?php echo htmlspecialchars($presenter->formatTime($absence['start_time'], $absence['end_time'])); ?></td>
-                            <td><?php echo htmlspecialchars($absence['course_type'] ?? 'Non spécifié'); ?></td>
-                            <td><?php echo htmlspecialchars($presenter->translateMotif($absence['motif'])); ?></td>
-                            <td class="status-cell">
+                            <td data-label="Étudiant"><?php echo htmlspecialchars($absence['student_name']); ?></td>
+                            <td data-label="Cours"><?php echo htmlspecialchars($absence['course']); ?></td>
+                            <td data-label="Date"><?php echo htmlspecialchars($presenter->formatDate($absence['date'])); ?></td>
+                            <td data-label="Horaire"><?php echo htmlspecialchars($presenter->formatTime($absence['start_time'], $absence['end_time'])); ?></td>
+                            <td data-label="Type"><?php echo htmlspecialchars($absence['course_type'] ?? 'Non spécifié'); ?></td>
+                            <td data-label="Motif"><?php echo htmlspecialchars($presenter->translateMotif($absence['motif'])); ?></td>
+                            <td data-label="Statut" class="status-cell">
                                 <?php
                                 $status = $presenter->getStatus($absence);
                                 $statusClass = '';
@@ -154,7 +156,7 @@ $errorMessage = $presenter->getErrorMessage();
                                     <?php echo htmlspecialchars($status); ?>
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="Preuve">
                                 <?php
                                 $files = $presenter->getProofFiles($absence);
                                 if (!empty($files)): ?>

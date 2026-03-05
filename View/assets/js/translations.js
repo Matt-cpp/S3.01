@@ -295,14 +295,51 @@ const translations = {
     }
 };
 
-// Fonction pour obtenir la langue actuelle
+// Fonction pour obtenir la langue actuelle (localStorage + cookie fallback)
 function getCurrentLanguage() {
-    return localStorage.getItem('app_language') || 'fr';
+    let lang = 'fr'; // Défaut
+    
+    try {
+        // Essayer localStorage d'abord
+        const storedLang = localStorage.getItem('app_language');
+        if (storedLang === 'en' || storedLang === 'fr') {
+            lang = storedLang;
+            console.log('[Lang] From localStorage:', lang);
+            return lang;
+        }
+    } catch (e) {
+        console.warn('[Lang] localStorage error:', e);
+    }
+    
+    // Fallback vers cookie
+    const cookieMatch = document.cookie.match(/app_language=(en|fr)/);
+    if (cookieMatch) {
+        lang = cookieMatch[1];
+        console.log('[Lang] From cookie:', lang);
+        return lang;
+    }
+    
+    console.log('[Lang] Default:', lang);
+    return lang;
 }
 
-// Fonction pour définir la langue
+// Fonction pour définir la langue (sauvegarde localStorage + cookie)
 function setLanguage(lang) {
-    localStorage.setItem('app_language', lang);
+    console.log('[Lang] Setting to:', lang);
+    
+    try {
+        localStorage.setItem('app_language', lang);
+        console.log('[Lang] Saved to localStorage');
+    } catch (e) {
+        console.warn('[Lang] localStorage save error:', e);
+    }
+    
+    // Sauvegarder aussi en cookie (expire dans 1 an)
+    const expires = new Date();
+    expires.setFullYear(expires.getFullYear() + 1);
+    document.cookie = `app_language=${lang}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+    console.log('[Lang] Saved to cookie');
+    
     applyTranslations();
     updateLanguageButton();
 }
@@ -371,13 +408,33 @@ function createLanguageButton() {
     const btn = document.createElement('button');
     btn.id = 'lang-toggle-btn';
     btn.className = 'lang-toggle-btn';
-    btn.onclick = toggleLanguage;
-    document.body.appendChild(btn);
+    btn.type = 'button'; // Empêcher comportement de submit
+    
+    // Utiliser addEventListener pour plus de robustesse
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleLanguage();
+    });
+    
+    // Sur mobile/tablette, intégrer dans la navbar si elle existe
+    const headerIcons = document.querySelector('.header-icons');
+    if (window.innerWidth <= 1024 && headerIcons) {
+        btn.classList.add('in-navbar');
+        headerIcons.insertBefore(btn, headerIcons.firstChild);
+    } else {
+        document.body.appendChild(btn);
+    }
+    
     updateLanguageButton();
 }
 
 // Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
     createLanguageButton();
-    applyTranslations();
+    // Appliquer les traductions seulement si la page les supporte
+    const page = document.body.getAttribute('data-page');
+    if (page && translations[page]) {
+        applyTranslations();
+    }
 });
