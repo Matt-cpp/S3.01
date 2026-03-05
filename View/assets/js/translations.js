@@ -417,12 +417,13 @@ function createLanguageButton() {
         toggleLanguage();
     });
     
-    // Sur mobile/tablette, intégrer dans la navbar si elle existe
+    // Intégrer dans la navbar si elle existe (desktop et mobile)
     const headerIcons = document.querySelector('.header-icons');
-    if (window.innerWidth <= 1024 && headerIcons) {
+    if (headerIcons) {
         btn.classList.add('in-navbar');
         headerIcons.insertBefore(btn, headerIcons.firstChild);
     } else {
+        // Pages sans navbar (login, register, etc.)
         document.body.appendChild(btn);
     }
     
