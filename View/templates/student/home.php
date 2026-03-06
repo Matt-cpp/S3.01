@@ -23,9 +23,12 @@ if (!isset($_SESSION['id_student'])) {
 <head>
     <title data-translate="page_title">Accueil Étudiant</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="../../assets/css/student/home.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
     <link rel="stylesheet" href="../../assets/css/shared/language-switcher.css">
     <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
 </head>
@@ -347,21 +350,21 @@ if (!isset($_SESSION['id_student'])) {
                                     data-motif="Aucun motif spécifié" data-status-text="<?php echo $statusText; ?>"
                                     data-status-icon="<?php echo $statusIcon; ?>"
                                     data-status-class="<?php echo $statusClass; ?>">
-                                    <td><?php echo date('d/m/Y', strtotime($absence['course_date'])); ?></td>
-                                    <td>
+                                    <td data-label="Date"><?php echo date('d/m/Y', strtotime($absence['course_date'])); ?></td>
+                                    <td data-label="Horaire">
                                         <?php
                                         echo date('H\hi', strtotime($absence['start_time'])) . ' - ' .
                                             date('H\hi', strtotime($absence['end_time']));
                                         ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Cours">
                                         <strong><?php echo htmlspecialchars($absence['course_code'] ?? 'N/A'); ?></strong>
                                         <?php if ($absence['course_name']): ?>
                                             <br><small
                                                 class="course-code"><?php echo htmlspecialchars($absence['course_name']); ?></small>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Enseignant">
                                         <?php
                                         if ($absence['teacher_first_name'] && $absence['teacher_last_name']) {
                                             echo htmlspecialchars($absence['teacher_first_name'] . ' ' . $absence['teacher_last_name']);
@@ -370,14 +373,15 @@ if (!isset($_SESSION['id_student'])) {
                                         }
                                         ?>
                                     </td>
-                                    <td><?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?></td>
-                                    <td><strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong>
+                                    <td data-label="Salle"><?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?></td>
+                                    <td data-label="Durée"><strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong>
                                     </td>
-                                    <td>
+                                    <td data-label="Type">
                                         <span class="course-type-badge <?php echo $badge_class; ?>">
                                             <?php echo $courseType; ?>
                                         </span>
-                                    <td>
+                                    </td>
+                                    <td data-label="Évaluation">
                                         <?php if ($absence['is_evaluation']): ?>
                                             <span class="eval-badge" data-translate="yes">Oui</span>
                                             <?php if (!empty($absence['makeup_id']) && !empty($absence['makeup_scheduled'])): ?>
@@ -390,7 +394,7 @@ if (!isset($_SESSION['id_student'])) {
                                             <span class="no-eval" data-translate="no">Non</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Statut">
                                         <span
                                             class="status-badge <?php echo $statusClass; ?>"><?php echo $statusIcon . ' ' . $statusText; ?></span>
                                     </td>
@@ -468,14 +472,14 @@ if (!isset($_SESSION['id_student'])) {
                                     data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
                                     data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>"
                                     data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
-                                    <td>
+                                    <td data-label="Période">
                                         <?php
                                         $start = date('d/m/Y', strtotime($proof['absence_start_date']));
                                         $end = date('d/m/Y', strtotime($proof['absence_end_date']));
                                         echo $start === $end ? $start : "$start - $end";
                                         ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Motif">
                                         <?php
                                         $reasons = [
                                             'illness' => 'Maladie',
@@ -491,16 +495,16 @@ if (!isset($_SESSION['id_student'])) {
                                         }
                                         ?>
                                     </td>
-                                    <td><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
-                                    <td><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
-                                    <td>
+                                    <td data-label="Heures"><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
+                                    <td data-label="Soumis le"><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
+                                    <td data-label="Évaluation">
                                         <?php if ($proof['has_exam']): ?>
                                             <span class="eval-badge" data-translate="eval">Éval</span>
                                         <?php else: ?>
                                             <span class="no-eval">-</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Commentaire">
                                         <?php if ($proof['manager_comment']): ?>
                                             <span
                                                 class="comment-preview"><?php echo htmlspecialchars(substr($proof['manager_comment'], 0, 50)); ?><?php echo strlen($proof['manager_comment']) > 50 ? '...' : ''; ?></span>
@@ -508,7 +512,7 @@ if (!isset($_SESSION['id_student'])) {
                                             <span class="course-code">-</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Action">
                                         <a href="../../../Presenter/Student/get_proof_for_edit.php?proof_id=<?php echo $proof['proof_id']; ?>"
                                             class="btn-add-info" onclick="event.stopPropagation();"
                                             title="Ajouter des informations" data-translate="complete">
@@ -585,14 +589,14 @@ if (!isset($_SESSION['id_student'])) {
                                     data-processing="-" data-status-text="En attente" data-status-icon=""
                                     data-status-class="badge-info" data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
                                     data-comment="" data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
-                                    <td>
+                                    <td data-label="Période">
                                         <?php
                                         $start = date('d/m/Y', strtotime($proof['absence_start_date']));
                                         $end = date('d/m/Y', strtotime($proof['absence_end_date']));
                                         echo $start === $end ? $start : "$start - $end";
                                         ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Motif">
                                         <?php
                                         $reasons = [
                                             'illness' => 'Maladie',
@@ -608,9 +612,9 @@ if (!isset($_SESSION['id_student'])) {
                                         }
                                         ?>
                                     </td>
-                                    <td><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
-                                    <td><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
-                                    <td>
+                                    <td data-label="Heures"><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
+                                    <td data-label="Soumis le"><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
+                                    <td data-label="Évaluation">
                                         <?php if ($proof['has_exam']): ?>
                                             <span class="eval-badge" data-translate="eval">Éval</span>
                                         <?php else: ?>
@@ -689,14 +693,14 @@ if (!isset($_SESSION['id_student'])) {
                                     data-status-text="Accepté" data-status-icon="" data-status-class="badge-success"
                                     data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>" data-comment=""
                                     data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
-                                    <td>
+                                    <td data-label="Période">
                                         <?php
                                         $start = date('d/m/Y', strtotime($proof['absence_start_date']));
                                         $end = date('d/m/Y', strtotime($proof['absence_end_date']));
                                         echo $start === $end ? $start : "$start - $end";
                                         ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Motif">
                                         <?php
                                         $reasons = [
                                             'illness' => 'Maladie',
@@ -712,11 +716,11 @@ if (!isset($_SESSION['id_student'])) {
                                         }
                                         ?>
                                     </td>
-                                    <td><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
-                                    <td><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
-                                    <td><?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : 'N/A'; ?>
+                                    <td data-label="Heures"><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
+                                    <td data-label="Soumis le"><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
+                                    <td data-label="Traité le"><?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : 'N/A'; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Évaluation">
                                         <?php if ($proof['has_exam']): ?>
                                             <span class="eval-badge" data-translate="eval">Éval</span>
                                         <?php else: ?>
@@ -796,14 +800,14 @@ if (!isset($_SESSION['id_student'])) {
                                     data-exam="<?php echo $proof['has_exam'] ? 'Oui' : 'Non'; ?>"
                                     data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>"
                                     data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>">
-                                    <td>
+                                    <td data-label="Période">
                                         <?php
                                         $start = date('d/m/Y', strtotime($proof['absence_start_date']));
                                         $end = date('d/m/Y', strtotime($proof['absence_end_date']));
                                         echo $start === $end ? $start : "$start - $end";
                                         ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Motif">
                                         <?php
                                         $reasons = [
                                             'illness' => 'Maladie',
@@ -819,18 +823,18 @@ if (!isset($_SESSION['id_student'])) {
                                         }
                                         ?>
                                     </td>
-                                    <td><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
-                                    <td><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
-                                    <td><?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : 'N/A'; ?>
+                                    <td data-label="Heures"><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
+                                    <td data-label="Soumis le"><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
+                                    <td data-label="Refusé le"><?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : 'N/A'; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Évaluation">
                                         <?php if ($proof['has_exam']): ?>
                                             <span class="eval-badge" data-translate="eval">Éval</span>
                                         <?php else: ?>
                                             <span class="no-eval">-</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Commentaire">
                                         <?php if ($proof['manager_comment']): ?>
                                             <span
                                                 class="comment-preview"><?php echo htmlspecialchars(substr($proof['manager_comment'], 0, 50)); ?><?php echo strlen($proof['manager_comment']) > 50 ? '...' : ''; ?></span>

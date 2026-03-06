@@ -57,6 +57,8 @@ $errorMessage = $presenter->getErrorMessage();
     <title>Mes Absences</title>
 
     <link rel="stylesheet" href="../../assets/css/student/absences.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
 </head>
@@ -224,33 +226,29 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-status-text="<?php echo $status['text']; ?>"
                                 data-status-icon="<?php echo $status['icon']; ?>"
                                 data-status-class="<?php echo $status['class']; ?>">
-                                <td><?php echo $presenter->formatDate($absence['course_date']); ?></td>
-                                <td><?php echo $presenter->formatTime($absence['start_time'], $absence['end_time']); ?></td>
-                                <td>
-                                    <div>
-                                        <?php echo htmlspecialchars($absence['course_name'] ?? 'Non spécifié'); ?>
-                                    </div>
-                                </td>
-                                <td><?php echo $teacher; ?></td>
-                                <td><?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?></td>
-                                <td><strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong></td>
-                                <td>
+                                <td data-label="Date"><?php echo $presenter->formatDate($absence['course_date']); ?></td>
+                                <td data-label="Horaire"><?php echo $presenter->formatTime($absence['start_time'], $absence['end_time']); ?></td>
+                                <td data-label="Cours"><?php echo htmlspecialchars($absence['course_name'] ?? 'Non spécifié'); ?></td>
+                                <td data-label="Enseignant"><?php echo $teacher; ?></td>
+                                <td data-label="Salle"><?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?></td>
+                                <td data-label="Durée"><strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong></td>
+                                <td data-label="Type">
                                     <span class="course-type-badge <?php echo $badge_class; ?>">
                                         <?php echo htmlspecialchars($courseType); ?>
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Évaluation">
                                     <?php if ($absence['is_evaluation']): ?>
                                         <span class="eval-badge">⚠️ Oui</span>
                                         <?php if (!empty($absence['makeup_id']) && !empty($absence['makeup_scheduled'])): ?>
-                                            <br><span class="makeup-badge" style="background-color: #17a2b8; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-top: 10px; display: inline-block;">Rattrapage</span>
+                                            <span class="makeup-badge" style="background-color: #17a2b8; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-left: 4px;">Rattrapage</span>
                                         <?php endif; ?>
                                     <?php else: ?>
                                         <span class="no-eval">Non</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?php echo $presenter->translateMotif($absence['motif'], $absence['custom_motif']); ?></td>
-                                <td>
+                                <td data-label="Motif"><?php echo $presenter->translateMotif($absence['motif'], $absence['custom_motif']); ?></td>
+                                <td data-label="Statut">
                                     <span class="badge <?php echo $status['class']; ?>">
                                         <?php echo $status['icon'] . ' ' . $status['text']; ?>
                                     </span>

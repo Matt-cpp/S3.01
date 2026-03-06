@@ -47,6 +47,8 @@ $uploaded_file_name = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dis
     <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <title>Validé</title>
     <link rel="stylesheet" href="../../assets/css/student/proof_validation.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
 </head>

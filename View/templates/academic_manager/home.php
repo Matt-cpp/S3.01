@@ -25,6 +25,8 @@
     <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <link rel="stylesheet" href="../../assets/css/shared/base.css">
     <link rel="stylesheet" href="../../assets/css/academic_manager/home.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
 </head>
 
 <body>
@@ -85,17 +87,26 @@
 
             <table class="table">
                 <thead>
-                    <!-- Add your table headers here if needed -->
+                    <tr>
+                        <th>Date</th>
+                        <th>Heure</th>
+                        <th>Étudiant</th>
+                        <th>Cours</th>
+                        <th>Type</th>
+                        <th>Statut</th>
+                    </tr>
                 </thead>
                 <tbody>
                     <?php
                     $f = $donnes->laTable();
                     $tabel = json_decode(json_encode($f), true);
+                    $labels = ['Date', 'Heure', 'Étudiant', 'Cours', 'Type', 'Statut'];
 
                     foreach ($tabel as $row) {
                         echo "<tr>";
                         $cellIndex = 0;
                         foreach ($row as $cell) {
+                            $dataLabel = $labels[$cellIndex] ?? '';
                             if ($cellIndex === 5) {
                                 $statusClass = '';
                                 $statusValue = strtolower(trim($cell));
@@ -133,9 +144,9 @@
                                         $statusClass = 'status-default';
                                 }
 
-                                echo '<td class="status-cell"><span class="status-text ' . $statusClass . '">' . htmlspecialchars($cell) . '</span></td>';
+                                echo '<td data-label="' . $dataLabel . '" class="status-cell"><span class="status-text ' . $statusClass . '">' . htmlspecialchars($cell) . '</span></td>';
                             } else {
-                                echo "<td>" . htmlspecialchars($cell) . "</td>";
+                                echo '<td data-label="' . $dataLabel . '">' . htmlspecialchars($cell) . '</td>';
                             }
                             $cellIndex++;
                         }
@@ -177,14 +188,14 @@
                     <?php else: ?>
                         <?php foreach ($recentProofs as $proof): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars(($proof['last_name'] ?? '') . ' ' . ($proof['first_name'] ?? '')); ?>
+                                <td data-label="Étudiant"><?php echo htmlspecialchars(($proof['last_name'] ?? '') . ' ' . ($proof['first_name'] ?? '')); ?>
                                 </td>
-                                <td><?php echo htmlspecialchars($proof['group_label'] ?? 'N/A'); ?></td>
-                                <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_start_date']))); ?></td>
-                                <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_end_date']))); ?></td>
-                                <td><?php echo htmlspecialchars($donnes->translateProof('reason', $proof['main_reason'])); ?>
+                                <td data-label="Groupe"><?php echo htmlspecialchars($proof['group_label'] ?? 'N/A'); ?></td>
+                                <td data-label="Début"><?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_start_date']))); ?></td>
+                                <td data-label="Fin"><?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_end_date']))); ?></td>
+                                <td data-label="Motif"><?php echo htmlspecialchars($donnes->translateProof('reason', $proof['main_reason'])); ?>
                                 </td>
-                                <td class="status-cell">
+                                <td data-label="Statut" class="status-cell">
                                     <?php
                                     $statusText = $donnes->translateProof('status', $proof['status']);
                                     $statusClass = '';
@@ -207,7 +218,7 @@
                                         <?php echo htmlspecialchars($statusText); ?>
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Action">
                                     <a href="view_proof.php?proof_id=<?php echo urlencode($proof['proof_id']); ?>"
                                         class="btn btn-sm">
                                         Voir

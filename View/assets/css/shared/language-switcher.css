@@ -1,7 +1,7 @@
 /* Style pour le bouton de changement de langue - Design simple blanc */
 .lang-toggle-btn {
     position: fixed;
-    top: 150px;
+    top: 20px;
     right: 20px;
     z-index: 9999;
     padding: 8px 16px;
@@ -35,13 +35,34 @@
     transition: opacity 0.15s ease;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .lang-toggle-btn {
-        top: 10px;
-        right: 10px;
-        padding: 6px 12px;
+/* Style pour le bouton dans la navbar (desktop et mobile) */
+.lang-toggle-btn.in-navbar {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    padding: 8px 14px;
+    font-size: 13px;
+    min-width: 42px;
+    min-height: 36px;
+    justify-content: center;
+    box-shadow: none;
+    border-radius: 8px;
+    margin-right: 8px;
+}
+
+.lang-toggle-btn.in-navbar:hover {
+    box-shadow: none;
+    background: #f0f0f0;
+}
+
+/* Ajustements sur mobile */
+@media (max-width: 1024px) {
+    .lang-toggle-btn.in-navbar {
+        padding: 8px 12px;
         font-size: 12px;
+        min-width: 40px;
+        min-height: 40px;
+        margin-right: 4px;
     }
 }
 

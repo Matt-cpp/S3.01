@@ -23,6 +23,8 @@
     <link rel="stylesheet" href="../../assets/css/shared/accueil.css">
     <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <link rel="stylesheet" href="../../assets/css/academic_manager/navbar.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
 </head>
 
 <body>
@@ -79,11 +81,13 @@
                     <?php
                     $f = $donnes->laTable();
                     $tabel = json_decode(json_encode($f), true);
+                    $labels = ['Date', 'Heure', 'Étudiant', 'Cours', 'Type', 'Statut'];
 
                     foreach ($tabel as $row) {
                         echo "<tr>";
                         $cellIndex = 0;
                         foreach ($row as $cell) {
+                            $dataLabel = $labels[$cellIndex] ?? '';
                             if ($cellIndex === 5) {
                                 $statusClass = '';
                                 $statusValue = strtolower(trim($cell));
@@ -127,9 +131,9 @@
                                         $statusClass = 'status-default';
                                 }
 
-                                echo '<td class="status-cell"><span class="status-text ' . $statusClass . '">' . htmlspecialchars($cell) . '</span></td>';
+                                echo '<td data-label="' . $dataLabel . '" class="status-cell"><span class="status-text ' . $statusClass . '">' . htmlspecialchars($cell) . '</span></td>';
                             } else {
-                                echo "<td>" . htmlspecialchars($cell) . "</td>";
+                                echo '<td data-label="' . $dataLabel . '">' . htmlspecialchars($cell) . '</td>';
                             }
                             $cellIndex++;
                         }

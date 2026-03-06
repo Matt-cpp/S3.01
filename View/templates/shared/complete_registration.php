@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Finaliser l'inscription</title>
     <link rel="stylesheet" href="../../assets/css/shared/create_acc.css">
+    <link rel="stylesheet" href="../../assets/css/shared/language-switcher.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
@@ -150,6 +151,7 @@
         }
     });
 </script>
+<script src="../../assets/js/translations.js"></script>
 </body>
 
 </html>

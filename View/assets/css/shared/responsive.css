@@ -1,0 +1,253 @@
+/**
+ * Fichier: responsive.css
+ * Styles responsive COMMUNS pour toutes les pages (student, academic_manager, teacher, secretary)
+ * 
+ * Structure:
+ * - BASE: Styles globaux
+ * - ÉLÉMENTS CLIQUABLES: Interactions tactiles
+ * - UTILITAIRES: Classes helper
+ * - DESKTOP (> 992px)
+ * - TABLETS (769px - 992px)
+ * - SMALL TABLETS (577px - 768px)
+ * - TOUCH FRIENDLY (< 768px)
+ * - PRINT
+ * 
+ * Note: Les styles MOBILE (< 576px) sont dans responsive-mobile.css
+ */
+
+/* =============================================
+   BASE
+   ============================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* =============================================
+   ÉLÉMENTS CLIQUABLES (global)
+   ============================================= */
+
+.proof-card,
+.stat-card,
+.overview-card,
+.clickable-row,
+.absence-row {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.proof-card:focus-visible,
+.stat-card:focus-visible,
+.overview-card:focus-visible,
+.clickable-row:focus-visible,
+.absence-row:focus-visible {
+    outline: 2px solid #0081A1;
+    outline-offset: 2px;
+}
+
+/* =============================================
+   UTILITAIRES
+   ============================================= */
+
+.hide-mobile {
+    display: none !important;
+}
+
+.show-mobile-only {
+    display: block !important;
+}
+
+.text-truncate-mobile {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (min-width: 577px) {
+    .hide-mobile {
+        display: initial !important;
+    }
+    .show-mobile-only {
+        display: none !important;
+    }
+    .text-truncate-mobile {
+        max-width: none;
+    }
+}
+
+/* =============================================
+   DESKTOP (> 992px)
+   ============================================= */
+
+@media (min-width: 993px) {
+    .overview-section,
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    .filter-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Large tablets / Small desktops (993px - 1200px) */
+@media (min-width: 993px) and (max-width: 1200px) {
+    .statistics-container,
+    .main-content {
+        width: 90% !important;
+    }
+}
+
+/* =============================================
+   TABLETS (769px - 992px)
+   ============================================= */
+
+@media (min-width: 769px) and (max-width: 992px) {
+    .overview-section,
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .filter-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    /* Statistics pages */
+    .statistics-container,
+    .main-content {
+        width: 90% !important;
+    }
+
+    .kpi-cards {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    .charts-section,
+    .charts-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* =============================================
+   SMALL TABLETS (577px - 768px)
+   ============================================= */
+
+@media (min-width: 577px) and (max-width: 768px) {
+    main,
+    .main-content,
+    .dashboard-container {
+        padding: 15px !important;
+    }
+
+    .overview-section,
+    .filter-grid,
+    .stats-grid,
+    .proofs-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .proof-card,
+    .stat-card {
+        padding: 1.25rem !important;
+    }
+
+    .proof-card:hover,
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .proof-count,
+    .stat-number {
+        font-size: 2rem !important;
+    }
+
+    .table-container,
+    .absences-table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .absences-table,
+    #absenceTable,
+    table {
+        min-width: 600px;
+        font-size: 0.8rem !important;
+    }
+
+    .clickable-row:hover,
+    .absence-row:hover {
+        background-color: #f0f9ff !important;
+    }
+
+    /* Statistics pages - Tablets */
+    .statistics-container,
+    .main-content {
+        width: 95% !important;
+    }
+
+    .kpi-cards {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .charts-section,
+    .charts-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .semester-cards {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* =============================================
+   TOUCH FRIENDLY (< 768px)
+   ============================================= */
+
+@media (max-width: 768px) {
+    .btn,
+    button,
+    a.reset-link {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .absence-row,
+    .clickable-row,
+    .proof-card,
+    .stat-card {
+        min-height: 44px;
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+}
+
+/* =============================================
+   PRINT
+   ============================================= */
+
+@media print {
+    .filter-form,
+    .filters,
+    .button-container,
+    .navbar,
+    .header,
+    .modal {
+        display: none !important;
+    }
+
+    .table-container {
+        overflow: visible !important;
+    }
+
+    table th,
+    table td {
+        display: table-cell !important;
+    }
+}
