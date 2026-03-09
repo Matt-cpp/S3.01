@@ -975,6 +975,12 @@ window.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    // Show confirmation dialog before submission
+    if (!confirm("Êtes-vous sûr de vouloir soumettre ce justificatif ?")) {
+      e.preventDefault();
+      return;
+    }
+
     // IMPORTANT: Sync selectedFiles array to the actual file input before submission
     updateFileInputWithSelectedFiles();
   });

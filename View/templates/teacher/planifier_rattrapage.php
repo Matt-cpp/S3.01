@@ -241,6 +241,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             panel.style.display = 'block';
         }
+
+        // Confirmation avant validation du rattrapage
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const matiere = document.getElementById('matiere').value;
+                    const date = document.getElementById('date').value;
+                    const duree = document.getElementById('duree').value;
+
+                    if (!matiere || !date || !duree) {
+                        return;
+                    }
+
+                    if (!confirm('Êtes-vous sûr de vouloir planifier ce rattrapage ?')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 <?php include __DIR__ . '/../../includes/footer.php'; ?>
