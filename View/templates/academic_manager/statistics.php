@@ -13,6 +13,7 @@
  *   - Évolution mensuelle des absences (ligne)
  *   - Répartition par semestre
  *   - Top 10 des étudiants les plus absents
+ * 
  * - Export de données possible via les graphiques
  * Utilise AcademicManagerStatisticsPresenter pour les données et calculs.
  */

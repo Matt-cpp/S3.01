@@ -235,6 +235,29 @@ html.dark-mode body {
   color: #ffffff;
 }
 
+/* Mobile menu dark mode - surcharge des styles mobiles */
+.dark-mode .nav-menu {
+  background: var(--bg-secondary) !important;
+}
+
+.dark-mode .nav-menu .nav-link {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .nav-menu .nav-link:hover {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .nav-menu .nav-link.active {
+  background: #0081A1 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .mobile-menu-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
 /* Footer */
 .dark-mode footer,
 .dark-mode .footer {
@@ -3628,5 +3651,71 @@ html.dark-mode body {
   min-width: 100px;
 }
 
+/* ===== Responsive Card Tables - Dark Mode ===== */
+/* Ces styles s'appliquent aux tableaux en format carte sur petits écrans */
+@media (max-width: 992px) {
+  .dark-mode .absences-table tr,
+  .dark-mode #absenceTable tr,
+  .dark-mode .table tr,
+  .dark-mode table tr {
+    background: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .dark-mode .absences-table tr:hover,
+  .dark-mode #absenceTable tr:hover,
+  .dark-mode .table tr:hover,
+  .dark-mode table tr:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .dark-mode .absences-table td,
+  .dark-mode #absenceTable td,
+  .dark-mode .table td,
+  .dark-mode table td {
+    border-bottom-color: var(--border-color) !important;
+  }
+
+  /* Couleurs alternées pour mode sombre */
+  .dark-mode .absences-table tr td:nth-child(odd),
+  .dark-mode #absenceTable tr td:nth-child(odd),
+  .dark-mode .table tr td:nth-child(odd),
+  .dark-mode table tr td:nth-child(odd) {
+    background-color: var(--bg-tertiary) !important;
+  }
+
+  .dark-mode .absences-table tr td:nth-child(even),
+  .dark-mode #absenceTable tr td:nth-child(even),
+  .dark-mode .table tr td:nth-child(even),
+  .dark-mode table tr td:nth-child(even) {
+    background-color: var(--bg-card) !important;
+  }
+
+  /* Labels des cellules */
+  .dark-mode .absences-table td::before,
+  .dark-mode #absenceTable td::before,
+  .dark-mode .table td::before,
+  .dark-mode table td::before {
+    color: var(--text-secondary) !important;
+  }
+
+  /* Texte des cellules */
+  .dark-mode .absences-table td,
+  .dark-mode #absenceTable td,
+  .dark-mode .table td,
+  .dark-mode table td {
+    color: var(--text-primary) !important;
+  }
+
+  /* Course info styling */
+  .dark-mode .course-info .course-code {
+    color: #22d3ee !important;
+  }
+
+  .dark-mode .course-info .course-name {
+    color: var(--text-secondary) !important;
+  }
+}
 
 

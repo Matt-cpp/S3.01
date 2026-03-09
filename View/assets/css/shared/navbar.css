@@ -412,8 +412,36 @@ body.menu-open {
     }
 }
 
-/* Tablettes petites (768px - 1024px) */
-@media (max-width: 768px) {
+/* Tablettes moyennes (769px - 992px) */
+@media (min-width: 769px) and (max-width: 992px) {
+    .header {
+        padding: 0.6rem 0.75rem;
+    }
+    
+    #logo {
+        width: 110px;
+    }
+    
+    .nav-menu {
+        width: 280px;
+        padding: 75px 1rem 2rem;
+    }
+    
+    .nav-menu .nav-link {
+        padding: 0.85rem 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .icon {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        min-height: 34px;
+    }
+}
+
+/* Petites tablettes (577px - 768px) */
+@media (min-width: 577px) and (max-width: 768px) {
     #logo {
         width: 100px;
     }

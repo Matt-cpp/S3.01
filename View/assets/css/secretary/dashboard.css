@@ -600,6 +600,33 @@ input[type="time"]:focus {
 }
 
 /* Responsive Design */
+
+/* Tablettes moyennes (769px - 992px) */
+@media (min-width: 769px) and (max-width: 992px) {
+    .dashboard-container {
+        grid-template-columns: 1fr;
+        padding: 1.25rem;
+        width: 95%;
+    }
+    
+    .form-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .history-section {
+        position: static;
+    }
+    
+    .history-card {
+        max-height: 350px;
+    }
+    
+    .import-controls {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+}
+
 @media (max-width: 1200px) {
     .dashboard-container {
         grid-template-columns: 1fr;

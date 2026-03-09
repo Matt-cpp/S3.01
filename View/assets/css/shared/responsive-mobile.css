@@ -148,12 +148,14 @@
 
     .absences-table thead,
     #absenceTable thead,
+    .table thead,
     table thead {
         display: none !important;
     }
 
     .absences-table,
     #absenceTable,
+    .table,
     table {
         display: block !important;
         width: 100% !important;
@@ -163,12 +165,14 @@
 
     .absences-table tbody,
     #absenceTable tbody,
+    .table tbody,
     table tbody {
         display: block !important;
     }
 
     .absences-table tr,
     #absenceTable tr,
+    .table tr,
     table tr {
         display: block !important;
         background: #fff;
@@ -181,39 +185,103 @@
 
     .absences-table tr:hover,
     #absenceTable tr:hover,
+    .table tr:hover,
     table tr:hover {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .absences-table td,
     #absenceTable td,
+    .table td,
     table td {
         display: flex !important;
         justify-content: space-between;
         align-items: center;
-        padding: 8px 0 !important;
+        padding: 10px 8px !important;
+        margin: 4px 0;
         border: none !important;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+        border-radius: 6px;
     }
 
     .absences-table td:last-child,
     #absenceTable td:last-child,
+    .table td:last-child,
     table td:last-child {
         border-bottom: none !important;
+        margin-bottom: 0;
+    }
+
+    /* Alternance de couleurs pour meilleure lisibilité */
+    .absences-table tr td:nth-child(odd),
+    #absenceTable tr td:nth-child(odd),
+    .table tr td:nth-child(odd),
+    table tr td:nth-child(odd) {
+        background-color: #f9fafb;
+    }
+
+    .absences-table tr td:nth-child(even),
+    #absenceTable tr td:nth-child(even),
+    .table tr td:nth-child(even),
+    table tr td:nth-child(even) {
+        background-color: #ffffff;
     }
 
     .absences-table td::before,
     #absenceTable td::before,
+    .table td::before,
     table td::before {
         content: attr(data-label);
         font-weight: 600;
         color: #6b7280;
-        flex: 1;
+        flex-shrink: 0;
+        min-width: 90px;
         font-size: 0.8rem;
+        text-align: left;
     }
 
+    .table td:not([data-label])::before,
     table td:not([data-label])::before {
         content: none;
+    }
+
+    /* Style pour la cellule Cours */
+    td.course-cell,
+    td[data-label="Cours"] {
+        flex-wrap: wrap;
+    }
+
+    td.course-cell::before,
+    td[data-label="Cours"]::before {
+        flex: 0 0 90px;
+    }
+
+    /* Conteneur pour code + nom à droite */
+    td.course-cell .course-info,
+    td[data-label="Cours"] .course-info {
+        flex: 1;
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .course-code {
+        display: block;
+        font-weight: 700;
+        color: #0081A1;
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+        text-align: right;
+    }
+
+    .course-name {
+        display: block;
+        font-size: 0.85rem;
+        color: #374151;
+        line-height: 1.3;
+        text-align: right;
     }
 
     /* =============================================
@@ -626,21 +694,44 @@
     }
 
     .chart-container {
-        height: 200px !important;
+        height: 180px !important;
+        min-height: 160px !important;
+    }
+
+    .chart-container canvas {
+        max-width: 100% !important;
+        max-height: 160px !important;
     }
 
     .chart-container-large {
-        height: 250px !important;
+        height: 220px !important;
+    }
+
+    .chart-full {
+        grid-column: 1 !important;
     }
 
     .chart-legend {
-        flex-direction: column !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
         align-items: center !important;
         gap: 8px !important;
+        margin-top: 10px !important;
     }
 
     .chart-legend-item {
-        font-size: 11px !important;
+        font-size: 10px !important;
+    }
+
+    .chart-legend-vertical {
+        flex-direction: column !important;
+        max-height: 120px !important;
+    }
+
+    .legend-color {
+        width: 10px !important;
+        height: 10px !important;
     }
 
     /* Semester cards */
@@ -659,8 +750,50 @@
     }
 
     .semester-chart {
-        width: 100px !important;
-        height: 100px !important;
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    /* KPI Cards mobile */
+    .kpi-cards {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    .kpi-card {
+        padding: 1rem !important;
+        border-radius: 12px !important;
+    }
+
+    .kpi-value {
+        font-size: 1.75rem !important;
+    }
+
+    .kpi-label {
+        font-size: 0.8rem !important;
+    }
+
+    .kpi-icon {
+        font-size: 1.5rem !important;
+    }
+
+    /* Stats Grid mobile */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+
+    .stat-card {
+        padding: 0.875rem !important;
+        border-radius: 12px !important;
+    }
+
+    .stat-number {
+        font-size: 1.5rem !important;
+    }
+
+    .stat-label {
+        font-size: 0.75rem !important;
     }
 
     /* Top students table */
@@ -752,6 +885,95 @@
     .pagination span {
         padding: 6px 10px !important;
         font-size: 0.8rem !important;
+    }
+
+    /* ===== Charts - Très petits écrans ===== */
+    .chart-card {
+        padding: 0.75rem !important;
+        border-radius: 10px !important;
+    }
+
+    .chart-card h3 {
+        font-size: 0.85rem !important;
+        margin-bottom: 10px !important;
+    }
+
+    .chart-container {
+        height: 150px !important;
+        min-height: 140px !important;
+    }
+
+    .chart-container canvas {
+        max-width: 100% !important;
+        max-height: 140px !important;
+    }
+
+    .chart-container-large {
+        height: 180px !important;
+    }
+
+    .chart-legend {
+        gap: 6px !important;
+        margin-top: 8px !important;
+    }
+
+    .chart-legend-item {
+        font-size: 9px !important;
+    }
+
+    .legend-color {
+        width: 8px !important;
+        height: 8px !important;
+    }
+
+    .semester-chart {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    /* KPI très petits écrans */
+    .kpi-card {
+        padding: 0.75rem !important;
+    }
+
+    .kpi-value {
+        font-size: 1.5rem !important;
+    }
+
+    .kpi-label {
+        font-size: 0.7rem !important;
+    }
+
+    .kpi-icon {
+        font-size: 1.25rem !important;
+    }
+
+    /* Stats grid très petits */
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.5rem !important;
+    }
+
+    .stat-card {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+    }
+
+    .stat-number {
+        font-size: 1.25rem !important;
+    }
+
+    /* Stats header très petit */
+    .stats-header {
+        padding: 1rem !important;
+    }
+
+    .stats-header h1 {
+        font-size: 1.1rem !important;
+    }
+
+    .stats-header .subtitle {
+        font-size: 0.75rem !important;
     }
 
 }

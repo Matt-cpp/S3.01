@@ -90,6 +90,22 @@ body {
     }
 }
 
+/* Tablettes moyennes (769px - 992px) */
+@media (min-width: 769px) and (max-width: 992px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+    
+    .stat-card {
+        padding: 1.25rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+
 @media (max-width: 768px) {
     .stats-grid {
         grid-template-columns: 1fr;
@@ -357,15 +373,6 @@ body {
     .stats-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
-    }
-    
-    .table {
-        font-size: 0.85rem;
-    }
-    
-    .table th,
-    .table td {
-        padding: 0.75rem;
     }
 }
 /* Badge styles for status */
