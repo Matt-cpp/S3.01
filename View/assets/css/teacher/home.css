@@ -205,12 +205,18 @@ body {
     box-shadow: 0 6px 12px rgba(0, 129, 161, 0.35);
 }
 
-/* Quick Actions Bar */
+/* Quick Actions Bar (mobile uniquement — la navbar suffit sur desktop) */
 .quick-actions {
-    display: flex;
+    display: none;
     gap: 1rem;
     margin-bottom: 2rem;
     flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+    .quick-actions {
+        display: flex;
+    }
 }
 
 /* Primary Action Button */

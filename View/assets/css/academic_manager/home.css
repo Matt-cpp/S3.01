@@ -169,12 +169,18 @@
     border: 1px solid #d6d8db;
 }
 
-/* Quick Actions Bar */
+/* Quick Actions Bar (mobile uniquement — la navbar suffit sur desktop) */
 .quick-actions {
-    display: flex;
+    display: none;
     gap: 1rem;
     margin-bottom: 2rem;
     flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+    .quick-actions {
+        display: flex;
+    }
 }
 
 /* Primary Action Button */

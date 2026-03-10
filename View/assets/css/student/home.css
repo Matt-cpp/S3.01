@@ -42,10 +42,17 @@
 
         /* Overview Section - Cartes principales */
 
-        /* CTA Section - Bouton d'action principal */
+        /* CTA Section - Bouton d'action principal (mobile uniquement) */
         .cta-section {
+            display: none;
             text-align: center;
             margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .cta-section {
+                display: block;
+            }
         }
 
         .btn-cta {
