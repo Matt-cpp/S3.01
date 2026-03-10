@@ -33,6 +33,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const statusIcon = this.dataset.statusIcon;
             const statusClass = this.dataset.statusClass;
 
+            // Données brutes pour le lien justifier
+            const courseDateRaw = this.dataset.courseDateRaw;
+            const startTimeRaw = this.dataset.startTimeRaw;
+            const endTimeRaw = this.dataset.endTimeRaw;
+
             // Données évaluation et rattrapage
             const isEvaluation = this.dataset.isEvaluation === '1';
             const hasMakeup = this.dataset.hasMakeup === '1';
@@ -110,6 +115,22 @@ document.addEventListener('DOMContentLoaded', function() {
             modalContent.style.borderColor = borderColor;
             modalContent.style.borderWidth = '4px';
             modalContent.style.borderStyle = 'solid';
+
+            // Gérer le bouton "Justifier"
+            const justifySection = document.getElementById('justifySection');
+            const justifyButton = document.getElementById('justifyButton');
+            if (justifySection && justifyButton) {
+                // Afficher seulement si l'absence n'est pas déjà justifiée (accepted)
+                if (modalStatus !== 'accepted') {
+                    // Construire les datetime-local à partir des données brutes
+                    const startDateTime = courseDateRaw + 'T' + startTimeRaw.substring(0, 5);
+                    const endDateTime = courseDateRaw + 'T' + endTimeRaw.substring(0, 5);
+                    justifyButton.href = 'proof_submit.php?prefill_start=' + encodeURIComponent(startDateTime) + '&prefill_end=' + encodeURIComponent(endDateTime);
+                    justifySection.style.display = 'block';
+                } else {
+                    justifySection.style.display = 'none';
+                }
+            }
 
             // Afficher le modal
             modal.classList.add('show');

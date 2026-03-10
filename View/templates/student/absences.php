@@ -203,6 +203,9 @@ $errorMessage = $presenter->getErrorMessage();
                             ?>
                             <tr class="absence-row" style="cursor: pointer;"
                                 data-modal-status="<?php echo $modalStatus; ?>"
+                                data-course-date-raw="<?php echo htmlspecialchars($absence['course_date']); ?>"
+                                data-start-time-raw="<?php echo htmlspecialchars($absence['start_time']); ?>"
+                                data-end-time-raw="<?php echo htmlspecialchars($absence['end_time']); ?>"
                                 data-date="<?php echo htmlspecialchars($presenter->formatDate($absence['course_date'])); ?>"
                                 data-time="<?php echo htmlspecialchars($presenter->formatTime($absence['start_time'], $absence['end_time'])); ?>"
                                 data-course="<?php echo htmlspecialchars($absence['course_name'] ?? 'Non spécifié'); ?>"
@@ -364,6 +367,10 @@ $errorMessage = $presenter->getErrorMessage();
                 <div class="modal-status-section">
                     <span class="modal-label">Statut :</span>
                     <span id="modalStatus" class="badge"></span>
+                </div>
+
+                <div id="justifySection" class="modal-info-group" style="display: none; margin-top: 15px; text-align: center;">
+                    <a id="justifyButton" href="#" class="submit-btn" style="display: inline-block; padding: 10px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">Justifier cette absence</a>
                 </div>
             </div>
         </div>
