@@ -1,17 +1,19 @@
 <?php
+
+declare(strict_types=1);
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/makeup_presenter.php';
 
-// ID du professeur from session
+// Teacher ID from session
 $teacherId = $user['id'];
-$planif = new planificationRattrapage($teacherId);
+$planif = new MakeupSchedulingPresenter($teacherId);
 
-// Récupérer les DS à rattraper
-$lesDs = $planif->getLesDs();
+// Retrieve exams to make up
+$exams = $planif->getExams();
 
-// Récupérer toutes les salles existantes
+// Retrieve all existing rooms
 $rooms = $planif->getAllRooms();
 
 $message = '';
@@ -31,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $messageType = $result['success'] ? 'success' : 'error';
 
     if ($result['success']) {
-        $lesDs = $planif->getLesDs();
+        $exams = $planif->getExams();
         $rooms = $planif->getAllRooms();
     }
 }
@@ -74,17 +76,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="matiere">DS à rattraper <span class="required">*</span></label>
                     <select id="matiere" name="matiere" required onchange="updateDsInfo(this)">
                         <option value="">Sélectionnez un DS</option>
-                        <?php if (empty($lesDs)): ?>
+                        <?php if (empty($exams)): ?>
                             <option value="" disabled>Aucun DS à rattraper</option>
                         <?php else: ?>
-                            <?php foreach ($lesDs as $ds):
-                                $eleves = $planif->getLesEleves($ds['id']);
-                                $nbEleves = count($eleves);
+                            <?php foreach ($exams as $ds):
+                                $students = $planif->getStudents($ds['id']);
+                                $nbEleves = count($students);
                                 $elevesNames = array_map(function ($e) {
                                     return $e['first_name'] . ' ' . $e['last_name'];
-                                }, $eleves);
+                                }, $students);
                                 $elevesJson = htmlspecialchars(json_encode($elevesNames), ENT_QUOTES, 'UTF-8');
-                                ?>
+                            ?>
                                 <option value="<?php echo htmlspecialchars($ds['id']); ?>"
                                     data-date="<?php echo htmlspecialchars($ds['course_date']); ?>"
                                     data-time="<?php echo htmlspecialchars($ds['start_time']); ?>"

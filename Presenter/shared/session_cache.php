@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: session_cache.php
- * 
- * Gestionnaire de cache de session - Gère le cache des données en session pour améliorer les performances.
- * Fournit des fonctions pour:
- * - Effacer le cache des données étudiant (stats, absences, justificatifs)
- * - Vérifier si le cache doit être rafraîci
- * - Mettre à jour le timestamp du cache
- * Permet d'éviter des requêtes BDD répétitives pour les mêmes données.
+ * File: session_cache.php
+ *
+ * Session cache manager — handles session data caching to improve performance.
+ * Provides functions to:
+ * - Clear cached student data (stats, absences, proofs)
+ * - Check whether the cache needs refreshing
+ * - Update the cache timestamp
+ * Avoids repetitive database queries for the same data.
  */
 
-// Efface les données mises en cache pour un étudiant
-function clearStudentCache()
+// Clears cached data for a student
+function clearStudentCache(): void
 {
     unset($_SESSION['stats']);
     unset($_SESSION['proofsByCategory']);
@@ -22,16 +24,16 @@ function clearStudentCache()
     unset($_SESSION['Proofs']);
 }
 
-// Vérifie si le cache doit être rafraîchi
-function shouldRefreshCache($cache_duration = 60)
+// Checks whether the cache should be refreshed
+function shouldRefreshCache(int $cacheDuration = 60): bool
 {
     if (!isset($_SESSION['cache_timestamp'])) {
         return true;
     }
-    return (time() - $_SESSION['cache_timestamp']) > $cache_duration;
+    return (time() - $_SESSION['cache_timestamp']) > $cacheDuration;
 }
 
-function updateCacheTimestamp()
+function updateCacheTimestamp(): void
 {
     $_SESSION['cache_timestamp'] = time();
 }

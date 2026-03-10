@@ -1,15 +1,15 @@
-s
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: create-room.php
- * 
- * API de création de salle - Permet au secrétaire de créer une nouvelle salle.
- * Fonctionnalités principales :
- * - Validation du code de salle (requis)
- * - Création de la salle dans la table rooms
- * - Vérification des doublons
- * - Retourne les informations de la salle créée
- * Utilisé par le formulaire de création manuelle d'absence quand une salle n'existe pas.
+ * Room creation API - Allows the secretary to create a new room.
+ * Main features:
+ * - Room code validation (required)
+ * - Creation of the room in the rooms table
+ * - Duplicate checking
+ * - Returns the created room information
+ * Used by the manual absence creation form when a room does not exist.
  */
 
 header('Content-Type: application/json');

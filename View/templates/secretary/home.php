@@ -1,16 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: home.php (Page d'accueil du secrétariat)
- * 
- * Tableau de bord du secrétariat - Interface principale pour la gestion des absences.
- * Fournit les fonctionnalités suivantes :
- * - Importation de fichiers CSV d'absences (avec barre de progression)
- * - Importation de fichiers CSV d'étudiants
- * - Saisie manuelle d'absences (recherche étudiant, matière, salle)
- * - Création de nouvelles matières et salles via modales
- * - Historique des imports récents
- * 
- * Utilisé par les secrétaires pour enregistrer les absences des étudiants.
+ * Secretary home page - Main dashboard for absence management.
+ * Provides the following features:
+ * - CSV absence file import (with progress bar)
+ * - CSV student file import
+ * - Manual absence entry (student, subject, room search)
+ * - Creation of new subjects and rooms via modals
+ * - Recent import history
+ *
+ * Used by secretaries to register student absences.
  */
 
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
@@ -37,9 +38,9 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
     <?php include __DIR__ . '/../navbar.php'; ?>
 
     <div class="dashboard-container">
-        <!-- Section gauche : Tableau de bord principal -->
+        <!-- Left section: Main dashboard -->
         <div class="main-section">
-            <!-- Section d'import avec onglets -->
+            <!-- Import section with tabs -->
             <div class="card import-section">
                 <div class="tabs-container">
                     <div class="tabs-header">
@@ -47,7 +48,7 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
                         <button class="tab-btn" data-tab="students">Importer les étudiants</button>
                     </div>
 
-                    <!-- Contenu onglet : Import des absences -->
+                    <!-- Tab content: Absence import -->
                     <div id="absences-tab" class="tab-content active">
                         <div class="import-controls">
                             <label for="csv-file" class="file-label">
@@ -58,7 +59,7 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
                             <button id="import-btn" class="btn-primary" disabled>Importer</button>
                         </div>
 
-                        <!-- Barre de progression -->
+                        <!-- Progress bar -->
                         <div id="progress-container" class="progress-container" style="display: none;">
                             <div class="progress-info">
                                 <span id="progress-status">Importation en cours...</span>
@@ -70,11 +71,11 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
                             <div id="progress-details" class="progress-details"></div>
                         </div>
 
-                        <!-- Résultat de l'import -->
+                        <!-- Import result -->
                         <div id="import-result" class="import-result" style="display: none;"></div>
                     </div>
 
-                    <!-- Contenu onglet : Import des étudiants -->
+                    <!-- Tab content: Student import -->
                     <div id="students-tab" class="tab-content">
 
                         <div class="import-controls">
@@ -86,7 +87,7 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
                             <button id="students-import-btn" class="btn-primary" disabled>Importer</button>
                         </div>
 
-                        <!-- Barre de progression pour les étudiants -->
+                        <!-- Student import progress bar -->
                         <div id="students-progress-container" class="progress-container" style="display: none;">
                             <div class="progress-info">
                                 <span id="students-progress-status">Importation en cours...</span>
@@ -98,17 +99,17 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
                             <div id="students-progress-details" class="progress-details"></div>
                         </div>
 
-                        <!-- Résultat de l'import des étudiants -->
+                        <!-- Student import result -->
                         <div id="students-import-result" class="import-result" style="display: none;"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Section de saisie manuelle d'absence -->
+            <!-- Manual absence entry section -->
             <div class="card manual-entry-section">
                 <h2>Saisie manuelle d'absence</h2>
                 <form id="manual-absence-form">
-                    <!-- Sélection de l'étudiant -->
+                    <!-- Student selection -->
                     <div class="form-group">
                         <label for="student-search">Étudiant *</label>
                         <div class="search-container">
@@ -120,13 +121,13 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
                         <div id="selected-student-info" class="selected-info"></div>
                     </div>
 
-                    <!-- Sélection de la date -->
+                    <!-- Date selection -->
                     <div class="form-group">
                         <label for="absence-date">Date *</label>
                         <input type="date" id="absence-date" name="absence_date" required>
                     </div>
 
-                    <!-- Sélection de l'heure -->
+                    <!-- Time selection -->
                     <div class="form-group">
                         <label for="start-time">Heure de début *</label>
                         <input type="time" id="start-time" name="start_time" required min="08:00" max="20:00">
@@ -154,7 +155,7 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
                         <div id="selected-time-info" class="selected-time-info"></div>
                     </div>
 
-                    <!-- Sélection de la matière -->
+                    <!-- Subject selection -->
                     <div class="form-group">
                         <label for="resource-search">Matière *</label>
                         <div class="search-container">
@@ -168,7 +169,7 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
                             matière</button>
                     </div>
 
-                    <!-- Sélection de la salle -->
+                    <!-- Room selection -->
                     <div class="form-group">
                         <label for="room-search">Salle *</label>
                         <div class="search-container">
@@ -182,7 +183,7 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
                             salle</button>
                     </div>
 
-                    <!-- Type de cours -->
+                    <!-- Course type -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="course-type">Type de cours *</label>
@@ -198,7 +199,7 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
                             </select>
                         </div>
 
-                        <!-- Est une évaluation -->
+                        <!-- Is evaluation -->
                         <div class="form-group checkbox-group">
                             <label>
                                 <input type="checkbox" id="is-evaluation" name="is_evaluation">
@@ -212,18 +213,18 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
             </div>
         </div>
 
-        <!-- Section droite : Historique -->
+        <!-- Right section: History -->
         <div class="history-section">
             <div class="card history-card">
                 <h2>Historique des imports</h2>
                 <div id="import-history" class="history-list">
-                    <!-- Les éléments d'historique seront chargés ici -->
+                    <!-- History items will be loaded here -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modale pour créer une nouvelle matière -->
+    <!-- Modal to create a new subject -->
     <div id="create-resource-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -241,7 +242,7 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
         </div>
     </div>
 
-    <!-- Modale pour créer une nouvelle salle -->
+    <!-- Modal to create a new room -->
     <div id="create-room-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>

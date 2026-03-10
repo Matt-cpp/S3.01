@@ -1,31 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: proofs_presenter.php
- * 
- * Présentateur des justificatifs étudiant - Gère l'affichage de la liste des justificatifs d'un étudiant.
- * Fournit des méthodes pour:
- * - Filtrer les justificatifs (dates d'absence, statut, motif, présence d'évaluation)
- * - Récupérer les justificatifs avec statistiques agrégées :
- *   - Nombre d'absences associées
- *   - Heures totales manquées
- *   - Détection d'évaluations ratées
- *   - Types de cours concernés (JSON)
- * - Formater les données pour l'affichage (badges de statut, dates, périodes)
- * - Traduire les motifs d'absence en français
- * - Gérer les motifs de rejet/validation depuis la base de données
- * Utilisé par la page "Mes justificatifs" de l'étudiant.
+ * File: proofs_presenter.php
+ *
+ * Student proofs presenter – Handles display of the student's proof list.
+ * Provides methods to:
+ * - Filter proofs (absence dates, status, reason, evaluation presence)
+ * - Retrieve proofs with aggregated statistics:
+ *   - Associated absence count
+ *   - Total hours missed
+ *   - Missed evaluation detection
+ *   - Concerned course types (JSON)
+ * - Format data for display (status badges, dates, periods)
+ * - Translate absence reasons to French
+ * - Manage rejection/validation reasons from the database
+ * Used by the student "My proofs" page.
  */
 
 require_once __DIR__ . '/../../Model/database.php';
 
 class StudentProofsPresenter
 {
-    private $filters;
-    private $errorMessage;
-    private $studentIdentifier;
+    private array $filters;
+    private string $errorMessage;
+    private string $studentIdentifier;
 
-    public function __construct($studentIdentifier)
+    public function __construct(string $studentIdentifier)
     {
         $this->studentIdentifier = $studentIdentifier;
         $this->filters = [];
@@ -33,9 +35,8 @@ class StudentProofsPresenter
         $this->processRequest();
     }
 
-    private function processRequest()
+    private function processRequest(): void
     {
-        // Récupérer les paramètres GET pour les filtres (ex: venant de la page d'accueil)
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['status'])) {
             $this->filters['status'] = $_GET['status'] ?? '';
         }
@@ -45,12 +46,11 @@ class StudentProofsPresenter
         }
     }
 
-    private function validateAndSetFilters()
+    private function validateAndSetFilters(): void
     {
-        // Validation des dates
         if (!empty($_POST['firstDateFilter']) && !empty($_POST['lastDateFilter'])) {
             if ($_POST['firstDateFilter'] > $_POST['lastDateFilter']) {
-                $this->errorMessage = "La première date doit être antérieure à la deuxième date.";
+                $this->errorMessage = 'La première date doit être antérieure à la deuxième date.';
                 return;
             }
         }
@@ -64,11 +64,10 @@ class StudentProofsPresenter
         ];
     }
 
-    public function getProofs()
+    public function getProofs(): array
     {
         $db = Database::getInstance()->getConnection();
 
-        // Requête principale pour récupérer les justificatifs avec les informations de base
         $query = "
             SELECT 
                 p.id as proof_id,
@@ -98,13 +97,13 @@ class StudentProofsPresenter
 
         $params = [':student_id' => $this->studentIdentifier];
 
-        // Filtre par date de début d'absence
+        // Filter by absence start date
         if (!empty($this->filters['start_date'])) {
             $query .= " AND p.absence_start_date >= :start_date";
             $params[':start_date'] = $this->filters['start_date'];
         }
 
-        // Filtre par date de fin d'absence
+        // Filter by absence end date
         if (!empty($this->filters['end_date'])) {
             $query .= " AND p.absence_end_date <= :end_date";
             $params[':end_date'] = $this->filters['end_date'];
@@ -112,7 +111,7 @@ class StudentProofsPresenter
 
         $query .= " GROUP BY p.id";
 
-        // Filtre par statut
+        // Filter by status
         if (!empty($this->filters['status'])) {
             if ($this->filters['status'] === 'accepted') {
                 $query .= " HAVING p.status = 'accepted'";
@@ -125,7 +124,7 @@ class StudentProofsPresenter
             }
         }
 
-        // Filtre par motif
+        // Filter by reason
         if (!empty($this->filters['reason'])) {
             if (strpos($query, 'HAVING') !== false) {
                 $query .= " AND p.main_reason = :reason";
@@ -135,7 +134,7 @@ class StudentProofsPresenter
             $params[':reason'] = $this->filters['reason'];
         }
 
-        // Filtre par présence d'évaluation
+        // Filter by evaluation presence
         if (!empty($this->filters['has_exam'])) {
             if ($this->filters['has_exam'] === 'yes') {
                 if (strpos($query, 'HAVING') !== false) {
@@ -152,7 +151,7 @@ class StudentProofsPresenter
             }
         }
 
-        // Tri : justificatifs en révision d'abord, puis par date de soumission décroissante (plus récent en premier)
+        // Sort: proofs under review first, then by submission date descending
         $query .= " ORDER BY 
             CASE 
                 WHEN p.status = 'under_review' THEN 1
@@ -168,26 +167,24 @@ class StudentProofsPresenter
             $stmt->execute($params);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Calculer les heures manquées et les demi-journées pour chaque justificatif
+            // Calculate missed hours and half-days for each proof
             foreach ($results as &$proof) {
                 $proof['total_hours_missed'] = ($proof['total_duration_minutes'] ?? 0) / 60;
-                
-                // Calculer les demi-journées (>= 1h dans la période 8h-12h30 ou 12h30-18h30)
-                $proof['half_days_count'] = $this->calculateHalfDaysForProof($db, $proof['proof_id']);
+                $proof['half_days_count'] = $this->calculateHalfDaysForProof($db, (int) $proof['proof_id']);
             }
 
             return $results;
         } catch (Exception $e) {
-            error_log("Erreur lors de la récupération des justificatifs: " . $e->getMessage());
+            error_log('Error retrieving proofs: ' . $e->getMessage());
             return [];
         }
     }
 
     /**
-     * Calcule le nombre de demi-journées pour un justificatif
-     * Règle : 1 demi-journée comptée si >= 1 minute d'absence dans le créneau 8h-12h30 ou 12h30-18h30
+     * Calculate the number of half-days for a proof
+     * Rule: 1 half-day counted if >= 1 minute of absence in the 8h-12h30 or 12h30-18h30 slot
      */
-    private function calculateHalfDaysForProof($db, $proofId)
+    private function calculateHalfDaysForProof(PDO $db, int $proofId): int
     {
         $query = "
             SELECT 
@@ -259,14 +256,13 @@ class StudentProofsPresenter
 
             return $totalHalfDays;
         } catch (Exception $e) {
-            error_log("Erreur lors du calcul des demi-journées pour le justificatif: " . $e->getMessage());
+            error_log('Error calculating half-days for proof: ' . $e->getMessage());
             return 0;
         }
     }
 
-    public function getReasons()
+    public function getReasons(): array
     {
-        // Retourner tous les motifs standards
         return [
             ['reason' => 'illness', 'label' => 'Maladie'],
             ['reason' => 'death', 'label' => 'Décès dans la famille'],
@@ -278,17 +274,17 @@ class StudentProofsPresenter
         ];
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return $this->filters;
     }
 
-    public function getErrorMessage()
+    public function getErrorMessage(): string
     {
         return $this->errorMessage;
     }
 
-    public function translateReason($reason, $customReason = null)
+    public function translateReason(?string $reason, ?string $customReason = null): string
     {
         if (!$reason) {
             return '';
@@ -305,10 +301,10 @@ class StudentProofsPresenter
             'other' => $customReason ? htmlspecialchars($customReason) : 'Autre'
         ];
 
-        return isset($translations[$reason]) ? $translations[$reason] : htmlspecialchars($reason);
+        return $translations[$reason] ?? htmlspecialchars($reason);
     }
 
-    public function getStatusBadge($status)
+    public function getStatusBadge(string $status): array
     {
         switch ($status) {
             case 'accepted':
@@ -324,17 +320,17 @@ class StudentProofsPresenter
         }
     }
 
-    public function formatDate($date)
+    public function formatDate(string $date): string
     {
         return date('d/m/Y', strtotime($date));
     }
 
-    public function formatDateTime($datetime)
+    public function formatDateTime(string $datetime): string
     {
-        return date('d/m/Y à H\hi', strtotime($datetime));
+        return date('d/m/Y \u00e0 H\hi', strtotime($datetime));
     }
 
-    public function formatPeriod($startDate, $endDate)
+    public function formatPeriod(string $startDate, string $endDate): string
     {
         $start = $this->formatDate($startDate);
         $end = $this->formatDate($endDate);

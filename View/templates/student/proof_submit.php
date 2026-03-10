@@ -1,17 +1,19 @@
 <?php
+
+declare(strict_types=1);
 /**
- * Fichier: proof_submit.php
- * 
- * Template de soumission d'un nouveau justificatif d'absence pour les étudiants.
- * Fonctionnalités principales :
- * - Formulaire de création d'un justificatif d'absence
- * - Sélection des dates de début et fin d'absence avec validation
- * - Chargement dynamique des cours concernés par la période d'absence
- * - Affichage d'un récapitulatif (heures, demi-journées, évaluations)
- * - Sélection du motif d'absence avec possibilité de motif personnalisé
- * - Upload de fichiers justificatifs (multi-fichiers supportés)
- * - Validation côté client avec JavaScript pour l'expérience utilisateur
- * - Limite de taille des fichiers (5MB par fichier, 20MB au total)
+ * File: proof_submit.php
+ *
+ * Template for submitting a new absence proof for students.
+ * Main features:
+ * - Absence proof creation form
+ * - Start and end date selection with validation
+ * - Dynamic loading of courses affected by the absence period
+ * - Summary display (hours, half-days, evaluations)
+ * - Absence reason selection with custom reason option
+ * - Proof file upload (multi-file supported)
+ * - Client-side validation with JavaScript for user experience
+ * - File size limits (5MB per file, 20MB total)
  */
 ?>
 <!DOCTYPE html>
@@ -68,9 +70,9 @@ if (!isset($_SESSION['id_student'])) {
 
         <h1 class="page-title">Création de justificatif</h1>
 
-        <!-- Formulaire de soumission de justificatif (multipart pour upload de fichiers) -->
+        <!-- Proof submission form (multipart for file upload) -->
         <form action="../../../Presenter/student/proof_validation.php" method="post" enctype="multipart/form-data">
-            <!-- Sélection de la période d'absence -->
+            <!-- Absence period selection -->
             <div class="form-group">
                 <label for="datetime_start">Date et heure de début d'absence :</label>
                 <input type="datetime-local" id="datetime_start" name="datetime_start" required>
@@ -83,7 +85,7 @@ if (!isset($_SESSION['id_student'])) {
                 <p class="help-text">Sélectionnez la même date si l'absence ne dure qu'une journée</p>
             </div>
 
-            <!-- Affichage dynamique des cours concernés par la période d'absence -->
+            <!-- Dynamic display of courses affected by the absence period -->
             <div class="form-group">
                 <label for="class_involved">Cours concerné(s) :</label>
                 <div id="courses_loading" style="display: none; color: #666; font-style: italic;">
@@ -97,7 +99,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
                 <div id="absence_recap" style="display: none;"></div>
                 <input type="hidden" name="class_involved" id="class_involved_hidden" value="">
-                <!-- Champs cachés pour les statistiques d'absence (calculées en JavaScript) -->
+                <!-- Hidden fields for absence statistics (computed in JavaScript) -->
                 <input type="hidden" name="absence_stats_hours" id="absence_stats_hours" value="0">
                 <input type="hidden" name="absence_stats_halfdays" id="absence_stats_halfdays" value="0">
                 <input type="hidden" name="absence_stats_evaluations" id="absence_stats_evaluations" value="0">
@@ -127,7 +129,7 @@ if (!isset($_SESSION['id_student'])) {
                     placeholder="Veuillez préciser votre motif d'absence">
             </div>
 
-            <!-- Upload de fichiers justificatifs avec validation de taille -->
+            <!-- Proof file upload with size validation -->
             <div class="form-group">
                 <label for="proof_files">Fichiers justificatifs :</label>
                 <input type="file" id="proof_files" name="proof_files[]" multiple
@@ -140,7 +142,7 @@ if (!isset($_SESSION['id_student'])) {
                     • Formats acceptés : PDF (recommandé), JPG, JPEG, PNG, DOC, DOCX
                 </p>
 
-                <!-- Zone d'aperçu des fichiers sélectionnés -->
+                <!-- Selected files preview area -->
                 <div id="files_preview" style="display: none; margin-top: 15px;">
                     <h4>Fichiers sélectionnés :</h4>
                     <div id="files_list"></div>

@@ -1,33 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: get_info.php
- * 
- * Service de récupération d'informations étudiant - Fournit les statistiques et données pour le tableau de bord.
- * Fonctions principales:
- * - getStudentIdentifier(): Récupère l'identifiant d'un étudiant depuis son ID utilisateur
- * - getAbsenceStatistics(): Calcule les stats d'absences complètes
- *   - Compte total d'absences (cours manqués)
- *   - Calcul des demi-journées (matin/après-midi) avec déduplication
- *   - Demi-journées justifiées/non justifiées/justifiables
- *   - Heures totales manquées
- * - getRecentAbsences(): Récupère les dernières absences avec détails
- * - getProofsByCategory(): Récupère les justificatifs classés par statut
- * Utilisé pour le tableau de bord étudiant et le cache de session.
+ * File: get_info.php
+ *
+ * Student information retrieval service – Provides statistics and data for the dashboard.
+ * Main functions:
+ * - getStudentIdentifier(): Retrieves a student's identifier from their user ID
+ * - getAbsenceStatistics(): Computes full absence stats
+ *   - Total absence count (missed courses)
+ *   - Half-day calculation (morning/afternoon) with deduplication
+ *   - Justified/unjustified/justifiable half-days
+ *   - Total hours missed
+ * - getRecentAbsences(): Retrieves latest absences with details
+ * - getProofsByCategory(): Retrieves proofs sorted by status
+ * Used for the student dashboard and session cache.
  */
 
 require_once __DIR__ . '/../../Model/database.php';
 
-// Fonction pour obtenir l'identifier d'un étudiant à partir de son ID ou identifier car on récupère les infos de grâce à cela
-function getStudentIdentifier($student_id_or_identifier)
+/**
+ * Get a student's identifier from their user ID or return it if already an identifier
+ */
+function getStudentIdentifier(mixed $studentIdOrIdentifier): string
 {
-    if (!is_numeric($student_id_or_identifier)) {
-        return $student_id_or_identifier;
+    if (!is_numeric($studentIdOrIdentifier)) {
+        return $studentIdOrIdentifier;
     }
 
     $db = Database::getInstance()->getConnection();
-    $stmt = $db->prepare("SELECT identifier, first_name, last_name FROM users WHERE id = :id");
-    $stmt->execute(['id' => $student_id_or_identifier]);
+    $stmt = $db->prepare('SELECT identifier, first_name, last_name FROM users WHERE id = :id');
+    $stmt->execute([':id' => $studentIdOrIdentifier]);
     $result = $stmt->fetch();
 
     if ($result) {
@@ -36,24 +40,24 @@ function getStudentIdentifier($student_id_or_identifier)
         return $result['identifier'];
     }
 
-    throw new Exception("Student not found");
+    throw new Exception('Student not found');
 }
 
-function getAbsenceStatistics($student_identifier)
+function getAbsenceStatistics(mixed $studentIdentifier): array
 {
-    $student_identifier = getStudentIdentifier($student_identifier);
+    $studentIdentifier = getStudentIdentifier($studentIdentifier);
     $db = Database::getInstance()->getConnection();
 
-    // Requête simple pour compter le nombre total d'absences (cours manqués)
-    $stmt = $db->prepare("
+    // Count total absences (missed courses)
+    $stmt = $db->prepare('
         SELECT COUNT(*) as total_absences_count
         FROM absences
         WHERE student_identifier = :student_id
-    ");
-    $stmt->execute(['student_id' => $student_identifier]);
+    ');
+    $stmt->execute([':student_id' => $studentIdentifier]);
     $stats = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Calcul des demi-journées dans une requête séparée
+    // Calculate half-days in a separate query
     $stmt2 = $db->prepare("
         WITH absence_stats AS (
             SELECT DISTINCT ON (a.id)
@@ -100,10 +104,10 @@ function getAbsenceStatistics($student_identifier)
             END) as half_days_this_month
         FROM half_day_calc
     ");
-    $stmt2->execute(['student_id' => $student_identifier]);
-    $half_day_stats = $stmt2->fetch(PDO::FETCH_ASSOC);
+    $stmt2->execute([':student_id' => $studentIdentifier]);
+    $halfDayStats = $stmt2->fetch(PDO::FETCH_ASSOC);
 
-    // OPTIMISATION: Requête unique pour tous les compteurs de justificatifs
+    // Single query for all proof counters
     $stmt = $db->prepare("
         SELECT 
             COUNT(CASE WHEN status = 'under_review' THEN 1 END) as under_review_proofs,
@@ -113,30 +117,29 @@ function getAbsenceStatistics($student_identifier)
         FROM proof
         WHERE student_identifier = :student_id
     ");
-    $stmt->execute(['student_id' => $student_identifier]);
-    $proof_counts = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->execute([':student_id' => $studentIdentifier]);
+    $proofCounts = $stmt->fetch(PDO::FETCH_ASSOC);
 
     return [
         'total_absences_count' => (int) $stats['total_absences_count'],
-        'total_half_days' => (int) ($half_day_stats['total_half_days'] ?? 0),
-        'half_days_justified' => (int) ($half_day_stats['half_days_justified'] ?? 0),
-        'half_days_unjustified' => (int) ($half_day_stats['half_days_unjustified'] ?? 0),
-        'half_days_justifiable' => (int) ($half_day_stats['half_days_justifiable'] ?? 0),
-        'half_days_this_month' => (int) ($half_day_stats['half_days_this_month'] ?? 0),
-        'under_review_proofs' => (int) $proof_counts['under_review_proofs'],
-        'pending_proofs' => (int) $proof_counts['pending_proofs'],
-        'rejected_proofs' => (int) $proof_counts['rejected_proofs'],
-        'accepted_proofs' => (int) $proof_counts['accepted_proofs']
+        'total_half_days' => (int) ($halfDayStats['total_half_days'] ?? 0),
+        'half_days_justified' => (int) ($halfDayStats['half_days_justified'] ?? 0),
+        'half_days_unjustified' => (int) ($halfDayStats['half_days_unjustified'] ?? 0),
+        'half_days_justifiable' => (int) ($halfDayStats['half_days_justifiable'] ?? 0),
+        'half_days_this_month' => (int) ($halfDayStats['half_days_this_month'] ?? 0),
+        'under_review_proofs' => (int) $proofCounts['under_review_proofs'],
+        'pending_proofs' => (int) $proofCounts['pending_proofs'],
+        'rejected_proofs' => (int) $proofCounts['rejected_proofs'],
+        'accepted_proofs' => (int) $proofCounts['accepted_proofs']
     ];
 }
 
-function getRecentAbsences($student_identifier, $limit = 5)
+function getRecentAbsences(mixed $studentIdentifier, int $limit = 5): array
 {
-    $student_identifier = getStudentIdentifier($student_identifier);
+    $studentIdentifier = getStudentIdentifier($studentIdentifier);
     $db = Database::getInstance()->getConnection();
 
-    // Utiliser une sous-requête pour d'abord obtenir les absences les plus récentes,
-    // puis appliquer la logique de priorité des preuves
+    // Use subquery to get most recent absences first, then apply proof priority
     $stmt = $db->prepare("
         WITH recent_absences AS (
             SELECT DISTINCT ON (a.id)
@@ -188,19 +191,19 @@ function getRecentAbsences($student_identifier, $limit = 5)
         ORDER BY course_date DESC, start_time DESC
         LIMIT :limit
     ");
-    $stmt->bindValue(':student_id', $student_identifier, PDO::PARAM_STR);
+    $stmt->bindValue(':student_id', $studentIdentifier, PDO::PARAM_STR);
     $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
     $stmt->execute();
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getProofsByCategory($student_identifier)
+function getProofsByCategory(mixed $studentIdentifier): array
 {
-    $student_identifier = getStudentIdentifier($student_identifier);
+    $studentIdentifier = getStudentIdentifier($studentIdentifier);
     $db = Database::getInstance()->getConnection();
 
-    // Justificatifs en révision (demande d'infos supplémentaires)
+    // Proofs under review (additional info requested)
     $stmt = $db->prepare("
         SELECT 
             p.id as proof_id,
@@ -231,10 +234,10 @@ function getProofsByCategory($student_identifier)
         p.custom_reason, p.submission_date, p.manager_comment, p.proof_files
         ORDER BY p.submission_date DESC
     ");
-    $stmt->execute(['student_id' => $student_identifier]);
-    $under_review = $stmt->fetchAll();
+    $stmt->execute([':student_id' => $studentIdentifier]);
+    $underReview = $stmt->fetchAll();
 
-    // Justificatifs en attente de validation
+    // Proofs pending validation
     $stmt = $db->prepare("
         SELECT 
             p.id as proof_id,
@@ -261,10 +264,10 @@ function getProofsByCategory($student_identifier)
         p.custom_reason, p.submission_date, p.proof_files
         ORDER BY p.submission_date DESC
     ");
-    $stmt->execute(['student_id' => $student_identifier]);
+    $stmt->execute([':student_id' => $studentIdentifier]);
     $pending = $stmt->fetchAll();
 
-    // Justificatifs validés (les plus récents)
+    // Accepted proofs (most recent)
     $stmt = $db->prepare("
         SELECT 
             p.id as proof_id,
@@ -295,10 +298,10 @@ function getProofsByCategory($student_identifier)
         p.custom_reason, p.submission_date, p.processing_date, p.proof_files
         ORDER BY p.processing_date DESC
     ");
-    $stmt->execute(['student_id' => $student_identifier]);
+    $stmt->execute([':student_id' => $studentIdentifier]);
     $accepted = $stmt->fetchAll();
 
-    // Justificatifs invalidés (les plus récents)
+    // Rejected proofs (most recent)
     $stmt = $db->prepare("
         SELECT 
             p.id as proof_id,
@@ -330,14 +333,13 @@ function getProofsByCategory($student_identifier)
         p.custom_reason, p.submission_date, p.processing_date, p.manager_comment, p.proof_files
         ORDER BY p.processing_date DESC
     ");
-    $stmt->execute(['student_id' => $student_identifier]);
+    $stmt->execute([':student_id' => $studentIdentifier]);
     $rejected = $stmt->fetchAll();
 
     return [
-        'under_review' => $under_review,
+        'under_review' => $underReview,
         'pending' => $pending,
         'accepted' => $accepted,
         'rejected' => $rejected
     ];
 }
-?>

@@ -1,26 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: process-csv-import.php
- * 
- * Processeur d'importation CSV en arrière-plan - Exécute l'import complet d'un fichier CSV de manière asynchrone.
- * Fonctionnalités principales :
- * - Exécution en ligne de commande (CLI) avec arguments
- * - Mise à jour du statut dans import_jobs (processing -> completed/failed)
- * - Traitement ligne par ligne du CSV avec mise à jour de progression
- * - Parsing et validation des données (dates, heures, identifiants)
- * - Création/mise à jour des entités :
- *   - Utilisateurs (étudiants, enseignants)
- *   - Groupes et associations
- *   - Ressources (matières)
- *   - Salles
- *   - Créneaux de cours (course_slots)
+ * Background CSV import processor - Executes the full import of a CSV file asynchronously.
+ * Main features:
+ * - Command-line (CLI) execution with arguments
+ * - Status updates in import_jobs (processing -> completed/failed)
+ * - Row-by-row CSV processing with progress updates
+ * - Data parsing and validation (dates, times, identifiers)
+ * - Creation/update of entities:
+ *   - Users (students, teachers)
+ *   - Groups and associations
+ *   - Resources (subjects)
+ *   - Rooms
+ *   - Course slots
  *   - Absences
- * - Gestion des erreurs et logs détaillés dans import_history
- * - Import en batch pour optimiser les performances
- * Appelé par import-csv.php via exec() pour traitement asynchrone.
- * 
- * Background CSV Import Processor
- * This script runs in the background to process CSV imports
+ * - Error handling and detailed logs in import_history
+ * - Batch import for performance optimization
+ * Called by import-csv.php via exec() for asynchronous processing.
  */
 
 // Get command line arguments
@@ -73,7 +71,6 @@ try {
         "Fichier " . basename($filepath) . " importé avec succès ($totalRows lignes)",
         'success'
     );
-
 } catch (Exception $e) {
     error_log("Import error: " . $e->getMessage());
 
@@ -94,10 +91,10 @@ try {
 }
 
 /**
- * Update job status using a separate connection to bypass any active transactions
- * This ensures progress updates are immediately visible
+ * Update job status using a separate connection to bypass any active transactions.
+ * This ensures progress updates are immediately visible.
  */
-function updateJobStatus($db, $importId, $status, $processedRows = null, $message = null)
+function updateJobStatus(Database $db, string $importId, string $status, ?int $processedRows = null, ?string $message = null): void
 {
     $updates = ["status = :status", "updated_at = NOW()"];
     $params = [':id' => $importId, ':status' => $status];
@@ -114,8 +111,8 @@ function updateJobStatus($db, $importId, $status, $processedRows = null, $messag
 
     $sql = "UPDATE import_jobs SET " . implode(', ', $updates) . " WHERE id = :id";
 
-    // Use a separate PDO connection to bypass the main transaction
-    // This ensures progress updates are immediately committed and visible
+    // Use a separate PDO connection to bypass the main transaction.
+    // This ensures progress updates are immediately committed and visible.
     static $progressPdo = null;
     if ($progressPdo === null) {
         require_once __DIR__ . '/../../../Model/env.php';
@@ -133,7 +130,7 @@ function updateJobStatus($db, $importId, $status, $processedRows = null, $messag
     $stmt->execute($params);
 }
 
-function processCSVWithExtractor($db, $importId, $filepath, $totalRows)
+function processCSVWithExtractor(Database $db, string $importId, string $filepath, int $totalRows): void
 {
     $handle = fopen($filepath, 'r');
     if (!$handle) {
@@ -177,7 +174,6 @@ function processCSVWithExtractor($db, $importId, $filepath, $totalRows)
                     $message = "Traitement en cours: $processedCount/$totalRows lignes";
                     updateJobStatus($db, $importId, 'processing', $processedCount, $message);
                 }
-
             } catch (Exception $e) {
                 error_log("Error processing row: " . $e->getMessage());
                 $errorCount++;
@@ -186,7 +182,6 @@ function processCSVWithExtractor($db, $importId, $filepath, $totalRows)
         }
 
         $db->commit();
-
     } catch (Exception $e) {
         $db->rollBack();
         throw $e;
@@ -200,10 +195,10 @@ function processCSVWithExtractor($db, $importId, $filepath, $totalRows)
 }
 
 /**
- * Process a single row using the same logic as DataExtractor
- * This is a simplified version adapted from extract_datas.php
+ * Process a single row using the same logic as DataExtractor.
+ * This is a simplified version adapted from extract_datas.php.
  */
-function processRowFromExtractor($db, $data)
+function processRowFromExtractor(Database $db, array $data): void
 {
     // Skip if no identifier
     if (!isset($data['Identifiant']) || empty(trim($data['Identifiant']))) {
@@ -253,7 +248,7 @@ function processRowFromExtractor($db, $data)
 }
 
 // Helper functions adapted from extract_datas.php
-function processUser($db, $data, $identifier)
+function processUser(Database $db, array $data, string $identifier): int
 {
     $existing = $db->selectOne(
         "SELECT id FROM users WHERE identifier = :identifier",
@@ -285,7 +280,7 @@ function processUser($db, $data, $identifier)
     return $result['id'];
 }
 
-function processGroup($db, $data)
+function processGroup(Database $db, array $data): ?int
 {
     $groupCode = trim($data['Groupes'] ?? '');
 
@@ -323,7 +318,7 @@ function processGroup($db, $data)
     return $result['id'];
 }
 
-function processResource($db, $data)
+function processResource(Database $db, array $data): ?int
 {
     $resourceCode = trim($data['Identifiant matière'] ?? '');
 
@@ -356,7 +351,7 @@ function processResource($db, $data)
     return $result['id'];
 }
 
-function processRoom($db, $data)
+function processRoom(Database $db, array $data): ?int
 {
     $roomCode = trim($data['Salles'] ?? '');
 
@@ -379,7 +374,7 @@ function processRoom($db, $data)
     return $result['id'];
 }
 
-function processTeacher($db, $data)
+function processTeacher(Database $db, array $data): ?int
 {
     $teacherName = trim($data['Profs'] ?? '');
 
@@ -412,7 +407,7 @@ function processTeacher($db, $data)
     return $result['id'];
 }
 
-function processCourseSlot($db, $data, $resourceId, $roomId, $teacherId, $groupId)
+function processCourseSlot(Database $db, array $data, ?int $resourceId, ?int $roomId, ?int $teacherId, ?int $groupId): ?int
 {
     $courseDate = parseDate($data['Date'] ?? '', 'd/m/Y');
     $startTime = parseTime($data['Heure'] ?? '');
@@ -475,7 +470,7 @@ function processCourseSlot($db, $data, $resourceId, $roomId, $teacherId, $groupI
     return $result['id'];
 }
 
-function processAbsence($db, $data, $studentIdentifier, $courseSlotId)
+function processAbsence(Database $db, array $data, string $studentIdentifier, ?int $courseSlotId): void
 {
     if (!$courseSlotId) {
         return;
@@ -509,7 +504,7 @@ function processAbsence($db, $data, $studentIdentifier, $courseSlotId)
     ]);
 }
 
-function linkUserToGroup($db, $userId, $groupId)
+function linkUserToGroup(Database $db, ?int $userId, ?int $groupId): void
 {
     if (!$userId || !$groupId) {
         return;
@@ -528,8 +523,8 @@ function linkUserToGroup($db, $userId, $groupId)
     $db->execute($sql, [':user_id' => $userId, ':group_id' => $groupId]);
 }
 
-// Parsing helper functions from extract_datas.php
-function parseDate($dateString, $format = 'Y-m-d')
+// Parsing helper functions
+function parseDate(string $dateString, string $format = 'Y-m-d'): ?string
 {
     if (empty($dateString)) {
         return null;
@@ -544,7 +539,7 @@ function parseDate($dateString, $format = 'Y-m-d')
     return $date ? $date->format('Y-m-d') : null;
 }
 
-function parseTime($timeString)
+function parseTime(string $timeString): ?string
 {
     if (empty($timeString)) {
         return null;
@@ -559,7 +554,7 @@ function parseTime($timeString)
     return null;
 }
 
-function parseDuration($durationString)
+function parseDuration(string $durationString): ?int
 {
     if (empty($durationString)) {
         return null;
@@ -575,7 +570,7 @@ function parseDuration($durationString)
     return null;
 }
 
-function mapCourseType($type)
+function mapCourseType(string $type): string
 {
     $typeMap = [
         'CM' => 'CM',

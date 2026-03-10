@@ -1,24 +1,24 @@
-<!-- Backend de validation des justificatifs étudiants avec upload des fichiers, envoie de l'email et vérification des conditions d'envoie du justificatif -->
+<!-- Student proof validation backend with file upload, email sending and submission condition verification -->
 
 <?php
 
 /**
- * Fichier: proof_validation.php
- * 
- * Gestionnaire de soumission de justificatif - Traite la soumission complète d'un justificatif d'absence.
- * Processus complet en plusieurs étapes :
- * 1. Upload et validation des fichiers justificatifs (multi-fichiers supporté)
- *    - Validation format (PDF, JPG, PNG, DOC, DOCX, GIF)
- *    - Validation taille (5MB par fichier, 20MB total)
- *    - Stockage en JSONB dans proof_files
- * 2. Vérification de l'existence des absences sur la période
- * 3. Enregistrement du justificatif dans la table proof
- * 4. Liaison du justificatif aux absences concernées (table proof_absences)
- * 5. Mise à jour du système de monitoring des absences
- * 6. Génération d'un PDF récapitulatif
- * 7. Envoi d'un email de confirmation avec pièces jointes
- * 8. Création d'une notification dans la base de données
- * Stocke les données en session pour la page de confirmation.
+ * File: proof_validation.php
+ *
+ * Proof submission handler – Processes complete proof of absence submission.
+ * Full multi-step process:
+ * 1. Upload and validate proof files (multi-file support)
+ *    - Format validation (PDF, JPG, PNG, DOC, DOCX, GIF)
+ *    - Size validation (5MB per file, 20MB total)
+ *    - Storage in JSONB in proof_files
+ * 2. Check for absences in the specified period
+ * 3. Record proof in the proof table
+ * 4. Link proof to concerned absences (proof_absences table)
+ * 5. Update absence monitoring system
+ * 6. Generate summary PDF
+ * 7. Send confirmation email with attachments
+ * 8. Create notification in the database
+ * Stores data in session for the confirmation page.
  */
 
 require_once __DIR__ . '/../../Model/database.php';
@@ -31,69 +31,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         $db = getDatabase();
 
-        // Debug: Check if FILES are received
-        error_log("POST received - FILES array: " . json_encode($_FILES));
+        // Multi-file proof upload with full validation
+        $uploadedFiles = [];
+        $maxFileSize = 5 * 1024 * 1024; // 5MB
+        $maxTotalSize = 20 * 1024 * 1024; // 20MB
+        $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx'];
+        $uploadDir = __DIR__ . '/../../uploads/';
 
-        // Gestion de l'upload de multiples fichiers justificatifs avec validation complète
-        $uploaded_files = [];
-        $max_file_size = 5 * 1024 * 1024; // 5MB
-        $max_total_size = 20 * 1024 * 1024; // 20MB
-        $allowed_extensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx'];
-        $upload_dir = __DIR__ . '/../../uploads/';
-
-        // Créer le dossier d'upload si nécessaire
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
+        // Create upload folder if needed
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
         }
 
-        // Vérifier si des fichiers ont été uploadés
+        // Check if files were uploaded
         if (isset($_FILES['proof_files']) && !empty($_FILES['proof_files']['name'][0])) {
-            $files_count = count($_FILES['proof_files']['name']);
-            $total_size = 0;
+            $filesCount = count($_FILES['proof_files']['name']);
+            $totalSize = 0;
 
-            // Parcourir tous les fichiers
-            for ($i = 0; $i < $files_count; $i++) {
-                // Vérifier les erreurs d'upload
+            // Process all files
+            for ($i = 0; $i < $filesCount; $i++) {
+                // Check for upload errors
                 if ($_FILES['proof_files']['error'][$i] !== UPLOAD_ERR_OK) {
-                    continue; // Ignorer les fichiers avec erreurs
+                    continue;
                 }
 
-                $original_name = $_FILES['proof_files']['name'][$i];
-                $tmp_name = $_FILES['proof_files']['tmp_name'][$i];
-                $file_size = $_FILES['proof_files']['size'][$i];
-                $file_extension = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
+                $originalName = $_FILES['proof_files']['name'][$i];
+                $tmpName = $_FILES['proof_files']['tmp_name'][$i];
+                $fileSize = $_FILES['proof_files']['size'][$i];
+                $fileExtension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
 
-                // Validation de l'extension
-                if (!in_array($file_extension, $allowed_extensions)) {
-                    throw new Exception("Format de fichier non autorisé : $original_name");
+                // Extension validation
+                if (!in_array($fileExtension, $allowedExtensions)) {
+                    throw new Exception("Format de fichier non autorisé : $originalName");
                 }
 
-                // Validation de la taille
-                if ($file_size > $max_file_size || $file_size === 0) {
-                    throw new Exception("Taille de fichier invalide : $original_name");
+                // Size validation
+                if ($fileSize > $maxFileSize || $fileSize === 0) {
+                    throw new Exception("Taille de fichier invalide : $originalName");
                 }
 
-                $total_size += $file_size;
+                $totalSize += $fileSize;
 
-                // Vérifier la taille totale
-                if ($total_size > $max_total_size) {
+                // Check total size
+                if ($totalSize > $maxTotalSize) {
                     throw new Exception("La taille totale des fichiers dépasse 20MB");
                 }
 
-                // Créer un nom unique pour le fichier
-                $unique_name = uniqid() . '_' . date('Y-m-d_H-i-s') . '.' . $file_extension;
-                $file_path = $upload_dir . $unique_name;
+                // Create unique filename
+                $uniqueName = uniqid() . '_' . date('Y-m-d_H-i-s') . '.' . $fileExtension;
+                $filePath = $uploadDir . $uniqueName;
 
-                // Déplacer le fichier uploadé
-                if (!move_uploaded_file($tmp_name, $file_path)) {
-                    throw new Exception("Erreur lors de l'upload de : $original_name");
+                // Move uploaded file
+                if (!move_uploaded_file($tmpName, $filePath)) {
+                    throw new Exception("Erreur lors de l'upload de : $originalName");
                 }
 
-                // Ajouter les informations du fichier au tableau
-                // Déterminer le type MIME basé sur l'extension
-                // MIME = id de format de fichier
-                $extension = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
-                $mime_types = [
+                // Determine MIME type based on extension
+                $mimeTypes = [
                     'pdf' => 'application/pdf',
                     'jpg' => 'image/jpeg',
                     'jpeg' => 'image/jpeg',
@@ -101,21 +95,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     'doc' => 'application/msword',
                     'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
                 ];
-                $mime_type = $mime_types[$extension] ?? 'application/octet-stream';
+                $mimeType = $mimeTypes[$fileExtension] ?? 'application/octet-stream';
 
-                $uploaded_files[] = [
-                    'original_name' => $original_name,
-                    'saved_name' => $unique_name,
-                    'path' => 'uploads/' . $unique_name,
-                    'file_size' => $file_size,
-                    'mime_type' => $mime_type,
+                $uploadedFiles[] = [
+                    'original_name' => $originalName,
+                    'saved_name' => $uniqueName,
+                    'path' => 'uploads/' . $uniqueName,
+                    'file_size' => $fileSize,
+                    'mime_type' => $mimeType,
                     'uploaded_at' => date('Y-m-d H:i:s')
                 ];
             }
         }
 
-        // Stocker les informations des fichiers en JSON pour la session
-        $files_json = json_encode($uploaded_files, JSON_UNESCAPED_UNICODE);
+        // Store file information as JSON for the session
+        $filesJson = json_encode($uploadedFiles, JSON_UNESCAPED_UNICODE);
 
         // Retrieve student information from database
         if (isset($_SESSION['id_student'])) {
@@ -140,9 +134,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'absence_reason' => $_POST['absence_reason'] ?? '',
             'other_reason' => $_POST['other_reason'] ?? '',
 
-            // Gestion de multiples fichiers
-            'proof_files' => $uploaded_files,  // Array de fichiers
-            'proof_files_json' => $files_json,  // JSON pour la BD
+            // Multi-file management
+            'proof_files' => $uploadedFiles,
+            'proof_files_json' => $filesJson,
 
             'comments' => $_POST['comments'] ?? '',
             'submission_date' => date('Y-m-d H:i:s'),
@@ -163,19 +157,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             throw new Exception('Étudiant non trouvé dans le système.');
         }
 
-        $student_identifier = $studentInfo['identifier'];
+        $studentIdentifier = $studentInfo['identifier'];
 
         // Check if there are absences for the specified period
-        $datetime_start = $_SESSION['reason_data']['datetime_start'];
-        $datetime_end = $_SESSION['reason_data']['datetime_end'];
+        $datetimeStart = $_SESSION['reason_data']['datetime_start'];
+        $datetimeEnd = $_SESSION['reason_data']['datetime_end'];
 
         // Convert datetime formats to ensure consistency
-        $start_timestamp = date('Y-m-d H:i:s', strtotime($datetime_start));
+        $startTimestamp = date('Y-m-d H:i:s', strtotime($datetimeStart));
         // Subtract 1 minute from end date to exclude courses starting exactly at the end time
-        $end_timestamp = date('Y-m-d H:i:s', strtotime($datetime_end . ' -1 minute'));
+        $endTimestamp = date('Y-m-d H:i:s', strtotime($datetimeEnd . ' -1 minute'));
 
-        // Query to verify absences exist for the period (use same logic as AJAX call)
-        $sql_check = "
+        // Query to verify absences exist for the period
+        $sqlCheck = "
             SELECT COUNT(DISTINCT a.id) as absence_count
             FROM absences a
             JOIN course_slots cs ON a.course_slot_id = cs.id
@@ -189,16 +183,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 AND (cs.course_date + cs.start_time)::timestamp <= :datetime_end::timestamp
         ";
 
-        $params_check = [
-            'student_identifier' => $student_identifier,
-            'datetime_start' => $start_timestamp,
-            'datetime_end' => $end_timestamp
+        $paramsCheck = [
+            'student_identifier' => $studentIdentifier,
+            'datetime_start' => $startTimestamp,
+            'datetime_end' => $endTimestamp
         ];
 
-        $absence_check = $db->selectOne($sql_check, $params_check);
+        $absenceCheck = $db->selectOne($sqlCheck, $paramsCheck);
 
-        // Debug: get the actual absences to see what we're finding
-        $sql_debug = "
+        // Get actual absences for the period
+        $sqlAbsences = "
             SELECT DISTINCT
                 cs.course_date,
                 cs.start_time,
@@ -219,43 +213,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ORDER BY cs.course_date, cs.start_time
         ";
 
-        $debug_absences = $db->select($sql_debug, $params_check);
+        $foundAbsences = $db->select($sqlAbsences, $paramsCheck);
 
-        if (!$absence_check || $absence_check['absence_count'] == 0) {
+        if (!$absenceCheck || $absenceCheck['absence_count'] == 0) {
             // Clean up uploaded files if no absences found
-            foreach ($uploaded_files as $file_info) {
-                $file_to_delete = __DIR__ . '/../' . $file_info['path'];
-                if (file_exists($file_to_delete)) {
-                    unlink($file_to_delete);
+            foreach ($uploadedFiles as $fileInfo) {
+                $fileToDelete = __DIR__ . '/../' . $fileInfo['path'];
+                if (file_exists($fileToDelete)) {
+                    unlink($fileToDelete);
                 }
             }
 
-            // Create detailed error message with debug info
-            $error_msg = "Aucune absence non justifiée trouvée pour cette période. ";
-            $error_msg .= "Période recherchée: du " . date('d/m/Y H:i', strtotime($start_timestamp));
-            $error_msg .= " au " . date('d/m/Y H:i', strtotime($end_timestamp));
-            $error_msg .= " pour l'étudiant " . $student_identifier . ". ";
+            // Create detailed error message
+            $errorMsg = "Aucune absence non justifiée trouvée pour cette période. ";
+            $errorMsg .= "Période recherchée: du " . date('d/m/Y H:i', strtotime($startTimestamp));
+            $errorMsg .= " au " . date('d/m/Y H:i', strtotime($endTimestamp));
+            $errorMsg .= " pour l'étudiant " . $studentIdentifier . ". ";
+            $errorMsg .= " Vérifiez que les absences sont bien enregistrées dans le système et correspondent exactement aux dates sélectionnées.";
 
-            // Add debug information about what we found
-            if (!empty($debug_absences)) {
-                $error_msg .= "CEPENDANT, la requête de débogage a trouvé " . count($debug_absences) . " absences: ";
-                foreach ($debug_absences as $abs) {
-                    $error_msg .= "[" . $abs['course_date'] . " " . $abs['start_time'] . "-" . $abs['end_time'] . " " . ($abs['resource_label'] ?? 'N/A') . "] ";
-                }
-            } else {
-                $error_msg .= "La requête de débogage n'a également trouvé aucune absence.";
-            }
-
-            $error_msg .= " Vérifiez que les absences sont bien enregistrées dans le système et correspondent exactement aux dates sélectionnées.";
-
-            throw new Exception($error_msg);
+            throw new Exception($errorMsg);
         }
 
         // Store the absence IDs for the associative table
-        $absence_ids = array_column($debug_absences, 'absence_id');
+        $absenceIds = array_column($foundAbsences, 'absence_id');
 
         // Centralized absence reason mapping
-        $absence_reasons = [
+        $absenceReasons = [
             'maladie' => [
                 'db_value' => 'illness',
                 'display_name' => 'Maladie'
@@ -286,14 +269,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ]
         ];
 
-        $form_reason = $_SESSION['reason_data']['absence_reason'];
-        $absence_reason_mapped = $absence_reasons[$form_reason]['db_value'] ?? 'other';
+        $formReason = $_SESSION['reason_data']['absence_reason'];
+        $absenceReasonMapped = $absenceReasons[$formReason]['db_value'] ?? 'other';
 
-        // Insert the proof into database
         $db->beginTransaction();
         try {
-            // First, insert the main proof record
-            $sql_insert = "
+            // Insert the main proof record
+            $sqlInsert = "
                 INSERT INTO proof (
                     student_identifier, 
                     absence_start_date, 
@@ -322,48 +304,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 )
             ";
 
-            $params_insert = [
-                'student_identifier' => $student_identifier,
-                'absence_start_date' => date('Y-m-d', strtotime($datetime_start)),
-                'absence_end_date' => date('Y-m-d', strtotime($datetime_end)),
+            $paramsInsert = [
+                'student_identifier' => $studentIdentifier,
+                'absence_start_date' => date('Y-m-d', strtotime($datetimeStart)),
+                'absence_end_date' => date('Y-m-d', strtotime($datetimeEnd)),
                 'concerned_courses' => $_SESSION['reason_data']['class_involved'],
-                'main_reason' => $absence_reason_mapped,
+                'main_reason' => $absenceReasonMapped,
                 'custom_reason' => $_SESSION['reason_data']['other_reason'] ?: null,
-                'file_path' => !empty($uploaded_files) ? $uploaded_files[0]['path'] : null, // Garder pour compatibilité
-                'proof_files' => $files_json, // JSON des fichiers uploadés
+                'file_path' => !empty($uploadedFiles) ? $uploadedFiles[0]['path'] : null,
+                'proof_files' => $filesJson,
                 'student_comment' => $_SESSION['reason_data']['comments'] ?: null,
                 'submission_date' => $_SESSION['reason_data']['submission_date']
             ];
 
-            $db->execute($sql_insert, $params_insert);
-            $proof_id = $db->lastInsertId();
+            $db->execute($sqlInsert, $paramsInsert);
+            $proofId = $db->lastInsertId();
 
-            // Then, insert the associations between this proof and all related absences
-            foreach ($absence_ids as $absence_id) {
-                $sql_assoc = "
+            // Insert associations between this proof and all related absences
+            foreach ($absenceIds as $absenceId) {
+                $sqlAssoc = "
                     INSERT INTO proof_absences (proof_id, absence_id) 
                     VALUES (:proof_id, :absence_id)
                 ";
-                $db->execute($sql_assoc, [
-                    'proof_id' => $proof_id,
-                    'absence_id' => $absence_id
+                $db->execute($sqlAssoc, [
+                    'proof_id' => $proofId,
+                    'absence_id' => $absenceId
                 ]);
             }
 
             $db->commit();
 
             // Update absence monitoring to mark as justified
-            // This prevents reminder emails from being sent
             try {
                 $monitoringModel = new AbsenceMonitoringModel();
                 $monitoringModel->markAsJustifiedByProof(
-                    $student_identifier,
-                    date('Y-m-d', strtotime($datetime_start)),
-                    date('Y-m-d', strtotime($datetime_end))
+                    $studentIdentifier,
+                    date('Y-m-d', strtotime($datetimeStart)),
+                    date('Y-m-d', strtotime($datetimeEnd))
                 );
             } catch (Exception $e) {
-                // Log but don't fail the proof submission
-                error_log("Failed to update absence monitoring: " . $e->getMessage());
+                error_log('Failed to update absence monitoring: ' . $e->getMessage());
             }
 
             // Send the email of validation to the student
@@ -384,44 +364,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
             ';
 
-            // Generate PDF summary using the generate_pdf.php logic
-            $pdf_filename = 'Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf';
-            $pdf_path = __DIR__ . '/../../uploads/' . $pdf_filename;
+            // Generate PDF summary
+            $pdfFilename = 'Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf';
+            $pdfPath = __DIR__ . '/../../uploads/' . $pdfFilename;
 
             // Simulate POST data for PDF generation
             $_POST['action'] = 'download_pdf_server';
-            $_POST['name_file'] = $pdf_filename;
+            $_POST['name_file'] = $pdfFilename;
 
-            // Capture the PDF output by including the generate_pdf.php file
+            // Capture the PDF output
             ob_start();
             include __DIR__ . '/../shared/generate_pdf.php';
             ob_end_clean();
 
             // Check if PDF was generated successfully
-            if (!file_exists($pdf_path)) {
-                error_log("Background email script: PDF generation failed - file not found: " . $pdf_path);
-                // Continue with email sending even if PDF generation fails
+            if (!file_exists($pdfPath)) {
+                error_log('PDF generation failed - file not found: ' . $pdfPath);
             }
 
-            // ===== MODIFIÉ : Préparation des pièces jointes pour l'email =====
+            // ===== Prepare email attachments =====
             $attachments = [];
 
-            // Ajouter tous les fichiers justificatifs uploadés
-            foreach ($uploaded_files as $file_info) {
-                $file_path = __DIR__ . '/../../' . $file_info['path'];
-                if (file_exists($file_path)) {
+            // Add all uploaded proof files
+            foreach ($uploadedFiles as $fileInfo) {
+                $filePath = __DIR__ . '/../../' . $fileInfo['path'];
+                if (file_exists($filePath)) {
                     $attachments[] = [
-                        'path' => $file_path,
-                        'name' => $file_info['original_name']
+                        'path' => $filePath,
+                        'name' => $fileInfo['original_name']
                     ];
                 } else {
-                    error_log("Fichier non trouvé : " . $file_path);
+                    error_log('File not found: ' . $filePath);
                 }
             }
 
-            // Add PDF if it was generated successfully
-            if (file_exists($pdf_path)) {
-                $attachments[] = ['path' => $pdf_path, 'name' => $pdf_filename];
+            // Add PDF if generated successfully
+            if (file_exists($pdfPath)) {
+                $attachments[] = ['path' => $pdfPath, 'name' => $pdfFilename];
             }
 
             $images = [
@@ -429,7 +408,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'logoIUT' => __DIR__ . '/../../View/img/logoIUT.png'
             ];
 
-            // Modifier le corps de l'email pour mentionner les fichiers
+            // Update email body to mention attached files
             $htmlBody = '
             <h1>Confirmation de réception de votre justificatif</h1>
             <p>Votre justificatif d\'absence a été reçu avec succès et est maintenant en attente de validation.</p>
@@ -437,8 +416,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <ul>
                 <li>📄 Le récapitulatif PDF de votre demande</li>';
 
-            if (count($uploaded_files) > 0) {
-                $htmlBody .= '<li>📎 ' . count($uploaded_files) . ' fichier(s) justificatif(s) que vous avez soumis</li>';
+            if (count($uploadedFiles) > 0) {
+                $htmlBody .= '<li>📎 ' . count($uploadedFiles) . ' fichier(s) justificatif(s) que vous avez soumis</li>';
             } else {
                 $htmlBody .= '<li>⚠️ Aucun fichier justificatif fourni</li>';
             }
@@ -464,39 +443,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             );
 
             if ($response['success']) {
-                // Email sent successfully - log notification
+                // Email sent successfully
                 try {
                     insert_notification(
                         $db,
-                        $student_identifier,
+                        $studentIdentifier,
                         'justification_processed',
                         'Justificatif reçu',
                         'Votre justificatif a été reçu et est en attente de validation.',
                         true
                     );
-                } catch (Exception $notif_error) {
-                    error_log("Notification insertion failed: " . $notif_error->getMessage());
+                } catch (Exception $notifError) {
+                    error_log("Notification insertion failed: " . $notifError->getMessage());
                 }
             } else {
-                // Log the email error but do not fail the whole process
-                error_log("Email error: " . $response['message']);
+                error_log('Email error: ' . $response['message']);
                 try {
                     insert_notification(
                         $db,
-                        $student_identifier,
+                        $studentIdentifier,
                         'justification_processed',
                         'Justificatif reçu (email échoué)',
                         'Votre justificatif a été reçu mais l\'email de confirmation n\'a pas pu être envoyé.',
                         false
                     );
-                } catch (Exception $notif_error) {
-                    error_log("Notification insertion failed: " . $notif_error->getMessage());
+                } catch (Exception $notifError) {
+                    error_log("Notification insertion failed: " . $notifError->getMessage());
                 }
             }
 
             // Delete the generated PDF after sending the email
-            if (file_exists($pdf_path)) {
-                unlink($pdf_path);
+            if (file_exists($pdfPath)) {
+                unlink($pdfPath);
             }
 
             // Convert reason back to French for display
@@ -511,11 +489,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 default => $_POST['absence_reason']
             };
 
-            // Send response to user immediately, then handle emails in background
+            // Send response to user immediately
             header("Location: ../../View/templates/student/proof_validation.php");
-
-            // Email was already sent above with all attachments and files
-            // No need for additional email operations
             exit();
         } catch (Exception $e) {
             // Only rollback if transaction is still active
@@ -523,11 +498,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $db->rollBack();
             }
 
-            // ===== MODIFIÉ : Nettoyer tous les fichiers en cas d'erreur =====
-            foreach ($uploaded_files as $file_info) {
-                $file_to_delete = __DIR__ . '/../../' . $file_info['path'];
-                if (file_exists($file_to_delete)) {
-                    unlink($file_to_delete);
+            // ===== Clean up all files on error =====
+            foreach ($uploadedFiles as $fileInfo) {
+                $fileToDelete = __DIR__ . '/../../' . $fileInfo['path'];
+                if (file_exists($fileToDelete)) {
+                    unlink($fileToDelete);
                 }
             }
 
@@ -544,21 +519,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit();
 }
 
-function insert_notification($db, $student_identifier, $notification_type, $subject, $message, $sent): bool
+function insert_notification(mixed $db, string $studentIdentifier, string $notificationType, string $subject, string $message, bool $sent): bool
 {
     try {
         $sql = "INSERT INTO notifications (student_identifier, notification_type, subject, message , sent, sent_date) 
                 VALUES (:student_identifier, :notification_type, :subject, :message, :sent::boolean, CASE WHEN :sent::boolean = TRUE THEN NOW() ELSE NULL END)";
         $db->execute($sql, [
-            'student_identifier' => $student_identifier,
-            'notification_type' => $notification_type,
+            'student_identifier' => $studentIdentifier,
+            'notification_type' => $notificationType,
             'subject' => $subject,
             'message' => $message,
             'sent' => $sent ? 'true' : 'false'
         ]);
         return true;
     } catch (Exception $e) {
-        error_log("Error inserting notification: " . $e->getMessage());
+        error_log('Error inserting notification: ' . $e->getMessage());
         return false;
     }
 }

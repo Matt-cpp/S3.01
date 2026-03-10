@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/database.php';
 
 class UserModel
 {
-    private $db;
+    private Database $db;
 
-    public function __construct($db = null)
+    public function __construct(?Database $db = null)
     {
         $this->db = $db ?? getDatabase();
     }
 
-    //Get user information by ID
-    public function getUserById($userId)
+    // Get user information by ID
+    public function getUserById(int $userId): ?array
     {
         $query = "
             SELECT 
@@ -40,8 +42,8 @@ class UserModel
         }
     }
 
-    //Get user information by identifier
-    public function getUserByIdentifier($identifier)
+    // Get user information by identifier
+    public function getUserByIdentifier(string $identifier): ?array
     {
         $query = "
             SELECT 
@@ -69,8 +71,8 @@ class UserModel
         }
     }
 
-    //Update user password
-    public function updatePassword($userId, $newPasswordHash)
+    // Update user password
+    public function updatePassword(int $userId, string $newPasswordHash): bool
     {
         $query = "
             UPDATE users 
@@ -91,8 +93,8 @@ class UserModel
         }
     }
 
-    //Verify current password
-    public function verifyPassword($userId, $password)
+    // Verify current password
+    public function verifyPassword(int $userId, string $password): bool
     {
         $query = "SELECT password_hash FROM users WHERE id = :user_id";
 
@@ -108,8 +110,8 @@ class UserModel
         }
     }
 
-    //Update user email
-    public function updateEmail($userId, $newEmail)
+    // Update user email
+    public function updateEmail(int $userId, string $newEmail): bool
     {
         $query = "
             UPDATE users 
@@ -130,8 +132,8 @@ class UserModel
         }
     }
 
-    //Check if email is already taken by another user
-    public function isEmailTaken($email, $excludeUserId = null)
+    // Check if email is already taken by another user
+    public function isEmailTaken(string $email, ?int $excludeUserId = null): bool
     {
         $query = "SELECT COUNT(*) as count FROM users WHERE UPPER(email) = UPPER(:email)";
         $params = [':email' => $email];
@@ -150,8 +152,8 @@ class UserModel
         }
     }
 
-    //Get user's role label in French
-    public function getRoleLabel($role)
+    // Get user's role label
+    public function getRoleLabel(string $role): string
     {
         $roleLabels = [
             'student' => 'Étudiant',
@@ -163,8 +165,8 @@ class UserModel
         return $roleLabels[$role] ?? 'Non défini';
     }
 
-    //Get user statistics (for students)
-    public function getUserStatistics($userIdentifier)
+    // Get user statistics (for students)
+    public function getUserStatistics(string $userIdentifier): ?array
     {
         $query = "
             SELECT 

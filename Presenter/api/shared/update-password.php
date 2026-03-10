@@ -1,16 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: update-password.php
- * 
- * API de modification de mot de passe - Permet à un utilisateur de changer son mot de passe.
- * Fonctionnalités principales :
- * - Vérification du mot de passe actuel
- * - Validation du nouveau mot de passe (minimum 8 caractères)
- * - Hachage sécurisé du nouveau mot de passe (password_hash)
- * - Mise à jour dans la base de données
- * - Gestion des erreurs avec messages explicites
- * Reçoit les données en JSON (current_password, new_password).
- * Utilisé par tous les utilisateurs depuis la page paramètres.
+ * Password update API - Allows a user to change their password.
+ * Main features:
+ * - Current password verification
+ * - New password validation (minimum 8 characters)
+ * - Secure hashing of the new password (password_hash)
+ * - Database update
+ * - Error handling with explicit messages
+ * Receives data as JSON (current_password, new_password).
+ * Used by all users from the settings page.
  */
 
 header('Content-Type: application/json');
@@ -39,7 +40,7 @@ try {
         throw new Exception('Le nouveau mot de passe doit contenir au moins 8 caractères');
     }
 
-    // Get current user ID from session (default to 1 for testing)
+    // Get current user ID from session
     $userId = $_SESSION['id_student'] ?? 1;
 
     $userModel = new UserModel();
@@ -61,7 +62,6 @@ try {
         'success' => true,
         'message' => 'Mot de passe modifié avec succès'
     ]);
-
 } catch (Exception $e) {
     http_response_code(400);
     echo json_encode([

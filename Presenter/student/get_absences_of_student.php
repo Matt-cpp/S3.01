@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: get_absences_of_student.php
- * 
- * API de récupération des absences - Renvoie la liste des absences non justifiées d'un étudiant sur une période.
- * Fonctionnalités principales :
- * - Filtre les absences sur une période (datetime_start et datetime_end)
- * - Exclut les absences déjà liées à un justificatif (sauf en mode édition)
- * - Renvoie les détails complets des cours (matière, type, horaires, enseignant, salle)
- * - Calcule les statistiques (heures, demi-journées, évaluations)
- * - Détecte les absences aux évaluations
- * Utilisé par AJAX lors de la soumission/modification d'un justificatif pour afficher les cours concernés.
- * Format de sortie : JSON avec liste des cours et statistiques.
+ * File: get_absences_of_student.php
+ *
+ * Absence retrieval API – Returns the list of unjustified absences for a student over a period.
+ * Main features:
+ * - Filters absences over a period (datetime_start and datetime_end)
+ * - Excludes absences already linked to a proof (except in edit mode)
+ * - Returns full course details (subject, type, schedule, teacher, room)
+ * - Calculates statistics (hours, half-days, evaluations)
+ * - Detects absences during evaluations
+ * Used by AJAX during proof submission/edit to display concerned courses.
+ * Output format: JSON with course list and statistics.
  */
 
 header('Content-Type: application/json');
@@ -29,14 +31,12 @@ require_once __DIR__ . '/../../Model/database.php';
 try {
     $db = getDatabase();
 
-    // Get parameters from request
-    $datetime_start = $_GET['datetime_start'] ?? '';
-    $datetime_end = $_GET['datetime_end'] ?? '';
-    $student_id = $_GET['student_id'] ?? 1; // Default to 1 as requested
-    $proof_id = $_GET['proof_id'] ?? null; // For editing mode
+    $datetimeStart = $_GET['datetime_start'] ?? '';
+    $datetimeEnd = $_GET['datetime_end'] ?? '';
+    $studentId = $_GET['student_id'] ?? 1;
+    $proofId = $_GET['proof_id'] ?? null;
 
-    // Validate required parameters
-    if (empty($datetime_start) || empty($datetime_end)) {
+    if (empty($datetimeStart) || empty($datetimeEnd)) {
         http_response_code(400);
         echo json_encode([
             'error' => 'datetime_start and datetime_end are required',
@@ -45,13 +45,11 @@ try {
         exit;
     }
 
-    // Convert datetime format if needed and validate
-    $start_date = date('Y-m-d H:i:s', strtotime($datetime_start));
-    // Subtract 1 minute from end date to exclude courses starting exactly at the end time
-    // Example: if end is 11:00, we want to exclude the course starting at 11:00
-    $end_date = date('Y-m-d H:i:s', strtotime($datetime_end . ' -1 minute'));
+    // Subtract 1 minute from end date to exclude courses starting exactly at end time
+    $startDate = date('Y-m-d H:i:s', strtotime($datetimeStart));
+    $endDate = date('Y-m-d H:i:s', strtotime($datetimeEnd . ' -1 minute'));
 
-    if (!$start_date || !$end_date) {
+    if (!$startDate || !$endDate) {
         http_response_code(400);
         echo json_encode([
             'error' => 'Invalid datetime format',
@@ -60,9 +58,8 @@ try {
         exit;
     }
 
-    // First, get the student's identifier from the users table
-    $sql_user = "SELECT identifier FROM users WHERE id = :student_id";
-    $user = $db->selectOne($sql_user, ['student_id' => $student_id]);
+    $sqlUser = 'SELECT identifier FROM users WHERE id = :student_id';
+    $user = $db->selectOne($sqlUser, ['student_id' => $studentId]);
 
     if (!$user) {
         http_response_code(404);
@@ -73,13 +70,11 @@ try {
         exit;
     }
 
-    $student_identifier = $user['identifier'];
+    $studentIdentifier = $user['identifier'];
 
-    // Query to get non-justified absences with course information
-    // Excludes absences already linked to a proof in proof_absences table
-    // EXCEPT if we're editing and the proof_id is provided (then include absences for that proof)
-    $sql = "
-        SELECT DISTINCT
+    // Get unjustified absences, excluding those already linked to a proof
+    // (unless editing an existing proof)
+    $sql = "        SELECT DISTINCT
             cs.course_date,
             cs.start_time,
             cs.end_time,
@@ -108,7 +103,7 @@ try {
                     FROM proof_absences pa 
                     WHERE pa.absence_id = a.id
                 )
-                " . ($proof_id ? "OR EXISTS (
+                " . ($proofId ? "OR EXISTS (
                     SELECT 1 
                     FROM proof_absences pa 
                     WHERE pa.absence_id = a.id AND pa.proof_id = :proof_id
@@ -118,13 +113,13 @@ try {
     ";
 
     $params = [
-        'student_identifier' => $student_identifier,
-        'datetime_start' => $start_date,
-        'datetime_end' => $end_date
+        'student_identifier' => $studentIdentifier,
+        'datetime_start' => $startDate,
+        'datetime_end' => $endDate
     ];
 
-    if ($proof_id) {
-        $params['proof_id'] = $proof_id;
+    if ($proofId) {
+        $params['proof_id'] = $proofId;
     }
 
     $absences = $db->select($sql, $params);
@@ -132,49 +127,46 @@ try {
     // Format the results for display
     $courses = [];
     foreach ($absences as $absence) {
-        $course_info = '';
+        $courseInfo = '';
 
         // Build course description
         if ($absence['resource_label']) {
-            $course_info .= $absence['resource_label'];
+            $courseInfo .= $absence['resource_label'];
             if ($absence['resource_code']) {
-                $course_info .= ' (' . $absence['resource_code'] . ')';
+                $courseInfo .= ' (' . $absence['resource_code'] . ')';
             }
         } else {
-            $course_info .= 'Cours non spécifié';
+            $courseInfo .= 'Cours non spécifié';
         }
 
-        // Add course type
         if ($absence['course_type']) {
-            $course_info .= ' - ' . strtoupper($absence['course_type']);
+            $courseInfo .= ' - ' . strtoupper($absence['course_type']);
         }
 
-        // Add date and time
-        $course_date = date('d/m/Y', strtotime($absence['course_date']));
-        $start_time = date('H:i', strtotime($absence['start_time']));
-        $end_time = date('H:i', strtotime($absence['end_time']));
-        $course_info .= ' - ' . $course_date . ' (' . $start_time . '-' . $end_time . ')';
+        $courseDate = date('d/m/Y', strtotime($absence['course_date']));
+        $startTime = date('H:i', strtotime($absence['start_time']));
+        $endTime = date('H:i', strtotime($absence['end_time']));
+        $courseInfo .= ' - ' . $courseDate . ' (' . $startTime . '-' . $endTime . ')';
 
         // Add teacher if available
         if ($absence['teacher_last_name'] && $absence['teacher_first_name']) {
-            $course_info .= ' - ' . $absence['teacher_first_name'] . ' ' . $absence['teacher_last_name'];
+            $courseInfo .= ' - ' . $absence['teacher_first_name'] . ' ' . $absence['teacher_last_name'];
         }
 
-        // Add room if available
         if ($absence['room_label']) {
-            $course_info .= ' - ' . $absence['room_label'];
+            $courseInfo .= ' - ' . $absence['room_label'];
         }
 
         $courses[] = [
             'id' => $absence['absence_id'],
             'course_slot_id' => $absence['course_slot_id'],
-            'description' => $course_info,
+            'description' => $courseInfo,
             'resource_code' => $absence['resource_code'],
             'resource_label' => $absence['resource_label'],
             'course_type' => $absence['course_type'],
-            'course_date' => $course_date,
-            'start_time' => $start_time,
-            'end_time' => $end_time,
+            'course_date' => $courseDate,
+            'start_time' => $startTime,
+            'end_time' => $endTime,
             'teacher' => ($absence['teacher_first_name'] && $absence['teacher_last_name'])
                 ? $absence['teacher_first_name'] . ' ' . $absence['teacher_last_name'] : null,
             'room' => $absence['room_label'],
@@ -185,24 +177,12 @@ try {
     echo json_encode([
         'success' => true,
         'courses' => $courses,
-        'count' => count($courses),
-        'query_params' => [
-            'datetime_start' => $start_date,
-            'datetime_end' => $end_date,
-            'student_identifier' => $student_identifier
-        ]
+        'count' => count($courses)
     ]);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
         'error' => 'Database error: ' . $e->getMessage(),
-        'courses' => [],
-        'debug' => [
-            'student_id' => $student_id ?? 'not set',
-            'datetime_start' => $datetime_start ?? 'not set',
-            'datetime_end' => $datetime_end ?? 'not set',
-            'start_date' => $start_date ?? 'not set',
-            'end_date' => $end_date ?? 'not set'
-        ]
+        'courses' => []
     ]);
 }

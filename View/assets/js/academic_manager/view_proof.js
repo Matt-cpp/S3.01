@@ -1,11 +1,11 @@
 /**
- * Gestion du formulaire de validation des justificatifs
- * - Affichage conditionnel des raisons personnalisées
- * - Génération dynamique des périodes de scission
+ * Proof validation form management
+ * - Conditional display of custom reasons
+ * - Dynamic generation of split periods
  */
 
 (function() {
-    // Gestion de l'affichage conditionnel pour le champ "Autre" dans les raisons de rejet
+    // Conditional display management for the "Other" field in rejection reasons
     const rejSel = document.getElementById('rejection_reason');
     const rejGrp = document.getElementById('new-reason-group');
     if (rejSel && rejGrp) {
@@ -14,7 +14,7 @@
         toggle();
     }
 
-    // Gestion de l'affichage conditionnel pour le champ "Autre" dans les raisons de validation
+    // Conditional display management for the "Other" field in validation reasons
     const valSel = document.getElementById('validation_reason');
     const valGrp = document.getElementById('new-validation-reason-group');
     if (valSel && valGrp) {
@@ -24,26 +24,26 @@
     }
 })();
 
-// Gestion dynamique des périodes de scission
+// Dynamic management of split periods
 const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#F44336'];
 
 /**
- * Met à jour l'affichage des champs de périodes en fonction du nombre sélectionné
- * @param {string} startDate - Date de début par défaut (format YYYY-MM-DD)
- * @param {string} endDate - Date de fin par défaut (format YYYY-MM-DD)
- * @param {string} startTime - Heure de début du justificatif original (format HH:MM)
- * @param {string} endTime - Heure de fin du justificatif original (format HH:MM)
+ * Updates the display of period fields based on the selected number
+ * @param {string} startDate - Default start date (format YYYY-MM-DD)
+ * @param {string} endDate - Default end date (format YYYY-MM-DD)
+ * @param {string} startTime - Start time of the original proof (format HH:MM)
+ * @param {string} endTime - End time of the original proof (format HH:MM)
  */
 function updatePeriodFields(startDate, endDate, startTime = '08:00', endTime = '18:00') {
     const numPeriods = parseInt(document.getElementById('num_periods').value);
     const container = document.getElementById('periodsContainer');
     container.innerHTML = '';
     
-    // Configuration de la grille en fonction du nombre de périodes
+    // Grid configuration based on the number of periods
     const gridCols = numPeriods <= 2 ? '1fr 1fr' : numPeriods === 3 ? '1fr 1fr 1fr' : '1fr 1fr';
     container.style.gridTemplateColumns = gridCols;
     
-    // Génération des champs pour chaque période
+    // Generate fields for each period
     for (let i = 1; i <= numPeriods; i++) {
         const periodDiv = document.createElement('div');
         periodDiv.style.border = `2px solid ${colors[(i-1) % colors.length]}`;

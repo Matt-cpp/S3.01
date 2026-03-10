@@ -1,14 +1,16 @@
-﻿<?php
+<?php
+
+declare(strict_types=1);
 
 /**
- * Fichier: forgot_password.php
- * 
- * ContrÃ´leur de rÃ©initialisation de mot de passe - GÃ¨re la rÃ©cupÃ©ration de compte.
- * Processus en 3 Ã©tapes:
- * 1. Envoi d'un code de vÃ©rification Ã  6 chiffres par email
- * 2. VÃ©rification du code (expire aprÃ¨s 15 minutes)
- * 3. RÃ©initialisation du mot de passe
- * Envoie des emails HTML avec le logo de l'universitÃ©.
+ * File: forgot_password_presenter.php
+ *
+ * Password reset controller — handles account recovery.
+ * 3-step process:
+ * 1. Sends a 6-digit verification code by email
+ * 2. Verifies the code (expires after 15 minutes)
+ * 3. Resets the password
+ * Sends HTML emails with the university logo.
  */
 
 session_start();
@@ -17,8 +19,8 @@ require_once __DIR__ . '/../../Model/email.php';
 
 class ForgotPasswordController
 {
-    private $pdo;
-    private $emailService;
+    private PDO $pdo;
+    private EmailService $emailService;
 
     public function __construct()
     {
@@ -27,42 +29,42 @@ class ForgotPasswordController
     }
 
     /**
-     * Envoie un code de vÃ©rification Ã  l'email spÃ©cifiÃ© pour rÃ©initialiser le mot de passe
+     * Sends a verification code to the specified email for password reset
      */
-    public function sendResetCode($email)
+    public function sendResetCode(string $email): array
     {
         try {
             $email = strtolower(trim($email));
-            // VÃ©rifier que l'email existe dans la base de donnÃ©es
-            $stmt = $this->pdo->prepare("SELECT id, first_name, last_name FROM users WHERE email = ?");
+            // Check that the email exists in the database
+            $stmt = $this->pdo->prepare('SELECT id, first_name, last_name FROM users WHERE email = ?');
             $stmt->execute([$email]);
             $user = $stmt->fetch();
 
-            // Pour des raisons de sÃ©curitÃ©, on retourne toujours un message de succÃ¨s
-            // mÃªme si l'email n'existe pas, pour ne pas rÃ©vÃ©ler l'existence du compte
+            // For security, always return a success message
+            // even if the email doesn't exist, to avoid revealing account existence
             if (!$user) {
-                // Simuler un dÃ©lai pour Ã©viter les attaques par timing
-                usleep(random_int(100000, 300000)); // 0.1 Ã  0.3 secondes
-                return ['success' => true, 'message' => 'Un email a Ã©tÃ© envoyÃ© si le compte existe.'];
+                // Simulate a delay to prevent timing attacks
+                usleep(random_int(100000, 300000)); // 0.1 to 0.3 seconds
+                return ['success' => true, 'message' => 'Un email a été envoyé si le compte existe.'];
             }
 
-            // GÃ©nÃ©rer un code de vÃ©rification Ã  6 chiffres
-            $verificationCode = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+            // Generate a 6-digit verification code
+            $verificationCode = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
 
-            // Supprimer les anciens codes pour cet email
-            $stmt = $this->pdo->prepare("DELETE FROM email_verifications WHERE email = ?");
+            // Delete old codes for this email
+            $stmt = $this->pdo->prepare('DELETE FROM email_verifications WHERE email = ?');
             $stmt->execute([$email]);
 
-            // InsÃ©rer le nouveau code (expire dans 15 minutes)
+            // Insert the new code (expires in 15 minutes)
             $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-            $stmt = $this->pdo->prepare("INSERT INTO email_verifications (email, verification_code, expires_at) VALUES (?, ?, ?)");
+            $stmt = $this->pdo->prepare('INSERT INTO email_verifications (email, verification_code, expires_at) VALUES (?, ?, ?)');
             $stmt->execute([$email, $verificationCode, $expiresAt]);
 
-            // Envoyer l'email
-            $subject = "RÃ©initialisation de mot de passe - Gestion Absence UPHF";
+            // Send the email
+            $subject = 'Réinitialisation de mot de passe - Gestion Absence UPHF';
             $body = $this->getResetEmailTemplate($verificationCode, $user['first_name'], $user['last_name']);
 
-            // Images pour l'email
+            // Images for the email
             $images = [
                 'logoIUT' => __DIR__ . '/../../View/img/logoIUT.png'
             ];
@@ -70,23 +72,23 @@ class ForgotPasswordController
             $result = $this->emailService->sendEmail($email, $subject, $body, true, [], $images);
 
             if ($result['success']) {
-                return ['success' => true, 'message' => 'Un email a Ã©tÃ© envoyÃ© si le compte existe.'];
+                return ['success' => true, 'message' => 'Un email a été envoyé si le compte existe.'];
             } else {
-                // Ne pas rÃ©vÃ©ler l'erreur d'envoi pour des raisons de sÃ©curitÃ©
+                // Do not reveal the sending error for security reasons
                 error_log('Email sending failed: ' . $result['message']);
-                return ['success' => true, 'message' => 'Un email a Ã©tÃ© envoyÃ© si le compte existe.'];
+                return ['success' => true, 'message' => 'Un email a été envoyé si le compte existe.'];
             }
         } catch (Exception $e) {
-            error_log("Error in sendResetCode: " . $e->getMessage());
-            // Pour la sÃ©curitÃ©, on retourne toujours un succÃ¨s mÃªme en cas d'erreur
-            return ['success' => true, 'message' => 'Un email a Ã©tÃ© envoyÃ© si le compte existe.'];
+            error_log('Error in sendResetCode: ' . $e->getMessage());
+            // For security, always return success even on error
+            return ['success' => true, 'message' => 'Un email a été envoyé si le compte existe.'];
         }
     }
 
     /**
-     * VÃ©rifie le code de rÃ©initialisation
+     * Verifies the reset code
      */
-    public function verifyResetCode($email, $code)
+    public function verifyResetCode(string $email, string $code): array
     {
         try {
             $stmt = $this->pdo->prepare("
@@ -96,36 +98,36 @@ class ForgotPasswordController
             $stmt->execute([$email, $code]);
 
             if ($stmt->fetch()) {
-                // Marquer comme vÃ©rifiÃ©
-                $stmt = $this->pdo->prepare("UPDATE email_verifications SET is_verified = TRUE WHERE email = ? AND verification_code = ?");
+                // Mark as verified
+                $stmt = $this->pdo->prepare('UPDATE email_verifications SET is_verified = TRUE WHERE email = ? AND verification_code = ?');
                 $stmt->execute([$email, $code]);
-                return ['success' => true, 'message' => 'Code vÃ©rifiÃ© avec succÃ¨s.'];
+                return ['success' => true, 'message' => 'Code vérifié avec succès.'];
             } else {
-                return ['success' => false, 'message' => 'Code invalide ou expirÃ©.'];
+                return ['success' => false, 'message' => 'Code invalide ou expiré.'];
             }
         } catch (Exception $e) {
-            error_log("Error in verifyResetCode: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur lors de la vÃ©rification.'];
+            error_log('Error in verifyResetCode: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Erreur lors de la vérification.'];
         }
     }
 
     /**
-     * RÃ©initialise le mot de passe aprÃ¨s vÃ©rification du code
+     * Resets the password after code verification
      */
-    public function resetPassword($email, $newPassword, $confirmPassword)
+    public function resetPassword(string $email, string $newPassword, string $confirmPassword): array
     {
         try {
-            // VÃ©rifier que les mots de passe correspondent
+            // Check that passwords match
             if ($newPassword !== $confirmPassword) {
                 return ['success' => false, 'message' => 'Les mots de passe ne correspondent pas.'];
             }
 
-            // VÃ©rifier la longueur du mot de passe
+            // Check password length
             if (strlen($newPassword) < 8) {
-                return ['success' => false, 'message' => 'Le mot de passe doit contenir au moins 8 caractÃ¨res.'];
+                return ['success' => false, 'message' => 'Le mot de passe doit contenir au moins 8 caractères.'];
             }
 
-            // VÃ©rifier que le code a Ã©tÃ© vÃ©rifiÃ© et n'est pas expirÃ©
+            // Check that the code has been verified and is not expired
             $stmt = $this->pdo->prepare("
                 SELECT id FROM email_verifications 
                 WHERE email = ? AND is_verified = TRUE AND expires_at > NOW()
@@ -134,13 +136,13 @@ class ForgotPasswordController
             $resetCode = $stmt->fetch();
 
             if (!$resetCode) {
-                return ['success' => false, 'message' => 'Code non vÃ©rifiÃ© ou expirÃ©. Veuillez recommencer.'];
+                return ['success' => false, 'message' => 'Code non vérifié ou expiré. Veuillez recommencer.'];
             }
 
-            // Hasher le nouveau mot de passe
+            // Hash the new password
             $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
 
-            // Mettre Ã  jour le mot de passe dans la table users
+            // Update the password in the users table
             $stmt = $this->pdo->prepare("
                 UPDATE users 
                 SET password_hash = ?, updated_at = CURRENT_TIMESTAMP
@@ -148,20 +150,20 @@ class ForgotPasswordController
             ");
             $stmt->execute([$passwordHash, $email]);
 
-            // Supprimer les codes de vÃ©rification utilisÃ©s
-            $stmt = $this->pdo->prepare("DELETE FROM email_verifications WHERE email = ?");
+            // Delete used verification codes
+            $stmt = $this->pdo->prepare('DELETE FROM email_verifications WHERE email = ?');
             $stmt->execute([$email]);
-            return ['success' => true, 'message' => 'Mot de passe rÃ©initialisÃ© avec succÃ¨s !'];
+            return ['success' => true, 'message' => 'Mot de passe réinitialisé avec succès !'];
         } catch (Exception $e) {
-            error_log("Error in resetPassword: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur lors de la rÃ©initialisation: ' . $e->getMessage()];
+            error_log('Error in resetPassword: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Erreur lors de la réinitialisation: ' . $e->getMessage()];
         }
     }
 
     /**
-     * Template d'email pour la rÃ©initialisation de mot de passe
+     * Email template for password reset
      */
-    private function getResetEmailTemplate($code, $firstName, $lastName)
+    private function getResetEmailTemplate(string $code, string $firstName, string $lastName): string
     {
         $name = trim($firstName . ' ' . $lastName);
         return "
@@ -172,29 +174,29 @@ class ForgotPasswordController
                     <img src='cid:logoIUT' alt='Logo IUT' style='height: 90px;'>
                 </div>
                 
-                <h2 style='color: #2c3e50; text-align: center;'>RÃ©initialisation de mot de passe</h2>
+                <h2 style='color: #2c3e50; text-align: center;'>Réinitialisation de mot de passe</h2>
                 
                 <p>Bonjour {$name},</p>
                 
-                <p>Vous avez demandÃ© Ã  rÃ©initialiser votre mot de passe sur la plateforme de Gestion des Absences UPHF.</p>
+                <p>Vous avez demandé à réinitialiser votre mot de passe sur la plateforme de Gestion des Absences UPHF.</p>
                 
                 <div style='background-color: #f8f9fa; border: 2px solid #dc3545; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0;'>
-                    <p style='margin: 0; font-size: 18px; font-weight: bold; color: #dc3545;'>Votre code de vÃ©rification :</p>
+                    <p style='margin: 0; font-size: 18px; font-weight: bold; color: #dc3545;'>Votre code de vérification :</p>
                     <p style='font-size: 32px; font-weight: bold; color: #dc3545; margin: 10px 0; letter-spacing: 3px;'>{$code}</p>
                 </div>
                 
                 <p><strong>Ce code expire dans 15 minutes.</strong></p>
                 
-                <p>Entrez ce code sur la page de rÃ©initialisation pour continuer.</p>
+                <p>Entrez ce code sur la page de réinitialisation pour continuer.</p>
                 
                 <div style='background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 20px 0;'>
-                    <p style='margin: 0;'><strong>âš ï¸ Important :</strong> Si vous n'avez pas demandÃ© cette rÃ©initialisation, ignorez cet email et votre mot de passe restera inchangÃ©.</p>
+                    <p style='margin: 0;'><strong>⚠️ Important :</strong> Si vous n'avez pas demandé cette réinitialisation, ignorez cet email et votre mot de passe restera inchangé.</p>
                 </div>
                 
                 <hr style='border: 1px solid #eee; margin: 30px 0;'>
                 <p style='font-size: 12px; color: #666; text-align: center;'>
                     Gestion des Absences - UPHF<br>
-                    Cet email a Ã©tÃ© envoyÃ© automatiquement, merci de ne pas y rÃ©pondre.
+                    Cet email a été envoyé automatiquement, merci de ne pas y répondre.
                 </p>
             </div>
         </body>
@@ -202,7 +204,7 @@ class ForgotPasswordController
     }
 }
 
-// Traitement des requÃªtes
+// Request processing
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller = new ForgotPasswordController();
 
@@ -234,7 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $code = trim($_POST['reset_code'] ?? '');
 
             if (empty($email) || empty($code)) {
-                $_SESSION['error'] = 'DonnÃ©es manquantes.';
+                $_SESSION['error'] = 'Données manquantes.';
                 header('Location: ../../View/templates/shared/verify_reset_code.php');
                 exit;
             }
@@ -271,7 +273,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $controller->resetPassword($email, $newPassword, $confirmPassword);
             if ($result['success']) {
                 $_SESSION['success'] = $result['message'];
-                // Nettoyer les variables de session
+                // Clean up session variables
                 unset($_SESSION['reset_email']);
                 unset($_SESSION['reset_code_verified']);
                 header('Location: ../../View/templates/shared/login.php');

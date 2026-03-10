@@ -1,23 +1,25 @@
 <?php
-// Page affichant les évaluations avec des élèves absents pour les professeurs
+
+declare(strict_types=1);
+// Page displaying evaluations with absent students for teachers
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/evaluations_presenter.php';
 
-// ID du professeur from session
+// Teacher ID from session
 $teacherId = $user['id'];
-$table = new pageEvalProf($teacherId);
+$table = new TeacherEvaluationsPresenter($teacherId);
 
-// Gestion du filtre
+// Filter management
 if (isset($_GET['filtre']) && !empty($_GET['filtre'])) {
-    $table->activerUnFiltre($_GET['filtre']);
+    $table->enableFilter($_GET['filtre']);
 } else {
-    $table->activerUnFiltre('course_slots.course_date');
+    $table->enableFilter('course_slots.course_date');
 }
 
-// Récupération des évaluations avec le filtre actif
-$evaluations = $table->lesEvaluations();
+// Retrieve evaluations with active filter
+$evaluations = $table->getEvaluations();
 ?>
 
 <!DOCTYPE html>
@@ -44,7 +46,7 @@ $evaluations = $table->lesEvaluations();
     <main class="container">
         <h1>Tableau des Evaluations</h1>
         <div class="section">
-            <!--Selection du filtre -->
+            <!--Filter selection -->
             <form method="GET" class="filter-group">
                 <span class="filter-label">Trier Par :</span>
                 <select class="select-input" name="filtre" onchange="this.form.submit()">
@@ -66,7 +68,7 @@ $evaluations = $table->lesEvaluations();
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Affiche si aucune évaluations -->
+                    <!-- Displayed if no evaluations -->
                     <?php if (empty($evaluations)): ?>
                         <tr>
                             <td colspan="5" style="text-align: center; padding: 2rem; color: #666;">

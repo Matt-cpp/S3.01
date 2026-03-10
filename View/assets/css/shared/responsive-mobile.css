@@ -1,6 +1,6 @@
 /**
- * Fichier: responsive-mobile.css
- * Styles responsive MOBILE (< 576px) COMMUNS pour toutes les pages
+ * File: responsive-mobile.css
+ * MOBILE responsive styles (< 576px) COMMON to all pages
  */
 
 /* =============================================
@@ -227,14 +227,14 @@
         display: none !important;
     }
 
-    /* Style amélioré pour les cartes d'absence */
+    /* Enhanced style for absence cards */
     #absenceTable tr {
         position: relative;
         padding: 14px !important;
         padding-right: 8px !important;
     }
 
-    /* Mettre le statut en évidence */
+    /* Highlight the status */
     #absenceTable td[data-label="Statut"] {
         background-color: #f8f9fa;
         border-radius: 6px;
@@ -247,7 +247,7 @@
         justify-content: center;
     }
 
-    /* Améliorer l'affichage Date/Horaire sur une ligne */
+    /* Improve Date/Time display on a single line */
     #absenceTable td[data-label="Date"],
     #absenceTable td[data-label="Horaire"] {
         font-weight: 600;
@@ -692,7 +692,7 @@
 }
 
 /* =============================================
-   TRÈS PETITS ÉCRANS (< 400px)
+   VERY SMALL SCREENS (< 400px)
    ============================================= */
 
 @media (max-width: 400px) {

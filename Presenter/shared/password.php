@@ -1,2 +1,5 @@
 <?php
-echo password_hash("yony1236", PASSWORD_DEFAULT);
+
+declare(strict_types=1);
+
+echo password_hash('yony1236', PASSWORD_DEFAULT);

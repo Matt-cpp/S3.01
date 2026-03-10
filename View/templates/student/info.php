@@ -2,18 +2,18 @@
 <html lang="fr">
 <?php
 /**
- * Fichier: info.php
- * 
- * Template d'information pour les étudiants - Gère l'affichage des informations et procédures relatives à la justification des absences.
- * Contient des sections détaillées sur:
- * - L'importance de l'assiduité
- * - Le délai de justification des absences
- * - Les conséquences des absences non justifiées
- * - Les motifs acceptables de justification
- * - La procédure de soumission d'un justificatif
- * - Le suivi des justificatifs soumis
- * - Les contacts pour assistance
- * Utilisé par la page d'information des étudiants.
+ * File: info.php
+ *
+ * Student information template - Manages the display of information and procedures related to absence justification.
+ * Contains detailed sections on:
+ * - The importance of attendance
+ * - The justification deadline for absences
+ * - Consequences of unjustified absences
+ * - Acceptable justification reasons
+ * - Proof submission procedure
+ * - Tracking submitted proofs
+ * - Contacts for assistance
+ * Used by the student information page.
  */
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('student');
@@ -44,7 +44,7 @@ if (!isset($_SESSION['id_student'])) {
         <h1 class="page-title">Informations et Procédure de Justification</h1>
 
         <div class="info-container">
-            <!-- Section 1: Importance de l'assiduité et règlement intérieur -->
+            <!-- Section 1: Importance of attendance and internal regulations -->
             <section class="info-section important-section">
                 <div class="section-header">
                     <span class="section-icon">⚠️</span>
@@ -73,7 +73,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
             </section>
 
-            <!-- Section 2: Explication du délai de justification avec exemples -->
+            <!-- Section 2: Justification deadline explanation with examples -->
             <section class="info-section">
                 <div class="section-header">
                     <span class="section-icon">⏱️</span>
@@ -132,7 +132,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
             </section>
 
-            <!-- Section 3: Conséquences d'une absence non justifiée -->
+            <!-- Section 3: Consequences of an unjustified absence -->
             <section class="info-section alert-section">
                 <div class="section-header">
                     <span class="section-icon">❌</span>
@@ -189,7 +189,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
             </section>
 
-            <!-- Section 4: Motifs acceptables -->
+            <!-- Section 4: Acceptable reasons -->
             <section class="info-section">
                 <div class="section-header">
                     <span class="section-icon">✅</span>
@@ -241,7 +241,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
             </section>
 
-            <!-- Section 5: Procédure de soumission -->
+            <!-- Section 5: Submission procedure -->
             <section class="info-section">
                 <div class="section-header">
                     <span class="section-icon">📤</span>
@@ -307,7 +307,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
             </section>
 
-            <!-- Section 6: Suivi de votre justificatif -->
+            <!-- Section 6: Tracking your proof -->
             <section class="info-section">
                 <div class="section-header">
                     <span class="section-icon">🔍</span>
@@ -354,7 +354,7 @@ if (!isset($_SESSION['id_student'])) {
                 </div>
             </section>
 
-            <!-- Section 7: Contacts et aide -->
+            <!-- Section 7: Contacts and help -->
             <section class="info-section">
                 <div class="section-header">
                     <span class="section-icon">💬</span>

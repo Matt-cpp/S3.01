@@ -124,15 +124,15 @@
     password.addEventListener('input', checkPasswords);
     confirmPassword.addEventListener('input', checkPasswords);
 
-    // Validation de la force du mot de passe
-    password.addEventListener('input', function () {
+    // Password strength validation
+    password.addEventListener('input', function() {
         let strength = document.getElementById('password-strength');
         if (!strength) {
             const strengthDiv = document.createElement('div');
             strengthDiv.id = 'password-strength';
             strengthDiv.style.fontSize = '12px';
             strengthDiv.style.marginTop = '5px';
-            // Ajouter après le password-wrapper (pas à l'intérieur) pour ne pas décaler l'œil
+            // Append after the password-wrapper (not inside) to avoid shifting the eye icon
             password.closest('.form-group').appendChild(strengthDiv);
         }
 

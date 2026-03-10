@@ -1,20 +1,20 @@
-// Gestion du modal pour afficher les détails des absences
+// Modal management for displaying absence details
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('absenceModal');
     const modalContent = document.getElementById('modalContent');
     const closeModalBtn = document.getElementById('closeModal');
     const absenceRows = document.querySelectorAll('.absence-row');
 
-    // Couleurs de bordure selon le statut
+    // Border colors based on status
     const statusBorderColors = {
-        'accepted': '#28a745',      // Vert
-        'rejected': '#dc3545',      // Rouge - Justificatif refusé
-        'under_review': '#ffc107',  // Jaune/Orange
-        'pending': '#17a2b8',       // Bleu
-        'none': '#dc3545'           // Rouge - Absence non justifiée
+        'accepted': '#28a745',      // Green
+        'rejected': '#dc3545',      // Red - Proof rejected
+        'under_review': '#ffc107',  // Yellow/Orange
+        'pending': '#17a2b8',       // Blue
+        'none': '#dc3545'           // Red - Unjustified absence
     };
 
-    // Ouvrir le modal quand on clique sur une ligne
+    // Open modal when clicking on a row
     absenceRows.forEach(row => {
         row.addEventListener('click', function() {
             const modalStatus = this.dataset.modalStatus;
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const statusIcon = this.dataset.statusIcon;
             const statusClass = this.dataset.statusClass;
 
-            // Données évaluation et rattrapage
+            // Evaluation and makeup data
             const isEvaluation = this.dataset.isEvaluation === '1';
             const hasMakeup = this.dataset.hasMakeup === '1';
             const makeupScheduled = this.dataset.makeupScheduled === '1';
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const makeupResource = this.dataset.makeupResource;
             const makeupComment = this.dataset.makeupComment;
 
-            // Remplir le modal avec les données
+            // Fill the modal with data
             document.getElementById('modalDate').textContent = date;
             document.getElementById('modalTime').textContent = time;
             document.getElementById('modalCourse').textContent = course;
@@ -54,17 +54,17 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modalEvaluation').textContent = evaluation;
             document.getElementById('modalMotif').textContent = motif || 'Aucun motif spécifié';
 
-            // Afficher le type avec le badge approprié
+            // Display the type with the appropriate badge
             const typeBadgeElement = document.getElementById('modalType');
             typeBadgeElement.textContent = type;
             typeBadgeElement.className = 'badge ' + typeBadge;
 
-            // Afficher le statut avec le badge approprié
+            // Display the status with the appropriate badge
             const statusBadge = document.getElementById('modalStatus');
             statusBadge.textContent = statusIcon + ' ' + statusText;
             statusBadge.className = 'badge ' + statusClass;
 
-            // Gérer l'affichage de la section évaluation
+            // Handle the display of the evaluation section
             const evaluationSection = document.getElementById('evaluationSection');
             if (isEvaluation) {
                 evaluationSection.style.display = 'block';
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 evaluationSection.style.display = 'none';
             }
 
-            // Gérer l'affichage de la section rattrapage
+            // Handle the display of the makeup section
             const makeupSection = document.getElementById('makeupSection');
             if (hasMakeup && makeupScheduled) {
                 makeupSection.style.display = 'block';
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('makeupDuration').textContent = makeupDuration ? makeupDuration + 'h' : '-';
                 document.getElementById('makeupRoom').textContent = makeupRoom || '-';
                 
-                // Gérer la ressource
+                // Handle the resource
                 const makeupResourceItem = document.getElementById('makeupResourceItem');
                 if (makeupResource && makeupResource.trim() !== '') {
                     makeupResourceItem.style.display = 'flex';
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     makeupResourceItem.style.display = 'none';
                 }
 
-                // Gérer le commentaire
+                // Handle the comment
                 const makeupCommentItem = document.getElementById('makeupCommentItem');
                 if (makeupComment && makeupComment.trim() !== '') {
                     makeupCommentItem.style.display = 'flex';
@@ -105,25 +105,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 makeupSection.style.display = 'none';
             }
 
-            // Appliquer la couleur de bordure selon le statut
+            // Apply the border color based on status
             const borderColor = statusBorderColors[modalStatus] || '#6c757d';
             modalContent.style.borderColor = borderColor;
             modalContent.style.borderWidth = '4px';
             modalContent.style.borderStyle = 'solid';
 
-            // Afficher le modal
+            // Show the modal
             modal.classList.add('show');
-            document.body.style.overflow = 'hidden'; // Empêcher le scroll du body
+            document.body.style.overflow = 'hidden'; // Prevent body scrolling
         });
     });
 
-    // Fermer le modal avec le bouton X
+    // Close the modal with the X button
     closeModalBtn.addEventListener('click', closeModal);
 
-    // Fermer le modal en cliquant sur l'overlay
+    // Close the modal by clicking on the overlay
     document.querySelector('.modal-overlay').addEventListener('click', closeModal);
 
-    // Fermer le modal avec la touche Échap
+    // Close the modal with the Escape key
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape' && modal.classList.contains('show')) {
             closeModal();
@@ -132,6 +132,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function closeModal() {
         modal.classList.remove('show');
-        document.body.style.overflow = ''; // Réactiver le scroll du body
+        document.body.style.overflow = ''; // Re-enable body scrolling
     }
 });

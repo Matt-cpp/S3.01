@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/database.php';
 
 class StatisticsModel
 {
-    private $db;
+    private Database $db;
 
     public function __construct()
     {
         $this->db = getDatabase();
     }
 
-    //Get absences grouped by course type (CM/TD/TP) for a specific period
-    public function getAbsencesByCourseType($filters = [])
+    // Get absences grouped by course type (CM/TD/TP) for a specific period
+    public function getAbsencesByCourseType(array $filters = []): array
     {
         $query = "
             SELECT 
@@ -35,8 +37,8 @@ class StatisticsModel
         }
     }
 
-    //Get absences grouped by resource/subject
-    public function getAbsencesByResource($filters = [])
+    // Get absences grouped by resource/subject
+    public function getAbsencesByResource(array $filters = []): array
     {
         $query = "
             SELECT 
@@ -60,8 +62,8 @@ class StatisticsModel
         }
     }
 
-    //Get evaluation absences by resource/subject
-    public function getEvaluationAbsencesByResource($filters = [])
+    // Get evaluation absences by resource/subject
+    public function getEvaluationAbsencesByResource(array $filters = []): array
     {
         $query = "
             SELECT 
@@ -85,8 +87,8 @@ class StatisticsModel
         }
     }
 
-    //Get evaluation absences count
-    public function getEvaluationAbsencesCount($filters = [])
+    // Get evaluation absences count
+    public function getEvaluationAbsencesCount(array $filters = []): int
     {
         $query = "
             SELECT COUNT(DISTINCT a.id) as total
@@ -107,8 +109,8 @@ class StatisticsModel
         }
     }
 
-    //Get absences trends by month
-    public function getAbsencesTrendsByMonth($filters = [])
+    // Get absences trends by month
+    public function getAbsencesTrendsByMonth(array $filters = []): array
     {
         $query = "
             SELECT 
@@ -135,8 +137,8 @@ class StatisticsModel
         }
     }
 
-    //Get absences trends by resource over time
-    public function getResourceTrendsOverTime($filters = [])
+    // Get absences trends by resource over time
+    public function getResourceTrendsOverTime(array $filters = []): array
     {
         $query = "
             SELECT 
@@ -162,8 +164,8 @@ class StatisticsModel
         }
     }
 
-    //Get absences by semester
-    public function getAbsencesBySemester($filters = [])
+    // Get absences by semester
+    public function getAbsencesBySemester(array $filters = []): array
     {
         $query = "
             SELECT 
@@ -197,8 +199,8 @@ class StatisticsModel
         }
     }
 
-    //Get absences statistics for a specific student
-    public function getStudentStatistics($studentIdentifier, $filters = [])
+    // Get absences statistics for a specific student
+    public function getStudentStatistics(string $studentIdentifier, array $filters = []): ?array
     {
         $query = "
             SELECT 
@@ -228,8 +230,8 @@ class StatisticsModel
         }
     }
 
-    //Get student absences by resource
-    public function getStudentAbsencesByResource($studentIdentifier, $filters = [])
+    // Get student absences by resource
+    public function getStudentAbsencesByResource(string $studentIdentifier, array $filters = []): array
     {
         $query = "
             SELECT 
@@ -253,8 +255,8 @@ class StatisticsModel
         }
     }
 
-    //Get student absences over time
-    public function getStudentAbsencesTrends($studentIdentifier, $filters = [])
+    // Get student absences over time
+    public function getStudentAbsencesTrends(string $studentIdentifier, array $filters = []): array
     {
         $query = "
             SELECT 
@@ -279,8 +281,8 @@ class StatisticsModel
         }
     }
 
-    //Get all groups for filtering
-    public function getAllGroups()
+    // Get all groups for filtering
+    public function getAllGroups(): array
     {
         $query = "SELECT id, label FROM groups ORDER BY label";
         try {
@@ -291,8 +293,8 @@ class StatisticsModel
         }
     }
 
-    //Get all resources for filtering
-    public function getAllResources()
+    // Get all resources for filtering
+    public function getAllResources(): array
     {
         $query = "SELECT id, label FROM resources ORDER BY label";
         try {
@@ -303,8 +305,8 @@ class StatisticsModel
         }
     }
 
-    //Get top students with most absences
-    public function getTopAbsentStudents($limit = 10, $filters = [])
+    // Get top students with most absences
+    public function getTopAbsentStudents(int $limit = 10, array $filters = []): array
     {
         $query = "
             SELECT 
@@ -343,8 +345,8 @@ class StatisticsModel
         }
     }
 
-    //Get general statistics summary
-    public function getGeneralStatistics($filters = [])
+    // Get general statistics summary
+    public function getGeneralStatistics(array $filters = []): ?array
     {
         $query = "
             SELECT 
@@ -383,8 +385,8 @@ class StatisticsModel
         }
     }
 
-    //Build filter conditions for queries
-    private function buildFilterConditions($filters, &$params, $includeAnd = true)
+    // Build filter conditions for queries
+    private function buildFilterConditions(array $filters, array &$params, bool $includeAnd = true): string
     {
         $conditions = [];
 
@@ -438,8 +440,8 @@ class StatisticsModel
         return ($includeAnd ? ' AND ' : ' ') . implode(' AND ', $conditions);
     }
 
-    //Get available years for filtering
-    public function getAvailableYears()
+    // Get available years for filtering
+    public function getAvailableYears(): array
     {
         $query = "
             SELECT DISTINCT EXTRACT(YEAR FROM cs.course_date) as year
@@ -456,8 +458,8 @@ class StatisticsModel
         }
     }
 
-    //Get justification rate by resource/subject
-    public function getJustificationRateByResource($filters = [])
+    // Get justification rate by resource/subject
+    public function getJustificationRateByResource(array $filters = []): array
     {
         $query = "
             SELECT 

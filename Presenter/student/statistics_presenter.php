@@ -1,16 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: statistics_presenter.php
- * 
- * Présentateur des statistiques étudiant - Gère l'affichage des statistiques d'absences.
- * Fournit des méthodes pour:
- * - Récupérer les statistiques globales (total absences, heures, demi-journées, évaluations)
- * - Récupérer les absences par type de cours (pour graphique camembert)
- * - Récupérer les absences par matière/ressource (pour graphique barres)
- * - Récupérer l'évolution mensuelle des absences (pour graphique ligne)
- * - Gérer les filtres (dates, type de cours)
- * - Récupérer la liste des absences récentes avec détails
- * Utilisé par la page "Mes statistiques" de l'étudiant avec Chart.js.
+ * File: statistics_presenter.php
+ *
+ * Student statistics presenter – Handles display of absence statistics.
+ * Provides methods to:
+ * - Retrieve global statistics (total absences, hours, half-days, evaluations)
+ * - Retrieve absences by course type (for pie chart)
+ * - Retrieve absences by subject/resource (for bar chart)
+ * - Retrieve monthly absence trends (for line chart)
+ * - Manage filters (dates, course type)
+ * - Retrieve recent absence list with details
+ * Used by the student "My statistics" page with Chart.js.
  */
 
 require_once __DIR__ . '/../../Model/StatisticsModel.php';
@@ -19,11 +22,11 @@ require_once __DIR__ . '/../shared/auth_guard.php';
 
 class StudentStatisticsPresenter
 {
-    private $statisticsModel;
-    private $db;
-    private $studentIdentifier;
+    private StatisticsModel $statisticsModel;
+    private Database $db;
+    private string $studentIdentifier;
 
-    public function __construct($studentIdentifier)
+    public function __construct(string $studentIdentifier)
     {
         $this->statisticsModel = new StatisticsModel();
         $this->db = getDatabase();
@@ -34,7 +37,7 @@ class StudentStatisticsPresenter
      * Format resource label to show "CODE : LABEL" format
      * Example: "INFFIS2-DEVELOPPEMENT ORIENTE OBJETS (T3BUTINFFI-R2.01)" => "R2.01 : DEVELOPPEMENT ORIENTE OBJETS"
      */
-    private function formatResourceLabel($fullLabel)
+    private function formatResourceLabel(string $fullLabel): string
     {
         if (empty($fullLabel) || $fullLabel === 'N/A') {
             return 'N/A';
@@ -61,7 +64,7 @@ class StudentStatisticsPresenter
     /**
      * Get the student's identifier from their user ID
      */
-    public static function getStudentIdentifierFromUserId($userId)
+    public static function getStudentIdentifierFromUserId(int $userId): ?string
     {
         $db = getDatabase();
         $result = $db->selectOne(
@@ -74,7 +77,7 @@ class StudentStatisticsPresenter
     /**
      * Get general statistics for the student
      */
-    public function getGeneralStats($filters = [])
+    public function getGeneralStats(array $filters = []): array
     {
         return $this->statisticsModel->getStudentStatistics($this->studentIdentifier, $filters);
     }
@@ -82,7 +85,7 @@ class StudentStatisticsPresenter
     /**
      * Get absences by course type for pie chart
      */
-    public function getCourseTypeData($filters = [])
+    public function getCourseTypeData(array $filters = []): array
     {
         $query = "
             SELECT 
@@ -135,7 +138,7 @@ class StudentStatisticsPresenter
                 }, $labels)
             ];
         } catch (Exception $e) {
-            error_log("Error fetching course type data: " . $e->getMessage());
+            error_log('Error fetching course type data: ' . $e->getMessage());
             return ['labels' => [], 'values' => [], 'colors' => []];
         }
     }
@@ -143,7 +146,7 @@ class StudentStatisticsPresenter
     /**
      * Get absences by resource for bar chart
      */
-    public function getResourceData($filters = [])
+    public function getResourceData(array $filters = []): array
     {
         $data = $this->statisticsModel->getStudentAbsencesByResource($this->studentIdentifier, $filters);
 
@@ -167,7 +170,7 @@ class StudentStatisticsPresenter
     /**
      * Get monthly trends for line chart
      */
-    public function getMonthlyTrends($filters = [])
+    public function getMonthlyTrends(array $filters = []): array
     {
         $data = $this->statisticsModel->getStudentAbsencesTrends($this->studentIdentifier, $filters);
 
@@ -188,7 +191,7 @@ class StudentStatisticsPresenter
     /**
      * Get absences with justified/unjustified breakdown by month
      */
-    public function getDetailedMonthlyTrends($filters = [])
+    public function getDetailedMonthlyTrends(array $filters = []): array
     {
         $query = "
             SELECT 
@@ -239,7 +242,7 @@ class StudentStatisticsPresenter
                 'unjustified' => $unjustified
             ];
         } catch (Exception $e) {
-            error_log("Error fetching detailed monthly trends: " . $e->getMessage());
+            error_log('Error fetching detailed monthly trends: ' . $e->getMessage());
             return ['months' => [], 'total' => [], 'justified' => [], 'unjustified' => []];
         }
     }
@@ -247,7 +250,7 @@ class StudentStatisticsPresenter
     /**
      * Get filters from request
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         $filters = [];
 
@@ -269,7 +272,7 @@ class StudentStatisticsPresenter
     /**
      * Get recent absences for the student (last 10)
      */
-    public function getRecentAbsences($limit = 10)
+    public function getRecentAbsences(int $limit = 10): array
     {
         $query = "
             SELECT 
@@ -307,7 +310,7 @@ class StudentStatisticsPresenter
 
             return $absences;
         } catch (Exception $e) {
-            error_log("Error fetching recent absences: " . $e->getMessage());
+            error_log('Error fetching recent absences: ' . $e->getMessage());
             return [];
         }
     }

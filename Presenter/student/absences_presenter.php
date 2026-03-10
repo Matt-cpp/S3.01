@@ -1,28 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: absences_presenter.php
- * 
- * Présentateur des absences étudiant - Gère l'affichage et le filtrage des absences pour un étudiant spécifique.
- * Fournit des méthodes pour:
- * - Filtrer les absences (dates, statut, type de cours)
- * - Récupérer les absences avec leurs justificatifs associés
- * - Formater les données pour l'affichage (statuts, motifs, dates)
- * - Gérer la priorité des statuts de justificatifs (accepté > justifié > en attente)
- * - Calculer le nombre total de demi-journées d'absence
- * - Traduire les motifs d'absence en français
- * Utilisé par la page "Mes absences" de l'étudiant.
+ * File: absences_presenter.php
+ *
+ * Student absences presenter – handles display and filtering of absences for a specific student.
+ * Provides methods to:
+ * - Filter absences (dates, status, course type)
+ * - Retrieve absences with associated proofs
+ * - Format data for display (statuses, reasons, dates)
+ * - Manage proof status priority (accepted > justified > pending)
+ * - Calculate total half-days of absence
+ * - Translate absence reasons to French
+ * Used by the student "My absences" page.
  */
 
 require_once __DIR__ . '/../../Model/database.php';
 
 class StudentAbsencesPresenter
 {
-    private $filters;
-    private $errorMessage;
-    private $studentIdentifier;
+    private array $filters;
+    private string $errorMessage;
+    private string $studentIdentifier;
 
-    public function __construct($studentIdentifier)
+    public function __construct(string $studentIdentifier)
     {
         $this->studentIdentifier = $studentIdentifier;
         $this->filters = [];
@@ -30,21 +32,20 @@ class StudentAbsencesPresenter
         $this->processRequest();
     }
 
-    // Traitement de la requête : extraction et validation des filtres POST
-    private function processRequest()
+    // Process request: extract and validate POST filters
+    private function processRequest(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->validateAndSetFilters();
         }
     }
 
-    // Validation et enregistrement des filtres : vérifie la cohérence des dates
-    private function validateAndSetFilters()
+    // Validate and store filters: check date consistency
+    private function validateAndSetFilters(): void
     {
-        // Validation des dates
         if (!empty($_POST['firstDateFilter']) && !empty($_POST['lastDateFilter'])) {
             if ($_POST['firstDateFilter'] > $_POST['lastDateFilter']) {
-                $this->errorMessage = "La première date doit être antérieure à la deuxième date.";
+                $this->errorMessage = 'La première date doit être antérieure à la deuxième date.';
                 return;
             }
         }
@@ -57,15 +58,15 @@ class StudentAbsencesPresenter
         ];
     }
 
-    function getStudentIdentifier($student_id_or_identifier)
+    public function getStudentIdentifier(mixed $studentIdOrIdentifier): string
     {
-        if (!is_numeric($student_id_or_identifier)) {
-            return $student_id_or_identifier;
+        if (!is_numeric($studentIdOrIdentifier)) {
+            return $studentIdOrIdentifier;
         }
 
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT identifier, first_name, last_name FROM users WHERE id = :id");
-        $stmt->execute(['id' => $student_id_or_identifier]);
+        $stmt = $db->prepare('SELECT identifier, first_name, last_name FROM users WHERE id = :id');
+        $stmt->execute([':id' => $studentIdOrIdentifier]);
         $result = $stmt->fetch();
 
         if ($result) {
@@ -74,14 +75,13 @@ class StudentAbsencesPresenter
             return $result['identifier'];
         }
 
-        throw new Exception("Student not found");
+        throw new Exception('Student not found');
     }
 
-    public function getAbsences()
+    public function getAbsences(): array
     {
         $db = Database::getInstance()->getConnection();
 
-        // Requête simple pour récupérer toutes les absences
         $query = "
             SELECT 
                 a.id as absence_id,
@@ -164,27 +164,24 @@ class StudentAbsencesPresenter
             $stmt->execute($params);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Trier les résultats par date et heure décroissantes (plus récent en premier)
+            // Sort results by date and time descending (most recent first)
             usort($results, function ($a, $b) {
-                // Trier par date décroissante (plus récent en premier)
                 $dateCompare = strtotime($b['course_date']) - strtotime($a['course_date']);
                 if ($dateCompare !== 0) {
                     return $dateCompare;
                 }
-                // Si même date, trier par heure de début décroissante (14h avant 8h)
                 return strcmp($b['start_time'], $a['start_time']);
             });
 
             return $results;
         } catch (Exception $e) {
-            error_log("Erreur lors de la récupération des absences: " . $e->getMessage());
+            error_log('Error retrieving absences: ' . $e->getMessage());
             return [];
         }
     }
 
-    public function getCourseTypes()
+    public function getCourseTypes(): array
     {
-        // Retourner tous les types de cours standards
         return [
             ['course_type' => 'CM'],
             ['course_type' => 'TD'],
@@ -192,19 +189,19 @@ class StudentAbsencesPresenter
         ];
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return $this->filters;
     }
 
-    public function getErrorMessage()
+    public function getErrorMessage(): string
     {
         return $this->errorMessage;
     }
 
-    public function translateMotif($motif, $customMotif = null)
+    public function translateReason(?string $reason, ?string $customReason = null): string
     {
-        if (!$motif) {
+        if (!$reason) {
             return '';
         }
 
@@ -215,26 +212,25 @@ class StudentAbsencesPresenter
             'official_summons' => 'Convocation officielle',
             'transport_issue' => 'Problème de transport',
             'rdv_medical' => 'Rendez-vous médical',
-            'other' => $customMotif ? htmlspecialchars($customMotif) : 'Autre'
+            'other' => $customReason ? htmlspecialchars($customReason) : 'Autre'
         ];
 
-        return isset($translations[$motif]) ? $translations[$motif] : htmlspecialchars($motif);
+        return $translations[$reason] ?? htmlspecialchars($reason);
     }
 
-    public function translateStatus($justified)
+    public function translateStatus(bool $justified): string
     {
         return $justified ? 'Justifiée' : 'Non justifiée';
     }
 
-    public function hasProof($absence)
+    public function hasProof(array $absence): bool
     {
-        // Un justificatif est visible seulement s'il est accepté et qu'il a un fichier
         return !empty($absence['proof_status']) &&
             $absence['proof_status'] === 'accepted' &&
             !empty($absence['file_path']);
     }
 
-    public function getProofStatus($absence)
+    public function getProofStatus(array $absence): array
     {
         $proofStatus = $absence['proof_status'] ?? null;
 
@@ -245,15 +241,13 @@ class StudentAbsencesPresenter
         } elseif ($proofStatus === 'pending') {
             return ['text' => 'En attente', 'class' => 'badge-info', 'icon' => '🕐'];
         } elseif ($proofStatus === 'rejected') {
-            // Justificatif soumis mais rejeté
             return ['text' => 'Rejeté', 'class' => 'badge-rejected', 'icon' => '🚫'];
         } else {
-            // Pas de justificatif soumis
             return ['text' => 'Non justifiée', 'class' => 'badge-danger', 'icon' => '❌'];
         }
     }
 
-    public function getProofPath($absence)
+    public function getProofPath(array $absence): string
     {
         if ($this->hasProof($absence) && isset($absence['file_path'])) {
             return '../../' . ($absence['file_path'] ?? '');
@@ -261,29 +255,27 @@ class StudentAbsencesPresenter
         return '';
     }
 
-    public function formatDate($date)
+    public function formatDate(string $date): string
     {
         return date('d/m/Y', strtotime($date));
     }
 
-    public function formatTime($startTime, $endTime)
+    public function formatTime(string $startTime, string $endTime): string
     {
         return substr($startTime, 0, 5) . ' - ' . substr($endTime, 0, 5);
     }
 
-    public function getTotalHalfDays($absences)
+    public function getTotalHalfDays(array $absences): int
     {
-        // Calculer le nombre de demi-journées uniques (date + période)
         $halfDays = [];
 
         foreach ($absences as $absence) {
             $date = $absence['course_date'];
             $startTime = $absence['start_time'];
 
-            // Déterminer la période (matin si < 12:30, sinon après-midi)
+            // Determine period (morning if < 12:30, otherwise afternoon)
             $period = (strtotime($startTime) < strtotime('12:30:00')) ? 'morning' : 'afternoon';
 
-            // Créer une clé unique pour cette demi-journée
             $key = $date . '_' . $period;
             $halfDays[$key] = true;
         }

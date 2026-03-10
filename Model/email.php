@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: email.php
- * 
- * Service d'envoi d'emails - Gère l'envoi d'emails via SMTP avec PHPMailer.
- * Configure automatiquement la connexion SMTP avec les paramètres du fichier .env.
- * Supporte l'envoi d'emails HTML, de pièces jointes et d'images intégrées (embedded).
- * Utilisé pour envoyer les codes de vérification, confirmations et notifications.
+ * Email sending service - Manages email sending via SMTP with PHPMailer.
+ * Automatically configures the SMTP connection with parameters from the .env file.
+ * Supports sending HTML emails, attachments and embedded images.
+ * Used to send verification codes, confirmations and notifications.
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -19,7 +19,7 @@ use PHPMailer\PHPMailer\Exception;
 
 class EmailService
 {
-    private $mail;
+    private PHPMailer $mail;
 
     public function __construct()
     {
@@ -63,7 +63,7 @@ class EmailService
         $this->mail->SMTPDebug = 0;
     }
 
-    public function sendEmail($to, $subject, $body, $isHTML = true, $attachments = [], $images = [])
+    public function sendEmail(string $to, string $subject, string $body, bool $isHTML = true, array $attachments = [], array $images = []): array
     {
         try {
             // Clear any previous addresses and attachments
@@ -106,7 +106,7 @@ class EmailService
         }
     }
 
-    public function addAttachment($filePath, $fileName = '')
+    public function addAttachment(string $filePath, string $fileName = ''): bool
     {
         if (file_exists($filePath)) {
             try {
@@ -119,7 +119,7 @@ class EmailService
         return false;
     }
 
-    public function addEmbeddedImage($imagePath, $cid)
+    public function addEmbeddedImage(string $imagePath, string $cid): bool
     {
         if (file_exists($imagePath)) {
             try {
@@ -132,42 +132,8 @@ class EmailService
         return false;
     }
 
-    public function clearAttachments()
+    public function clearAttachments(): void
     {
         $this->mail->clearAttachments();
     }
-}
-
-if (basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
-    echo "<h2>Email Service Test</h2>";
-    $emailService = new EmailService();
-
-    $htmlBody = '
-    <h1>Résumé de votre justificatif envoyé</h1>
-    <p>Veuillez trouver le document récapitulatof ci-joint.</p>
-    <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
-    <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
-    ';
-
-    $attachments = [
-        __DIR__ . '/../uploads/.pdf',
-    ];
-
-    $images = [
-        'logoUPHF' => __DIR__ . '/../View/img/logoUPHF.png',
-        'logoIUT' => __DIR__ . '/../View/img/logoIUT.png'
-    ];
-
-    $Email = $_SESSION['student_info']['email'] ?? $_SESSION['user_email'] ?? 'ambroise.bisiaux@uphf.fr';
-
-    $response = $emailService->sendEmail(
-        $Email,
-        'Test Subject with Attachments',
-        $htmlBody,
-        true,
-        $attachments,
-        $images
-    );
-
-    echo '<strong>Status:</strong> ' . $response['message'];
 }

@@ -1,32 +1,32 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: dashboard-presenter.php 
- * Ce fichier gère la logique métier du tableau de bord secrétariat.
- * 
- * Fonctionnalités principales :
- * - Recherche d'étudiants avec filtrage par nom/identifiant
- * - Recherche et création de matières (ressources)
- * - Recherche et création de salles
- * - Saisie manuelle d'absences avec création de créneaux de cours
- * - Gestion de l'historique des imports et actions
- * 
- * @author Équipe S3.01
- * @version 1.0
+ * Secretary dashboard presenter.
+ * Handles the business logic of the secretary dashboard.
+ *
+ * Main features:
+ * - Student search with name/identifier filtering
+ * - Resource (subject) search and creation
+ * - Room search and creation
+ * - Manual absence entry with course slot creation
+ * - Import and action history management
  */
 
 require_once __DIR__ . '/../../Model/database.php';
 
 class DashboardSecretaryPresenter
 {
-    private $db;
+    private Database $db;
 
     public function __construct()
     {
         $this->db = Database::getInstance();
     }
 
-    // Récupère la liste des étudiants avec recherche par nom ou identifiant
-    public function searchStudents($query)
+    // Retrieves the list of students matching a search query by name or identifier
+    public function searchStudents(string $query): array
     {
         $sql = "SELECT id, identifier, first_name, last_name, email 
                 FROM users 
@@ -38,8 +38,8 @@ class DashboardSecretaryPresenter
         return $this->db->select($sql, [':query' => "%$query%"]);
     }
 
-    // Récupère la liste des matières avec recherche par code ou libellé
-    public function searchResources($query)
+    // Retrieves the list of resources matching a search query by code or label
+    public function searchResources(string $query): array
     {
         $sql = "SELECT id, code, label, teaching_type 
                 FROM resources 
@@ -50,8 +50,8 @@ class DashboardSecretaryPresenter
         return $this->db->select($sql, [':query' => "%$query%"]);
     }
 
-    // Récupère la liste des salles avec recherche par nom
-    public function searchRooms($query)
+    // Retrieves the list of rooms matching a search query by name
+    public function searchRooms(string $query): array
     {
         $sql = "SELECT id, code 
                 FROM rooms 
@@ -62,10 +62,10 @@ class DashboardSecretaryPresenter
         return $this->db->select($sql, [':query' => "%$query%"]);
     }
 
-    // Crée une nouvelle matière dans la base de données
-    public function createResource($code)
+    // Creates a new resource in the database
+    public function createResource(string $code): array
     {
-        // Vérifie si la matière existe déjà
+        // Check if the resource already exists
         $existing = $this->db->selectOne(
             "SELECT id FROM resources WHERE code = :code",
             [':code' => $code]
@@ -81,16 +81,16 @@ class DashboardSecretaryPresenter
 
         $result = $this->db->selectOne($sql, [
             ':code' => $code,
-            ':label' => $code  // Utilise le code comme libellé
+            ':label' => $code  // Use the code as label
         ]);
 
         return $result;
     }
 
-    // Crée une nouvelle salle dans la base de données
-    public function createRoom($code)
+    // Creates a new room in the database
+    public function createRoom(string $code): array
     {
-        // Vérifie si la salle existe déjà
+        // Check if the room already exists
         $existing = $this->db->selectOne(
             "SELECT id FROM rooms WHERE code = :code",
             [':code' => $code]
@@ -109,13 +109,13 @@ class DashboardSecretaryPresenter
         return $result;
     }
 
-    // Crée une absence manuellement avec création du créneau de cours associé
-    public function createManualAbsence($data)
+    // Creates an absence manually with course slot creation
+    public function createManualAbsence(array $data): int
     {
         try {
             $this->db->beginTransaction();
 
-            // Récupère l'identifiant de l'étudiant
+            // Retrieve the student identifier
             $student = $this->db->selectOne(
                 "SELECT identifier FROM users WHERE id = :id",
                 [':id' => $data['student_id']]
@@ -125,18 +125,18 @@ class DashboardSecretaryPresenter
                 throw new Exception("Étudiant non trouvé");
             }
 
-            // Récupère les heures de début et de fin
+            // Get start and end times
             $startTime = trim($data['start_time']);
             $endTime = trim($data['end_time']);
 
-            // Calcule la durée en minutes
+            // Calculate duration in minutes
             $timezone = new DateTimeZone('Europe/Paris');
             $start = new DateTime($startTime, $timezone);
             $end = new DateTime($endTime, $timezone);
             $interval = $start->diff($end);
             $duration = ($interval->h * 60) + $interval->i;
 
-            // Crée le créneau de cours dans la base de données
+            // Create the course slot in the database
             $courseSlotSql = "INSERT INTO course_slots 
                 (course_date, start_time, end_time, duration_minutes, course_type, 
                  resource_id, room_id, is_evaluation) 
@@ -157,7 +157,7 @@ class DashboardSecretaryPresenter
 
             $courseSlotId = $courseSlotResult['id'];
 
-            // Crée l'absence dans la base de données
+            // Create the absence in the database
             $absenceSql = "INSERT INTO absences 
                 (student_identifier, course_slot_id, status, justified) 
                 VALUES (:student_identifier, :course_slot_id, 'absent', false)
@@ -170,7 +170,7 @@ class DashboardSecretaryPresenter
 
             $this->db->commit();
 
-            // Enregistre l'action dans l'historique
+            // Log the action to history
             $this->logImportHistory(
                 'Saisie manuelle',
                 "Absence créée pour {$student['identifier']} le {$data['absence_date']} ({$startTime} - {$endTime})",
@@ -178,15 +178,14 @@ class DashboardSecretaryPresenter
             );
 
             return $absenceResult['id'];
-
         } catch (Exception $e) {
             $this->db->rollBack();
             throw $e;
         }
     }
 
-    // Enregistre une action dans l'historique des imports
-    public function logImportHistory($action, $details, $status = 'success')
+    // Logs an action to the import history
+    public function logImportHistory(string $action, string $details, string $status = 'success'): void
     {
         $sql = "INSERT INTO import_history (action_type, description, status, created_at) 
                 VALUES (:action, :details, :status, NOW())";
@@ -198,9 +197,9 @@ class DashboardSecretaryPresenter
                 ':status' => $status
             ]);
         } catch (Exception $e) {
-            // Crée la table si elle n'existe pas encore
+            // Create the table if it doesn't exist yet
             $this->createImportHistoryTable();
-            // Réessaie l'insertion
+            // Retry the insertion
             $this->db->execute($sql, [
                 ':action' => $action,
                 ':details' => $details,
@@ -209,8 +208,8 @@ class DashboardSecretaryPresenter
         }
     }
 
-    // Récupère l'historique des imports et actions récentes
-    public function getImportHistory($limit = 50)
+    // Retrieves the import and recent actions history
+    public function getImportHistory(int $limit = 50): array
     {
         $sql = "SELECT action_type as action, description as details, status, created_at 
                 FROM import_history 
@@ -220,14 +219,14 @@ class DashboardSecretaryPresenter
         try {
             return $this->db->select($sql, [':limit' => $limit]);
         } catch (Exception $e) {
-            // La table n'existe peut-être pas encore
+            // The table may not exist yet
             $this->createImportHistoryTable();
             return [];
         }
     }
 
-    // Crée la table d'historique des imports si elle n'existe pas
-    private function createImportHistoryTable()
+    // Creates the import history table if it doesn't exist
+    private function createImportHistoryTable(): void
     {
         $sql = "CREATE TABLE IF NOT EXISTS import_history (
             id SERIAL PRIMARY KEY,

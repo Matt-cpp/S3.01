@@ -2,14 +2,14 @@
 <html lang="fr">
 <?php
 /**
- * Fichier: home.php
- * 
- * Template pour la page d'accueil des étudiants. Affiche un tableau de bord avec :
- * - Vue d'ensemble des absences (demis-journées, total...)
- * - Barre de progression de justification
- * - Statut des justificatifs
- * - Liste des dernières absences
- * - Justificatifs par catégorie
+ * File: home.php
+ *
+ * Student home page template. Displays a dashboard with:
+ * - Absence overview (half-days, total...)
+ * - Justification progress bar
+ * - Proof status
+ * - Recent absences list
+ * - Proofs by category
  */
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('student');
@@ -38,21 +38,21 @@ if (!isset($_SESSION['id_student'])) {
     include __DIR__ . '/../navbar.php';
     require_once __DIR__ . '/../../../Presenter/student/dashboard_presenter.php';
 
-    // Gestion du rafraîchissement du cache
+    // Handle cache refresh
     $forceRefresh = isset($_GET['refresh']) && $_GET['refresh'] == '1';
 
     $dashboard = new StudentDashboardPresenter($_SESSION['id_student'], $forceRefresh);
     $stats = $dashboard->getStats();
     $proofsByCategory = $dashboard->getProofsByCategory();
     $recentAbsences = $dashboard->getRecentAbsences();
-    $justification_percentage = $dashboard->getJustificationPercentage();
-    $half_points_lost = $dashboard->getHalfPointsLost();
+    $justificationPercentage = $dashboard->getJustificationPercentage();
+    $halfPointsLost = $dashboard->getHalfPointsLost();
     ?>
 
     <div class="dashboard-container">
         <h1 class="dashboard-title" data-translate="dashboard_title">Tableau de Bord</h1>
 
-        <!-- Vue d'ensemble avec les cartes statistiques principales (3 cartes : total, non justifiées, justifiables) -->
+        <!-- Overview with main statistics cards (3 cards: total, unjustified, justifiable) -->
         <div class="overview-section">
             <div class="overview-card primary">
                 <div class="card-content">
@@ -111,7 +111,7 @@ if (!isset($_SESSION['id_student'])) {
             </div>
         </div>
 
-        <!-- Barre de progression de justification -->
+        <!-- Justification progress bar -->
         <div class="justification-progress-section">
             <h2 class="section-heading" data-translate="justification_rate">
                 Taux de justification des demi-journées d'absence
@@ -124,11 +124,11 @@ if (!isset($_SESSION['id_student'])) {
                         <span data-translate="on_total">sur</span> <?php echo $stats['total_half_days']; ?> <span
                             data-translate="total_absence_half_days">demi-journées d'absence totales</span>
                     </span>
-                    <span class="progress-percentage"><?php echo $justification_percentage; ?>%</span>
+                    <span class="progress-percentage"><?php echo $justificationPercentage; ?>%</span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill <?php echo $justification_percentage >= 80 ? 'good' : ($justification_percentage >= 50 ? 'medium' : 'low'); ?>"
-                        style="width: <?php echo $justification_percentage; ?>%">
+                    <div class="progress-fill <?php echo $justificationPercentage >= 80 ? 'good' : ($justificationPercentage >= 50 ? 'medium' : 'low'); ?>"
+                        style="width: <?php echo $justificationPercentage; ?>%">
                     </div>
                 </div>
                 <div class="progress-legend">
@@ -146,10 +146,10 @@ if (!isset($_SESSION['id_student'])) {
                         </span>
                 </div>
                 <div class="points-penalty"
-                    style="margin-top: 1.5rem; padding: 1rem; background: <?php echo $half_points_lost > 0 ? '#fee2e2' : '#dcfce7'; ?>; border-radius: 8px; text-align: center;">
+                    style="margin-top: 1.5rem; padding: 1rem; background: <?php echo $halfPointsLost > 0 ? '#fee2e2' : '#dcfce7'; ?>; border-radius: 8px; text-align: center;">
                     <span style="font-size: 1rem; color: #4b5563;">
-                        <?php if ($half_points_lost > 0): ?>
-                            <strong style="color: #dc2626;"><?php echo $half_points_lost; ?> <span
+                        <?php if ($halfPointsLost > 0): ?>
+                            <strong style="color: #dc2626;"><?php echo $halfPointsLost; ?> <span
                                     data-translate="points_lost">point(s) perdu(s)</span></strong>
                             <span data-translate="in_average">dans la moyenne</span>
                             <span style="display: block; font-size: 0.875rem; margin-top: 0.25rem;"
@@ -162,7 +162,7 @@ if (!isset($_SESSION['id_student'])) {
             </div>
         </div>
 
-        <!-- Statut des justificatifs -->
+        <!-- Proof status -->
         <div class="proofs-status-section">
             <h2 class="section-heading">
                 <span class="heading-icon"></span>
@@ -208,7 +208,7 @@ if (!isset($_SESSION['id_student'])) {
             </div>
         </div>
 
-        <!-- Alerte si demi-journées non justifiées -->
+        <!-- Alert if unjustified half-days -->
         <?php if ($stats['half_days_justifiable'] > 0 && $stats['under_review_proofs'] == 0): ?>
             <div class="alert-box alert-warning">
                 <div class="alert-icon"></div>
@@ -230,7 +230,7 @@ if (!isset($_SESSION['id_student'])) {
             </div>
         <?php endif; ?>
 
-        <!-- Alerte si justificatifs en révision -->
+        <!-- Alert if proofs under review -->
         <?php if ($stats['under_review_proofs'] > 0): ?>
             <div class="alert-box alert-info">
                 <div class="alert-icon"></div>
@@ -277,7 +277,7 @@ if (!isset($_SESSION['id_student'])) {
                         <tbody>
                             <?php foreach (array_slice($recentAbsences, 0, 5) as $absence): ?>
                                 <?php
-                                // Déterminer le statut en fonction du proof_status ou justified
+                                // Determine the status based on proof_status or justified
                                 $proofStatus = $absence['proof_status'] ?? null;
                                 $modalStatus = 'none';
                                 $statusText = 'Non justifiée';
@@ -311,20 +311,20 @@ if (!isset($_SESSION['id_student'])) {
                                     : '-';
 
                                 $courseType = strtoupper($absence['course_type'] ?? 'Autre');
-                                $badge_class = '';
+                                $badgeClass = '';
 
                                 switch ($courseType) {
                                     case 'CM':
-                                        $badge_class = 'badge-cm';
+                                        $badgeClass = 'badge-cm';
                                         break;
                                     case 'TD':
-                                        $badge_class = 'badge-td';
+                                        $badgeClass = 'badge-td';
                                         break;
                                     case 'TP':
-                                        $badge_class = 'badge-tp';
+                                        $badgeClass = 'badge-tp';
                                         break;
                                     default:
-                                        $badge_class = 'badge-other';
+                                        $badgeClass = 'badge-other';
                                 }
                                 ?>
                                 <tr class="clickable-row absence-row" style="cursor: pointer;"
@@ -336,7 +336,7 @@ if (!isset($_SESSION['id_student'])) {
                                     data-teacher="<?php echo $teacher; ?>"
                                     data-room="<?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?>"
                                     data-duration="<?php echo number_format($absence['duration_minutes'] / 60, 1); ?>"
-                                    data-type="<?php echo $courseType; ?>" data-type-badge="<?php echo $badge_class; ?>"
+                                    data-type="<?php echo $courseType; ?>" data-type-badge="<?php echo $badgeClass; ?>"
                                     data-evaluation="<?php echo $absence['is_evaluation'] ? 'Oui' : 'Non'; ?>"
                                     data-is-evaluation="<?php echo $absence['is_evaluation'] ? '1' : '0'; ?>"
                                     data-has-makeup="<?php echo !empty($absence['makeup_id']) ? '1' : '0'; ?>"
@@ -377,7 +377,7 @@ if (!isset($_SESSION['id_student'])) {
                                     <td data-label="Durée"><strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong>
                                     </td>
                                     <td data-label="Type">
-                                        <span class="course-type-badge <?php echo $badge_class; ?>">
+                                        <span class="course-type-badge <?php echo $badgeClass; ?>">
                                             <?php echo $courseType; ?>
                                         </span>
                                     </td>
@@ -856,7 +856,7 @@ if (!isset($_SESSION['id_student'])) {
         <?php endif; ?>
     </div>
 
-    <!-- Modal pour afficher les détails de l'absence -->
+    <!-- Modal to display absence details -->
     <div id="absenceModal" class="modal">
         <div class="modal-overlay"></div>
         <div id="absenceModalContent" class="modal-content">
@@ -906,7 +906,7 @@ if (!isset($_SESSION['id_student'])) {
                     </div>
                 </div>
 
-                <!-- Section Évaluation ratée (visible uniquement si is_evaluation) -->
+                <!-- Missed evaluation section (visible only if is_evaluation) -->
                 <div id="evaluationSection" class="modal-info-group"
                     style="display: none; background-color: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
                     <h3 style="color: #856404; margin-bottom: 10px; font-size: 16px;"
@@ -925,7 +925,7 @@ if (!isset($_SESSION['id_student'])) {
                     </div>
                 </div>
 
-                <!-- Section Rattrapage (visible uniquement si makeup existe) -->
+                <!-- Makeup section (visible only if makeup exists) -->
                 <div id="makeupSection" class="modal-info-group"
                     style="display: none; background-color: #d1ecf1; padding: 15px; border-radius: 8px; margin-top: 15px;">
                     <h3 style="color: #0c5460; margin-bottom: 10px; font-size: 16px;" data-translate="makeup_scheduled">
@@ -964,7 +964,7 @@ if (!isset($_SESSION['id_student'])) {
         </div>
     </div>
 
-    <!-- Modal pour afficher les détails du justificatif -->
+    <!-- Modal to display proof details -->
     <div id="proofModal" class="modal">
         <div class="modal-overlay"></div>
         <div id="proofModalContent" class="modal-content">
@@ -1039,7 +1039,7 @@ if (!isset($_SESSION['id_student'])) {
                     <div class="modal-comment-box" id="proofModalComment"></div>
                 </div>
 
-                <!-- Bouton Compléter (visible uniquement pour les justificatifs en révision) -->
+                <!-- Complete button (visible only for proofs under review) -->
                 <div class="modal-action-section" id="proofActionSection"
                     style="display: none; margin-top: 20px; text-align: center;">
                     <a href="#" id="proofModalCompleteBtn" class="btn-add-info"

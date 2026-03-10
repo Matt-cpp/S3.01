@@ -1,13 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: search-rooms.php
- * 
- * API de recherche de salles - Recherche rapide de salles par code.
- * Fonctionnalités principales :
- * - Recherche par code de salle
- * - Retourne les résultats au format JSON
- * - Utilise DashboardSecretaryPresenter pour la logique de recherche
- * Utilisé par l'autocomplétion dans le formulaire de création manuelle d'absence.
+ * Room search API - Quick search for rooms by code.
+ * Main features:
+ * - Search by room code
+ * - Returns results in JSON format
+ * - Uses DashboardSecretaryPresenter for search logic
+ * Used by autocomplete in the manual absence creation form.
  */
 
 header('Content-Type: application/json');

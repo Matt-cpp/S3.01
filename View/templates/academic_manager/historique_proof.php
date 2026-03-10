@@ -1,22 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: historique_proof.php
- * 
- * Template de l'historique des justificatifs pour le responsable pédagogique - Consultation et gestion.
- * Fonctionnalités principales :
- * - Recherche et filtrage multi-critères :
- *   - Recherche par nom d'étudiant
- *   - Filtrage par période de soumission (date de début et fin)
- *   - Filtrage par statut du justificatif (en attente, accepté, rejeté, en examen)
- *   - Filtrage par motif d'absence
- * - Affichage détaillé de tous les justificatifs avec statistiques
- * - Compteur du nombre de résultats trouvés
- * - Tableau complet avec :
- *   - Informations étudiant et période d'absence
- *   - Nombre d'absences et heures totales couvertes
- *   - Motif, statut et badge visuel
- *   - Lien vers visualisation détaillée
- * Utilise HistoriqueProofPresenter pour gérer les filtres et récupérer les données.
+ * Proof history template for the academic manager - Consultation and management.
+ * Main features:
+ * - Multi-criteria search and filtering:
+ *   - Search by student name
+ *   - Filtering by submission period (start and end date)
+ *   - Filtering by proof status (pending, accepted, rejected, under review)
+ *   - Filtering by absence reason
+ * - Detailed display of all proofs with statistics
+ * - Result count
+ * - Complete table with:
+ *   - Student information and absence period
+ *   - Number of absences and total hours covered
+ *   - Reason, status and visual badge
+ *   - Link to detailed view
+ * Uses ProofHistoryPresenter to manage filters and retrieve data.
  */
 
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
@@ -25,7 +26,7 @@ $user = requireRole('academic_manager');
 require_once __DIR__ . '/../../../Presenter/academic_manager/historique_proof.php';
 
 // Instantiate the presenter
-$presenter = new HistoriqueProofPresenter();
+$presenter = new ProofHistoryPresenter();
 
 $proofs = $presenter->getProofs();
 $reasons = $presenter->getProofReasons();
@@ -36,6 +37,7 @@ $errorMessage = $presenter->getErrorMessage();
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -48,26 +50,27 @@ $errorMessage = $presenter->getErrorMessage();
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
 </head>
+
 <body>
     <?php include __DIR__ . '/../navbar.php'; ?>
     <main>
         <h1 class="page-title">Historique des justificatifs</h1>
-        
+
         <?php if (!empty($errorMessage)): ?>
             <div class="error-message">
                 <?php echo htmlspecialchars($errorMessage); ?>
             </div>
         <?php endif; ?>
 
-        <!-- Formulaire de filtrage multi-critères des justificatifs -->
+        <!-- Multi-criteria proof filtering form -->
         <form method="POST" action="">
             <div class="filter-grid">
-                <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..." 
+                <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..."
                     value="<?php echo htmlspecialchars($filters['name'] ?? ''); ?>">
-                <input type="date" name="firstDateFilter" id="firstDateFilter" 
+                <input type="date" name="firstDateFilter" id="firstDateFilter"
                     placeholder="Date de début"
                     value="<?php echo htmlspecialchars($filters['start_date'] ?? ''); ?>">
-                <input type="date" name="lastDateFilter" id="lastDateFilter" 
+                <input type="date" name="lastDateFilter" id="lastDateFilter"
                     placeholder="Date de fin"
                     value="<?php echo htmlspecialchars($filters['end_date'] ?? ''); ?>">
                 <select name="statusFilter" id="statusFilter">
@@ -80,8 +83,8 @@ $errorMessage = $presenter->getErrorMessage();
                 <select name="reasonFilter" id="reasonFilter">
                     <option value="">Tous les motifs</option>
                     <?php foreach ($reasons as $reason): ?>
-                        <option value="<?php echo htmlspecialchars($reason['main_reason']); ?>" 
-                                <?php echo (($filters['reason'] ?? '') === $reason['main_reason']) ? 'selected' : ''; ?>>
+                        <option value="<?php echo htmlspecialchars($reason['main_reason']); ?>"
+                            <?php echo (($filters['reason'] ?? '') === $reason['main_reason']) ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($presenter->translateReason($reason['main_reason'])); ?>
                         </option>
                     <?php endforeach; ?>
@@ -130,33 +133,33 @@ $errorMessage = $presenter->getErrorMessage();
                             <td data-label="Début"><?php echo htmlspecialchars($presenter->formatDate($proof['absence_start_date'])); ?></td>
                             <td data-label="Fin"><?php echo htmlspecialchars($presenter->formatDate($proof['absence_end_date'])); ?></td>
                             <td data-label="Motif">
-                                <?php 
-                                    echo htmlspecialchars($presenter->translateReason($proof['main_reason']));
-                                    if (!empty($proof['custom_reason'])) {
-                                        echo '<br><small class="custom-reason-text">(' . htmlspecialchars($proof['custom_reason']) . ')</small>';
-                                    }
+                                <?php
+                                echo htmlspecialchars($presenter->translateReason($proof['main_reason']));
+                                if (!empty($proof['custom_reason'])) {
+                                    echo '<br><small class="custom-reason-text">(' . htmlspecialchars($proof['custom_reason']) . ')</small>';
+                                }
                                 ?>
                             </td>
                             <td data-label="Statut" class="status-cell">
-                                <?php 
-                                    $status = $presenter->translateStatus($proof['status']);
-                                    $statusClass = '';
-                                    switch($proof['status']) {
-                                        case 'pending':
-                                            $statusClass = 'status-en-attente';
-                                            break;
-                                        case 'accepted':
-                                            $statusClass = 'status-acceptee';
-                                            break;
-                                        case 'rejected':
-                                            $statusClass = 'status-rejetee';
-                                            break;
-                                        case 'under_review':
-                                            $statusClass = 'status-en-cours';
-                                            break;
-                                        default:
-                                            $statusClass = 'status-default';
-                                    }
+                                <?php
+                                $status = $presenter->translateStatus($proof['status']);
+                                $statusClass = '';
+                                switch ($proof['status']) {
+                                    case 'pending':
+                                        $statusClass = 'status-en-attente';
+                                        break;
+                                    case 'accepted':
+                                        $statusClass = 'status-acceptee';
+                                        break;
+                                    case 'rejected':
+                                        $statusClass = 'status-rejetee';
+                                        break;
+                                    case 'under_review':
+                                        $statusClass = 'status-en-cours';
+                                        break;
+                                    default:
+                                        $statusClass = 'status-default';
+                                }
                                 ?>
                                 <span class="status-text <?php echo $statusClass; ?>">
                                     <?php echo htmlspecialchars($status); ?>
@@ -164,15 +167,15 @@ $errorMessage = $presenter->getErrorMessage();
                             </td>
                             <td data-label="Soumis le"><?php echo htmlspecialchars($presenter->formatDate($proof['submission_date'])); ?></td>
                             <td data-label="Fichier">
-                                <?php 
+                                <?php
                                 $files = $presenter->getProofFiles($proof);
                                 if (!empty($files)): ?>
                                     <div class="file-links-container">
                                         <?php foreach ($files as $index => $file): ?>
-                                            <a href="../../../Presenter/student/view_upload_proof.php?proof_id=<?php echo $proof['proof_id']; ?>&file_index=<?php echo $index; ?>" 
-                                               target="_blank"
-                                               title="<?php echo htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)); ?>"
-                                               class="file-link">
+                                            <a href="../../../Presenter/student/view_upload_proof.php?proof_id=<?php echo $proof['proof_id']; ?>&file_index=<?php echo $index; ?>"
+                                                target="_blank"
+                                                title="<?php echo htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)); ?>"
+                                                class="file-link">
                                                 📄 <?php echo ($index + 1); ?>
                                             </a>
                                         <?php endforeach; ?>
@@ -182,8 +185,8 @@ $errorMessage = $presenter->getErrorMessage();
                                 <?php endif; ?>
                             </td>
                             <td data-label="Action">
-                                <a href="<?php echo htmlspecialchars($presenter->getProofDetailsUrl($proof['proof_id'])); ?>" 
-                                   class="btn-view-action">
+                                <a href="<?php echo htmlspecialchars($presenter->getProofDetailsUrl($proof['proof_id'])); ?>"
+                                    class="btn-view-action">
                                     Voir
                                 </a>
                             </td>
@@ -196,4 +199,5 @@ $errorMessage = $presenter->getErrorMessage();
     </main>
     <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </body>
+
 </html>

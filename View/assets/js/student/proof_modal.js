@@ -1,19 +1,19 @@
-// Gestion du modal pour afficher les détails des justificatifs
+// Modal management for displaying proof details
 document.addEventListener("DOMContentLoaded", function () {
   const modal = document.getElementById("proofModal");
   const modalContent = document.getElementById("modalContent");
   const closeModalBtn = document.getElementById("closeModal");
   const proofRows = document.querySelectorAll(".proof-row");
 
-  // Couleurs de bordure selon le statut
+  // Border colors based on status
   const statusBorderColors = {
-    accepted: "#28a745", // Vert
-    rejected: "#dc3545", // Rouge
-    under_review: "#ffc107", // Jaune/Orange
-    pending: "#17a2b8", // Bleu
+    accepted: "#28a745", // Green
+    rejected: "#dc3545", // Red
+    under_review: "#ffc107", // Yellow/Orange
+    pending: "#17a2b8", // Blue
   };
 
-  // Ouvrir le modal quand on clique sur une ligne
+  // Open modal when clicking on a row
   proofRows.forEach((row) => {
     row.addEventListener("click", function () {
       const status = this.dataset.status;
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const comment = this.dataset.comment;
       const filesJson = this.dataset.files;
 
-      // Fonction pour formater la date et l'heure
+      // Function to format date and time
       function formatDateTime(datetime) {
         if (!datetime) return "-";
         const date = new Date(datetime);
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return `${day}/${month}/${year} à ${hours}h${minutes}`;
       }
 
-      // Remplir le modal avec les données
+      // Fill the modal with data
       document.getElementById("modalStartDate").textContent =
         formatDateTime(startDatetime);
       document.getElementById("modalEndDate").textContent =
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("modalProcessing").textContent = processing;
       document.getElementById("modalExam").textContent = exam;
 
-      // Afficher les fichiers
+      // Display files
       let files = [];
       try {
         files = filesJson ? JSON.parse(filesJson) : [];
@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
         filesSection.style.display = "none";
       }
 
-      // Gérer la raison personnalisée
+      // Handle the custom reason
       if (customReason && customReason.trim() !== "") {
         document.getElementById("customReasonItem").style.display = "flex";
         document.getElementById("modalCustomReason").textContent = customReason;
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("customReasonItem").style.display = "none";
       }
 
-      // Gérer le commentaire de l'étudiant
+      // Handle the student comment
       if (studentComment && studentComment.trim() !== "") {
         document.getElementById("studentCommentItem").style.display = "flex";
         document.getElementById("modalStudentComment").textContent =
@@ -119,12 +119,12 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("studentCommentItem").style.display = "none";
       }
 
-      // Afficher le statut avec le badge approprié
+      // Display the status with the appropriate badge
       const statusBadge = document.getElementById("modalStatus");
       statusBadge.textContent = statusIcon + " " + statusText;
       statusBadge.className = "badge " + statusClass;
 
-      // Afficher le commentaire s'il existe
+      // Display the comment if it exists
       if (comment && comment.trim() !== "") {
         document.getElementById("commentSection").style.display = "block";
         document.getElementById("modalComment").textContent = comment;
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("commentSection").style.display = "none";
       }
 
-      // Afficher le bouton "Modifier" uniquement pour les justificatifs en révision
+      // Show the "Edit" button only for proofs under review
       const actionSection = document.getElementById("actionSection");
       const editBtn = document.getElementById("modalEditBtn");
       if (status === "under_review" && proofId) {
@@ -144,27 +144,27 @@ document.addEventListener("DOMContentLoaded", function () {
         actionSection.style.display = "none";
       }
 
-      // Appliquer la couleur de bordure selon le statut
+      // Apply the border color based on status
       const borderColor = statusBorderColors[status] || "#6c757d";
       modalContent.style.borderColor = borderColor;
       modalContent.style.borderWidth = "4px";
       modalContent.style.borderStyle = "solid";
 
-      // Afficher le modal
+      // Show the modal
       modal.classList.add("show");
-      document.body.style.overflow = "hidden"; // Empêcher le scroll du body
+      document.body.style.overflow = "hidden"; // Prevent body scrolling
     });
   });
 
-  // Fermer le modal avec le bouton X
+  // Close the modal with the X button
   closeModalBtn.addEventListener("click", closeModal);
 
-  // Fermer le modal en cliquant sur l'overlay
+  // Close the modal by clicking on the overlay
   document
     .querySelector(".modal-overlay")
     .addEventListener("click", closeModal);
 
-  // Fermer le modal avec la touche Échap
+  // Close the modal with the Escape key
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape" && modal.classList.contains("show")) {
       closeModal();
@@ -173,6 +173,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function closeModal() {
     modal.classList.remove("show");
-    document.body.style.overflow = ""; // Réactiver le scroll du body
+    document.body.style.overflow = ""; // Re-enable body scrolling
   }
 });

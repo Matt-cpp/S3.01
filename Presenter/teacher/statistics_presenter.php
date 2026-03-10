@@ -1,5 +1,8 @@
 <?php
-// teacher_statistics_presenter. php
+
+declare(strict_types=1);
+
+// Teacher statistics presenter
 
 require_once __DIR__ . '/../../Model/Database.php';
 
@@ -7,7 +10,7 @@ require_once __DIR__ . '/../../Model/Database.php';
  * Format resource label to show "CODE : LABEL" format
  * Example: "INFFIS2-DEVELOPPEMENT ORIENTE OBJETS (T3BUTINFFI-R2.01)" => "R2.01 : DEVELOPPEMENT ORIENTE OBJETS"
  */
-function formatResourceLabel($fullLabel)
+function formatResourceLabel(string $fullLabel): string
 {
     if (empty($fullLabel) || $fullLabel === 'N/A') {
         return 'N/A';
@@ -62,7 +65,7 @@ if ($resourceFilter) {
 $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
 
 // Function to get student statistics (for detail view)
-function getStudentStatistics($studentId)
+function getStudentStatistics(int $studentId): ?array
 {
     global $db;
 
@@ -144,7 +147,6 @@ function getStudentStatistics($studentId)
             'courseTypes' => $courseTypes,
             'subjects' => $subjects
         ];
-
     } catch (PDOException $e) {
         error_log("getStudentStatistics error: " . $e->getMessage());
         return null;
@@ -435,7 +437,6 @@ try {
             'pointBackgroundColor' => $trendColors[$index]['border']
         ];
     }
-
 } catch (PDOException $e) {
     // Log error for debugging
     error_log("Statistics error: " . $e->getMessage());

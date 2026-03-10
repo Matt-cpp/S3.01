@@ -1,14 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: search-resources.php
- * 
- * API de recherche de ressources - Recherche rapide de ressources/matières par code ou libellé.
- * Fonctionnalités principales :
- * - Recherche avec minimum 2 caractères
- * - Recherche dans code et label de la ressource
- * - Retourne les résultats au format JSON
- * - Utilise DashboardSecretaryPresenter pour la logique de recherche
- * Utilisé par l'autocomplétion dans le formulaire de création manuelle d'absence.
+ * Resource search API - Quick search for resources/subjects by code or label.
+ * Main features:
+ * - Search with minimum 2 characters
+ * - Search in resource code and label
+ * - Returns results in JSON format
+ * - Uses DashboardSecretaryPresenter for search logic
+ * Used by autocomplete in the manual absence creation form.
  */
 
 header('Content-Type: application/json');

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: reset_user_account.php
- * 
- * Script pour réinitialiser un compte utilisateur.
- * Supprime toutes les données associées (absences, justificatifs, notifications, etc.)
- * tout en conservant le compte utilisateur.
+ * File: reset_user_account.php
+ *
+ * Script to reset a user account.
+ * Deletes all associated data (absences, proofs, notifications, etc.)
+ * while keeping the user account.
  */
 
 require_once __DIR__ . '/Model/database.php';
@@ -145,7 +147,6 @@ function resetUserAccount(int $userId): array
         $results['success'] = true;
         $results['message'] = "Account reset successful for user: {$user['first_name']} {$user['last_name']} (ID: $userId)";
         $results['user'] = $user;
-
     } catch (Exception $e) {
         if ($db->inTransaction()) {
             $db->rollBack();
@@ -213,10 +214,9 @@ if ($isCLI) {
         displayMessage($result['message'], 'error', true);
         exit(1);
     }
-
 } else {
     // Web execution
-    ?>
+?>
     <!DOCTYPE html>
     <html lang="fr">
 
@@ -375,5 +375,5 @@ if ($isCLI) {
     </body>
 
     </html>
-    <?php
+<?php
 }

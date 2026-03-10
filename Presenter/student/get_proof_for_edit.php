@@ -1,24 +1,26 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: get_proof_for_edit.php
- * 
- * Préparateur de modification de justificatif - Charge les données d'un justificatif pour modification.
- * Fonctionnalités principales :
- * - Vérification des autorisations (justificatif en révision et appartenant à l'étudiant)
- * - Récupération des informations du justificatif depuis la base de données
- * - Chargement des fichiers existants (depuis proof_files JSONB)
- * - Formatage des dates pour le formulaire HTML5 (datetime-local)
- * - Stockage des données en session pour le formulaire de modification
- * Redirige vers le formulaire proof_edit.php avec les données préparées.
+ * File: get_proof_for_edit.php
+ *
+ * Proof edit preparation – Loads proof data for modification.
+ * Main features:
+ * - Authorization check (proof must be under review and belong to the student)
+ * - Retrieves proof information from the database
+ * - Loads existing files (from proof_files JSONB)
+ * - Formats dates for the HTML5 datetime-local form input
+ * - Stores data in session for the edit form
+ * Redirects to the proof_edit.php form with prepared data.
  */
 
 session_start();
 
 require_once __DIR__ . '/../../Model/database.php';
 
-// Vérifier si l'ID du justificatif est fourni
 if (!isset($_GET['proof_id'])) {
-    $_SESSION['error_message'] = "Aucun justificatif spécifié.";
+    $_SESSION['error_message'] = 'Aucun justificatif spécifié.';
     header('Location: ../../View/templates/student/proofs.php');
     exit();
 }
@@ -28,7 +30,6 @@ $proofId = (int) $_GET['proof_id'];
 try {
     $db = Database::getInstance();
 
-    // Récupérer les informations du justificatif
     $sql = "
         SELECT 
             p.id,
@@ -47,29 +48,28 @@ try {
         WHERE p.id = :proof_id
     ";
 
-    $proof = $db->selectOne($sql, ['proof_id' => $proofId]);
+    $proof = $db->selectOne($sql, [':proof_id' => $proofId]);
 
     if (!$proof) {
-        $_SESSION['error_message'] = "Justificatif non trouvé.";
+        $_SESSION['error_message'] = 'Justificatif non trouvé.';
         header('Location: ../../View/templates/student/proofs.php');
         exit();
     }
 
-    // Vérifier que le justificatif est bien en révision (seule modification possible)
     if ($proof['status'] !== 'under_review') {
-        $_SESSION['error_message'] = "Seuls les justificatifs en révision peuvent être modifiés.";
+        $_SESSION['error_message'] = 'Seuls les justificatifs en révision peuvent être modifiés.';
         header('Location: ../../View/templates/student/proofs.php');
         exit();
     }
 
-    // Vérifier que le justificatif appartient bien à l'étudiant connecté
     if (!isset($_SESSION['id_student'])) {
-        $_SESSION['error_message'] = "Veuillez vous connecter pour accéder à cette page.";
+        $_SESSION['error_message'] = 'Veuillez vous connecter pour accéder à cette page.';
         header('Location: ../../View/templates/shared/login.php');
         exit();
     }
+
     $studentId = $_SESSION['id_student'];
-    $studentInfo = $db->selectOne("SELECT identifier FROM users WHERE id = :student_id", ['student_id' => $studentId]);
+    $studentInfo = $db->selectOne('SELECT identifier FROM users WHERE id = :student_id', [':student_id' => $studentId]);
 
     if (!$studentInfo || $proof['student_identifier'] !== $studentInfo['identifier']) {
         $_SESSION['error_message'] = "Vous n'êtes pas autorisé à modifier ce justificatif.";
@@ -77,12 +77,10 @@ try {
         exit();
     }
 
-    // Stocker les données du justificatif en session pour pré-remplir le formulaire
-    // Convertir les dates au format datetime-local (Y-m-d\TH:i)
+    // Format dates for datetime-local input
     $startDate = $proof['absence_start_date'];
     $endDate = $proof['absence_end_date'];
 
-    // Si les dates sont au format date seule, ajouter l'heure par défaut
     if (strlen($startDate) === 10) {
         $startDate .= 'T08:00';
     } else {
@@ -95,7 +93,6 @@ try {
         $endDate = date('Y-m-d\TH:i', strtotime($endDate));
     }
 
-    // Decode proof_files JSONB column
     $proofFiles = [];
     if (!empty($proof['proof_files'])) {
         if (is_array($proof['proof_files'])) {
@@ -119,12 +116,11 @@ try {
         'existing_files' => $proofFiles
     ];
 
-    // Rediriger vers la page de modification
     header('Location: ../../View/templates/student/proof_edit.php');
     exit();
 } catch (Exception $e) {
-    error_log("Erreur dans get_proof_for_edit.php : " . $e->getMessage());
-    $_SESSION['error_message'] = "Une erreur est survenue lors du chargement du justificatif.";
+    error_log('Error in get_proof_for_edit.php: ' . $e->getMessage());
+    $_SESSION['error_message'] = 'Une erreur est survenue lors du chargement du justificatif.';
     header('Location: ../../View/templates/student/proofs.php');
     exit();
 }

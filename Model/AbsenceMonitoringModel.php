@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/database.php';
 
 class AbsenceMonitoringModel
 {
-    private $db;
+    private Database $db;
 
     public function __construct()
     {
@@ -16,7 +18,7 @@ class AbsenceMonitoringModel
      * Only considers school days (Monday-Friday) and school hours (8AM-5PM)
      * Excludes students who have already submitted justifications for their absences
      */
-    public function getStudentsWithOngoingAbsences()
+    public function getStudentsWithOngoingAbsences(): array
     {
         $query = "
             SELECT 
@@ -60,7 +62,7 @@ class AbsenceMonitoringModel
      * A student is considered "returned" if they have no absences after their last recorded absence
      * and we're past the end of school day (5PM)
      */
-    public function hasStudentReturnedToClass($studentIdentifier, $lastAbsenceDate)
+    public function hasStudentReturnedToClass(string $studentIdentifier, string $lastAbsenceDate): bool
     {
         // Check if we're past school hours for the last absence date
         $timezone = new DateTimeZone('Europe/Paris');
@@ -101,8 +103,8 @@ class AbsenceMonitoringModel
         }
     }
 
-    //Record that a student has returned to class
-    public function recordStudentReturn($studentIdOrIdentifier, $absenceStartDateOrIdentifier, $absenceEndDateOrStartDate = null, $lastAbsenceDateOrEndDate = null, $lastAbsenceDateFinal = null)
+    // Record that a student has returned to class
+    public function recordStudentReturn(mixed $studentIdOrIdentifier, mixed $absenceStartDateOrIdentifier, mixed $absenceEndDateOrStartDate = null, mixed $lastAbsenceDateOrEndDate = null, ?string $lastAbsenceDateFinal = null): ?bool
     {
         // Handle two possible call signatures:
         // 1. recordStudentReturn($studentId, $studentIdentifier, $startDate, $endDate, $lastAbsenceDate)
@@ -172,8 +174,8 @@ class AbsenceMonitoringModel
         }
     }
 
-    //Get students who have returned but haven't been notified yet
-    public function getStudentsAwaitingReturnNotification()
+    // Get students who have returned but haven't been notified yet
+    public function getStudentsAwaitingReturnNotification(): array
     {
         $query = "
             SELECT 
@@ -202,8 +204,8 @@ class AbsenceMonitoringModel
         }
     }
 
-    //Mark return notification as sent
-    public function markReturnNotificationSent($monitoringId)
+    // Mark return notification as sent
+    public function markReturnNotificationSent(int $monitoringId): bool
     {
         $query = "
             UPDATE absence_monitoring
@@ -221,8 +223,8 @@ class AbsenceMonitoringModel
         }
     }
 
-    //Get students who need a reminder (24h after return notification, still not justified)
-    public function getStudentsNeedingReminder()
+    // Get students who need a reminder (24h after return notification, still not justified)
+    public function getStudentsNeedingReminder(): array
     {
         $query = "
             SELECT 
@@ -252,8 +254,8 @@ class AbsenceMonitoringModel
         }
     }
 
-    //Mark reminder notification as sent
-    public function markReminderNotificationSent($monitoringId)
+    // Mark reminder notification as sent
+    public function markReminderNotificationSent(int $monitoringId): bool
     {
         $query = "
             UPDATE absence_monitoring
@@ -271,8 +273,8 @@ class AbsenceMonitoringModel
         }
     }
 
-    //Check if student has justified their absences for a given period
-    public function updateJustificationStatus($studentIdentifier, $absenceStartDate, $absenceEndDate)
+    // Check if student has justified their absences for a given period
+    public function updateJustificationStatus(string $studentIdentifier, string $absenceStartDate, string $absenceEndDate): bool
     {
         // Check if there's a proof for this period
         $query = "
@@ -319,9 +321,9 @@ class AbsenceMonitoringModel
         }
     }
 
-    //Mark all overlapping monitoring records as justified when a proof is submitted
-    //This should be called immediately after a proof is submitted
-    public function markAsJustifiedByProof($studentIdentifier, $proofStartDate, $proofEndDate)
+    // Mark all overlapping monitoring records as justified when a proof is submitted
+    // This should be called immediately after a proof is submitted
+    public function markAsJustifiedByProof(string $studentIdentifier, string $proofStartDate, string $proofEndDate): int
     {
         $query = "
             UPDATE absence_monitoring
@@ -360,8 +362,8 @@ class AbsenceMonitoringModel
         }
     }
 
-    //Get absence details for a student and period
-    public function getAbsenceDetails($studentIdentifier, $startDate, $endDate)
+    // Get absence details for a student and period
+    public function getAbsenceDetails(string $studentIdentifier, string $startDate, string $endDate): array
     {
         $query = "
             SELECT 
@@ -394,8 +396,8 @@ class AbsenceMonitoringModel
         }
     }
 
-    //Clean up old monitoring records (older than 30 days)
-    public function cleanupOldRecords()
+    // Clean up old monitoring records (older than 30 days)
+    public function cleanupOldRecords(): int
     {
         $query = "
             DELETE FROM absence_monitoring
@@ -424,7 +426,7 @@ class AbsenceMonitoringModel
      * @param string $endDate End date of the period (YYYY-MM-DD)
      * @return int Number of half-days
      */
-    public function calculateHalfDays($studentIdentifier, $startDate, $endDate)
+    public function calculateHalfDays(string $studentIdentifier, string $startDate, string $endDate): int
     {
         $query = "
             SELECT 

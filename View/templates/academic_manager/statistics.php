@@ -1,20 +1,21 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: statistics.php
- * 
- * Template des statistiques pour le responsable pédagogique - Analyse complète et interactive des absences.
- * Fonctionnalités principales :
- * - Mode double : statistiques générales OU statistiques par étudiant
- * - Filtres avancés (dates, groupe, ressource, année, type de cours, étudiant)
- * - Cartes statistiques récapitulatives (total, heures, demi-journées, évaluations, taux de justification)
- * - Graphiques interactifs avec Chart.js :
- *   - Répartition par type de cours (camembert)
- *   - Répartition par ressource/matière (barres horizontales)
- *   - Évolution mensuelle des absences (ligne)
- *   - Répartition par semestre
- *   - Top 10 des étudiants les plus absents
- * - Export de données possible via les graphiques
- * Utilise AcademicManagerStatisticsPresenter pour les données et calculs.
+ * Statistics template for the academic manager - Complete and interactive absence analysis.
+ * Main features:
+ * - Dual mode: general statistics OR per-student statistics
+ * - Advanced filters (dates, group, resource, year, course type, student)
+ * - Summary statistical cards (total, hours, half-days, evaluations, justification rate)
+ * - Interactive charts with Chart.js:
+ *   - Distribution by course type (pie chart)
+ *   - Distribution by resource/subject (horizontal bars)
+ *   - Monthly absence trend (line chart)
+ *   - Distribution by semester
+ *   - Top 10 most absent students
+ * - Data export available via charts
+ * Uses AcademicManagerStatisticsPresenter for data and calculations.
  */
 ?>
 <!DOCTYPE html>
@@ -457,6 +458,7 @@
 
         // Student search functionality
         let searchTimeout;
+
         function searchStudent() {
             clearTimeout(searchTimeout);
             const query = document.getElementById('studentSearch').value;
@@ -529,7 +531,9 @@
                     responsive: true,
                     maintainAspectRatio: true,
                     plugins: {
-                        legend: { position: 'bottom' }
+                        legend: {
+                            position: 'bottom'
+                        }
                     }
                 }
             });
@@ -553,7 +557,9 @@
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
-                            legend: { display: false }
+                            legend: {
+                                display: false
+                            }
                         }
                     }
                 });
@@ -580,7 +586,9 @@
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
-                            legend: { display: false }
+                            legend: {
+                                display: false
+                            }
                         }
                     }
                 });
@@ -604,7 +612,9 @@
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
-                            legend: { position: 'bottom' }
+                            legend: {
+                                position: 'bottom'
+                            }
                         }
                     }
                 });
@@ -627,7 +637,9 @@
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
-                            legend: { position: 'bottom' }
+                            legend: {
+                                position: 'bottom'
+                            }
                         }
                     }
                 });
@@ -657,12 +669,16 @@
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
-                            legend: { display: false }
+                            legend: {
+                                display: false
+                            }
                         },
                         scales: {
                             x: {
                                 beginAtZero: true,
-                                ticks: { stepSize: 1 }
+                                ticks: {
+                                    stepSize: 1
+                                }
                             }
                         }
                     }
@@ -694,10 +710,12 @@
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
-                            legend: { display: false },
+                            legend: {
+                                display: false
+                            },
                             tooltip: {
                                 callbacks: {
-                                    label: function (context) {
+                                    label: function(context) {
                                         return context.parsed.x + '%';
                                     }
                                 }
@@ -708,7 +726,7 @@
                                 beginAtZero: true,
                                 max: 100,
                                 ticks: {
-                                    callback: function (value) {
+                                    callback: function(value) {
                                         return value + '%';
                                     }
                                 }
@@ -722,8 +740,7 @@
             <?php if (!empty($monthlyTrends['months'])): ?>
                 const monthlyTrendData = {
                     labels: <?php echo json_encode($monthlyTrends['months']); ?>,
-                    datasets: [
-                        {
+                    datasets: [{
                             label: 'Total',
                             data: <?php echo json_encode($monthlyTrends['total']); ?>,
                             borderColor: chartColors.primary,
@@ -761,7 +778,9 @@
                             intersect: false
                         },
                         plugins: {
-                            legend: { position: 'bottom' }
+                            legend: {
+                                position: 'bottom'
+                            }
                         }
                     }
                 });
@@ -770,7 +789,7 @@
             // Resource trends chart
             <?php if (!empty($resourceTrends['months'])): ?>
                 <?php
-                $datasetsJs = array_map(function($dataset) {
+                $datasetsJs = array_map(function ($dataset) {
                     return [
                         'label' => $dataset['label'],
                         'data' => $dataset['data'],
@@ -797,7 +816,9 @@
                             intersect: false
                         },
                         plugins: {
-                            legend: { position: 'bottom' }
+                            legend: {
+                                position: 'bottom'
+                            }
                         }
                     }
                 });
@@ -822,7 +843,9 @@
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
-                            legend: { display: false }
+                            legend: {
+                                display: false
+                            }
                         }
                     }
                 });

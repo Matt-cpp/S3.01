@@ -1,7 +1,7 @@
-// Configuration pour la gestion des fichiers multiples
+// Configuration for multiple file management
 const FILE_CONFIG = {
-  maxFileSize: 5 * 1024 * 1024, // 5MB par fichier
-  maxTotalSize: 20 * 1024 * 1024, // 20MB au total
+  maxFileSize: 5 * 1024 * 1024, // 5MB per file
+  maxTotalSize: 20 * 1024 * 1024, // 20MB total
   allowedExtensions: ["pdf", "jpg", "jpeg", "png", "doc", "docx"],
   mimeTypes: {
     pdf: "application/pdf",
@@ -13,10 +13,10 @@ const FILE_CONFIG = {
   },
 };
 
-// Variable globale pour stocker les fichiers sélectionnés
+// Global variable to store selected files
 let selectedFiles = [];
 
-//Ajoute de nouveaux fichiers à la sélection existante
+//Adds new files to the existing selection
 function addMoreFiles() {
   const fileInput = document.getElementById("proof_files");
   fileInput.click();
@@ -80,35 +80,35 @@ function validateDates() {
 }
 
 /**
- * Valide et affiche les fichiers sélectionnés
+ * Validates and displays selected files
  */
 function handleFileSelection(event) {
   const fileInput = event.target;
   const files = Array.from(fileInput.files);
 
-  // Ajouter les nouveaux fichiers à la liste existante au lieu de réinitialiser
+  // Add new files to existing list instead of resetting
   const newFiles = files.filter((newFile) => {
-    // Éviter les doublons basés sur le nom et la taille
+    // Avoid duplicates based on name and size
     return !selectedFiles.some(
       (existingFile) =>
         existingFile.name === newFile.name && existingFile.size === newFile.size
     );
   });
 
-  // Calculer la taille totale des fichiers existants
+  // Calculate total size of existing files
   let totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
   let errors = [];
 
-  // Valider chaque nouveau fichier
+  // Validate each new file
   newFiles.forEach((file, index) => {
-    // Vérifier l'extension
+    // Check extension
     const extension = file.name.split(".").pop().toLowerCase();
     if (!FILE_CONFIG.allowedExtensions.includes(extension)) {
       errors.push(`${file.name} : format non autorisé`);
       return;
     }
 
-    // Vérifier la taille du fichier
+    // Check file size
     if (file.size === 0) {
       errors.push(`${file.name} : fichier vide`);
       return;
@@ -122,19 +122,19 @@ function handleFileSelection(event) {
     totalSize += file.size;
   });
 
-  // Vérifier la taille totale
+  // Check total size
   if (totalSize > FILE_CONFIG.maxTotalSize) {
     errors.push(`Taille totale (${formatFileSize(totalSize)}) dépasse 20MB`);
   }
 
-  // Afficher les erreurs
+  // Display errors
   const warningDiv = document.getElementById("file_size_warning");
   if (errors.length > 0) {
     warningDiv.innerHTML =
       "<strong>Erreurs détectées :</strong><br>" + errors.join("<br>");
     warningDiv.style.display = "block";
 
-    // Si erreur critique, ne pas ajouter les nouveaux fichiers
+    // If critical error, do not add new files
     if (totalSize > FILE_CONFIG.maxTotalSize) {
       fileInput.value = "";
       return;
@@ -143,24 +143,24 @@ function handleFileSelection(event) {
     warningDiv.style.display = "none";
   }
 
-  // Ajouter les nouveaux fichiers validés
+  // Add validated new files
   selectedFiles.push(...newFiles);
 
-  // Mettre à jour le FileList de l'input avec tous les fichiers sélectionnés
+  // Update the input's FileList with all selected files
   updateFileInputWithSelectedFiles();
 
-  // Réinitialiser l'input pour permettre de sélectionner le même fichier à nouveau
+  // Reset input to allow selecting the same file again
   fileInput.value = "";
 
-  // Recalculer la taille totale finale
+  // Recalculate final total size
   totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
 
-  // Afficher l'aperçu des fichiers valides
+  // Display preview of valid files
   displayFilesPreview(selectedFiles, totalSize);
 }
 
 /**
- * Met à jour le FileList de l'input avec les fichiers sélectionnés
+ * Updates the input's FileList with selected files
  */
 function updateFileInputWithSelectedFiles() {
   const fileInput = document.getElementById("proof_files");
@@ -174,7 +174,7 @@ function updateFileInputWithSelectedFiles() {
 }
 
 /**
- * Affiche l'aperçu des fichiers sélectionnés
+ * Displays the preview of selected files
  */
 function displayFilesPreview(files, totalSize) {
   const previewDiv = document.getElementById("files_preview");
@@ -186,7 +186,7 @@ function displayFilesPreview(files, totalSize) {
     return;
   }
 
-  // Construire la liste des fichiers
+  // Build the file list
   let filesHtml = "";
   files.forEach((file, index) => {
     const extension = file.name.split(".").pop().toLowerCase();
@@ -212,7 +212,7 @@ function displayFilesPreview(files, totalSize) {
 
   filesListDiv.innerHTML = filesHtml;
 
-  // Afficher la taille totale
+  // Display total size
   const sizePercent = (totalSize / FILE_CONFIG.maxTotalSize) * 100;
   let sizeClass = "";
   if (sizePercent > 90) {
@@ -238,22 +238,22 @@ function displayFilesPreview(files, totalSize) {
 }
 
 /**
- * Supprime un fichier de la sélection
+ * Removes a file from the selection
  */
 function removeFile(index) {
-  // Supprimer le fichier du tableau
+  // Remove file from array
   selectedFiles.splice(index, 1);
 
-  // Mettre à jour le FileList
+  // Update the FileList
   updateFileInputWithSelectedFiles();
 
-  // Recalculer et afficher
+  // Recalculate and display
   const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
   displayFilesPreview(selectedFiles, totalSize);
 }
 
 /**
- * Obtient l'icône correspondant au type de fichier
+ * Gets the icon corresponding to the file type
  */
 function getFileIcon(extension) {
   const icons = {
@@ -268,7 +268,7 @@ function getFileIcon(extension) {
 }
 
 /**
- * Formate la taille du fichier
+ * Formats the file size
  */
 function formatFileSize(bytes) {
   if (bytes === 0) return "0 B";
@@ -279,7 +279,7 @@ function formatFileSize(bytes) {
 }
 
 /**
- * Échappe le HTML pour éviter les injections XSS
+ * Escapes HTML to prevent XSS injections
  */
 function escapeHtml(text) {
   const map = {
@@ -292,10 +292,10 @@ function escapeHtml(text) {
   return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
-// Modifier la fonction de validation existante
+// Modify the existing validation function
 function validateFileSize() {
-  // Cette fonction n'est plus nécessaire car la validation
-  // est faite dans handleFileSelection
+  // This function is no longer necessary as the validation
+  // is done in handleFileSelection
   return true;
 }
 
@@ -646,7 +646,7 @@ function calculateHoursBetween(startTime, endTime) {
 }
 
 // Function to calculate absence recap statistics
-// Règle : 1 demi-journée comptée si >= 1 minute d'absence dans le créneau 8h-12h30 ou 12h30-18h30
+// Rule: 1 half-day counted if >= 1 minute of absence in the 8:00-12:30 or 12:30-18:30 time slot
 function calculateAbsenceStats() {
   var stats = {
     totalHours: 0,
@@ -916,7 +916,7 @@ window.addEventListener("DOMContentLoaded", function () {
   // Check submission delay on page load
   checkSubmissionDelay();
 
-  // Pré-remplir les dates si elles sont passées en paramètre URL (depuis la page absences)
+  // Pre-fill dates if passed as URL parameters (from the absences page)
   var urlParams = new URLSearchParams(window.location.search);
   var prefillStart = urlParams.get('prefill_start');
   var prefillEnd = urlParams.get('prefill_end');
@@ -932,7 +932,7 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Si nous sommes en mode édition et que les dates sont déjà remplies, charger les cours automatiquement
+  // If we are in edit mode and dates are already filled, load courses automatically
   if (window.isEditing) {
     var dateStart = document.getElementById("datetime_start").value;
     var dateEnd = document.getElementById("datetime_end").value;
@@ -963,7 +963,7 @@ window.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-  // Remplacer l'ancien écouteur de fichier par le nouveau pour fichiers multiples
+  // Replace the old file listener with the new one for multiple files
   // Only attach if not in edit mode (edit mode uses student_proof_edit.js)
   const fileInput = document.getElementById("proof_files");
   if (fileInput && !window.isEditing) {

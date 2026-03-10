@@ -1,15 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: dashboard_presenter.php
- * 
- * Présentateur du tableau de bord étudiant - Gère la récupération et le calcul des données
- * pour la page d'accueil de l'étudiant.
- * Fournit des méthodes pour :
- * - Récupérer les statistiques d'absences (avec cache de session)
- * - Récupérer les justificatifs par catégorie
- * - Récupérer les absences récentes
- * - Calculer le pourcentage de justification
- * - Calculer les demi-points perdus
+ * File: dashboard_presenter.php
+ *
+ * Student dashboard presenter – handles data retrieval and calculation
+ * for the student home page.
+ * Provides methods to:
+ * - Retrieve absence statistics (with session cache)
+ * - Retrieve proofs by category
+ * - Retrieve recent absences
+ * - Calculate justification percentage
+ * - Calculate half-points lost
  */
 
 require_once __DIR__ . '/../shared/session_cache.php';
@@ -17,21 +20,21 @@ require_once __DIR__ . '/get_info.php';
 
 class StudentDashboardPresenter
 {
-    private $studentId;
-    private $stats;
-    private $proofsByCategory;
-    private $recentAbsences;
+    private int $studentId;
+    private array $stats;
+    private array $proofsByCategory;
+    private array $recentAbsences;
 
-    public function __construct($studentId, $forceRefresh = false)
+    public function __construct(int $studentId, bool $forceRefresh = false)
     {
         $this->studentId = $studentId;
         $this->loadData($forceRefresh);
     }
 
     /**
-     * Charge les données depuis le cache ou la BDD
+     * Load data from cache or database
      */
-    private function loadData($forceRefresh)
+    private function loadData(bool $forceRefresh): void
     {
         if (
             $forceRefresh ||
@@ -53,33 +56,33 @@ class StudentDashboardPresenter
     }
 
     /**
-     * Retourne les statistiques d'absences
+     * Returns absence statistics
      */
-    public function getStats()
+    public function getStats(): array
     {
         return $this->stats;
     }
 
     /**
-     * Retourne les justificatifs classés par catégorie
+     * Returns proofs sorted by category
      */
-    public function getProofsByCategory()
+    public function getProofsByCategory(): array
     {
         return $this->proofsByCategory;
     }
 
     /**
-     * Retourne les absences récentes
+     * Returns recent absences
      */
-    public function getRecentAbsences()
+    public function getRecentAbsences(): array
     {
         return $this->recentAbsences;
     }
 
     /**
-     * Calcule le pourcentage de justification
+     * Calculates the justification percentage
      */
-    public function getJustificationPercentage()
+    public function getJustificationPercentage(): float
     {
         return $this->stats['total_half_days'] > 0
             ? round(($this->stats['half_days_justified'] / $this->stats['total_half_days']) * 100, 1)
@@ -87,9 +90,9 @@ class StudentDashboardPresenter
     }
 
     /**
-     * Calcule les demi-points perdus (5 demi-journées non justifiées = 0,5 point perdu)
+     * Calculates half-points lost (5 unjustified half-days = 0.5 point lost)
      */
-    public function getHalfPointsLost()
+    public function getHalfPointsLost(): float
     {
         $raw = (int) $this->stats['half_days_unjustified'] / 10;
         $temp = 0;

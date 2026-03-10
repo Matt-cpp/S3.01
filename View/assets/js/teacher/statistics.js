@@ -406,7 +406,7 @@ function applyFilters() {
   window.location.href = `statistics.php?${params.toString()}`;
 }
 
-// ===== TENDANCES PAR MATIÈRE (Top 5) =====
+// ===== TRENDS BY SUBJECT (Top 5) =====
 function initSubjectTrendsChart() {
   const ctx = document.getElementById("subjectTrendsChart");
   if (!ctx) return;
@@ -479,11 +479,11 @@ function initSubjectTrendsChart() {
       ? statsData.subjectTrends
       : defaultTrends;
 
-  // S'assurer que chaque dataset n'a PAS de fill
+  // Make sure each dataset does NOT have fill
   const colors = ["#5c6bc0", "#9575cd", "#f44336", "#4caf50", "#ff9800"];
   if (data.datasets) {
     data.datasets.forEach((dataset, index) => {
-      dataset.fill = false; // Pas de remplissage
+      dataset.fill = false; // No fill
       dataset.tension = 0.4;
       dataset.pointRadius = 5;
       dataset.borderWidth = 2;
@@ -527,7 +527,7 @@ function initSubjectTrendsChart() {
   });
 }
 
-// ===== MODAL DÉTAILS ÉTUDIANT =====
+// ===== STUDENT DETAILS MODAL =====
 let studentCourseTypeChartInstance = null;
 let studentSubjectChartInstance = null;
 

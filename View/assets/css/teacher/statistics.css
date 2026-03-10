@@ -425,7 +425,7 @@ body {
     color: #ffffff;
 }
 
-/* ===== TENDANCES PAR MATIÈRE ===== */
+/* ===== TRENDS BY SUBJECT ===== */
 #subjectTrendsChart {
     width: 100% !important;
     height: 100% !important;
@@ -563,7 +563,7 @@ body {
     box-shadow: 0 5px 15px rgba(0, 129, 161, 0.4);
 }
 
-/* ===== MODAL DÉTAILS ÉTUDIANT ===== */
+/* ===== STUDENT DETAILS MODAL ===== */
 .modal-overlay {
     position: fixed;
     top: 0;

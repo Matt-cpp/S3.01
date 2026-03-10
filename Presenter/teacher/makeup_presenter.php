@@ -1,14 +1,14 @@
-<meta charset="UTF-8">
 <?php
-// Classe permettant la planification des rattrapages par les professeurs
-class planificationRattrapage
-{
-    private $db;
-    private $userId;
-    private $lesDs;
-    private $emailService;
 
-    //constructeur
+declare(strict_types=1);
+
+// Handles makeup scheduling for teachers
+class MakeupSchedulingPresenter
+{
+    private Database $db;
+    private int $userId;
+    private EmailService $emailService;
+
     public function __construct(int $id)
     {
         require_once __DIR__ . '/../../Model/database.php';
@@ -17,8 +17,9 @@ class planificationRattrapage
         $this->userId = $this->linkTeacherUser($id);
         $this->emailService = new EmailService();
     }
-    //Permet de lier l'id du proffesseur avec l'id de l'utilisateur connecté via le mail
-    private function linkTeacherUser(int $id)
+
+    // Link the teacher ID with the connected user ID via email
+    private function linkTeacherUser(int $id): int
     {
         $query = "SELECT teachers.id as id
         FROM users LEFT JOIN teachers ON teachers.email = users.email
@@ -27,8 +28,8 @@ class planificationRattrapage
         return $result[0]['id'];
     }
 
-    // Fonction pour récupérer les ds avec des absences justifiées non rattrapées
-    public function getLesDs()
+    // Retrieve exams with justified absences that haven't been made up yet
+    public function getExams(): array
     {
         $query = "SELECT DISTINCT cs.id, cs.course_date, cs.start_time, 
                     r.label as resource_label, r.code as resource_code,
@@ -49,8 +50,8 @@ class planificationRattrapage
         return $result;
     }
 
-    // Fonction pour récupérer les élèves absents non rattrapés
-    public function getLesEleves($dsId)
+    // Retrieve absent students who haven't made up yet
+    public function getStudents(int $examId): array
     {
         $query = "SELECT a.id, cs.id as courseId, u.identifier, 
                   u.first_name, u.last_name, r.label, cs.course_date
@@ -59,7 +60,7 @@ class planificationRattrapage
         LEFT JOIN users u ON a.student_identifier = u.identifier
         LEFT JOIN resources r ON cs.resource_id = r.id
         LEFT JOIN makeups m ON m.absence_id = a.id
-        WHERE cs.id = " . intval($dsId) . " 
+        WHERE cs.id = " . intval($examId) . " 
             AND a.justified = true
             AND m.id IS NULL
         ORDER BY cs.course_date DESC";
@@ -70,76 +71,76 @@ class planificationRattrapage
     }
 
     /**
-     * Récupère toutes les salles disponibles
+     * Retrieve all available rooms
      */
-    public function getAllRooms()
+    public function getAllRooms(): array
     {
         return $this->db->select("SELECT id, code FROM rooms ORDER BY code ASC");
     }
 
     /**
-     * Récupère ou crée une salle par code
-     * @return int|null L'ID de la salle
+     * Retrieve or create a room by code
+     * @return int|null The room ID
      */
-    public function getOrCreateRoom($salleId, $newSalleCode)
+    public function getOrCreateRoom(?string $roomId, ?string $newRoomCode): ?int
     {
-        if ($salleId && $salleId !== 'new') {
-            return intval($salleId);
+        if ($roomId && $roomId !== 'new') {
+            return intval($roomId);
         }
 
-        if (!$newSalleCode) {
+        if (!$newRoomCode) {
             return null;
         }
 
-        $existingRoom = $this->db->selectOne("SELECT id FROM rooms WHERE code = :code", [':code' => $newSalleCode]);
+        $existingRoom = $this->db->selectOne("SELECT id FROM rooms WHERE code = :code", [':code' => $newRoomCode]);
         if ($existingRoom) {
             return $existingRoom['id'];
         }
 
-        $this->db->execute("INSERT INTO rooms (code) VALUES (:code)", [':code' => $newSalleCode]);
+        $this->db->execute("INSERT INTO rooms (code) VALUES (:code)", [':code' => $newRoomCode]);
         return $this->db->lastInsertId();
     }
 
     /**
-     * Planifie un rattrapage pour tous les élèves d'un DS
+     * Schedule makeups for all students of an exam
      * @return array ['success' => bool, 'message' => string, 'count' => int]
      */
-    public function scheduleMakeups($dsId, $date, $duree, $salleId, $newSalleCode, $comment)
+    public function scheduleMakeups(int $examId, string $date, string $duration, ?string $roomId, ?string $newRoomCode, ?string $comment): array
     {
-        if (!$dsId || !$date || !$duree) {
-            return ['success' => false, 'message' => 'Veuillez remplir tous les champs obligatoires.', 'count' => 0];
+        if (!$examId || !$date || !$duration) {
+            return ['success' => false, 'message' => 'Please fill in all required fields.', 'count' => 0];
         }
 
-        $roomId = $this->getOrCreateRoom($salleId, $newSalleCode);
-        $lesEleves = $this->getLesEleves($dsId);
+        $roomResolvedId = $this->getOrCreateRoom($roomId, $newRoomCode);
+        $students = $this->getStudents($examId);
         $count = 0;
 
-        foreach ($lesEleves as $eleve) {
-            $this->insererRattrapage(
-                $eleve['id'],
-                $dsId,
-                $eleve['identifier'],
+        foreach ($students as $student) {
+            $this->insertMakeupSession(
+                $student['id'],
+                $examId,
+                $student['identifier'],
                 $date,
-                $roomId,
-                intval($duree),
+                $roomResolvedId,
+                intval($duration),
                 $comment
             );
             $count++;
         }
 
-        return ['success' => true, 'message' => "Rattrapage planifié avec succès pour {$count} étudiant(s) !", 'count' => $count];
+        return ['success' => true, 'message' => "Makeup scheduled successfully for {$count} student(s)!", 'count' => $count];
     }
 
-    public function insererRattrapage($idAbs, $evalId, $studentId, $dateRattrapage, $roomId = null, $durationMinutes = null, $comment = null)
+    public function insertMakeupSession(int $absenceId, int $evalId, string $studentId, string $makeupDate, ?int $roomId = null, ?int $durationMinutes = null, ?string $comment = null): bool
     {
-        // Insérer le nouveau rattrapage
+        // Insert the new makeup session
         $insertQuery = "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, scheduled, makeup_date, room_id, duration_minutes, comment) 
                         VALUES (:absence_id, :evaluation_slot_id, :student_identifier, true, :makeup_date, :room_id, :duration_minutes, :comment)";
         $insertParams = [
-            ':absence_id' => $idAbs,
+            ':absence_id' => $absenceId,
             ':evaluation_slot_id' => $evalId,
             ':student_identifier' => $studentId,
-            ':makeup_date' => $dateRattrapage,
+            ':makeup_date' => $makeupDate,
             ':room_id' => $roomId,
             ':duration_minutes' => $durationMinutes,
             ':comment' => $comment
@@ -148,7 +149,7 @@ class planificationRattrapage
         $this->db->execute($insertQuery, $insertParams);
 
         // Send email notification to student with room and duration info
-        $this->sendMakeupNotificationEmail($studentId, $evalId, $dateRattrapage, $roomId, $durationMinutes, $comment);
+        $this->sendMakeupNotificationEmail($studentId, $evalId, $makeupDate, $roomId, $durationMinutes, $comment);
 
         return true;
     }
@@ -156,7 +157,7 @@ class planificationRattrapage
     /**
      * Send email notification to student about makeup session
      */
-    private function sendMakeupNotificationEmail($studentId, $evalId, $makeupDate, $roomId = null, $durationMinutes = null, $comment = null)
+    private function sendMakeupNotificationEmail(string $studentId, int $evalId, string $makeupDate, ?int $roomId = null, ?int $durationMinutes = null, ?string $comment = null): void
     {
         try {
             // Get student information
@@ -235,9 +236,9 @@ class planificationRattrapage
     /**
      * Generate HTML email body for makeup notification
      */
-    private function generateMakeupEmailBody($firstName, $lastName, $resource, $courseType, $courseDate, $startTime, $endTime, $makeupDate, $room, $duration, $comment)
+    private function generateMakeupEmailBody(string $firstName, string $lastName, string $resource, string $courseType, string $courseDate, string $startTime, string $endTime, string $makeupDate, string $room, string $duration, string $commentText): string
     {
-        $commentSection = $comment ? "<div class='info-box'><strong>Commentaire de l'enseignant :</strong><p>{$comment}</p></div>" : "";
+        $commentSection = $commentText ? "<div class='info-box'><strong>Commentaire de l'enseignant :</strong><p>{$commentText}</p></div>" : "";
 
         return <<<HTML
 <!DOCTYPE html>
@@ -329,37 +330,3 @@ class planificationRattrapage
 HTML;
     }
 }
-
-
-
-/*Test
-try {
-    $test = new tableRatrapage(2);
-
-    echo "<h3>DS à faire rattraper :</h3>";
-    $data = $test->getLesDs();
-
-    if (empty($data)) {
-        echo "Aucun DS à rattraper<br>";
-    } else {
-        foreach($data as $ligne){
-            echo "DS ID: " . htmlspecialchars($ligne['id']) . "<br>";
-        }
-    }
-
-    echo "<h3>Élèves absents pour le DS #2 :</h3>";
-    $lesEleves = $test->getLesEleves(2);
-
-    if (empty($lesEleves)) {
-        echo "Aucun élève absent non rattrapé<br>";
-    } else {
-        foreach($lesEleves as $eleve){
-            echo htmlspecialchars($eleve['first_name']) . " " . htmlspecialchars($eleve['last_name']) . "<br>";
-        }
-    }
-
-} catch (Exception $e) {
-    error_log("ERREUR : " . $e->getMessage());
-    echo "Une erreur est survenue. Consultez les logs.";
-}
-?>*/

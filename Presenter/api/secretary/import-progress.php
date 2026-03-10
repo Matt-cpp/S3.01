@@ -1,13 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: import-progress.php
- * 
- * API de suivi de progression d'import - Retourne l'état en temps réel d'une importation CSV.
- * Fonctionnalités principales :
- * - Récupération de l'état depuis import_jobs par ID
- * - Informations retournées : status, total_rows, processed_rows, message
- * - Permet le polling côté client pour suivre la progression
- * Utilisé par le dashboard secrétaire pour afficher la barre de progression d'import.
+ * Import progress tracking API - Returns the real-time status of a CSV import.
+ * Main features:
+ * - Status retrieval from import_jobs by ID
+ * - Information returned: status, total_rows, processed_rows, message
+ * - Allows client-side polling to track progress
+ * Used by the secretary dashboard to display the import progress bar.
  */
 
 header('Content-Type: application/json');
@@ -49,7 +50,6 @@ try {
         'message' => $job['message'] ?? 'En cours...',
         'total_processed' => $job['processed_rows']
     ]);
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);
