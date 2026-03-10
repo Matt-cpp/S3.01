@@ -84,33 +84,7 @@ body {
     margin-bottom: 2rem;
 }
 
-@media (max-width: 1200px) {
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* Tablettes moyennes (769px - 992px) */
-@media (min-width: 769px) and (max-width: 992px) {
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.25rem;
-    }
-    
-    .stat-card {
-        padding: 1.25rem;
-    }
-    
-    .stat-number {
-        font-size: 2rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-}
+/* Responsive styles pour stats-grid gérés dans responsive.css et responsive-mobile.css */
 
 .stat-card {
     background: white;
