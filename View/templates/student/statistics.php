@@ -28,6 +28,8 @@
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="../../assets/css/student/statistics.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
     <link rel="stylesheet" href="../../assets/css/shared/navbar.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -211,18 +213,18 @@
                     <tbody>
                         <?php foreach ($recentAbsences as $absence): ?>
                             <tr>
-                                <td><?php echo date('d/m/Y', strtotime($absence['course_date'])); ?></td>
-                                <td><?php echo substr($absence['start_time'], 0, 5) . ' - ' . substr($absence['end_time'], 0, 5); ?>
+                                <td data-label="Date"><?php echo date('d/m/Y', strtotime($absence['course_date'])); ?></td>
+                                <td data-label="Horaire"><?php echo substr($absence['start_time'], 0, 5) . ' - ' . substr($absence['end_time'], 0, 5); ?>
                                 </td>
-                                <td><?php echo htmlspecialchars($absence['resource_name'] ?? 'N/A'); ?></td>
-                                <td>
+                                <td data-label="Matière"><?php echo htmlspecialchars($absence['resource_name'] ?? 'N/A'); ?></td>
+                                <td data-label="Type">
                                     <?php echo htmlspecialchars($absence['course_type']); ?>
                                     <?php if ($absence['is_evaluation']): ?>
                                         <span class="status-badge status-evaluation">📝</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?php echo htmlspecialchars($absence['teacher_name'] ?? 'N/A'); ?></td>
-                                <td>
+                                <td data-label="Enseignant"><?php echo htmlspecialchars($absence['teacher_name'] ?? 'N/A'); ?></td>
+                                <td data-label="Statut">
                                     <?php if ($absence['justified']): ?>
                                         <span class="status-badge status-justified">Justifiée</span>
                                     <?php else: ?>
@@ -290,10 +292,14 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                position: 'right',
+                                position: window.innerWidth < 576 ? 'bottom' : 'right',
                                 labels: {
-                                    padding: 15,
-                                    usePointStyle: true
+                                    padding: window.innerWidth < 576 ? 10 : 15,
+                                    usePointStyle: true,
+                                    font: {
+                                        size: window.innerWidth < 576 ? 10 : 12
+                                    },
+                                    boxWidth: window.innerWidth < 576 ? 12 : 15
                                 }
                             }
                         }
@@ -329,7 +335,24 @@
                             x: {
                                 beginAtZero: true,
                                 ticks: {
-                                    stepSize: 1
+                                    stepSize: 1,
+                                    font: {
+                                        size: window.innerWidth < 576 ? 10 : 12
+                                    }
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    font: {
+                                        size: window.innerWidth < 576 ? 9 : 11
+                                    },
+                                    callback: function(value) {
+                                        const label = this.getLabelForValue(value);
+                                        if (window.innerWidth < 576 && label.length > 15) {
+                                            return label.substring(0, 12) + '...';
+                                        }
+                                        return label.length > 20 ? label.substring(0, 18) + '...' : label;
+                                    }
                                 }
                             }
                         }
@@ -376,14 +399,33 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                position: 'top'
+                                position: window.innerWidth < 576 ? 'bottom' : 'top',
+                                labels: {
+                                    padding: window.innerWidth < 576 ? 8 : 15,
+                                    usePointStyle: true,
+                                    font: {
+                                        size: window.innerWidth < 576 ? 10 : 12
+                                    },
+                                    boxWidth: window.innerWidth < 576 ? 8 : 12
+                                }
                             }
                         },
                         scales: {
                             y: {
                                 beginAtZero: true,
                                 ticks: {
-                                    stepSize: 1
+                                    stepSize: 1,
+                                    font: {
+                                        size: window.innerWidth < 576 ? 10 : 12
+                                    }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        size: window.innerWidth < 576 ? 9 : 11
+                                    },
+                                    maxRotation: window.innerWidth < 576 ? 45 : 0
                                 }
                             }
                         }

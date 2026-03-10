@@ -1,0 +1,757 @@
+/**
+ * Fichier: responsive-mobile.css
+ * Styles responsive MOBILE (< 576px) COMMUNS pour toutes les pages
+ */
+
+/* =============================================
+   MOBILE - BASE
+   ============================================= */
+
+@media (max-width: 576px) {
+
+    body {
+        font-size: 14px;
+    }
+
+    main,
+    .dashboard-container {
+        padding: 10px !important;
+    }
+
+    /* =============================================
+       MOBILE - TITRES
+       ============================================= */
+
+    .page-title,
+    .dashboard-title,
+    h1 {
+        font-size: 1.4rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    h2,
+    .section-heading {
+        font-size: 1.1rem !important;
+    }
+
+    .section-title {
+        font-size: 1rem !important;
+    }
+
+    /* =============================================
+       MOBILE - CARDS (Overview, Stats, Proof)
+       ============================================= */
+
+    .overview-section,
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .overview-card,
+    .stat-card {
+        padding: 1rem !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 1rem !important;
+        min-height: 70px;
+    }
+
+    .overview-card .card-content,
+    .stat-card .card-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .card-value,
+    .stat-number {
+        font-size: 1.8rem !important;
+    }
+
+    .card-label,
+    .card-description,
+    .stat-title {
+        font-size: 0.75rem !important;
+    }
+
+    /* =============================================
+       MOBILE - PROGRESS BAR
+       ============================================= */
+
+    .justification-progress-section {
+        padding: 1rem !important;
+    }
+
+    .progress-info {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+
+    .progress-label {
+        font-size: 0.85rem !important;
+    }
+
+    .progress-percentage {
+        font-size: 1.4rem !important;
+    }
+
+    .progress-bar {
+        height: 25px !important;
+    }
+
+    .progress-legend {
+        flex-direction: column !important;
+        gap: 8px !important;
+        align-items: flex-start !important;
+    }
+
+    /* =============================================
+       MOBILE - FILTERS
+       ============================================= */
+
+    .filter-form,
+    .filters,
+    .filters-form,
+    .filters-content {
+        padding: 12px !important;
+    }
+
+    .filter-grid,
+    .filter-row,
+    .filters-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    .button-container {
+        flex-direction: column !important;
+    }
+
+    .button-container button,
+    .button-container .reset-link {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    /* =============================================
+       MOBILE - TABLES (Card view)
+       ============================================= */
+
+    .table-container,
+    .absences-table-container {
+        overflow-x: visible !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .absences-table thead,
+    #absenceTable thead,
+    table thead {
+        display: none !important;
+    }
+
+    .absences-table,
+    #absenceTable,
+    table {
+        display: block !important;
+        width: 100% !important;
+        min-width: unset !important;
+        font-size: 0.85rem !important;
+    }
+
+    .absences-table tbody,
+    #absenceTable tbody,
+    table tbody {
+        display: block !important;
+    }
+
+    .absences-table tr,
+    #absenceTable tr,
+    table tr {
+        display: block !important;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        padding: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .absences-table tr:hover,
+    #absenceTable tr:hover,
+    table tr:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .absences-table td,
+    #absenceTable td,
+    table td {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0 !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .absences-table td:last-child,
+    #absenceTable td:last-child,
+    table td:last-child {
+        border-bottom: none !important;
+    }
+
+    .absences-table td::before,
+    #absenceTable td::before,
+    table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6b7280;
+        flex: 1;
+        font-size: 0.8rem;
+    }
+
+    table td:not([data-label])::before {
+        content: none;
+    }
+
+    /* =============================================
+       MOBILE - ABSENCE TABLE OPTIMIZATION
+       ============================================= */
+
+    /* Cacher les colonnes moins essentielles sur mobile (visibles dans le modal) */
+    #absenceTable td[data-label="Enseignant"],
+    #absenceTable td[data-label="Salle"],
+    #absenceTable td[data-label="Motif"] {
+        display: none !important;
+    }
+
+    /* Style amélioré pour les cartes d'absence */
+    #absenceTable tr {
+        position: relative;
+        padding: 14px !important;
+        padding-right: 8px !important;
+    }
+
+    /* Mettre le statut en évidence */
+    #absenceTable td[data-label="Statut"] {
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        margin-top: 8px;
+        padding: 10px !important;
+    }
+
+    #absenceTable td[data-label="Statut"] .badge {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Améliorer l'affichage Date/Horaire sur une ligne */
+    #absenceTable td[data-label="Date"],
+    #absenceTable td[data-label="Horaire"] {
+        font-weight: 600;
+        color: #0081A1;
+    }
+
+    /* =============================================
+       MOBILE - CLICKABLE ROWS
+       ============================================= */
+
+    .clickable-row,
+    .absence-row {
+        -webkit-tap-highlight-color: rgba(0, 129, 161, 0.2);
+        touch-action: manipulation;
+    }
+
+    .clickable-row:active,
+    .absence-row:active {
+        transform: scale(0.98);
+        background: #f0f9ff !important;
+    }
+
+    /* =============================================
+       MOBILE - BADGES
+       ============================================= */
+
+    .badge {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.7rem !important;
+    }
+
+    .course-type-badge {
+        padding: 0.2rem 0.4rem !important;
+        font-size: 0.65rem !important;
+    }
+
+    .status-badge {
+        padding: 4px 8px !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* =============================================
+       MOBILE - SECTIONS
+       ============================================= */
+
+    .absences-section,
+    .proofs-status-section,
+    .section,
+    .card {
+        padding: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .absences-subtitle {
+        font-size: 0.8rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* =============================================
+       MOBILE - PROOF CARDS
+       ============================================= */
+
+    .proofs-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    .proof-card {
+        padding: 12px !important;
+        min-height: 100px;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        touch-action: manipulation;
+    }
+
+    .proof-card:active {
+        transform: scale(0.97);
+        opacity: 0.9;
+    }
+
+    .proof-icon {
+        font-size: 1.8rem !important;
+        margin-bottom: 0.4rem !important;
+    }
+
+    .proof-count {
+        font-size: 1.8rem !important;
+    }
+
+    .proof-label {
+        font-size: 0.85rem !important;
+    }
+
+    .proof-description {
+        display: none !important;
+    }
+
+    .proof-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* =============================================
+       MOBILE - ALERT BOXES
+       ============================================= */
+
+    .alert-box,
+    .error-message,
+    .success-message {
+        flex-direction: column !important;
+        padding: 1rem !important;
+        gap: 0.75rem !important;
+    }
+
+    .alert-icon {
+        font-size: 1.5rem !important;
+    }
+
+    .alert-title {
+        font-size: 1rem !important;
+    }
+
+    .alert-message {
+        font-size: 0.85rem !important;
+    }
+
+    .alert-action {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    /* =============================================
+       MOBILE - MISC
+       ============================================= */
+
+    .points-penalty {
+        padding: 0.75rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    .btn-add-info {
+        width: 100% !important;
+        text-align: center !important;
+        padding: 8px 12px !important;
+        margin-top: 8px !important;
+    }
+
+    /* =============================================
+       MOBILE - MODAL
+       ============================================= */
+
+    .modal-content {
+        width: 95% !important;
+        max-width: none !important;
+        max-height: 85vh !important;
+        margin: 10px !important;
+    }
+
+    .modal-title {
+        font-size: 1.2rem !important;
+        padding: 15px !important;
+    }
+
+    .modal-body {
+        padding: 15px !important;
+    }
+
+    .modal-info-group {
+        padding: 12px !important;
+    }
+
+    .modal-info-item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 4px !important;
+    }
+
+    .modal-label {
+        font-size: 0.8rem !important;
+    }
+
+    .modal-value {
+        font-size: 0.9rem !important;
+    }
+
+    .modal-close {
+        width: 35px !important;
+        height: 35px !important;
+        font-size: 1.5rem !important;
+    }
+
+    .modal-status-section {
+        flex-direction: column !important;
+        gap: 10px !important;
+        padding: 12px !important;
+    }
+
+    /* =============================================
+       MOBILE - FORMS
+       ============================================= */
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="date"],
+    input[type="number"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+
+    .btn:not(.lang-toggle-btn),
+    button:not(.lang-toggle-btn):not(.modal-close) {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .lang-toggle-btn,
+    .modal-close,
+    .btn-add-info,
+    .alert-action {
+        width: auto !important;
+    }
+
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-group .btn {
+        border-radius: 6px !important;
+        margin: 4px 0 !important;
+    }
+
+    /* =============================================
+       MOBILE - PAGINATION
+       ============================================= */
+
+    .pagination {
+        flex-wrap: wrap;
+        gap: 5px;
+        justify-content: center;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 8px 12px !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* =============================================
+       MOBILE - PROOF LIST (Academic Manager)
+       ============================================= */
+
+    .proof-list {
+        gap: 10px !important;
+    }
+
+    .proof-item {
+        padding: 12px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+
+    .proof-actions {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+    }
+
+    .proof-actions .btn {
+        flex: 1;
+    }
+
+    /* =============================================
+       MOBILE - STATISTICS PAGES (Teacher & Academic Manager)
+       ============================================= */
+
+    /* Container principal plus large sur mobile */
+    .statistics-container,
+    .main-content {
+        width: 100% !important;
+        padding: 1rem !important;
+        margin: 0 !important;
+    }
+
+    /* Header stats */
+    .stats-header {
+        padding: 1rem !important;
+        border-radius: 12px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .stats-header h1 {
+        font-size: 1.4rem !important;
+    }
+
+    .stats-header .subtitle,
+    .stats-header p,
+    .stats-title p {
+        font-size: 0.85rem !important;
+    }
+
+    .stats-title {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 8px !important;
+    }
+
+    /* KPI Cards */
+    .kpi-cards {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    .kpi-card {
+        padding: 14px !important;
+        border-radius: 12px !important;
+    }
+
+    .kpi-value {
+        font-size: 1.8rem !important;
+    }
+
+    .kpi-label {
+        font-size: 0.8rem !important;
+    }
+
+    /* Filtres */
+    .filters-container,
+    .filters-section {
+        border-radius: 12px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .toggle-filters-btn,
+    .filters-header {
+        padding: 1rem !important;
+        font-size: 0.95rem !important;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+    }
+
+    .filter-actions {
+        flex-direction: column !important;
+    }
+
+    .filter-actions .btn {
+        width: 100% !important;
+    }
+
+    /* Charts */
+    .charts-section,
+    .charts-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    .chart-card {
+        padding: 1rem !important;
+        border-radius: 12px !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .chart-card h3 {
+        font-size: 0.95rem !important;
+        margin-bottom: 12px !important;
+    }
+
+    .chart-container {
+        height: 200px !important;
+    }
+
+    .chart-container-large {
+        height: 250px !important;
+    }
+
+    .chart-legend {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .chart-legend-item {
+        font-size: 11px !important;
+    }
+
+    /* Semester cards */
+    .semester-cards {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .semester-card {
+        padding: 1rem !important;
+        border-radius: 12px !important;
+    }
+
+    .semester-card h3 {
+        font-size: 1rem !important;
+    }
+
+    .semester-chart {
+        width: 100px !important;
+        height: 100px !important;
+    }
+
+    /* Top students table */
+    .top-students-table {
+        font-size: 0.85rem !important;
+    }
+
+    .top-students-table th,
+    .top-students-table td {
+        padding: 8px !important;
+    }
+
+    /* Section titles */
+    .section-title h2 {
+        font-size: 1.1rem !important;
+    }
+
+    /* Search box */
+    .student-search-container {
+        padding: 1rem !important;
+        border-radius: 12px !important;
+    }
+
+    .search-box input {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.95rem !important;
+    }
+
+}
+
+/* =============================================
+   TRÈS PETITS ÉCRANS (< 400px)
+   ============================================= */
+
+@media (max-width: 400px) {
+
+    .proofs-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .proof-card {
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+        gap: 12px !important;
+        padding: 10px 14px !important;
+    }
+
+    .proof-card .proof-icon {
+        font-size: 1.5rem !important;
+        margin-bottom: 0 !important;
+    }
+
+    .proof-card .proof-content {
+        align-items: flex-start !important;
+    }
+
+    .proof-card .proof-count {
+        font-size: 1.4rem !important;
+    }
+
+    .proof-card .proof-label {
+        font-size: 0.8rem !important;
+    }
+
+    .proof-card .proof-description {
+        display: block !important;
+        font-size: 0.65rem !important;
+    }
+
+    .overview-card,
+    .stat-card {
+        padding: 0.75rem !important;
+        gap: 0.75rem !important;
+    }
+
+    .card-value,
+    .stat-number {
+        font-size: 1.5rem !important;
+    }
+
+    .card-label,
+    .card-description,
+    .stat-title {
+        font-size: 0.7rem !important;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 6px 10px !important;
+        font-size: 0.8rem !important;
+    }
+
+}

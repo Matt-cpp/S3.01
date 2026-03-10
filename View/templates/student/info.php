@@ -31,6 +31,8 @@ if (!isset($_SESSION['id_student'])) {
     <title>Informations et Procédure</title>
 
     <link rel="stylesheet" href="../../assets/css/student/info.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
 </head>

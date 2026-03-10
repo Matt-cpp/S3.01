@@ -28,6 +28,8 @@
     renderThemeSupport(); ?>
     <link rel="stylesheet" href="../../assets/css/academic_manager/navbar.css">
     <link rel="stylesheet" href="../../assets/css/academic_manager/statistics.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
+    <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
     <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -767,20 +769,21 @@
 
             // Resource trends chart
             <?php if (!empty($resourceTrends['months'])): ?>
+                <?php
+                $datasetsJs = array_map(function($dataset) {
+                    return [
+                        'label' => $dataset['label'],
+                        'data' => $dataset['data'],
+                        'borderColor' => $dataset['color'],
+                        'backgroundColor' => $dataset['color'] . '20',
+                        'tension' => 0.4,
+                        'fill' => true
+                    ];
+                }, $resourceTrends['datasets']);
+                ?>
                 const resourceTrendData = {
                     labels: <?php echo json_encode($resourceTrends['months']); ?>,
-                    datasets: [
-                        <?php foreach ($resourceTrends['datasets'] as $index => $dataset): ?>
-                                                                                                                                                                                                                                        {
-                                label: <?php echo json_encode($dataset['label']); ?>,
-                                data: <?php echo json_encode($dataset['data']); ?>,
-                                borderColor: '<?php echo $dataset['color']; ?>',
-                                backgroundColor: '<?php echo $dataset['color']; ?>20',
-                                tension: 0.4,
-                                fill: true
-                            }<?php echo $index < count($resourceTrends['datasets']) - 1 ? ',' : ''; ?>
-                                                                                                                                <?php endforeach; ?>
-                    ]
+                    datasets: <?php echo json_encode($datasetsJs); ?>
                 };
 
                 new Chart(document.getElementById('resourceTrendChart'), {
