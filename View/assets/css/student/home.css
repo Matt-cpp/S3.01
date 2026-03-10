@@ -110,7 +110,8 @@
 
         .card-label {
             font-size: 0.85rem;
-            color: #6b7280;
+            color: #2b2b2b;
+            font-weight: bold;
             text-transform: uppercase;
             font-weight: 600;
             letter-spacing: 0.5px;
@@ -127,7 +128,7 @@
 
         .card-description {
             font-size: 0.875rem;
-            color: #9ca3af;
+            color: #383838;
         }
 
         /* Section Headings */
@@ -342,12 +343,10 @@
             display: flex;
             align-items: flex-start;
             gap: 1.25rem;
-            border-left: 5px solid;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         .alert-box.alert-warning {
-            border-left-color: #f59e0b;
             background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
         }
 

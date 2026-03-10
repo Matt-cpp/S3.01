@@ -13,6 +13,7 @@
  */
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('student');
+require_once __DIR__ . '/../../../Model/format_ressource.php';
 
 // Use the authenticated user's ID
 if (!isset($_SESSION['id_student'])) {
@@ -328,7 +329,7 @@ if (!isset($_SESSION['id_student'])) {
                                     data-modal-status="<?php echo $modalStatus; ?>"
                                     data-date="<?php echo date('d/m/Y', strtotime($absence['course_date'])); ?>"
                                     data-time="<?php echo date('H\hi', strtotime($absence['start_time'])) . ' - ' . date('H\hi', strtotime($absence['end_time'])); ?>"
-                                    data-course="<?php echo htmlspecialchars($absence['course_name'] ?? 'N/A'); ?>"
+                                    data-course="<?php echo htmlspecialchars(formatResourceLabel($absence['course_name'] ?? 'N/A')); ?>"
                                     data-course-code="<?php echo htmlspecialchars($absence['course_code'] ?? ''); ?>"
                                     data-teacher="<?php echo $teacher; ?>"
                                     data-room="<?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?>"
@@ -342,7 +343,7 @@ if (!isset($_SESSION['id_student'])) {
                                     data-makeup-time="<?php echo !empty($absence['makeup_start_time']) && !empty($absence['makeup_end_time']) ? date('H\hi', strtotime($absence['makeup_start_time'])) . ' - ' . date('H\hi', strtotime($absence['makeup_end_time'])) : ''; ?>"
                                     data-makeup-duration="<?php echo !empty($absence['makeup_duration']) ? number_format($absence['makeup_duration'] / 60, 1) : ''; ?>"
                                     data-makeup-room="<?php echo htmlspecialchars($absence['makeup_room'] ?? ''); ?>"
-                                    data-makeup-resource="<?php echo htmlspecialchars($absence['makeup_resource_label'] ?? ''); ?>"
+                                    data-makeup-resource="<?php echo htmlspecialchars(formatResourceLabel($absence['makeup_resource_label'] ?? '')); ?>"
                                     data-makeup-comment="<?php echo htmlspecialchars($absence['makeup_comment'] ?? ''); ?>"
                                     data-motif="Aucun motif spécifié" data-status-text="<?php echo $statusText; ?>"
                                     data-status-icon="<?php echo $statusIcon; ?>"
@@ -358,7 +359,7 @@ if (!isset($_SESSION['id_student'])) {
                                         <strong><?php echo htmlspecialchars($absence['course_code'] ?? 'N/A'); ?></strong>
                                         <?php if ($absence['course_name']): ?>
                                             <br><small
-                                                class="course-code"><?php echo htmlspecialchars($absence['course_name']); ?></small>
+                                                class="course-code"><?php echo htmlspecialchars(formatResourceLabel($absence['course_name'])); ?></small>
                                         <?php endif; ?>
                                     </td>
                                     <td>

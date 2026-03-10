@@ -168,8 +168,26 @@ button[type="submit"]:hover {
     font-size: 0.9rem;
 }
 
+/* Colonnes Date et Horaire : pas de retour à la ligne */
+#absenceTable th:nth-child(1),
+#absenceTable td:nth-child(1),
+#absenceTable th:nth-child(2),
+#absenceTable td:nth-child(2) {
+    white-space: nowrap;
+}
+
 #absenceTable tbody tr:hover {
     background-color: #f8f9fa;
+}
+
+/* Colonne Motif (9e colonne) : largeur réduite */
+#absenceTable th:nth-child(9),
+#absenceTable td:nth-child(9) {
+    max-width: 130px;
+    width: 130px;
+    white-space: normal;
+    word-break: break-word;
+    font-size: 0.82rem;
 }
 
 /* Badges de statut */

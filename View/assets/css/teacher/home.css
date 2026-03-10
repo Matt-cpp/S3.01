@@ -169,6 +169,18 @@ body {
     color: #374151;
 }
 
+/* Colonne Date d'absence : pas de retour à la ligne */
+.table th:nth-child(4),
+.table td:nth-child(4) {
+    white-space: nowrap;
+}
+
+/* Colonne Date d'absence dans le tableau rattrapages */
+.table th:nth-child(3),
+.table td:nth-child(3) {
+    white-space: nowrap;
+}
+
 .table tr:hover {
     background-color: #f9fafb;
 }
@@ -203,6 +215,17 @@ body {
 
 .btn-primary:hover {
     box-shadow: 0 6px 12px rgba(0, 129, 161, 0.35);
+}
+
+.btn-pagination {
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.btn-pagination-disabled {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 .actions-grid {
@@ -277,6 +300,24 @@ body {
     margin-top: 1.5rem;
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.7);
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.pagination-info {
+    font-weight: 500;
+    color: #333;
+}
+
+.dark-mode .pagination-info {
+    color: #e9ecef;
 }
 
 @media (max-width: 768px) {

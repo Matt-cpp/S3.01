@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/evaluations_presenter.php';
+require_once __DIR__ . '/../../../Model/format_ressource.php';
 
 // ID du professeur from session
 $teacherId = $user['id'];
@@ -74,7 +75,7 @@ $evaluations = $table->lesEvaluations();
                     <?php else: ?>
                         <?php foreach ($evaluations as $eval): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($eval['label']); ?></td>
+                                <td><?php echo htmlspecialchars(formatResourceLabel($eval['label'])); ?></td>
                                 <td><?php echo htmlspecialchars($eval['course_date']); ?></td>
                                 <td><?php echo htmlspecialchars($eval['start_time']); ?></td>
                                 <td><?php echo htmlspecialchars($eval['nbabs']); ?></td>

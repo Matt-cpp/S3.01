@@ -189,6 +189,14 @@ body {
     color: #374151;
 }
 
+/* Colonnes Date et Heure : pas de retour à la ligne */
+.table th:nth-child(1),
+.table td:nth-child(1),
+.table th:nth-child(2),
+.table td:nth-child(2) {
+    white-space: nowrap;
+}
+
 .table tr:hover {
     background-color: #f9fafb;
 }

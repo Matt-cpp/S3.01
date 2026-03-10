@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/absence_details_presenter.php';
+require_once __DIR__ . '/../../../Model/format_ressource.php';
 // Récupération de l'ID du cours depuis les paramètres GET
 $courseSlotId = isset($_GET['course_slot_id']) ? (int) $_GET['course_slot_id'] : 0;
 if ($courseSlotId <= 0) {
@@ -35,7 +36,7 @@ if ($courseSlotId <= 0) {
         <a href="evaluations.php" class="back-button">← Retour</a>
         <h1>Détails des Absences pour l'Évaluation</h1>
         <div class="course-info">
-            <h2><?php echo htmlspecialchars($courseInfo['label']); ?></h2>
+            <h2><?php echo htmlspecialchars(formatResourceLabel($courseInfo['label'])); ?></h2>
             <p>Date : <?php echo htmlspecialchars($courseInfo['course_date']); ?></p>
             <p>Heure : <?php echo htmlspecialchars($courseInfo['start_time']); ?></p>
         </div>

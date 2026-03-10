@@ -161,7 +161,7 @@ class HistoriquePresenter
     {
         $start = date('H:i', strtotime($startTime));
         $end = date('H:i', strtotime($endTime));
-        return $start . '-' . $end;
+        return $start . ' - ' . $end;
     }
 }
 

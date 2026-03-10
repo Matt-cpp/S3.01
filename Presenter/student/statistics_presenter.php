@@ -16,6 +16,7 @@
 require_once __DIR__ . '/../../Model/StatisticsModel.php';
 require_once __DIR__ . '/../../Model/database.php';
 require_once __DIR__ . '/../shared/auth_guard.php';
+require_once __DIR__ . '/../../Model/format_ressource.php';
 
 class StudentStatisticsPresenter
 {
@@ -30,32 +31,9 @@ class StudentStatisticsPresenter
         $this->studentIdentifier = $studentIdentifier;
     }
 
-    /**
-     * Format resource label to show "CODE : LABEL" format
-     * Example: "INFFIS2-DEVELOPPEMENT ORIENTE OBJETS (T3BUTINFFI-R2.01)" => "R2.01 : DEVELOPPEMENT ORIENTE OBJETS"
-     */
     private function formatResourceLabel($fullLabel)
     {
-        if (empty($fullLabel) || $fullLabel === 'N/A') {
-            return 'N/A';
-        }
-
-        // Extract code from parentheses (e.g., "R2.01" from "T3BUTINFFI-R2.01")
-        if (preg_match('/\(([^)]+)\)/', $fullLabel, $matches)) {
-            $fullCode = $matches[1];
-            // Get the resource code (part after last hyphen)
-            $codeParts = explode('-', $fullCode);
-            $code = end($codeParts);
-
-            // Extract label (part before parentheses, after first hyphen)
-            if (preg_match('/^[^-]+-(.+?)\s*\(/', $fullLabel, $labelMatches)) {
-                $label = trim($labelMatches[1]);
-                return $code . ' : ' . $label;
-            }
-        }
-
-        // Fallback to original label if pattern doesn't match
-        return $fullLabel;
+        return \formatResourceLabel($fullLabel);
     }
 
     /**

@@ -47,14 +47,18 @@
 
 /* Mode sombre */
 body.dark-theme .lang-toggle-btn,
-[data-theme="dark"] .lang-toggle-btn {
+[data-theme="dark"] .lang-toggle-btn,
+body.dark-mode .lang-toggle-btn,
+.dark-mode .lang-toggle-btn {
     background: #2d2d2d;
     color: #fff;
     border-color: #444;
 }
 
 body.dark-theme .lang-toggle-btn:hover,
-[data-theme="dark"] .lang-toggle-btn:hover {
+[data-theme="dark"] .lang-toggle-btn:hover,
+body.dark-mode .lang-toggle-btn:hover,
+.dark-mode .lang-toggle-btn:hover {
     background: #3d3d3d;
     border-color: #555;
 }

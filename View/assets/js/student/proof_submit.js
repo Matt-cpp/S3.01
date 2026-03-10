@@ -13,6 +13,25 @@ const FILE_CONFIG = {
   },
 };
 
+/**
+ * Format a raw resource label into a clean display string.
+ * Input : "INFFIS2-DEVELOPPEMENT ORIENTE OBJETS (T3BUTINFFI-R2.01)"
+ * Output: "R2.01 - DEVELOPPEMENT ORIENTE OBJETS"
+ */
+function formatResourceLabel(fullLabel) {
+  if (!fullLabel || fullLabel === 'N/A') return fullLabel || 'N/A';
+  var parenMatch = fullLabel.match(/\(([^)]+)\)/);
+  if (parenMatch) {
+    var codeParts = parenMatch[1].split('-');
+    var code = codeParts[codeParts.length - 1];
+    var labelMatch = fullLabel.match(/^[^-]+-(.+?)\s*\(/);
+    if (labelMatch) {
+      return code + ' - ' + labelMatch[1].trim();
+    }
+  }
+  return fullLabel;
+}
+
 // Variable globale pour stocker les fichiers sélectionnés
 let selectedFiles = [];
 
@@ -449,11 +468,7 @@ function displayCourses(courses) {
     coursesHtml += '<div class="course-header">';
     coursesHtml += '<h4 class="course-title">';
     if (course.resource_label) {
-      coursesHtml += course.resource_label;
-      if (course.resource_code) {
-        coursesHtml +=
-          ' <span class="course-code">(' + course.resource_code + ")</span>";
-      }
+      coursesHtml += formatResourceLabel(course.resource_label);
     } else {
       coursesHtml += "Cours non spécifié";
     }

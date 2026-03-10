@@ -27,6 +27,7 @@ if (!isset($_SESSION['id_student'])) {
 require_once __DIR__ . '/../../../Presenter/shared/session_cache.php';
 require_once __DIR__ . '/../../../Presenter/student/absences_presenter.php';
 require_once __DIR__ . '/../../../Presenter/student/get_info.php';
+require_once __DIR__ . '/../../../Model/format_ressource.php';
 
 // Récupération de l'identifiant étudiant depuis la session
 $student_identifier = getStudentIdentifier($_SESSION['id_student']);
@@ -203,7 +204,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-modal-status="<?php echo $modalStatus; ?>"
                                 data-date="<?php echo htmlspecialchars($presenter->formatDate($absence['course_date'])); ?>"
                                 data-time="<?php echo htmlspecialchars($presenter->formatTime($absence['start_time'], $absence['end_time'])); ?>"
-                                data-course="<?php echo htmlspecialchars($absence['course_name'] ?? 'Non spécifié'); ?>"
+                                data-course="<?php echo htmlspecialchars(formatResourceLabel($absence['course_name'] ?? 'Non spécifié')); ?>"
                                 data-course-code="<?php echo htmlspecialchars($absence['course_code'] ?? ''); ?>"
                                 data-teacher="<?php echo $teacher; ?>"
                                 data-room="<?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?>"
@@ -218,7 +219,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-makeup-time="<?php echo !empty($absence['makeup_start_time']) && !empty($absence['makeup_end_time']) ? $presenter->formatTime($absence['makeup_start_time'], $absence['makeup_end_time']) : ''; ?>"
                                 data-makeup-duration="<?php echo !empty($absence['makeup_duration']) ? number_format($absence['makeup_duration'] / 60, 1) : ''; ?>"
                                 data-makeup-room="<?php echo htmlspecialchars($absence['makeup_room'] ?? ''); ?>"
-                                data-makeup-resource="<?php echo htmlspecialchars($absence['makeup_resource_label'] ?? ''); ?>"
+                                data-makeup-resource="<?php echo htmlspecialchars(formatResourceLabel($absence['makeup_resource_label'] ?? '')); ?>"
                                 data-makeup-comment="<?php echo htmlspecialchars($absence['makeup_comment'] ?? ''); ?>"
                                 data-motif="<?php echo htmlspecialchars($presenter->translateMotif($absence['motif'], $absence['custom_motif'])); ?>"
                                 data-status-text="<?php echo $status['text']; ?>"
@@ -228,7 +229,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 <td><?php echo $presenter->formatTime($absence['start_time'], $absence['end_time']); ?></td>
                                 <td>
                                     <div>
-                                        <?php echo htmlspecialchars($absence['course_name'] ?? 'Non spécifié'); ?>
+                                        <?php echo htmlspecialchars(formatResourceLabel($absence['course_name'] ?? 'Non spécifié')); ?>
                                     </div>
                                 </td>
                                 <td><?php echo $teacher; ?></td>

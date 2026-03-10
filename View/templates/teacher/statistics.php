@@ -72,7 +72,7 @@ require_once __DIR__ . '/../../../Presenter/teacher/statistics_presenter.php';
                             <?php foreach (($resources ?? []) as $resource): ?>
                                 <option value="<?= htmlspecialchars($resource['id']) ?>"
                                     <?= (($_GET['resource'] ?? '') == $resource['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($resource['label']) ?>
+                                    <?= htmlspecialchars(formatResourceLabel($resource['label'])) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

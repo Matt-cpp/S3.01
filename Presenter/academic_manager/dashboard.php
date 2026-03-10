@@ -29,6 +29,7 @@ class AcademicManagerDashboardPresenter
         $this->page = 0;
         require_once __DIR__ . '/../../Model/database.php';
         require_once __DIR__ . '/../../Model/ProofModel.php';
+        require_once __DIR__ . '/../../Model/format_ressource.php';
         $this->db = Database::getInstance();
         $this->alldata = $this->db->select('SELECT * FROM absences');
         $this->proofModel = new ProofModel();
@@ -175,7 +176,7 @@ class AcademicManagerDashboardPresenter
             $student = $ligne['first_name'] . ' ' . $ligne['last_name'];
 
             // Course
-            $course = $ligne['label'] ?? 'Non spécifié';
+            $course = formatResourceLabel($ligne['label'] ?? 'Non spécifié');
 
             // Course type (uppercase)
             $type = strtoupper($ligne['course_type'] ?? '');

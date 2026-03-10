@@ -189,12 +189,40 @@ button[type="submit"] {
     font-size: 12px;
 }
 
+/* Colonnes Date et Horaire : pas de retour à la ligne */
+#absenceTable th:nth-child(3),
+#absenceTable td:nth-child(3),
+#absenceTable th:nth-child(4),
+#absenceTable td:nth-child(4) {
+    white-space: nowrap;
+}
+
 #absenceTable tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
 #absenceTable tbody tr:hover {
     background-color: #e9ecef;
+}
+
+/* Colonne Motif (6e colonne) : largeur réduite */
+#absenceTable th:nth-child(6),
+#absenceTable td:nth-child(6) {
+    max-width: 130px;
+    width: 130px;
+    white-space: normal;
+    word-break: break-word;
+    font-size: 0.82rem;
+}
+
+/* Colonne Motif (5e colonne) dans le tableau justificatifs */
+#proofTable th:nth-child(5),
+#proofTable td:nth-child(5) {
+    max-width: 130px;
+    width: 130px;
+    white-space: normal;
+    word-break: break-word;
+    font-size: 0.82rem;
 }
 
 /* Styles pour les cellules de statut */

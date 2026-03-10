@@ -18,6 +18,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once(__DIR__ . '/../../vendor/autoload.php');
 require_once(__DIR__ . '/../../Model/database.php');
+require_once(__DIR__ . '/../../Model/format_ressource.php');
 
 if (!isset($_SESSION['reason_data'])) {
     die('Aucune donnée de justificatif trouvée.');
@@ -238,7 +239,7 @@ if ($stats_hours > 0 || (!empty($cours) && $cours !== '')) {
 
         foreach ($stats_evaluation_details as $eval) {
             $html_content .= '<tr>';
-            $html_content .= '<td>' . htmlspecialchars($eval['resource_label'] ?? 'Non spécifié') . '</td>';
+            $html_content .= '<td>' . htmlspecialchars(formatResourceLabel($eval['resource_label'] ?? 'Non spécifié')) . '</td>';
             $html_content .= '<td>' . htmlspecialchars($eval['course_date'] ?? '') . '</td>';
             $html_content .= '<td>' . htmlspecialchars($eval['start_time'] ?? '') . '-' . htmlspecialchars($eval['end_time'] ?? '') . '</td>';
             $html_content .= '<td>' . htmlspecialchars($eval['course_type'] ?? '') . '</td>';
