@@ -916,6 +916,22 @@ window.addEventListener("DOMContentLoaded", function () {
   // Check submission delay on page load
   checkSubmissionDelay();
 
+  // Pré-remplir les dates si elles sont passées en paramètre URL (depuis la page absences)
+  var urlParams = new URLSearchParams(window.location.search);
+  var prefillStart = urlParams.get('prefill_start');
+  var prefillEnd = urlParams.get('prefill_end');
+  if (prefillStart) {
+    document.getElementById("datetime_start").value = prefillStart;
+  }
+  if (prefillEnd) {
+    document.getElementById("datetime_end").value = prefillEnd;
+  }
+  if (prefillStart && prefillEnd) {
+    if (validateDates()) {
+      fetchAbsences();
+    }
+  }
+
   // Si nous sommes en mode édition et que les dates sont déjà remplies, charger les cours automatiquement
   if (window.isEditing) {
     var dateStart = document.getElementById("datetime_start").value;
