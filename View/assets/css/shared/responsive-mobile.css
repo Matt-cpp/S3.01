@@ -754,4 +754,18 @@
         font-size: 0.8rem !important;
     }
 
+    .quick-actions {
+        flex-direction: column;
+    }
+
+    .quick-actions a {
+        text-align: center;
+    }
+
+    .cta-section .btn-cta {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
 }

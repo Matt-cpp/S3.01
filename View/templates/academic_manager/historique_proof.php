@@ -62,22 +62,36 @@ $errorMessage = $presenter->getErrorMessage();
         <!-- Formulaire de filtrage multi-critères des justificatifs -->
         <form method="POST" action="">
             <div class="filter-grid">
-                <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..." 
-                    value="<?php echo htmlspecialchars($filters['name'] ?? ''); ?>">
-                <input type="date" name="firstDateFilter" id="firstDateFilter" 
-                    placeholder="Date de début"
-                    value="<?php echo htmlspecialchars($filters['start_date'] ?? ''); ?>">
-                <input type="date" name="lastDateFilter" id="lastDateFilter" 
-                    placeholder="Date de fin"
-                    value="<?php echo htmlspecialchars($filters['end_date'] ?? ''); ?>">
-                <select name="statusFilter" id="statusFilter">
+                <div class="filter-input">
+                    <label for="nameFilter">Nom de l'étudiant</label>
+                    <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..." 
+                        value="<?php echo htmlspecialchars($filters['name'] ?? ''); ?>">
+                </div>
+                <div class="filter-input">
+                    <label for="firstDateFilter">Date de début</label>
+                    <input type="date" name="firstDateFilter" id="firstDateFilter" 
+                        placeholder="Date de début"
+                        value="<?php echo htmlspecialchars($filters['start_date'] ?? ''); ?>">
+                </div>
+                <div class="filter-input">
+                    <label for="lastDateFilter">Date de fin</label>
+                    <input type="date" name="lastDateFilter" id="lastDateFilter" 
+                        placeholder="Date de fin"
+                        value="<?php echo htmlspecialchars($filters['end_date'] ?? ''); ?>">
+                </div>
+                <div class="filter-input">
+                    <label for="statusFilter">Statut</label>
+                    <select name="statusFilter" id="statusFilter">
                     <option value="">Tous les statuts</option>
                     <option value="En attente" <?php echo (($filters['status'] ?? '') === 'En attente') ? 'selected' : ''; ?>>En attente</option>
                     <option value="Acceptée" <?php echo (($filters['status'] ?? '') === 'Acceptée') ? 'selected' : ''; ?>>Acceptée</option>
                     <option value="Rejetée" <?php echo (($filters['status'] ?? '') === 'Rejetée') ? 'selected' : ''; ?>>Rejetée</option>
                     <option value="En cours d'examen" <?php echo (($filters['status'] ?? '') === 'En cours d\'examen') ? 'selected' : ''; ?>>En cours d'examen</option>
                 </select>
-                <select name="reasonFilter" id="reasonFilter">
+                </div>
+                <div class="filter-input">
+                    <label for="reasonFilter">Motif</label>
+                    <select name="reasonFilter" id="reasonFilter">
                     <option value="">Tous les motifs</option>
                     <?php foreach ($reasons as $reason): ?>
                         <option value="<?php echo htmlspecialchars($reason['main_reason']); ?>" 
@@ -86,12 +100,13 @@ $errorMessage = $presenter->getErrorMessage();
                         </option>
                     <?php endforeach; ?>
                 </select>
+                </div>
             </div>
             <div class="button-container">
                 <button type="submit" id="filterButton">
                     Filtrer
                 </button>
-                <a href="historique_proof.php" class="reset-link">
+                <a href="historique_proof.php" class="btn btn-secondary">
                     Réinitialiser
                 </a>
             </div>

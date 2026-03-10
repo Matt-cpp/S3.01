@@ -62,6 +62,12 @@
             </div>
         </div>
 
+        <!-- Barre d'actions rapides (Incitation + Groupement) -->
+        <div class="quick-actions">
+            <a href="historique.php" class="btn btn-primary-action">Consulter l'historique des absences</a>
+            <a href="historique_proof.php" class="btn btn-primary-action">Voir les justificatifs</a>
+        </div>
+
         <div class="absences-section">
             <h2 class="section-title">Absences Récentes</h2>
             <p class="section-subtitle">Dernières absences signalées dans le système</p>
@@ -77,10 +83,10 @@
                 </div>
                 <div class="pagination-buttons">
                     <a href="?page=<?php echo $donnes->getPreviousPage(); ?>">
-                        <button class="btn" type="button">Précédent</button>
+                        <button class="btn btn-secondary" type="button">Précédent</button>
                     </a>
                     <a href="?page=<?php echo $donnes->getNextPage(); ?>">
-                        <button class="btn" type="button">Suivant</button>
+                        <button class="btn btn-secondary" type="button">Suivant</button>
                     </a>
                 </div>
             </div>
@@ -157,7 +163,7 @@
             </table>
 
             <div class="history-section">
-                <a href="historique.php" class="btn-history">Consulter l'historique</a>
+                <a href="historique.php" class="btn-history btn-primary-action">Consulter l'historique</a>
             </div>
         </div>
 
@@ -188,12 +194,16 @@
                     <?php else: ?>
                         <?php foreach ($recentProofs as $proof): ?>
                             <tr>
-                                <td data-label="Étudiant"><?php echo htmlspecialchars(($proof['last_name'] ?? '') . ' ' . ($proof['first_name'] ?? '')); ?>
+                                <td data-label="Étudiant">
+                                    <?php echo htmlspecialchars(($proof['last_name'] ?? '') . ' ' . ($proof['first_name'] ?? '')); ?>
                                 </td>
                                 <td data-label="Groupe"><?php echo htmlspecialchars($proof['group_label'] ?? 'N/A'); ?></td>
-                                <td data-label="Début"><?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_start_date']))); ?></td>
-                                <td data-label="Fin"><?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_end_date']))); ?></td>
-                                <td data-label="Motif"><?php echo htmlspecialchars($donnes->translateProof('reason', $proof['main_reason'])); ?>
+                                <td data-label="Début">
+                                    <?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_start_date']))); ?></td>
+                                <td data-label="Fin">
+                                    <?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_end_date']))); ?></td>
+                                <td data-label="Motif">
+                                    <?php echo htmlspecialchars($donnes->translateProof('reason', $proof['main_reason'])); ?>
                                 </td>
                                 <td data-label="Statut" class="status-cell">
                                     <?php
@@ -231,7 +241,8 @@
             </table>
 
             <div class="history-section">
-                <a href="historique_proof.php" class="btn-history">Consulter l'historique des justificatifs</a>
+                <a href="historique_proof.php" class="btn-history btn-primary-action">Consulter l'historique des
+                    justificatifs</a>
             </div>
         </div>
     </div>

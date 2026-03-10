@@ -205,6 +205,55 @@ body {
     box-shadow: 0 6px 12px rgba(0, 129, 161, 0.35);
 }
 
+/* Quick Actions Bar */
+.quick-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+/* Primary Action Button */
+.btn-primary-action {
+    display: inline-block;
+    background: #0081A1;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 129, 161, 0.2);
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary-action:hover {
+    background: #006d8a;
+    box-shadow: 0 4px 12px rgba(0, 129, 161, 0.3);
+    color: white;
+}
+
+/* Secondary Button (pagination) */
+.btn-secondary {
+    display: inline-block;
+    background: #6b7280;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
 .actions-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

@@ -136,7 +136,7 @@ $errorMessage = $presenter->getErrorMessage();
             
             <div class="button-container">
                 <button type="submit">Filtrer</button>
-                <a href="student_absences.php" class="reset-link">Réinitialiser</a>
+                <a href="student_absences.php" class="btn btn-secondary">Réinitialiser</a>
             </div>
         </form>
 

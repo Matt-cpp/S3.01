@@ -142,7 +142,7 @@ $errorMessage = $presenter->getErrorMessage();
             
             <div class="button-container">
                 <button type="submit">Filtrer</button>
-                <a href="proofs.php" class="reset-link">Réinitialiser</a>
+                <a href="proofs.php" class="btn btn-secondary">Réinitialiser</a>
             </div>
         </form>
 

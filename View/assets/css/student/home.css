@@ -41,6 +41,31 @@
         }
 
         /* Overview Section - Cartes principales */
+
+        /* CTA Section - Bouton d'action principal */
+        .cta-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-cta {
+            display: inline-block;
+            background: #0081A1;
+            color: white;
+            padding: 0.9rem 2.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 129, 161, 0.3);
+        }
+
+        .btn-cta:hover {
+            background: #006d8a;
+            box-shadow: 0 4px 12px rgba(0, 129, 161, 0.4);
+        }
+
         .overview-section {
             display: grid;
             grid-template-columns: repeat(3, 1fr);

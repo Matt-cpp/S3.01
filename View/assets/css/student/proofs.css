@@ -111,7 +111,8 @@ button[type="submit"]:hover {
     background-color: #006d8a;
 }
 
-.reset-link {
+.reset-link,
+.btn-secondary {
     background-color: #6c757d;
     color: white;
     text-decoration: none;
@@ -121,9 +122,12 @@ button[type="submit"]:hover {
     display: inline-block;
     font-weight: 500;
     transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
 }
 
-.reset-link:hover {
+.reset-link:hover,
+.btn-secondary:hover {
     background-color: #5a6268;
 }
 

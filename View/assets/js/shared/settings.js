@@ -30,7 +30,7 @@ function initializeTheme() {
       }
 
       // Show success message
-      showMessage("Theme changed successfully!", "success", 2000);
+      showMessage("Le thème a été modifié avec succès!", "success", 2000);
     });
   });
 }
@@ -54,7 +54,7 @@ function initializePasswordForm() {
       showFormMessage(
         messageDiv,
         "Les mots de passe ne correspondent pas.",
-        "error"
+        "error",
       );
       return;
     }
@@ -64,7 +64,7 @@ function initializePasswordForm() {
       showFormMessage(
         messageDiv,
         "Le mot de passe doit contenir au moins 8 caractères.",
-        "error"
+        "error",
       );
       return;
     }
@@ -85,7 +85,7 @@ function initializePasswordForm() {
             current_password: currentPassword,
             new_password: newPassword,
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -94,14 +94,14 @@ function initializePasswordForm() {
         showFormMessage(
           messageDiv,
           "Mot de passe modifié avec succès!",
-          "success"
+          "success",
         );
         form.reset();
       } else {
         showFormMessage(
           messageDiv,
           result.message || "Erreur lors de la modification du mot de passe.",
-          "error"
+          "error",
         );
       }
     } catch (error) {
@@ -109,7 +109,7 @@ function initializePasswordForm() {
       showFormMessage(
         messageDiv,
         "Une erreur est survenue. Veuillez réessayer.",
-        "error"
+        "error",
       );
     } finally {
       submitBtn.disabled = false;
