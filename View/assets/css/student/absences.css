@@ -564,7 +564,7 @@ button[type="submit"]:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Tablettes moyennes (769px - 992px) */
+/* Tablettes moyennes (769px - 992px) - Modal uniquement */
 @media (min-width: 769px) and (max-width: 992px) {
     .modal-content {
         width: 85%;
@@ -573,62 +573,6 @@ button[type="submit"]:hover {
     
     .filter-grid {
         grid-template-columns: repeat(2, 1fr);
-    }
-    
-    /* Style cartes comme mobile */
-    .table-container {
-        overflow-x: visible !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    #absenceTable {
-        display: block !important;
-        width: 100% !important;
-    }
-    
-    #absenceTable thead {
-        display: none !important;
-    }
-    
-    #absenceTable tbody {
-        display: block !important;
-    }
-    
-    #absenceTable tr {
-        display: block !important;
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        margin-bottom: 14px;
-        padding: 14px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-    }
-    
-    #absenceTable td {
-        display: flex !important;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0 !important;
-        border: none !important;
-        border-bottom: 1px solid #f0f0f0;
-    }
-    
-    #absenceTable td:last-child {
-        border-bottom: none !important;
-    }
-    
-    #absenceTable td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: #6b7280;
-        flex: 1;
-        font-size: 0.85rem;
-    }
-    
-    /* Cacher colonnes moins essentielles */
-    #absenceTable td[data-label="Salle"] {
-        display: none !important;
     }
 }
 
