@@ -319,9 +319,7 @@ function fetchAbsences() {
     "../../../../Presenter/student/get_absences_of_student.php?datetime_start=" +
     encodeURIComponent(dateStart) +
     "&datetime_end=" +
-    encodeURIComponent(dateEnd) +
-    "&student_id=" +
-    (window.studentId || 1);
+    encodeURIComponent(dateEnd);
 
   // Add proof_id if we're in editing mode
   if (window.isEditing && window.editProofId) {
@@ -336,14 +334,31 @@ function fetchAbsences() {
       if (xhr.status === 200) {
         try {
           var response = JSON.parse(xhr.responseText);
-          displayCourses(response.courses);
+          console.log("API Response:", response);
+          
+          if (response.error) {
+            var errorMsg = response.error;
+            if (response.debug) {
+              errorMsg += "<br><small>DEBUG: " + JSON.stringify(response.debug).replace(/,/g, "<br>") + "</small>";
+            }
+            showCoursesError(errorMsg);
+            showCoursesPlaceholder();
+          } else if (response.courses && response.courses.length > 0) {
+            coursesData = response.courses;
+            displayCourses(response.courses);
+          } else {
+            showCoursesError("Aucune absence non justifiée trouvée pour cette période");
+            showCoursesPlaceholder();
+          }
         } catch (e) {
           console.error("Error parsing response:", e);
-          showCoursesError("Erreur lors du traitement de la réponse");
+          console.error("Response text:", xhr.responseText);
+          showCoursesError("Erreur lors du traitement de la réponse: " + e);
         }
       } else {
-        console.error("HTTP Error:", xhr.status);
-        showCoursesError("Erreur lors du chargement des cours");
+        console.error("HTTP Error:", xhr.status, xhr.statusText);
+        console.error("Response:", xhr.responseText);
+        showCoursesError("Erreur serveur (" + xhr.status + "): " + xhr.statusText);
       }
     }
   };
@@ -988,6 +1003,12 @@ window.addEventListener("DOMContentLoaded", function () {
       alert(
         "Veuillez sélectionner les dates pour voir les absences concernées avant de soumettre le formulaire."
       );
+      return;
+    }
+
+    // Show confirmation dialog before submission
+    if (!confirm("Êtes-vous sûr de vouloir soumettre ce justificatif ?")) {
+      e.preventDefault();
       return;
     }
 

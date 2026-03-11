@@ -200,9 +200,11 @@ declare(strict_types=1);
                                 </td>
                                 <td data-label="Groupe"><?php echo htmlspecialchars($proof['group_label'] ?? 'N/A'); ?></td>
                                 <td data-label="Début">
-                                    <?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_start_date']))); ?></td>
+                                    <?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_start_date']))); ?>
+                                </td>
                                 <td data-label="Fin">
-                                    <?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_end_date']))); ?></td>
+                                    <?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_end_date']))); ?>
+                                </td>
                                 <td data-label="Motif">
                                     <?php echo htmlspecialchars($donnes->translateProof('reason', $proof['main_reason'])); ?>
                                 </td>
@@ -229,8 +231,8 @@ declare(strict_types=1);
                                         <?php echo htmlspecialchars($statusText); ?>
                                     </span>
                                 </td>
-                                <td data-label="Action">
-                                    <a href="view_proof.php?proof_id=<?php echo urlencode($proof['proof_id']); ?>"
+                                <td>
+                                    <a href="/View/templates/academic_manager/view_proof.php?proof_id=<?php echo urlencode($proof['proof_id']); ?>"
                                         class="btn btn-sm">
                                         Voir
                                     </a>

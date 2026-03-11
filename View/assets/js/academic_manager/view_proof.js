@@ -22,6 +22,70 @@
         valSel.addEventListener('change', toggleV);
         toggleV();
     }
+
+    // Confirmations pour les actions de validation et rejet
+    const rejectionForm = document.querySelector('.rejection-form');
+    const validationForm = document.querySelector('.validation-form');
+    const verouillageForm = document.querySelector('.lock-form');
+
+    if (verouillageForm) {
+        verouillageForm.addEventListener('submit', function(e) {
+            if (e.target.name === 'lock' || e.submitter.name === 'lock') {
+                const confirmed = confirm('Êtes-vous certain de vouloir verrouiller ce justificatif ?');
+                if (!confirmed) e.preventDefault();
+            }
+        });
+    }
+
+    if (rejectionForm) {
+        rejectionForm.addEventListener('submit', function(e) {
+            if (e.target.name === 'reject' || e.submitter.name === 'reject') {
+                const confirmed = confirm('Êtes-vous certain de vouloir refuser ce justificatif ?');
+                if (!confirmed) e.preventDefault();
+            }
+        });
+    }
+
+    if (validationForm) {
+        validationForm.addEventListener('submit', function(e) {
+            if (e.target.name === 'validate' || e.submitter.name === 'validate') {
+                const confirmed = confirm('Êtes-vous certain de vouloir accepter ce justificatif ?');
+                if (!confirmed) e.preventDefault();
+            }
+        });
+    }
+
+    // Confirmations pour les boutons d'action directs
+    const actionForm = document.querySelector('.action-form');
+    if (actionForm) {
+        const validateBtn = actionForm.querySelector('button[name="validate"]');
+        const rejectBtn = actionForm.querySelector('button[name="reject"]');
+        const requestInfoBtn = actionForm.querySelector('button[name="request_info"]');
+
+        if (validateBtn) {
+            validateBtn.addEventListener('click', function(e) {
+                if (!confirm('Êtes-vous certain de vouloir accepter ce justificatif ?')) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        if (rejectBtn) {
+            rejectBtn.addEventListener('click', function(e) {
+                if (!confirm('Êtes-vous certain de vouloir refuser ce justificatif ?')) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        if (requestInfoBtn) {
+            requestInfoBtn.addEventListener('click', function(e) {
+                if (!confirm('Êtes-vous certain de vouloir demander des informations complémentaires ?')) {
+                    e.preventDefault();
+                }
+            });
+        }
+    }
 })();
 
 // Dynamic management of split periods

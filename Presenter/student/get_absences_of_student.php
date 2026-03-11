@@ -16,6 +16,13 @@ declare(strict_types=1);
  * Output format: JSON with course list and statistics.
  */
 
+// Start session and require authentication
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../../Presenter/shared/login_presenter.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
@@ -31,10 +38,23 @@ require_once __DIR__ . '/../../Model/database.php';
 try {
     $db = getDatabase();
 
-    $datetimeStart = $_GET['datetime_start'] ?? '';
-    $datetimeEnd = $_GET['datetime_end'] ?? '';
-    $studentId = $_GET['student_id'] ?? 1;
-    $proofId = $_GET['proof_id'] ?? null;
+    // Get parameters from request
+    $datetime_start = $_GET['datetime_start'] ?? '';
+    $datetime_end = $_GET['datetime_end'] ?? '';
+
+    // Get student_id from session (current user) instead of default to 1
+    $current_user = getCurrentUser();
+    if (!$current_user) {
+        http_response_code(401);
+        echo json_encode([
+            'error' => 'User not authenticated',
+            'courses' => []
+        ]);
+        exit;
+    }
+
+    $student_id = $current_user['id'];
+    $proof_id = $_GET['proof_id'] ?? null;
 
     if (empty($datetimeStart) || empty($datetimeEnd)) {
         http_response_code(400);
@@ -45,15 +65,54 @@ try {
         exit;
     }
 
-    // Subtract 1 minute from end date to exclude courses starting exactly at end time
-    $startDate = date('Y-m-d H:i:s', strtotime($datetimeStart));
-    $endDate = date('Y-m-d H:i:s', strtotime($datetimeEnd . ' -1 minute'));
+    // Convert datetime format - try multiple formats
+    $start_date = null;
+    $end_date = null;
+
+    // Try format: dd/mm/yyyy hh:mm
+    $parsed_start = \DateTime::createFromFormat('d/m/Y H:i', $datetime_start);
+    if ($parsed_start) {
+        $start_date = $parsed_start->format('Y-m-d H:i:s');
+    } else {
+        // Try format: yyyy-mm-dd hh:mm
+        $parsed_start = \DateTime::createFromFormat('Y-m-d H:i', $datetime_start);
+        if ($parsed_start) {
+            $start_date = $parsed_start->format('Y-m-d H:i:s');
+        } else {
+            // Try PHP's strtotime as fallback
+            $timestamp = strtotime($datetime_start);
+            if ($timestamp) {
+                $start_date = date('Y-m-d H:i:s', $timestamp);
+            }
+        }
+    }
+
+    $parsed_end = \DateTime::createFromFormat('d/m/Y H:i', $datetime_end);
+    if ($parsed_end) {
+        $end_date = $parsed_end->format('Y-m-d H:i:s');
+    } else {
+        $parsed_end = \DateTime::createFromFormat('Y-m-d H:i', $datetime_end);
+        if ($parsed_end) {
+            $end_date = $parsed_end->format('Y-m-d H:i:s');
+        } else {
+            $timestamp = strtotime($datetime_end);
+            if ($timestamp) {
+                $end_date = date('Y-m-d H:i:s', $timestamp);
+            }
+        }
+    }
 
     if (!$startDate || !$endDate) {
         http_response_code(400);
         echo json_encode([
             'error' => 'Invalid datetime format',
-            'courses' => []
+            'courses' => [],
+            'debug' => [
+                'received_start' => $datetime_start,
+                'received_end' => $datetime_end,
+                'parsed_start' => $start_date,
+                'parsed_end' => $end_date
+            ]
         ]);
         exit;
     }
@@ -95,8 +154,8 @@ try {
         WHERE a.student_identifier = :student_identifier
             AND a.justified = FALSE
             AND a.status = 'absent'
-            AND (cs.course_date + cs.start_time)::timestamp >= :datetime_start::timestamp
-            AND (cs.course_date + cs.start_time)::timestamp <= :datetime_end::timestamp
+            AND cs.course_date + cs.start_time >= :datetime_start::timestamp
+            AND cs.course_date + cs.start_time <= :datetime_end::timestamp
             AND (
                 NOT EXISTS (
                     SELECT 1 
@@ -124,8 +183,21 @@ try {
 
     $absences = $db->select($sql, $params);
 
-    // Format the results for display
-    $courses = [];
+    echo json_encode([
+        'success' => true,
+        'courses' => [],
+        'count' => 0,
+        'debug_sql' => $sql,
+        'debug_params' => $params,
+        'debug_absences_count' => count($absences),
+        'query_params' => [
+            'datetime_start' => $start_date,
+            'datetime_end' => $end_date,
+            'student_id' => $student_id,
+            'student_identifier' => $student_identifier
+        ]
+    ]);
+    exit;
     foreach ($absences as $absence) {
         $courseInfo = '';
 
@@ -177,7 +249,13 @@ try {
     echo json_encode([
         'success' => true,
         'courses' => $courses,
-        'count' => count($courses)
+        'count' => count($courses),
+        'query_params' => [
+            'datetime_start' => $start_date,
+            'datetime_end' => $end_date,
+            'student_id' => $student_id,
+            'student_identifier' => $student_identifier
+        ]
     ]);
 } catch (Exception $e) {
     http_response_code(500);
