@@ -64,7 +64,7 @@
     opacity: 1;
 }
 
-/* Empêcher le scroll quand le menu est ouvert */
+/* Prevent scrolling when menu is open */
 body.menu-open {
     overflow: hidden;
 }
@@ -238,7 +238,7 @@ body.menu-open {
     font-size: 16px;
 }
 
-/* Menu déroulant du profil */
+/* Profile dropdown menu */
 .profile-dropdown {
     position: absolute;
     top: calc(100% + 10px);
@@ -318,7 +318,7 @@ body.menu-open {
     text-align: center;
 }
 
-/* Flèche du menu déroulant */
+/* Dropdown arrow */
 .profile-dropdown::before {
     content: '';
     position: absolute;
@@ -342,7 +342,7 @@ body.menu-open {
         display: flex;
     }
     
-    /* Menu latéral - caché par défaut */
+    /* Sidebar menu - hidden by default */
     .nav-menu {
         position: fixed;
         top: 0;
@@ -496,7 +496,7 @@ body.menu-open {
     }
 }
 
-/* Écrans très petits (< 400px) */
+/* Very small screens (< 400px) */
 @media (max-width: 400px) {
     .header {
         padding: 0.4rem 0.2rem;

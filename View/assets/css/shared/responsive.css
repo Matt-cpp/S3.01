@@ -1,18 +1,18 @@
 /**
- * Fichier: responsive.css
- * Styles responsive COMMUNS pour toutes les pages (student, academic_manager, teacher, secretary)
+ * File: responsive.css
+ * COMMON responsive styles for all pages (student, academic_manager, teacher, secretary)
  * 
  * Structure:
- * - BASE: Styles globaux
- * - ÉLÉMENTS CLIQUABLES: Interactions tactiles
- * - UTILITAIRES: Classes helper
+ * - BASE: Global styles
+ * - CLICKABLE ELEMENTS: Touch interactions
+ * - UTILITIES: Helper classes
  * - DESKTOP (> 992px)
  * - TABLETS (769px - 992px)
  * - SMALL TABLETS (577px - 768px)
  * - TOUCH FRIENDLY (< 768px)
  * - PRINT
  * 
- * Note: Les styles MOBILE (< 576px) sont dans responsive-mobile.css
+ * Note: MOBILE styles (< 576px) are in responsive-mobile.css
  */
 
 /* =============================================
@@ -29,7 +29,7 @@ img {
 }
 
 /* =============================================
-   ÉLÉMENTS CLIQUABLES (global)
+   CLICKABLE ELEMENTS (global)
    ============================================= */
 
 .proof-card,

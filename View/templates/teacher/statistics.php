@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 // teacher_statistics.php
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
@@ -201,7 +203,7 @@ require_once __DIR__ . '/../../../Presenter/teacher/statistics_presenter.php';
             </div>
         </div>
 
-        <!-- Tendances par matière (Top 5) -->
+        <!-- Trends by subject (Top 5) -->
         <div class="chart-card chart-full">
             <h3>Tendances par matière (Top 5)</h3>
             <div class="chart-container-large">
@@ -209,7 +211,7 @@ require_once __DIR__ . '/../../../Presenter/teacher/statistics_presenter.php';
             </div>
         </div>
 
-        <!-- Tableau des étudiants avec le plus d'absences -->
+        <!-- Table of students with the most absences -->
         <div class="ranking-card">
             <div class="ranking-header">
                 <h2>Étudiants avec le plus d'absences</h2>
@@ -250,7 +252,7 @@ require_once __DIR__ . '/../../../Presenter/teacher/statistics_presenter.php';
             </div>
         </div>
 
-        <!-- Modal détails étudiant -->
+        <!-- Student details modal -->
         <div id="student-detail-modal" class="modal-overlay" style="display: none;">
             <div class="modal-content-large">
                 <div class="modal-header-detail">

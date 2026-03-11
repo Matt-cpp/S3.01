@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../../Model/UserModel.php';
 require_once __DIR__ . '/../../Model/database.php';
 
 class SettingsPresenter
 {
-    private $userModel;
-    private $currentUser;
+    private UserModel $userModel;
+    private ?array $currentUser;
 
     public function __construct()
     {
@@ -17,24 +19,16 @@ class SettingsPresenter
 
         $this->userModel = new UserModel();
 
-
-
-        if (isset($_SESSION['user_id'])) {
-            $userId = $_SESSION['user_id'];
-        } else {
-            $userId = null;
-        }
+        $userId = $_SESSION['user_id'] ?? null;
         $this->currentUser = $this->userModel->getUserById($userId);
     }
 
-    //Get current user information
-    public function getCurrentUser()
+    public function getCurrentUser(): ?array
     {
         return $this->currentUser;
     }
 
-    //Get user's full name
-    public function getUserFullName()
+    public function getUserFullName(): string
     {
         if (!$this->currentUser) {
             return 'Utilisateur inconnu';
@@ -49,8 +43,7 @@ class SettingsPresenter
         return implode(' ', $parts);
     }
 
-    //Get user's role 
-    public function getUserRole()
+    public function getUserRole(): string
     {
         if (!$this->currentUser) {
             return 'Non défini';
@@ -59,8 +52,7 @@ class SettingsPresenter
         return $this->userModel->getRoleLabel($this->currentUser['role']);
     }
 
-    //Get formatted birth date
-    public function getFormattedBirthDate()
+    public function getFormattedBirthDate(): string
     {
         if (!$this->currentUser || !$this->currentUser['birth_date']) {
             return 'Non renseignée';
@@ -71,8 +63,7 @@ class SettingsPresenter
         return $date->format('d/m/Y');
     }
 
-    //Get account creation date
-    public function getAccountCreationDate()
+    public function getAccountCreationDate(): string
     {
         if (!$this->currentUser || !$this->currentUser['created_at']) {
             return 'Inconnue';
@@ -83,8 +74,7 @@ class SettingsPresenter
         return $date->format('d/m/Y à H:i');
     }
 
-    //Get user statistics (for students)
-    public function getUserStatistics()
+    public function getUserStatistics(): ?array
     {
         if (!$this->currentUser || $this->currentUser['role'] !== 'student') {
             return null;
@@ -93,14 +83,12 @@ class SettingsPresenter
         return $this->userModel->getUserStatistics($this->currentUser['identifier']);
     }
 
-    //Get theme preference from cookie
-    public function getThemePreference()
+    public function getThemePreference(): string
     {
         return $_COOKIE['theme'] ?? 'light';
     }
 
-    //Check if dark mode is enabled
-    public function isDarkMode()
+    public function isDarkMode(): bool
     {
         return $this->getThemePreference() === 'dark';
     }

@@ -1,34 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: extract_datas.php
- * 
- * Extracteur de données CSV - Importe les données d'absences depuis les fichiers CSV exportés.
- * Traite les fichiers CSV pour extraire et insérer dans la base de données:
- * - Les utilisateurs (étudiants)
- * - Les groupes/promotions
- * - Les ressources (matières/cours)
- * - Les salles
- * - Les enseignants
- * - Les créneaux de cours
- * - Les absences
- * Gère les doublons et met à jour les données existantes.
- * Exécutable en ligne de commande.
+ * CSV Data Extractor - Imports absence data from exported CSV files.
+ * Processes CSV files to extract and insert into the database:
+ * - Users (students)
+ * - Groups/cohorts
+ * - Resources (subjects/courses)
+ * - Rooms
+ * - Teachers
+ * - Course slots
+ * - Absences
+ * Handles duplicates and updates existing data.
+ * Executable from the command line.
  */
 
 require_once __DIR__ . '/database.php';
 
 class DataExtractor
 {
-    private $db;
-    private $csvDirectory;
-    private $processedUsers = [];
-    private $processedTeachers = [];
-    private $processedRooms = [];
-    private $processedResources = [];
-    private $processedGroups = [];
+    private Database $db;
+    private string $csvDirectory;
+    private array $processedUsers = [];
+    private array $processedTeachers = [];
+    private array $processedRooms = [];
+    private array $processedResources = [];
+    private array $processedGroups = [];
 
-    public function __construct($csvDirectory = 'export_vt/')
+    public function __construct(string $csvDirectory = 'export_vt/')
     {
         $this->db = Database::getInstance();
         $this->csvDirectory = $csvDirectory;
@@ -37,7 +37,7 @@ class DataExtractor
     /**
      * Main extraction method
      */
-    public function extractAllData()
+    public function extractAllData(): void
     {
         try {
             $this->db->beginTransaction();
@@ -71,7 +71,7 @@ class DataExtractor
     /**
      * Process individual CSV file
      */
-    private function processCsvFile($csvFile)
+    private function processCsvFile(string $csvFile): void
     {
         $handle = fopen($csvFile, 'r');
         if (!$handle) {
@@ -108,18 +108,8 @@ class DataExtractor
     /**
      * Process individual row of data
      */
-    private function processRow($data)
+    private function processRow(array $data): void
     {
-        // Debug: print the keys for the first few rows
-        static $debugCount = 0;
-        if ($debugCount < 3) {
-            echo "Row keys: " . implode(', ', array_keys($data)) . "\n";
-            echo "Row data sample: Identifiant=" . ($data['Identifiant'] ?? 'MISSING') . "\n";
-            echo "Row data: Motif absence='" . ($data['Motif absence'] ?? 'MISSING') . "' Commentaire='" . ($data['Commentaire'] ?? 'MISSING') . "'\n";
-            echo "Row data: Contrôle='" . ($data['Contrôle'] ?? 'MISSING') . "'\n";
-            $debugCount++;
-        }
-
         // Only validate the most essential field - Identifiant
         if (!isset($data['Identifiant']) || empty(trim($data['Identifiant']))) {
             echo "Skipping row with missing Identifiant\n";
@@ -128,51 +118,30 @@ class DataExtractor
 
         try {
             // Extract and process entities
-            echo "Processing user...\n";
             $userId = $this->processUser($data);
-            echo "User ID: $userId\n";
-
-            echo "Processing group...\n";
             $groupId = $this->processGroup($data);
-            echo "Group ID: " . ($groupId ?? 'NULL') . "\n";
-
-            echo "Processing resource...\n";
             $resourceId = $this->processResource($data);
-            echo "Resource ID: " . ($resourceId ?? 'NULL') . "\n";
-
-            echo "Processing room...\n";
             $roomId = $this->processRoom($data);
-            echo "Room ID: " . ($roomId ?? 'NULL') . "\n";
-
-            echo "Processing teacher...\n";
             $teacherId = $this->processTeacher($data);
-            echo "Teacher ID: " . ($teacherId ?? 'NULL') . "\n";
-
-            echo "Processing course slot...\n";
             $courseSlotId = $this->processCourseSlot($data, $resourceId, $roomId, $teacherId, $groupId);
-            echo "Course Slot ID: " . ($courseSlotId ?? 'NULL') . "\n";
 
             // Link user to group
-            echo "Linking user to group...\n";
             $this->linkUserToGroup($userId, $groupId);
 
             // Process absence if present
             if (isset($data['Absent/Présent']) && $data['Absent/Présent'] === 'Absence') {
-                echo "Processing absence...\n";
                 $this->processAbsence($data, $userId, $courseSlotId);
             }
-            echo "Row processed successfully!\n";
         } catch (Exception $e) {
             echo "Error processing row with Identifiant " . ($data['Identifiant'] ?? 'UNKNOWN') . ": " . $e->getMessage() . "\n";
-            echo "Row data dump: " . print_r($data, true) . "\n";
-            throw $e; // Re-throw to stop execution and show the full error
+            throw $e;
         }
     }
 
     /**
      * Process user data
      */
-    private function processUser($data)
+    private function processUser(array $data): int
     {
         $identifier = trim($data['Identifiant']);
 
@@ -243,7 +212,7 @@ class DataExtractor
     /**
      * Process group data
      */
-    private function processGroup($data)
+    private function processGroup(array $data): ?int
     {
         $groupCode = trim($data['Groupes'] ?? '');
 
@@ -288,7 +257,7 @@ class DataExtractor
     /**
      * Process resource/subject data
      */
-    private function processResource($data)
+    private function processResource(array $data): ?int
     {
         $resourceCode = trim($data['Identifiant matière'] ?? '');
 
@@ -332,7 +301,7 @@ class DataExtractor
     /**
      * Process room data
      */
-    private function processRoom($data)
+    private function processRoom(array $data): ?int
     {
         $roomCode = trim($data['Salles'] ?? '');
 
@@ -370,7 +339,7 @@ class DataExtractor
     /**
      * Process teacher data
      */
-    private function processTeacher($data)
+    private function processTeacher(array $data): ?int
     {
         $teacherName = trim($data['Profs'] ?? '');
 
@@ -413,7 +382,7 @@ class DataExtractor
     /**
      * Process course slot data
      */
-    private function processCourseSlot($data, $resourceId, $roomId, $teacherId, $groupId)
+    private function processCourseSlot(array $data, ?int $resourceId, ?int $roomId, ?int $teacherId, ?int $groupId): ?int
     {
         $courseDate = $this->parseDate($data['Date'] ?? '', 'd/m/Y');
         $startTime = $this->parseTime($data['Heure'] ?? '');
@@ -478,7 +447,7 @@ class DataExtractor
     /**
      * Process absence data
      */
-    private function processAbsence($data, $userId, $courseSlotId)
+    private function processAbsence(array $data, int $userId, ?int $courseSlotId): void
     {
         if (!$courseSlotId) {
             return;
@@ -520,7 +489,7 @@ class DataExtractor
     /**
      * Link user to group
      */
-    private function linkUserToGroup($userId, $groupId)
+    private function linkUserToGroup(int $userId, ?int $groupId): void
     {
         if (!$userId || !$groupId) {
             return;
@@ -546,7 +515,7 @@ class DataExtractor
     /**
      * Helper methods
      */
-    private function parseDate($dateString, $format = 'Y-m-d')
+    private function parseDate(string $dateString, string $format = 'Y-m-d'): ?string
     {
         if (empty($dateString)) {
             return null;
@@ -561,7 +530,7 @@ class DataExtractor
         return $date ? $date->format('Y-m-d') : null;
     }
 
-    private function parseTime($timeString)
+    private function parseTime(string $timeString): ?string
     {
         if (empty($timeString)) {
             return null;
@@ -576,7 +545,7 @@ class DataExtractor
         return null;
     }
 
-    private function parseDuration($durationString)
+    private function parseDuration(string $durationString): ?int
     {
         if (empty($durationString)) {
             return null;
@@ -592,7 +561,7 @@ class DataExtractor
         return null;
     }
 
-    private function mapCourseType($type)
+    private function mapCourseType(string $type): string
     {
         $typeMap = [
             'CM' => 'CM',
@@ -607,7 +576,7 @@ class DataExtractor
         return $typeMap[$type] ?? 'TD';
     }
 
-    private function extractProgram($groupCode)
+    private function extractProgram(string $groupCode): string
     {
         if (strpos($groupCode, 'INFO') !== false) {
             return 'Informatique';
@@ -618,7 +587,7 @@ class DataExtractor
     /**
      * Print extraction statistics
      */
-    private function printStatistics()
+    private function printStatistics(): void
     {
         echo "\n=== EXTRACTION STATISTICS ===\n";
         echo "Users processed: " . count($this->processedUsers) . "\n";

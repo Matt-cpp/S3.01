@@ -1,38 +1,40 @@
 <?php
-//Page Principake du tableau de bord enseignant
+
+declare(strict_types=1);
+// Main teacher dashboard page
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/dashboard.php';
 require_once __DIR__ . '/../../../Presenter/teacher/makeup_table_presenter.php';
 
-// ID du professeur from session
+// Teacher ID from session
 $teacherId = $user['id'];
-$table = new teacherTable($teacherId);
-$tableRattrapage = new tableRatrapage($teacherId);
+$table = new TeacherDashboardPresenter($teacherId);
+$tableRattrapage = new MakeupTablePresenter($teacherId);
 
-// Gestion de la pagination
+// Pagination management
 if (isset($_GET['page'])) {
     $page = intval($_GET['page']);
     $table->setPage($page);
 }
 
-// Gestion de la pagination rattrapages
+// Makeup pagination management
 if (isset($_GET['page_rattrapage'])) {
     $pageRattrapage = intval($_GET['page_rattrapage']);
     $tableRattrapage->setPage($pageRattrapage);
 }
 
-// Gestion du filtre
+// Filter management
 if (isset($_GET['filtre']) && !empty($_GET['filtre'])) {
-    $table->activerUnFiltre($_GET['filtre']);
+    $table->enableFilter($_GET['filtre']);
 } elseif (isset($_GET['reset_filtre'])) {
-    $table->desactiverUnFiltre();
+    $table->disableFilter();
 }
 
-// Récupération des données
+// Data retrieval
 $donnees = $table->getData($table->getCurrentPage());
-$ressourcesLabels = $table->getRessourcesLabels();
+$ressourcesLabels = $table->getResourceLabels();
 $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage());
 ?>
 <!DOCTYPE html>
@@ -131,7 +133,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
             </table>
 
             <!-- Pagination -->
-            <?php if ($table->getNombrePages() > 1): ?>
+            <?php if ($table->getPageCount() > 1): ?>
                 <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.5rem;">
                     <a href="?page=<?php echo $table->getPreviousPage(); ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
                         class="btn-secondary"
@@ -141,7 +143,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
                     </a>
                     <span style="font-weight: 500; color: #333;">
                         <span data-translate="page">Page</span> <?php echo ($table->getCurrentPage() + 1); ?> <span
-                            data-translate="of">sur</span> <?php echo $table->getNombrePages(); ?>
+                            data-translate="of">sur</span> <?php echo $table->getPageCount(); ?>
                     </span>
                     <a href="?page=<?php echo $table->getNextPage(); ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
                         class="btn-secondary"
@@ -194,7 +196,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
             </table>
 
             <!-- Pagination rattrapages -->
-            <?php if ($tableRattrapage->getNombrePages() > 1): ?>
+            <?php if ($tableRattrapage->getPageCount() > 1): ?>
                 <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.5rem;">
                     <a href="?page_rattrapage=<?php echo $tableRattrapage->getPreviousPage(); ?><?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
                         class="btn-secondary"
@@ -205,7 +207,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
                     <span style="font-weight: 500; color: #333;">
                         <span data-translate="page">Page</span> <?php echo ($tableRattrapage->getCurrentPage() + 1); ?>
                         <span data-translate="of">sur</span>
-                        <?php echo $tableRattrapage->getNombrePages(); ?>
+                        <?php echo $tableRattrapage->getPageCount(); ?>
                     </span>
                     <a href="?page_rattrapage=<?php echo $tableRattrapage->getNextPage(); ?><?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
                         class="btn-secondary"

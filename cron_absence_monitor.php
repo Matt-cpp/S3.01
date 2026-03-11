@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Absence Monitoring Cron Job
  * 
@@ -249,7 +251,6 @@ try {
     }
 
     logMessage("=== Absence Monitor Cron Job Completed Successfully ===", $logFile);
-
 } catch (Exception $e) {
     logMessage("ERROR: " . $e->getMessage(), $logFile);
     logMessage("Stack trace: " . $e->getTraceAsString(), $logFile);

@@ -1,23 +1,25 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /**
- * Fichier: view_upload_proof.php
- * 
- * Visualiseur de fichiers justificatifs - Permet l'affichage sécurisé des fichiers téléchargés.
- * Fonctionnalités principales :
- * - Lecture des fichiers depuis proof_files (JSONB) ou file_path (ancien système)
- * - Support de plusieurs fichiers par justificatif (multi-fichiers)
- * - Détection automatique du type MIME pour affichage correct
- * - Mode debug pour diagnostic des problèmes
- * - Mode raw pour affichage brut du fichier
- * - Localisation robuste du dossier uploads
- * - Envoi des bons headers HTTP pour téléchargement/affichage
- * Utilisé pour visualiser les justificatifs soumis par les étudiants.
+ * File: view_upload_proof.php
+ *
+ * Proof file viewer – Allows secure display of uploaded files.
+ * Main features:
+ * - Read files from proof_files (JSONB) or file_path (legacy system)
+ * - Support for multiple files per proof (multi-file)
+ * - Automatic MIME type detection for correct display
+ * - Debug mode for troubleshooting
+ * - Raw mode for direct file display
+ * - Robust uploads folder location
+ * - Proper HTTP headers for download/display
+ * Used to view proofs submitted by students.
  */
 
 session_start();
 require_once __DIR__ . '/../../Model/database.php';
 
-// Fonction utilitaire pour renvoyer une erreur HTTP
+// Utility function to return an HTTP error
 function http_err(int $code, string $msg): void
 {
     http_response_code($code);
@@ -33,13 +35,13 @@ function getDb()
     return null;
 }
 
-// Paramètres de la requête (debug, raw mode, proof_id, file_index)
+// Request parameters (debug, raw mode, proof_id, file_index)
 $debug = isset($_GET['debug']) ? (int) $_GET['debug'] : 0;
 $rawMode = isset($_GET['raw']) ? (int) $_GET['raw'] : 0;
 $proofId = isset($_GET['proof_id']) ? (int) $_GET['proof_id'] : 0;
 $fileIndex = isset($_GET['file_index']) ? (int) $_GET['file_index'] : 0;
 
-// Localisation robuste du dossier uploads (au même niveau que Presenter)
+// Robust uploads folder location (at the same level as Presenter)
 $projectRoot = dirname(dirname(__DIR__));
 $candidates = [
     $projectRoot . DIRECTORY_SEPARATOR . 'uploads',
@@ -54,31 +56,31 @@ foreach ($candidates as $c) {
     }
 }
 if (!$baseDir) {
-    http_err(404, "Dossier 'uploads' introuvable.");
+    http_err(404, "'uploads' folder not found.");
 }
 
 $filePath = null;
 $clientName = null;
 
 if ($proofId > 0) {
-    // Mode lecture par ID
+    // Read by ID mode
     $db = getDb();
     if (!$db)
-        http_err(500, 'Base de données indisponible.');
+        http_err(500, 'Database unavailable.');
 
     $row = $db->selectOne('SELECT file_path, proof_files FROM proof WHERE id = :id LIMIT 1', ['id' => $proofId]);
     if (!$row) {
-        http_err(404, 'Justificatif introuvable.');
+        http_err(404, 'Proof not found.');
     }
 
-    // Extraire les fichiers depuis proof_files (JSONB) ou file_path
+    // Extract files from proof_files (JSONB) or file_path
     $allFiles = [];
 
-    // 1. Vérifier proof_files (JSONB)
+    // 1. Check proof_files (JSONB)
     if (!empty($row['proof_files'])) {
         $jsonFiles = $row['proof_files'];
 
-        // Décoder si c'est une chaîne JSON
+        // Decode if JSON string
         if (is_string($jsonFiles)) {
             $decoded = json_decode($jsonFiles, true);
             if (is_array($decoded)) {
@@ -86,7 +88,7 @@ if ($proofId > 0) {
             }
         }
 
-        // Extraire les chemins
+        // Extract paths
         if (is_array($jsonFiles)) {
             foreach ($jsonFiles as $file) {
                 if (is_string($file)) {
@@ -100,19 +102,19 @@ if ($proofId > 0) {
         }
     }
 
-    // 2. Fallback sur file_path si proof_files est vide
+    // 2. Fallback to file_path if proof_files is empty
     if (empty($allFiles) && !empty($row['file_path'])) {
         $allFiles[] = $row['file_path'];
     }
 
-    // Vérifier qu'on a au moins un fichier
+    // Check at least one file exists
     if (empty($allFiles)) {
-        http_err(404, 'Aucun fichier associé à ce justificatif.');
+        http_err(404, 'No file associated with this proof.');
     }
 
-    // Sélectionner le fichier selon l'index
+    // Select file by index
     if ($fileIndex >= count($allFiles)) {
-        http_err(404, 'Index de fichier invalide.');
+        http_err(404, 'Invalid file index.');
     }
 
     $storedPath = $allFiles[$fileIndex]; // ex: "uploads/68e4....png"
@@ -129,7 +131,7 @@ if ($proofId > 0) {
         $cleanSegs[] = $seg;
     }
     if (empty($cleanSegs)) {
-        http_err(404, 'Chemin de fichier invalide.');
+        http_err(404, 'Invalid file path.');
     }
 
     $candidate = $baseDir . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $cleanSegs);
@@ -138,15 +140,15 @@ if ($proofId > 0) {
         $clientName = basename($filePath);
     }
 } else {
-    // Fallback session (aperçu après dépôt)
+    // Fallback session (preview after submission)
     $saved = $_SESSION['reason_data']['saved_file_name'] ?? ($_SESSION['reason_data']['proof_file'] ?? '');
     $clientName = $_SESSION['reason_data']['proof_file'] ?? basename((string) $saved);
     if ($saved === '')
-        http_err(404, 'Fichier introuvable.');
+        http_err(404, 'File not found.');
     $filePath = realpath($baseDir . DIRECTORY_SEPARATOR . basename((string) $saved)) ?: null;
 }
 
-// Vérifications finales + confinement dans uploads
+// Final checks + confinement to uploads folder
 $realDir = $filePath ? (realpath(dirname($filePath) ?: '') ?: '') : '';
 if ($debug) {
     header('Content-Type: text/plain; charset=utf-8');
@@ -156,11 +158,11 @@ if ($debug) {
     exit;
 }
 if (!$filePath || !is_file($filePath) || strncmp($realDir, $baseDir, strlen($baseDir)) !== 0) {
-    error_log("view_upload_proof: not found or outside uploads. base={$baseDir} file={$filePath} realDir={$realDir}");
-    http_err(404, 'Fichier introuvable.');
+    error_log('view_upload_proof: not found or outside uploads. base=' . $baseDir . ' file=' . $filePath . ' realDir=' . $realDir);
+    http_err(404, 'File not found.');
 }
 
-// Détection MIME
+// MIME detection
 $mime = 'application/octet-stream';
 if (function_exists('finfo_open')) {
     $fi = finfo_open(FILEINFO_MIME_TYPE);
@@ -172,14 +174,14 @@ if (function_exists('finfo_open')) {
     }
 }
 
-// Fallback à mime_content_type si disponible
+// Fallback to mime_content_type if available
 if ($mime === 'application/octet-stream' && function_exists('mime_content_type')) {
     $det = @mime_content_type($filePath);
     if (is_string($det) && $det !== '')
         $mime = $det;
 }
 
-// Dernier fallback : mappage par extension de fichier
+// Last fallback: file extension mapping
 if ($mime === 'application/octet-stream') {
     $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
     $extMap = [
@@ -198,10 +200,10 @@ if ($mime === 'application/octet-stream') {
 }
 
 if ($mime === 'application/octet-stream') {
-    error_log("view_upload_proof: MIME non déterminé pour le fichier {$filePath}, on renvoie application/octet-stream");
+    error_log('view_upload_proof: MIME not determined for file ' . $filePath . ', returning application/octet-stream');
 }
 
-// Mode brut: renvoie directement le fichier (pour <img>/<iframe>)
+// Raw mode: return file directly (for <img>/<iframe>)
 if ($rawMode) {
     header('Content-Type: ' . $mime);
     header('Content-Disposition: inline; filename="' . addslashes($clientName ?? basename($filePath)) . '"');
@@ -215,7 +217,7 @@ if ($rawMode) {
     exit;
 }
 
-// Mode page: rend une page HTML qui embarque l’image/PDF
+// Page mode: render an HTML page that embeds the image/PDF
 $clientNameHtml = htmlspecialchars($clientName ?? basename($filePath), ENT_QUOTES, 'UTF-8');
 $self = isset($_SERVER['PHP_SELF']) ? (string) $_SERVER['PHP_SELF'] : '/Presenter/view_upload_proof.php';
 $params = $_GET;

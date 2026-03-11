@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Model;
 
 use Tests\TestCase;
@@ -281,27 +283,27 @@ class ProofModelTest extends TestCase
     }
 
     // =========================================================================
-    // Test: verrouiller() / deverouiller() - Lock/Unlock mechanisms
+    // Test: lock() / unlock() - Lock/Unlock mechanisms
     // =========================================================================
 
-    public function testVerrouillerLocksProof(): void
+    public function testLockLocksProof(): void
     {
         $proof = ProofsFixture::createPendingProof($this->getConnection(), $this->testStudent['identifier']);
 
         // Act
-        $result = $this->model->verrouiller($proof['id']);
+        $result = $this->model->lock($proof['id']);
 
         // Assert
         $this->assertTrue($result);
         $this->assertProofLocked($proof['id'], true);
     }
 
-    public function testDeverrouillerUnlocksProof(): void
+    public function testUnlockUnlocksProof(): void
     {
         $proof = ProofsFixture::createLockedProof($this->getConnection(), $this->testStudent['identifier']);
 
         // Act
-        $result = $this->model->deverouiller($proof['id']);
+        $result = $this->model->unlock($proof['id']);
 
         // Assert
         $this->assertTrue($result);

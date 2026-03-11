@@ -1,6 +1,6 @@
-// Traductions FR/EN pour l'application
+// FR/EN translations for the application
 const translations = {
-    // Page Login
+    // Login Page
     'login': {
         'fr': {
             'page_title': 'Connexion',
@@ -30,7 +30,7 @@ const translations = {
         }
     },
     
-    // Page Student Home
+    // Student Home Page
     'student_home': {
         'fr': {
             'page_title': 'Accueil Étudiant',
@@ -238,7 +238,7 @@ const translations = {
         }
     },
     
-    // Page Teacher Home
+    // Teacher Home Page
     'teacher_home': {
         'fr': {
             'page_title': 'Tableau de bord - Enseignant',
@@ -295,12 +295,12 @@ const translations = {
     }
 };
 
-// Fonction pour obtenir la langue actuelle (localStorage + cookie fallback)
+// Function to get the current language (localStorage + cookie fallback)
 function getCurrentLanguage() {
-    let lang = 'fr'; // Défaut
+    let lang = 'fr'; // Default
     
     try {
-        // Essayer localStorage d'abord
+        // Try localStorage first
         const storedLang = localStorage.getItem('app_language');
         if (storedLang === 'en' || storedLang === 'fr') {
             lang = storedLang;
@@ -311,7 +311,7 @@ function getCurrentLanguage() {
         console.warn('[Lang] localStorage error:', e);
     }
     
-    // Fallback vers cookie
+    // Fallback to cookie
     const cookieMatch = document.cookie.match(/app_language=(en|fr)/);
     if (cookieMatch) {
         lang = cookieMatch[1];
@@ -323,7 +323,7 @@ function getCurrentLanguage() {
     return lang;
 }
 
-// Fonction pour définir la langue (sauvegarde localStorage + cookie)
+// Function to set the language (saves to localStorage + cookie)
 function setLanguage(lang) {
     console.log('[Lang] Setting to:', lang);
     
@@ -334,7 +334,7 @@ function setLanguage(lang) {
         console.warn('[Lang] localStorage save error:', e);
     }
     
-    // Sauvegarder aussi en cookie (expire dans 1 an)
+    // Also save to cookie (expires in 1 year)
     const expires = new Date();
     expires.setFullYear(expires.getFullYear() + 1);
     document.cookie = `app_language=${lang}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
@@ -344,14 +344,14 @@ function setLanguage(lang) {
     updateLanguageButton();
 }
 
-// Fonction pour basculer entre les langues
+// Function to toggle between languages
 function toggleLanguage() {
     const currentLang = getCurrentLanguage();
     const newLang = currentLang === 'fr' ? 'en' : 'fr';
     setLanguage(newLang);
 }
 
-// Fonction pour appliquer les traductions
+// Function to apply translations
 function applyTranslations() {
     const lang = getCurrentLanguage();
     const page = document.body.getAttribute('data-page');
@@ -363,11 +363,11 @@ function applyTranslations() {
     
     const pageTranslations = translations[page][lang];
     
-    // Appliquer les traductions à tous les éléments avec data-translate
+    // Apply translations to all elements with data-translate
     document.querySelectorAll('[data-translate]').forEach(element => {
         const key = element.getAttribute('data-translate');
         if (pageTranslations[key]) {
-            // Gérer les placeholders
+            // Handle placeholders
             if (element.hasAttribute('placeholder')) {
                 element.placeholder = pageTranslations[key];
             } else {
@@ -376,12 +376,12 @@ function applyTranslations() {
         }
     });
     
-    // Mettre à jour le titre de la page
+    // Update the page title
     if (pageTranslations['page_title']) {
         document.title = pageTranslations['page_title'];
     }
 
-    // Formater les dates avec le mois selon la langue
+    // Format dates with the month according to the language
     document.querySelectorAll('.current-month-year').forEach(element => {
         const dateStr = element.getAttribute('data-date');
         if (dateStr) {
@@ -393,7 +393,7 @@ function applyTranslations() {
     });
 }
 
-// Fonction pour mettre à jour le bouton de langue
+// Function to update the language button
 function updateLanguageButton() {
     const lang = getCurrentLanguage();
     const btn = document.getElementById('lang-toggle-btn');
@@ -403,37 +403,37 @@ function updateLanguageButton() {
     }
 }
 
-// Fonction pour créer le bouton de langue
+// Function to create the language button
 function createLanguageButton() {
     const btn = document.createElement('button');
     btn.id = 'lang-toggle-btn';
     btn.className = 'lang-toggle-btn';
-    btn.type = 'button'; // Empêcher comportement de submit
+    btn.type = 'button'; // Prevent submit behavior
     
-    // Utiliser addEventListener pour plus de robustesse
+    // Use addEventListener for better robustness
     btn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         toggleLanguage();
     });
     
-    // Intégrer dans la navbar si elle existe (desktop et mobile)
+    // Integrate into the navbar if it exists (desktop and mobile)
     const headerIcons = document.querySelector('.header-icons');
     if (headerIcons) {
         btn.classList.add('in-navbar');
         headerIcons.insertBefore(btn, headerIcons.firstChild);
     } else {
-        // Pages sans navbar (login, register, etc.)
+        // Pages without navbar (login, register, etc.)
         document.body.appendChild(btn);
     }
     
     updateLanguageButton();
 }
 
-// Initialisation au chargement de la page
+// Initialization on page load
 document.addEventListener('DOMContentLoaded', function() {
     createLanguageButton();
-    // Appliquer les traductions seulement si la page les supporte
+    // Apply translations only if the page supports them
     const page = document.body.getAttribute('data-page');
     if (page && translations[page]) {
         applyTranslations();

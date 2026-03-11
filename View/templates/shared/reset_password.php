@@ -123,8 +123,8 @@
         password.addEventListener('input', checkPasswords);
         confirmPassword.addEventListener('input', checkPasswords);
 
-        // Validation de la force du mot de passe
-        password.addEventListener('input', function () {
+        // Password strength validation
+        password.addEventListener('input', function() {
             const strength = document.getElementById('password-strength');
             if (!strength) {
                 const strengthDiv = document.createElement('div');

@@ -1,33 +1,34 @@
-<meta charset="UTF-8">
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: makeup_table_presenter.php
- * 
- * Présentateur du tableau de rattrapages - Gère l'affichage du tableau des rattrapages pour les enseignants.
- * Fournit des méthodes pour:
- * - Récupérer les absences justifiées à des évaluations avec pagination
- * - Générer un tableau HTML des étudiants à faire rattraper
- * - Gérer la navigation entre les pages (5 entrées par page)
- * - Filtrer les absences d'un enseignant spécifique
- * Utilisé par les enseignants pour voir les rattrapages à organiser.
+ * Makeup Table Presenter - Handles the makeup table display for teachers.
+ * Provides methods for:
+ * - Retrieving justified absences from evaluations with pagination
+ * - Generating an HTML table of students needing makeup exams
+ * - Handling page navigation (5 entries per page)
+ * - Filtering absences for a specific teacher
+ * Used by teachers to see makeups to organize.
  */
 
-class tableRatrapage
+class MakeupTablePresenter
 {
-    private $page;
-    private $db;
-    private $userId;
-    private $nombrepages;
-    //constructeur
+    private int $page;
+    private Database $db;
+    private int $userId;
+    private int $pageCount;
+
     public function __construct(int $id)
     {
         $this->page = 0;
         require_once __DIR__ . '/../../Model/database.php';
         $this->db = Database::getInstance();
         $this->userId = $this->linkTeacherUser($id);
-        $this->nombrepages = $this->getTotalPages();
+        $this->pageCount = $this->getTotalPages();
     }
-    private function linkTeacherUser(int $id)
+
+    private function linkTeacherUser(int $id): int
     {
         $query = "SELECT teachers.id as id
         FROM users LEFT JOIN teachers ON teachers.email = users.email
@@ -35,8 +36,8 @@ class tableRatrapage
         $result = $this->db->select($query);
         return $result[0]['id'];
     }
-    // calcule le nombre de pages totales du tableau
-    public function getTotalPages()
+    // Calculate total number of table pages
+    public function getTotalPages(): int
     {
         try {
             $query = "SELECT COUNT(*) as count FROM absences 
@@ -48,23 +49,25 @@ class tableRatrapage
             if (empty($result)) {
                 return 1;
             }
-            return ceil($result[0]['count'] / 5);
+            return (int) ceil($result[0]['count'] / 5);
         } catch (Exception $e) {
             return 1;
         }
     }
-    // renvoie le nombre de pages totales sans refaire de requete
-    public function getNombrePages()
+
+    // Return total page count without re-querying
+    public function getPageCount(): int
     {
-        return $this->nombrepages;
+        return $this->pageCount;
     }
-    // renvoie le numéro de la page actuelle
-    public function getPage()
+
+    // Return current page number
+    public function getPage(): int
     {
         return $this->page;
     }
-    //reqeuete principale du tableau
-    public function getData($page)
+    // Main table query
+    public function getData(int $page): array
     {
         $offset = (int) ($page * 5);
         $userId = (int) $this->userId;
@@ -82,51 +85,50 @@ class tableRatrapage
     LIMIT 5 OFFSET $offset";
         return $this->db->select($query);
     }
-    public function setPage($page)
+    public function setPage(int $page): void
     {
-        if ($page >= 0 && $page < $this->nombrepages) {
+        if ($page >= 0 && $page < $this->pageCount) {
             $this->page = $page;
         }
     }
-    // fait avancer la page de 1 si possible
-    public function nextPage()
+    // Advance page by 1 if possible
+    public function nextPage(): void
     {
-        if ($this->page < $this->nombrepages - 1) {
+        if ($this->page < $this->pageCount - 1) {
             $this->page++;
         }
     }
-    // fait reculer la page de 1 si possible
-    public function previousPage()
+    // Go back one page if possible
+    public function previousPage(): void
     {
         if ($this->page > 0) {
             $this->page--;
         }
     }
 
-    //renvoie le numéro de page actuel
-    public function getCurrentPage()
+    // Return current page number
+    public function getCurrentPage(): int
     {
         return $this->page;
     }
-    //permet l'accès a la page suivante et précédente en posant des limites
-    public function getNextPage()
+    // Access next and previous pages with boundary limits
+    public function getNextPage(): int
     {
-        return min($this->page + 1, $this->nombrepages - 1);
+        return min($this->page + 1, $this->pageCount - 1);
     }
-    public function getPreviousPage()
+    public function getPreviousPage(): int
     {
         return max($this->page - 1, 0);
     }
 
 
-    // Tableau
-    public function laTable()
+    // Build HTML table
+    public function buildTable(): string
     {
-        // Récupération des données brutes
-        $donnees = $this->getData($this->getCurrentPage());
-        $tableau = [];
-        // Construction du tableau HTML
-        $tableau = "<table border='1'>  
+        // Retrieve raw data
+        $rows = $this->getData($this->getCurrentPage());
+        // Build HTML table
+        $table = "<table border='1'>  
         <tr>
             <th>First Name</th>
             <th>Last Name</th>
@@ -134,17 +136,17 @@ class tableRatrapage
             <th>Course Date</th>
             <th>Duration (minutes)</th>
         </tr>";
-        foreach ($donnees as $ligne) {
-            $tableau .= "<tr>
-                <td>" . htmlspecialchars($ligne['first_name']) . "</td>
-                <td>" . htmlspecialchars($ligne['last_name']) . "</td>
-                <td>" . htmlspecialchars($ligne['label']) . "</td>
-                <td>" . htmlspecialchars($ligne['course_date']) . "</td>
-                <td>" . htmlspecialchars($ligne['duration_minutes']) . "</td>
+        foreach ($rows as $row) {
+            $table .= "<tr>
+                <td>" . htmlspecialchars($row['first_name']) . "</td>
+                <td>" . htmlspecialchars($row['last_name']) . "</td>
+                <td>" . htmlspecialchars($row['label']) . "</td>
+                <td>" . htmlspecialchars($row['course_date']) . "</td>
+                <td>" . htmlspecialchars($row['duration_minutes']) . "</td>
             </tr>";
         }
-        $tableau .= "</table>";
-        return $tableau;
+        $table .= "</table>";
+        return $table;
     }
 }
 /*s

@@ -1,14 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: absences.php
- * 
- * Template de gestion des absences pour le responsable pédagogique - Liste complète des absences.
- * Fonctionnalités principales :
- * - Affichage paginné de toutes les absences du système
- * - Tableau avec informations clés (date, heure, étudiant, cours, type, statut)
- * - Navigation par pagination pour parcourir l'historique complet
- * - Lien vers l'historique détaillé avec filtres avancés
- * Utilise AcademicManagerDashboardPresenter pour récupérer les données paginnées.
+ * Absence management template for the academic manager - Complete list of absences.
+ * Main features:
+ * - Paginated display of all absences in the system
+ * - Table with key information (date, time, student, course, type, status)
+ * - Pagination navigation to browse the full history
+ * - Link to detailed history with advanced filters
+ * Uses AcademicManagerDashboardPresenter to retrieve paginated data.
  */
 ?>
 <!DOCTYPE html>
@@ -79,7 +80,7 @@
                 </thead>
                 <tbody>
                     <?php
-                    $f = $donnes->laTable();
+                    $f = $donnes->buildTable();
                     $tabel = json_decode(json_encode($f), true);
                     $labels = ['Date', 'Heure', 'Étudiant', 'Cours', 'Type', 'Statut'];
 

@@ -1,20 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: ProofPresenter.php
- * 
- * Présentateur de justificatif - Gère la logique métier pour l'affichage et le traitement des justificatifs.
- * Fournit des méthodes pour:
- * - Gérer les actions sur un justificatif :
- *   - Validation (acceptation du justificatif)
- *   - Rejet (avec sélection de motifs prédéfinis)
- *   - Demande d'informations complémentaires (passage en révision)
- *   - Verrouillage/déverrouillage du justificatif
- * - Préparer les données pour l'affichage (formulaires, détails)
- * - Enregistrer l'historique des décisions dans decision_history
- * - Envoyer des emails de notification aux étudiants
- * - Gérer les formulaires de rejet/validation avec motifs multiples
- * Utilisé par les responsables académiques pour traiter les justificatifs soumis.
+ * File: ProofPresenter.php
+ *
+ * Proof presenter – Handles business logic for display and processing of proofs.
+ * Provides methods to:
+ * - Manage proof actions:
+ *   - Validation (proof acceptance)
+ *   - Rejection (with predefined reason selection)
+ *   - Additional information request (set to review status)
+ *   - Lock/unlock proof
+ * - Prepare data for display (forms, details)
+ * - Record decision history in decision_history
+ * - Send notification emails to students
+ * - Manage rejection/validation forms with multiple reasons
+ * Used by academic managers to process submitted proofs.
  */
 
 require_once __DIR__ . '/../../Model/ProofModel.php';
@@ -22,8 +24,8 @@ require_once __DIR__ . '/../../Model/email.php';
 
 class ProofPresenter
 {
-    private $model;
-    private $emailService;
+    private ProofModel $model;
+    private EmailService $emailService;
 
     public function __construct()
     {
@@ -31,9 +33,9 @@ class ProofPresenter
         $this->emailService = new EmailService();
     }
 
-    public function handleRequest($get, $post)
+    public function handleRequest(array $get, array $post): array
     {
-        // S'assurer que la session est démarrée pour récupérer l'id utilisateur
+        // Ensure session is started to retrieve user ID
         if (session_status() === PHP_SESSION_NONE) {
             @session_start();
         }
@@ -62,7 +64,7 @@ class ProofPresenter
             'lock_status' => 'Déverrouillé'
         ];
 
-        // Affichage par GET
+        // Display by GET
         if (isset($get['proof_id'])) {
             $proofId = (int) $get['proof_id'];
             $data['proof'] = $this->model->getProofDetails($proofId);
@@ -74,7 +76,7 @@ class ProofPresenter
             return $data;
         }
 
-        // Actions POST
+        // POST actions
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($post['proof_id'])) {
             $proofId = (int) $post['proof_id'];
             $data['proof'] = $this->model->getProofDetails($proofId);
@@ -85,24 +87,24 @@ class ProofPresenter
                 return $data;
             }
 
-            // État de verrouillage pour la vue
+            // Lock status for view
             $data['is_locked'] = $this->model->isLocked($proofId);
             $data['lock_status'] = $data['is_locked'] ? 'Verrouillé' : 'Déverrouillé';
 
-            // Verrouiller / Déverrouiller
+            // Lock / Unlock
             if (isset($post['toggle_lock']) && isset($post['lock_action'])) {
                 $action = (string) $post['lock_action'];
                 if ($action === 'lock') {
-                    $this->model->verrouiller($proofId);
+                    $this->model->lock($proofId);
                 } elseif ($action === 'unlock') {
-                    $this->model->deverouiller($proofId);
+                    $this->model->unlock($proofId);
                 }
                 $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
                 $this->enrichViewData($data);
                 return $data;
             }
 
-            // Rejet
+            // Rejection
             if (isset($post['reject']) && !isset($post['rejection_reason'])) {
                 $data['showRejectForm'] = true;
                 $this->enrichViewData($data);
@@ -127,13 +129,13 @@ class ProofPresenter
                 if ($this->equalsIgnoreCase($rejectionReason, 'Autre') && $newReason !== '') {
                     $inserted = $this->model->addRejectionReason($newReason);
                     if (!$inserted) {
-                        error_log("Échec insertion motif de rejet: {$newReason}");
+                        error_log('Failed to insert rejection reason: ' . $newReason);
                     }
                     $rejectionReason = $newReason;
                     $data['rejectionReasons'] = $this->model->getRejectionReasons();
                 }
 
-                // setRejectionReason met à jour le statut et insère l'historique dans la même transaction
+                // setRejectionReason updates the status and inserts history in the same transaction
                 $ok = $this->model->setRejectionReason($proofId, $rejectionReason, $rejectionDetails, $currentUserId);
                 if ($ok) {
                     $this->model->updateAbsencesForProof(
@@ -143,8 +145,8 @@ class ProofPresenter
                         'rejected'
                     );
 
-                    // Verrouiller automatiquement le justificatif après le rejet
-                    $this->model->verrouiller($proofId);
+                    // Automatically lock the proof after rejection
+                    $this->model->lock($proofId);
 
                     // Send email notification to student
                     $this->sendProofRejectionEmail($data['proof'], $rejectionReason, $rejectionDetails);
@@ -152,7 +154,7 @@ class ProofPresenter
                     $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
                 } else {
                     $data['showRejectForm'] = true;
-                    // Récupérer le message d'erreur détaillé mis en session par le modèle (si présent)
+                    // Retrieve detailed error message set in session by the model
                     if (session_status() === PHP_SESSION_NONE) {
                         @session_start();
                     }
@@ -168,14 +170,14 @@ class ProofPresenter
                 return $data;
             }
 
-            // Validation (motif optionnel)
+            // Validation (reason is optional)
             if (isset($post['validate']) && !isset($post['validation_reason'])) {
-                // Clic initial sur le bouton "Valider" : afficher le formulaire de validation
+                // Initial click on "Validate" button: show validation form
                 $data['showValidateForm'] = true;
                 $this->enrichViewData($data);
                 return $data;
             } elseif (isset($post['validate']) && isset($post['validation_reason'])) {
-                // Soumission du formulaire de validation (le motif est optionnel)
+                // Validation form submission (reason is optional)
                 $validationReason = trim((string) ($post['validation_reason'] ?? ''));
                 $validationDetails = trim((string) ($post['validation_details'] ?? ''));
                 $newValidationReason = trim((string) ($post['new_validation_reason'] ?? ''));
@@ -183,13 +185,13 @@ class ProofPresenter
                 if ($this->equalsIgnoreCase($validationReason, 'Autre') && $newValidationReason !== '') {
                     $inserted = $this->model->addValidationReason($newValidationReason);
                     if (!$inserted) {
-                        error_log("Échec insertion motif de validation: {$newValidationReason}");
+                        error_log('Failed to insert validation reason: ' . $newValidationReason);
                     }
                     $validationReason = $newValidationReason;
                     $data['validationReasons'] = $this->model->getValidationReasons();
                 }
 
-                // setValidationReason met à jour le statut et insère l'historique dans la même transaction
+                // setValidationReason updates the status and inserts history in the same transaction
                 $ok = $this->model->setValidationReason($proofId, $validationReason, $validationDetails, $currentUserId);
                 if ($ok) {
                     $this->model->updateAbsencesForProof(
@@ -199,8 +201,8 @@ class ProofPresenter
                         'accepted'
                     );
 
-                    // Verrouiller automatiquement le justificatif après la validation
-                    $this->model->verrouiller($proofId);
+                    // Automatically lock the proof after validation
+                    $this->model->lock($proofId);
 
                     // Send email notification to student
                     $this->sendProofAcceptedEmail($data['proof'], $validationReason, $validationDetails);
@@ -223,7 +225,7 @@ class ProofPresenter
                 return $data;
             }
 
-            // Scission du justificatif
+            // Proof splitting
             if (isset($post['split']) && !isset($post['num_periods'])) {
                 $data['showSplitForm'] = true;
                 $data['splitError'] = '';
@@ -240,7 +242,7 @@ class ProofPresenter
                     return $data;
                 }
 
-                // Collecter toutes les périodes
+                // Collect all periods
                 $periods = [];
                 for ($i = 1; $i <= $numPeriods; $i++) {
                     $startDate = trim((string) ($post["period{$i}_start_date"] ?? ''));
@@ -264,7 +266,7 @@ class ProofPresenter
                     ];
                 }
 
-                // Vérification que les périodes ne se chevauchent pas et sont dans l'ordre
+                // Check that periods don't overlap and are in order
                 for ($i = 0; $i < count($periods) - 1; $i++) {
                     if (strtotime($periods[$i]['end']) > strtotime($periods[$i + 1]['start'])) {
                         $data['showSplitForm'] = true;
@@ -274,7 +276,7 @@ class ProofPresenter
                     }
                 }
 
-                // Vérification que les périodes ne coupent pas un créneau de cours en plein milieu
+                // Check that periods don't cut a course slot in the middle
                 $splitValidation = $this->model->validateSplitPeriods($proofId, $periods);
                 if (!$splitValidation['valid']) {
                     $data['showSplitForm'] = true;
@@ -283,10 +285,7 @@ class ProofPresenter
                     return $data;
                 }
 
-                // Debug: afficher les périodes
-                error_log("DEBUG splitProofMultiple - periods: " . json_encode($periods));
-
-                // Appel au modèle pour créer les justificatifs
+                // Call model to create the proofs
                 $ok = $this->model->splitProofMultiple($proofId, $periods, $splitReason, $currentUserId);
                 if ($ok) {
                     $data['redirect'] = 'home.php?message=split_success';
@@ -307,7 +306,7 @@ class ProofPresenter
                 return $data;
             }
 
-            // Demande d'info
+            // Information request
             if (isset($post['request_info']) && !isset($post['info_message'])) {
                 $data['showInfoForm'] = true;
                 $data['infoError'] = '';
@@ -322,7 +321,7 @@ class ProofPresenter
                     return $data;
                 }
 
-                // Appel du modèle pour sauvegarder la demande d'information
+                // Call model to save the information request
                 $ok = $this->model->setRequestInfo($proofId, $infoMessage, $currentUserId);
                 if ($ok) {
                     // Reset absences to 'absent' and 'justified=false' when requesting info
@@ -359,7 +358,7 @@ class ProofPresenter
         return $data;
     }
 
-    private function enrichViewData(&$data)
+    private function enrichViewData(array &$data): void
     {
         $rejectionReasons = $data['rejectionReasons'] ?? $this->model->getRejectionReasons();
         $data['rejectionReasonsTranslated'] = array_map(fn($r) => $this->model->translate('reason', $r), $rejectionReasons);
@@ -393,7 +392,7 @@ class ProofPresenter
     /**
      * Send email notification when proof is rejected
      */
-    private function sendProofRejectionEmail($proof, $reason, $details)
+    private function sendProofRejectionEmail(array $proof, string $reason, string $details): void
     {
         if (!$proof || empty($proof['first_name'])) {
             error_log("Cannot send rejection email: invalid proof data");
@@ -426,7 +425,7 @@ class ProofPresenter
     /**
      * Send email notification when proof is accepted
      */
-    private function sendProofAcceptedEmail($proof, $reason, $details)
+    private function sendProofAcceptedEmail(array $proof, string $reason, string $details): void
     {
         if (!$proof || empty($proof['first_name'])) {
             error_log("Cannot send acceptance email: invalid proof data");
@@ -459,7 +458,7 @@ class ProofPresenter
     /**
      * Send email notification when additional information is requested
      */
-    private function sendProofInfoRequestEmail($proof, $message)
+    private function sendProofInfoRequestEmail(array $proof, string $message): void
     {
         if (!$proof || empty($proof['first_name'])) {
             error_log("Cannot send info request email: invalid proof data");
@@ -491,7 +490,7 @@ class ProofPresenter
     /**
      * Get student email from database
      */
-    private function getStudentEmail($studentIdentifier)
+    private function getStudentEmail(string $studentIdentifier): ?string
     {
         require_once __DIR__ . '/../../Model/database.php';
         $db = getDatabase();
@@ -511,7 +510,7 @@ class ProofPresenter
     /**
      * Generate HTML email body for rejection notification
      */
-    private function generateRejectionEmailBody($firstName, $lastName, $start, $end, $reason, $details)
+    private function generateRejectionEmailBody(string $firstName, string $lastName, string $start, string $end, string $reason, string $details): string
     {
         return <<<HTML
 <!DOCTYPE html>
@@ -565,7 +564,7 @@ HTML;
     /**
      * Generate HTML email body for acceptance notification
      */
-    private function generateAcceptanceEmailBody($firstName, $lastName, $start, $end, $reason, $details)
+    private function generateAcceptanceEmailBody(string $firstName, string $lastName, string $start, string $end, string $reason, string $details): string
     {
         $reasonSection = $reason ? "<p><strong>Motif :</strong> {$reason}</p>" : "";
         $detailsSection = $details ? "<p><strong>Détails :</strong> {$details}</p>" : "";
@@ -616,7 +615,7 @@ HTML;
     /**
      * Generate HTML email body for information request
      */
-    private function generateInfoRequestEmailBody($firstName, $lastName, $start, $end, $message)
+    private function generateInfoRequestEmailBody(string $firstName, string $lastName, string $start, string $end, string $message): string
     {
         return <<<HTML
 <!DOCTYPE html>

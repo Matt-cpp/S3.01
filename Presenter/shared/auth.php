@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: auth.php
- * 
- * Contrôleur d'authentification - Gère la vérification de l'authentification des utilisateurs.
- * Fournit une fonction requireAuth() pour protéger les pages nécessitant une connexion.
- * Redirige automatiquement vers la page de connexion si l'utilisateur n'est pas authentifié.
+ * File: auth.php
+ *
+ * Authentication controller — verifies user authentication.
+ * Provides a requireAuth() function to protect pages that need a logged-in user.
+ * Automatically redirects to the login page if the user is not authenticated.
  */
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -13,11 +15,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once __DIR__ . '/login_presenter.php';
 
-// Vérifier si l'utilisateur est connecté
-function requireAuth()
+// Check whether the user is logged in
+function requireAuth(): ?array
 {
     if (!isLoggedIn()) {
-        header("Location: ../View/templates/shared/login.php");
+        header('Location: ../View/templates/shared/login.php');
         exit;
     }
     return getCurrentUser();

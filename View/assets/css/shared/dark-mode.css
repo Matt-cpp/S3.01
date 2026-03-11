@@ -3120,7 +3120,7 @@ html.dark-mode body {
   white-space: nowrap;
 }
 
-/* Make Heures ratées and Date soumission columns narrower */
+/* Make Missed hours and Submission date columns narrower */
 .dark-mode .absences-table th:nth-child(3),
 .dark-mode .absences-table td:nth-child(3) {
   width: auto;
@@ -3624,8 +3624,8 @@ html.dark-mode body {
 }
 
 /* ===== Student Home Page - Justificatifs Table Column Widths ===== */
-/* These tables have 7 columns: Période, Motif, Heures ratées, Date soumission, Évaluation, Commentaire, Action */
-/* Or 6 columns: Période, Motif, Heures ratées, Date soumission, Date validation, Évaluation */
+/* These tables have 7 columns: Period, Reason, Missed hours, Submission date, Evaluation, Comment, Action */
+/* Or 6 columns: Period, Reason, Missed hours, Submission date, Validation date, Evaluation */
 .absences-section .absences-table:not(:has(th:nth-child(8))) {
   table-layout: auto;
 }
@@ -3636,7 +3636,7 @@ html.dark-mode body {
   padding: 0.75rem 0.5rem;
 }
 
-/* Heures ratées column - narrower */
+/* Missed hours column - narrower */
 .absences-section .absences-table th:nth-child(3):not(:last-child),
 .absences-section .absences-table td:nth-child(3):not(:last-child) {
   width: auto;

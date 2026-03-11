@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 // Presenter/shared/delete_student.php
 // Deletes a student and all associated data from the database.
 
@@ -66,5 +69,3 @@ if ($ok) {
         echo json_encode(['success' => false, 'message' => 'Failed to delete student; check logs for details']);
     }
 }
-
-?>

@@ -1,10 +1,10 @@
-// Gestionnaire de fichiers pour l'édition de justificatifs
+// File handler for proof editing
 // Note: FILE_CONFIG is already defined in proof_submit.js
 let existingFilesToDelete = [];
 let newFilesToAdd = [];
 let hiddenInputs = []; // Track hidden file inputs
 
-//Marque un fichier existant pour suppression
+//Marks an existing file for deletion
 window.toggleDeleteExistingFile = function (checkbox, index) {
   if (checkbox.checked) {
     if (!existingFilesToDelete.includes(index)) {
@@ -16,7 +16,7 @@ window.toggleDeleteExistingFile = function (checkbox, index) {
   updateFileSummary();
 };
 
-//Déclenche la sélection de nouveaux fichiers
+//Triggers new file selection
 window.addNewFiles = function () {
   // Create a new hidden file input for this selection
   const hiddenInput = document.createElement("input");
@@ -39,7 +39,7 @@ window.addNewFiles = function () {
   hiddenInput.click();
 };
 
-//Gère l'ajout de nouveaux fichiers
+//Handles adding new files
 function handleNewFileSelection(event, hiddenInput) {
   const files = Array.from(event.target.files);
 
@@ -75,11 +75,11 @@ function handleNewFileSelection(event, hiddenInput) {
 
   console.log("Total files to add:", newFilesToAdd.length);
 
-  // Valider et afficher
+  // Validate and display
   validateAndDisplayFiles();
 }
 
-//Supprime un nouveau fichier de la liste
+//Removes a new file from the list
 function removeNewFile(index) {
   const fileToRemove = newFilesToAdd[index];
 
@@ -107,16 +107,16 @@ function removeNewFile(index) {
   validateAndDisplayFiles();
 }
 
-//Valide et affiche tous les fichiers
+//Validates and displays all files
 function validateAndDisplayFiles() {
   const newFilesContainer = document.getElementById("new-files-container");
   const warningDiv = document.getElementById("file_size_warning");
 
-  // Calculer la taille totale
+  // Calculate total size
   let errors = [];
   let totalSize = 0;
 
-  // Taille des fichiers existants (non marqués pour suppression)
+  // Size of existing files (not marked for deletion)
   const existingFileElements = document.querySelectorAll(".existing-file-item");
   existingFileElements.forEach((el, index) => {
     const checkbox = el.querySelector('input[type="checkbox"]');
@@ -128,19 +128,19 @@ function validateAndDisplayFiles() {
     }
   });
 
-  // Valider les nouveaux fichiers
+  // Validate new files
   const validNewFiles = [];
   newFilesToAdd.forEach((fileObj) => {
     const file = fileObj.file;
 
-    // Vérifier l'extension
+    // Check extension
     const extension = file.name.split(".").pop().toLowerCase();
     if (!FILE_CONFIG.allowedExtensions.includes(extension)) {
       errors.push(`${file.name} : format non autorisé`);
       return;
     }
 
-    // Vérifier la taille
+    // Check size
     if (file.size === 0) {
       errors.push(`${file.name} : fichier vide`);
       return;
@@ -155,15 +155,15 @@ function validateAndDisplayFiles() {
     validNewFiles.push(fileObj);
   });
 
-  // Remplacer par les fichiers valides
+  // Replace with valid files
   newFilesToAdd = validNewFiles;
 
-  // Vérifier la taille totale
+  // Check total size
   if (totalSize > FILE_CONFIG.maxTotalSize) {
     errors.push(`Taille totale (${formatFileSize(totalSize)}) dépasse 20MB`);
   }
 
-  // Afficher les erreurs
+  // Display errors
   if (errors.length > 0) {
     warningDiv.innerHTML =
       "<strong>⚠️ Erreurs détectées :</strong><br>" + errors.join("<br>");
@@ -172,7 +172,7 @@ function validateAndDisplayFiles() {
     warningDiv.style.display = "none";
   }
 
-  // Afficher les nouveaux fichiers
+  // Display new files
   if (newFilesToAdd.length > 0) {
     let html =
       '<div style="margin-top: 15px; padding: 10px; background: #e7f3ff; border: 1px solid #0066cc; border-radius: 5px;">';
@@ -211,18 +211,18 @@ function validateAndDisplayFiles() {
   updateFileSummary();
 }
 
-//Met à jour le résumé des fichiers
+//Updates the file summary
 function updateFileSummary() {
   const summaryDiv = document.getElementById("files-summary");
   if (!summaryDiv) return;
 
-  // Compter les fichiers
+  // Count files
   const existingCount = document.querySelectorAll(".existing-file-item").length;
   const toDeleteCount = existingFilesToDelete.length;
   const toAddCount = newFilesToAdd.length;
   const finalCount = existingCount - toDeleteCount + toAddCount;
 
-  // Calculer la taille totale
+  // Calculate total size
   let totalSize = 0;
   document.querySelectorAll(".existing-file-item").forEach((el, index) => {
     const checkbox = el.querySelector('input[type="checkbox"]');
@@ -268,7 +268,7 @@ function updateFileSummary() {
   summaryDiv.innerHTML = html;
 }
 
-//Obtient l'icône correspondant au type de fichier
+//Gets the icon corresponding to the file type
 function getFileIcon(extension) {
   const icons = {
     pdf: "📄",
@@ -282,7 +282,7 @@ function getFileIcon(extension) {
   return icons[extension] || "📎";
 }
 
-//Formate la taille du fichier
+//Formats the file size
 function formatFileSize(bytes) {
   if (bytes === 0) return "0 B";
   const k = 1024;
@@ -291,7 +291,7 @@ function formatFileSize(bytes) {
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 }
 
-//Échappe le HTML pour éviter les injections XSS
+//Escapes HTML to prevent XSS injections
 function escapeHtml(text) {
   const map = {
     "&": "&amp;",
@@ -307,7 +307,7 @@ function escapeHtml(text) {
 document.addEventListener("DOMContentLoaded", function () {
   console.log("File edit script initialized");
 
-  // Vérifier avant la soumission du formulaire
+  // Check before form submission
   const form = document.querySelector("form");
   if (form) {
     form.addEventListener("submit", function (e) {
@@ -335,6 +335,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Initialiser le résumé
+  // Initialize the summary
   updateFileSummary();
 });

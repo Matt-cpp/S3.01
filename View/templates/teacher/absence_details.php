@@ -1,16 +1,18 @@
 <?php
+
+declare(strict_types=1);
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/absence_details_presenter.php';
-// Récupération de l'ID du cours depuis les paramètres GET
+// Retrieve the course ID from GET parameters
 $courseSlotId = isset($_GET['course_slot_id']) ? (int) $_GET['course_slot_id'] : 0;
 if ($courseSlotId <= 0) {
     die("ID de cours invalide.");
 } else {
-    $detailsAbs = new detailsAbs($courseSlotId);
-    $courseInfo = $detailsAbs->getAbsenceDetails();
-    $absences = $detailsAbs->getAbsences();
+    $details = new AbsenceDetailsPresenter($courseSlotId);
+    $courseInfo = $details->getAbsenceDetails();
+    $absences = $details->getAbsences();
 }
 ?>
 <!DOCTYPE html>

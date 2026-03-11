@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: check_proof_submission_delay.php
- * 
- * API de vérification du délai de soumission - Vérifie si un étudiant a dépassé le délai pour soumettre un justificatif.
- * Logique de calcul :
- * - Récupère la dernière absence non justifiée de l'étudiant
- * - Calcule la date de retour en cours (en excluant les week-ends)
- * - Ajoute 48h ouvrées (2 jours ouvrables) au retour
- * - Compare avec la date actuelle
- * Renvoie un avertissement JSON si le délai est dépassé ou proche de l'expiration.
- * Utilisé par AJAX lors de la soumission d'un justificatif pour alerter l'étudiant.
+ * File: check_proof_submission_delay.php
+ *
+ * Submission delay check API – Verifies whether a student has exceeded the deadline to submit a proof.
+ * Calculation logic:
+ * - Retrieves the student's last unjustified absence
+ * - Calculates the return-to-class date (excluding weekends)
+ * - Adds 48 working hours (2 business days) after return
+ * - Compares with current date
+ * Returns a JSON warning if the deadline is exceeded or close to expiration.
+ * Used by AJAX during proof submission to alert the student.
  */
 
 header('Content-Type: application/json');
@@ -28,12 +30,10 @@ require_once __DIR__ . '/../../Model/database.php';
 try {
     $db = getDatabase();
 
-    // Get student ID from request
-    $student_id = $_GET['student_id'] ?? 1; // Default to 1
+    $studentId = $_GET['student_id'] ?? 1;
 
-    // Get the student's identifier from the users table
-    $sql_user = "SELECT identifier FROM users WHERE id = :student_id";
-    $user = $db->selectOne($sql_user, ['student_id' => $student_id]);
+    $sqlUser = 'SELECT identifier FROM users WHERE id = :student_id';
+    $user = $db->selectOne($sqlUser, ['student_id' => $studentId]);
 
     if (!$user) {
         http_response_code(404);
@@ -44,11 +44,10 @@ try {
         exit;
     }
 
-    $student_identifier = $user['identifier'];
+    $studentIdentifier = $user['identifier'];
 
-    // Get the last absence of the student that is NOT already linked to a proof (justified or in process)
-    // We only consider truly unjustified absences (no proof submitted yet)
-    $sql_last_absence = "
+    // Get the last absence not linked to a proof (truly unjustified)
+    $sqlLastAbsence = "
         SELECT 
             cs.course_date,
             cs.end_time,
@@ -64,10 +63,9 @@ try {
         LIMIT 1
     ";
 
-    $last_absence = $db->selectOne($sql_last_absence, ['student_identifier' => $student_identifier]);
+    $lastAbsence = $db->selectOne($sqlLastAbsence, ['student_identifier' => $studentIdentifier]);
 
-    if (!$last_absence) {
-        // No absences found, no warning needed
+    if (!$lastAbsence) {
         echo json_encode([
             'success' => true,
             'show_warning' => false,
@@ -77,86 +75,66 @@ try {
     }
 
     $timezone = new DateTimeZone('Europe/Paris');
-    $last_absence_datetime = new DateTime($last_absence['last_absence_datetime'], $timezone);
-    $current_datetime = new DateTime('now', $timezone);
+    $lastAbsenceDatetime = new DateTime($lastAbsence['last_absence_datetime'], $timezone);
+    $currentDatetime = new DateTime('now', $timezone);
 
-    // Calculate the return to class date (skip weekends)
-    $return_date = clone $last_absence_datetime;
+    // Calculate the return-to-class date (skip weekends)
+    $returnDate = clone $lastAbsenceDatetime;
 
-    // If last absence is on Friday, return date is Monday
-    if ($return_date->format('N') == 5) { // Friday
-        $return_date->modify('+3 days'); // Skip to Monday
-    }
-    // If last absence is on Saturday (shouldn't happen normally)
-    elseif ($return_date->format('N') == 6) {
-        $return_date->modify('+2 days'); // Skip to Monday
-    }
-    // If last absence is on Sunday (shouldn't happen normally)
-    elseif ($return_date->format('N') == 7) {
-        $return_date->modify('+1 day'); // Skip to Monday
-    }
-    // For weekdays, next day is the return date
-    else {
-        $return_date->modify('+1 day');
+    if ($returnDate->format('N') == 5) {
+        $returnDate->modify('+3 days');
+    } elseif ($returnDate->format('N') == 6) {
+        $returnDate->modify('+2 days');
+    } elseif ($returnDate->format('N') == 7) {
+        $returnDate->modify('+1 day');
+    } else {
+        $returnDate->modify('+1 day');
     }
 
-    // Set return date to start of the day (8:00 AM)
-    $return_date->setTime(8, 0, 0);
+    $returnDate->setTime(8, 0, 0);
 
-    // Calculate 48 hours after return (in working hours)
-    // 48h after return = 2 working days after return
-    $deadline_date = clone $return_date;
-    $days_to_add = 2;
-    $days_added = 0;
+    // Calculate deadline: 2 working days after return
+    $deadlineDate = clone $returnDate;
+    $daysToAdd = 2;
+    $daysAdded = 0;
 
-    while ($days_added < $days_to_add) {
-        $deadline_date->modify('+1 day');
-        // Skip weekends
-        if ($deadline_date->format('N') < 6) { // Not Saturday or Sunday
-            $days_added++;
+    while ($daysAdded < $daysToAdd) {
+        $deadlineDate->modify('+1 day');
+        if ($deadlineDate->format('N') < 6) {
+            $daysAdded++;
         }
     }
 
-    // Check if current date is after the 48h deadline
-    $show_warning = $current_datetime > $deadline_date;
+    $showWarning = $currentDatetime > $deadlineDate;
 
-    // Format dates for display
-    $last_absence_str = $last_absence_datetime->format('d/m/Y à H:i');
-    $return_str = $return_date->format('d/m/Y');
-    $deadline_str = $deadline_date->format('d/m/Y à H:i');
+    $lastAbsenceStr = $lastAbsenceDatetime->format('d/m/Y à H:i');
+    $returnStr = $returnDate->format('d/m/Y');
+    $deadlineStr = $deadlineDate->format('d/m/Y à H:i');
 
-    // Generate warning message
-    $warning_message = '';
-    if ($show_warning) {
-        $warning_message = "⚠️ <strong>ATTENTION - Délai de soumission dépassé</strong><br><br>";
-        $warning_message .= "Votre dernière absence <u>non justifiée</u> remonte au <strong>{$last_absence_str}</strong>.<br>";
-        $warning_message .= "Vous êtes revenu en cours le <strong>{$return_str}</strong>.<br>";
-        $warning_message .= "Le délai de 48h (2 jours ouvrés) après votre retour était le <strong>{$deadline_str}</strong>.<br><br>";
-        $warning_message .= "<strong style='color: #d32f2f;'>⏰ Ce délai étant dépassé, il y a un risque important que votre justificatif ne soit pas pris en compte.</strong><br><br>";
-        $warning_message .= "Vous pouvez tout de même soumettre votre justificatif, mais il sera soumis à l'appréciation de l'administration.<br><br>";
-        $warning_message .= "<small style='color: #666;'>ℹ️ Note : Ce calcul ne prend en compte que vos absences non justifiées (sans justificatif déjà soumis).</small>";
+    $warningMessage = '';
+    if ($showWarning) {
+        $warningMessage = "⚠️ <strong>ATTENTION - Délai de soumission dépassé</strong><br><br>";
+        $warningMessage .= "Votre dernière absence <u>non justifiée</u> remonte au <strong>{$lastAbsenceStr}</strong>.<br>";
+        $warningMessage .= "Vous êtes revenu en cours le <strong>{$returnStr}</strong>.<br>";
+        $warningMessage .= "Le délai de 48h (2 jours ouvrés) après votre retour était le <strong>{$deadlineStr}</strong>.<br><br>";
+        $warningMessage .= "<strong style='color: #d32f2f;'>⏰ Ce délai étant dépassé, il y a un risque important que votre justificatif ne soit pas pris en compte.</strong><br><br>";
+        $warningMessage .= "Vous pouvez tout de même soumettre votre justificatif, mais il sera soumis à l'appréciation de l'administration.<br><br>";
+        $warningMessage .= "<small style='color: #666;'>ℹ️ Note : Ce calcul ne prend en compte que vos absences non justifiées (sans justificatif déjà soumis).</small>";
     }
 
     echo json_encode([
         'success' => true,
-        'show_warning' => $show_warning,
-        'last_absence_date' => $last_absence_str,
-        'return_date' => $return_str,
-        'deadline_date' => $deadline_str,
-        'current_date' => $current_datetime->format('d/m/Y à H:i'),
-        'warning_message' => $warning_message,
-        'debug' => [
-            'last_absence_datetime' => $last_absence_datetime->format('Y-m-d H:i:s'),
-            'return_date' => $return_date->format('Y-m-d H:i:s'),
-            'deadline_date' => $deadline_date->format('Y-m-d H:i:s'),
-            'current_datetime' => $current_datetime->format('Y-m-d H:i:s'),
-            'is_after_deadline' => $show_warning
-        ]
+        'show_warning' => $showWarning,
+        'last_absence_date' => $lastAbsenceStr,
+        'return_date' => $returnStr,
+        'deadline_date' => $deadlineStr,
+        'current_date' => $currentDatetime->format('d/m/Y à H:i'),
+        'warning_message' => $warningMessage
     ]);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
-        'error' => 'Erreur serveur: ' . $e->getMessage(),
+        'error' => 'Server error: ' . $e->getMessage(),
         'show_warning' => false
     ]);
 }

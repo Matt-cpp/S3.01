@@ -1,8 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Redirect to the user's dashboard if already authenticated
  */
-function redirectIfAuthenticated()
+function redirectIfAuthenticated(): void
 {
     if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
         redirectToDashboard($_SESSION['user_role']);
@@ -23,11 +26,11 @@ require_once __DIR__ . '/login_presenter.php';
 /**
  * Require authentication - redirect to login if not logged in
  */
-function requireAuth()
+function requireAuth(): ?array
 {
     if (!isLoggedIn()) {
         $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-        header("Location: /View/templates/shared/login.php");
+        header('Location: /View/templates/shared/login.php');
         exit;
     }
     return getCurrentUser();
@@ -36,7 +39,7 @@ function requireAuth()
 /**
  * Require specific role - redirect to appropriate page if unauthorized
  */
-function requireRole($allowedRoles)
+function requireRole(array|string $allowedRoles): array
 {
     $user = requireAuth();
 
@@ -58,30 +61,30 @@ function requireRole($allowedRoles)
 /**
  * Redirect user to their appropriate dashboard
  */
-function redirectToDashboard($role)
+function redirectToDashboard(string $role): void
 {
     switch ($role) {
         case 'student':
-            header("Location: /View/templates/student/home.php");
+            header('Location: /View/templates/student/home.php');
             break;
         case 'teacher':
-            header("Location: /View/templates/teacher/home.php");
+            header('Location: /View/templates/teacher/home.php');
             break;
         case 'academic_manager':
-            header("Location: /View/templates/academic_manager/home.php");
+            header('Location: /View/templates/academic_manager/home.php');
             break;
         case 'secretary':
-            header("Location: /View/templates/secretary/home.php");
+            header('Location: /View/templates/secretary/home.php');
             break;
         default:
-            header("Location: /View/templates/shared/login.php");
+            header('Location: /View/templates/shared/login.php');
     }
 }
 
 /**
  * Get user's home page URL based on role
  */
-function getUserHomePage($role)
+function getUserHomePage(string $role): string
 {
     switch ($role) {
         case 'student':

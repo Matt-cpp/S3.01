@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: login.php
- * 
- * Contrôleur de connexion - Gère l'authentification des utilisateurs.
- * Traite le formulaire de connexion, vérifie les identifiants dans la base de données,
- * crée la session utilisateur et redirige vers la page appropriée selon le rôle.
- * Fournit également des fonctions utilitaires (isLoggedIn, getCurrentUser, logout).
+ * File: login_presenter.php
+ *
+ * Login controller — handles user authentication.
+ * Processes the login form, verifies credentials in the database,
+ * creates the user session and redirects to the appropriate page based on role.
+ * Also provides utility functions (isLoggedIn, getCurrentUser, logout).
  */
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -14,28 +16,28 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once __DIR__ . '/../../Model/database.php';
 
-// Traitement du formulaire de connexion
+// Login form processing
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_POST['password'])) {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
     $errors = [];
 
-    // Validation basique
+    // Basic validation
     if (empty($email)) {
         $errors[] = "L'email est requis.";
     }
     if (empty($password)) {
-        $errors[] = "Le mot de passe est requis.";
+        $errors[] = 'Le mot de passe est requis.';
     }
 
-    // Si pas d'erreurs, tenter la connexion
+    // If no errors, attempt login
     if (empty($errors)) {
         try {
             $db = getDatabase();
 
-            // Test de la connexion d'abord
+            // Test the connection first
             if (!$db->testConnection()) {
-                $errors[] = "Impossible de se connecter à la base de données.";
+                $errors[] = 'Impossible de se connecter à la base de données.';
             } else {
                 $query = "SELECT id, email, password_hash, first_name, last_name, role::text as role
                         FROM users WHERE email = :email";
@@ -43,55 +45,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                 $user = $db->selectOne($query, [':email' => strtolower($email)]);
 
                 if ($user && password_verify($password, $user['password_hash'])) {
-                    // Connexion réussie
+                    // Login successful
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['user_email'] = $user['email'];
                     $_SESSION['user_first_name'] = $user['first_name'];
                     $_SESSION['user_last_name'] = $user['last_name'];
                     $_SESSION['user_role'] = $user['role'];
 
-                    // Redirection vers la page principale selon le rôle
+                    // Redirect to the main page based on role
                     $redirectUrl = $_SESSION['redirect_after_login'] ?? null;
                     unset($_SESSION['redirect_after_login']);
 
                     if ($redirectUrl) {
-                        header("Location: " . $redirectUrl);
+                        header('Location: ' . $redirectUrl);
                     } else {
-                        // Redirection par défaut selon le rôle
+                        // Default redirect based on role
                         if ($user['role'] === 'student') {
-                            header("Location: ../../View/templates/student/home.php");
+                            header('Location: ../../View/templates/student/home.php');
                         } elseif ($user['role'] === 'academic_manager') {
-                            header("Location: ../../View/templates/academic_manager/home.php");
+                            header('Location: ../../View/templates/academic_manager/home.php');
                         } elseif ($user['role'] === 'teacher') {
-                            header("Location: ../../View/templates/teacher/home.php");
+                            header('Location: ../../View/templates/teacher/home.php');
                         } elseif ($user['role'] === 'secretary') {
-                            header("Location: ../../View/templates/secretary/home.php");
+                            header('Location: ../../View/templates/secretary/home.php');
                         }
                     }
                     exit;
                 } else {
-                    $errors[] = "Email ou mot de passe incorrect.";
+                    $errors[] = 'Email ou mot de passe incorrect.';
                 }
             }
         } catch (Exception $e) {
-            $errors[] = "Email ou mot de passe incorrect.";
+            $errors[] = 'Email ou mot de passe incorrect.';
         }
     }
 
-    // En cas d'erreur, sauvegarder pour affichage
+    // On error, save for display
     $_SESSION['login_errors'] = $errors;
     $_SESSION['form_data'] = $_POST;
-    header("Location: ../../View/templates/shared/login.php");
+    header('Location: ../../View/templates/shared/login.php');
     exit;
 }
 
-// Fonctions utilitaires
-function isLoggedIn()
+// Utility functions
+function isLoggedIn(): bool
 {
     return isset($_SESSION['user_id']);
 }
 
-function getCurrentUser()
+function getCurrentUser(): ?array
 {
     if (isLoggedIn()) {
         return [
@@ -105,10 +107,10 @@ function getCurrentUser()
     return null;
 }
 
-function logout()
+function logout(): void
 {
     session_unset();
     session_destroy();
-    header("Location: ../../View/templates/shared/login.php");
+    header('Location: ../../View/templates/shared/login.php');
     exit;
 }

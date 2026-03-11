@@ -1,27 +1,27 @@
-// Gestion des modals pour la page d'accueil (absences et justificatifs)
+// Modal management for the home page (absences and proofs)
 document.addEventListener("DOMContentLoaded", function () {
-  // Éléments pour le modal des absences
+  // Elements for the absence modal
   const absenceModal = document.getElementById("absenceModal");
   const absenceModalContent = document.getElementById("absenceModalContent");
   const closeAbsenceModalBtn = document.getElementById("closeAbsenceModal");
   const absenceRows = document.querySelectorAll(".absence-row");
 
-  // Éléments pour le modal des justificatifs
+  // Elements for the proof modal
   const proofModal = document.getElementById("proofModal");
   const proofModalContent = document.getElementById("proofModalContent");
   const closeProofModalBtn = document.getElementById("closeProofModal");
   const proofRows = document.querySelectorAll(".proof-row");
 
-  // Couleurs de bordure selon le statut
+  // Border colors based on status
   const statusBorderColors = {
-    accepted: "#28a745", // Vert
-    rejected: "#dc3545", // Rouge
-    under_review: "#ffc107", // Jaune/Orange
-    pending: "#17a2b8", // Bleu
-    none: "#6c757d", // Gris
+    accepted: "#28a745", // Green
+    rejected: "#dc3545", // Red
+    under_review: "#ffc107", // Yellow/Orange
+    pending: "#17a2b8", // Blue
+    none: "#6c757d", // Grey
   };
 
-  // Gestion du modal des absences
+  // Absence modal management
   absenceRows.forEach((row) => {
     row.addEventListener("click", function () {
       const modalStatus = this.dataset.modalStatus;
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const statusIcon = this.dataset.statusIcon;
       const statusClass = this.dataset.statusClass;
 
-      // Données évaluation et rattrapage
+      // Evaluation and makeup data
       const isEvaluation = this.dataset.isEvaluation === "1";
       const hasMakeup = this.dataset.hasMakeup === "1";
       const makeupScheduled = this.dataset.makeupScheduled === "1";
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const makeupResource = this.dataset.makeupResource;
       const makeupComment = this.dataset.makeupComment;
 
-      // Remplir le modal avec les données
+      // Fill the modal with data
       document.getElementById("absenceModalDate").textContent = date;
       document.getElementById("absenceModalTime").textContent = time;
       document.getElementById("absenceModalCourse").textContent = course;
@@ -61,17 +61,17 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("absenceModalEvaluation").textContent =
         evaluation;
 
-      // Afficher le type avec le badge approprié
+      // Display the type with the appropriate badge
       const typeBadgeElement = document.getElementById("absenceModalType");
       typeBadgeElement.textContent = type;
       typeBadgeElement.className = "badge " + typeBadge;
 
-      // Afficher le statut avec le badge approprié
+      // Display the status with the appropriate badge
       const statusBadge = document.getElementById("absenceModalStatus");
       statusBadge.textContent = statusIcon + " " + statusText;
       statusBadge.className = "badge " + statusClass;
 
-      // Gérer l'affichage de la section évaluation
+      // Handle the display of the evaluation section
       const evaluationSection = document.getElementById("evaluationSection");
       if (isEvaluation) {
         evaluationSection.style.display = "block";
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
         evaluationSection.style.display = "none";
       }
 
-      // Gérer l'affichage de la section rattrapage
+      // Handle the display of the makeup section
       const makeupSection = document.getElementById("makeupSection");
       if (hasMakeup && makeupScheduled) {
         makeupSection.style.display = "block";
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
           : "-";
         document.getElementById("makeupRoom").textContent = makeupRoom || "-";
 
-        // Gérer la ressource
+        // Handle the resource
         const makeupResourceItem =
           document.getElementById("makeupResourceItem");
         if (makeupResource && makeupResource.trim() !== "") {
@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
           makeupResourceItem.style.display = "none";
         }
 
-        // Gérer le commentaire
+        // Handle the comment
         const makeupCommentItem = document.getElementById("makeupCommentItem");
         if (makeupComment && makeupComment.trim() !== "") {
           makeupCommentItem.style.display = "flex";
@@ -116,19 +116,19 @@ document.addEventListener("DOMContentLoaded", function () {
         makeupSection.style.display = "none";
       }
 
-      // Appliquer la couleur de bordure selon le statut
+      // Apply the border color based on status
       const borderColor = statusBorderColors[modalStatus] || "#6c757d";
       absenceModalContent.style.borderColor = borderColor;
       absenceModalContent.style.borderWidth = "4px";
       absenceModalContent.style.borderStyle = "solid";
 
-      // Afficher le modal
+      // Show the modal
       absenceModal.classList.add("show");
       document.body.style.overflow = "hidden";
     });
   });
 
-  // Gestion du modal des justificatifs
+  // Proof modal management
   proofRows.forEach((row) => {
     row.addEventListener("click", function () {
       const status = this.dataset.status;
@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const comment = this.dataset.comment;
       const filesJson = this.dataset.files;
 
-      // Fonction pour formater la date et l'heure
+      // Function to format date and time
       function formatDateTime(datetime) {
         if (!datetime) return "-";
         const date = new Date(datetime);
@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return `${day}/${month}/${year} à ${hours}h${minutes}`;
       }
 
-      // Remplir le modal avec les données
+      // Fill the modal with data
       document.getElementById("proofModalStartDate").textContent =
         formatDateTime(startDatetime);
       document.getElementById("proofModalEndDate").textContent =
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("proofModalProcessing").textContent = processing;
       document.getElementById("proofModalExam").textContent = exam;
 
-      // Afficher les fichiers
+      // Display files
       let files = [];
       try {
         files = filesJson ? JSON.parse(filesJson) : [];
@@ -217,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
         filesSection.style.display = "none";
       }
 
-      // Gérer la raison personnalisée
+      // Handle the custom reason
       if (customReason && customReason.trim() !== "") {
         document.getElementById("proofCustomReasonItem").style.display = "flex";
         document.getElementById("proofModalCustomReason").textContent =
@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("proofCustomReasonItem").style.display = "none";
       }
 
-      // Gérer le commentaire de l'étudiant
+      // Handle the student comment
       if (studentComment && studentComment.trim() !== "") {
         document.getElementById("proofStudentCommentItem").style.display =
           "flex";
@@ -237,12 +237,12 @@ document.addEventListener("DOMContentLoaded", function () {
           "none";
       }
 
-      // Afficher le statut avec le badge approprié
+      // Display the status with the appropriate badge
       const statusBadge = document.getElementById("proofModalStatus");
       statusBadge.textContent = statusIcon + " " + statusText;
       statusBadge.className = "badge " + statusClass;
 
-      // Afficher le commentaire s'il existe
+      // Display the comment if it exists
       if (comment && comment.trim() !== "") {
         document.getElementById("proofCommentSection").style.display = "block";
         document.getElementById("proofModalComment").textContent = comment;
@@ -250,7 +250,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("proofCommentSection").style.display = "none";
       }
 
-      // Afficher le bouton "Compléter" uniquement pour les justificatifs en révision
+      // Show the "Complete" button only for proofs under review
       const actionSection = document.getElementById("proofActionSection");
       const completeBtn = document.getElementById("proofModalCompleteBtn");
       if (status === "under_review" && proofId) {
@@ -262,25 +262,25 @@ document.addEventListener("DOMContentLoaded", function () {
         actionSection.style.display = "none";
       }
 
-      // Appliquer la couleur de bordure selon le statut
+      // Apply the border color based on status
       const borderColor = statusBorderColors[status] || "#6c757d";
       proofModalContent.style.borderColor = borderColor;
       proofModalContent.style.borderWidth = "4px";
       proofModalContent.style.borderStyle = "solid";
 
-      // Afficher le modal
+      // Show the modal
       proofModal.classList.add("show");
       document.body.style.overflow = "hidden";
     });
   });
 
-  // Fermer les modals
+  // Close modals
   closeAbsenceModalBtn.addEventListener("click", () =>
     closeModal(absenceModal)
   );
   closeProofModalBtn.addEventListener("click", () => closeModal(proofModal));
 
-  // Fermer en cliquant sur les overlays
+  // Close by clicking on overlays
   document.querySelectorAll(".modal-overlay").forEach((overlay) => {
     overlay.addEventListener("click", function () {
       if (absenceModal.classList.contains("show")) {
@@ -292,7 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Fermer avec la touche Échap
+  // Close with the Escape key
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
       if (absenceModal.classList.contains("show")) {

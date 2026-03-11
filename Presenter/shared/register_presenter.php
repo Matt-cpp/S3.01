@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: register.php
- * 
- * Contrôleur d'inscription - Gère la création de nouveaux comptes utilisateurs.
- * Implémente un processus d'inscription en 3 étapes:
- * 1. Envoi d'un code de vérification par email
- * 2. Vérification du code saisi par l'utilisateur
- * 3. Création du compte avec mot de passe
- * Extrait automatiquement le prénom et nom depuis l'adresse email.
+ * File: register_presenter.php
+ *
+ * Registration controller — handles new user account creation.
+ * Implements a 3-step registration process:
+ * 1. Sends a verification code by email
+ * 2. Verifies the code entered by the user
+ * 3. Creates the account with a password
+ * Automatically extracts first and last name from the email address.
  */
 
 session_start();
@@ -17,8 +19,8 @@ require_once __DIR__ . '/../../Model/email.php';
 
 class RegistrationController
 {
-    private $pdo;
-    private $emailService;
+    private PDO $pdo;
+    private EmailService $emailService;
 
     public function __construct()
     {
@@ -26,26 +28,26 @@ class RegistrationController
         $this->emailService = new EmailService();
     }
 
-    public function sendVerificationCode($email)
+    public function sendVerificationCode(string $email): array
     {
         try {
-            // Générer un code de vérification à 6 chiffres
-            $verificationCode = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+            // Generate a 6-digit verification code
+            $verificationCode = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
 
-            // Supprimer les anciens codes pour cet email
-            $stmt = $this->pdo->prepare("DELETE FROM email_verifications WHERE email = ?");
+            // Delete old codes for this email
+            $stmt = $this->pdo->prepare('DELETE FROM email_verifications WHERE email = ?');
             $stmt->execute([$email]);
 
-            // Insérer le nouveau code (expire dans 15 minutes)
+            // Insert the new code (expires in 15 minutes)
             $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-            $stmt = $this->pdo->prepare("INSERT INTO email_verifications (email, verification_code, expires_at) VALUES (?, ?, ?)");
+            $stmt = $this->pdo->prepare('INSERT INTO email_verifications (email, verification_code, expires_at) VALUES (?, ?, ?)');
             $stmt->execute([$email, $verificationCode, $expiresAt]);
 
-            // Envoyer l'email
-            $subject = "Code de vérification - Gestion Absence UPHF";
+            // Send the email
+            $subject = 'Code de vérification - Gestion Absence UPHF';
             $body = $this->getVerificationEmailTemplate($verificationCode);
 
-            // Images pour l'email
+            // Images for the email
             $images = [
                 'logoIUT' => __DIR__ . '/../../View/img/logoIUT.png'
             ];
@@ -62,7 +64,7 @@ class RegistrationController
         }
     }
 
-    public function verifyCode($email, $code)
+    public function verifyCode(string $email, string $code): array
     {
         try {
             $stmt = $this->pdo->prepare("
@@ -72,8 +74,8 @@ class RegistrationController
             $stmt->execute([$email, $code]);
 
             if ($stmt->fetch()) {
-                // Marquer comme vérifié
-                $stmt = $this->pdo->prepare("UPDATE email_verifications SET is_verified = TRUE WHERE email = ? AND verification_code = ?");
+                // Mark as verified
+                $stmt = $this->pdo->prepare('UPDATE email_verifications SET is_verified = TRUE WHERE email = ? AND verification_code = ?');
                 $stmt->execute([$email, $code]);
                 return ['success' => true, 'message' => 'Code vérifié avec succès.'];
             } else {
@@ -84,21 +86,21 @@ class RegistrationController
         }
     }
 
-    public function setToLowerMail($email)
+    public function setToLowerMail(string $email): string
     {
         return strtolower($email);
     }
 
-    public function createAccount($email, $password, $confirmPassword)
+    public function createAccount(string $email, string $password, string $confirmPassword): array
     {
         $email = $this->setToLowerMail($email);
         try {
-            // Vérifier que les mots de passe correspondent
+            // Check that passwords match
             if ($password !== $confirmPassword) {
                 return ['success' => false, 'message' => 'Les mots de passe ne correspondent pas.'];
             }
 
-            // Vérifier que l'email a été vérifié
+            // Check that the email has been verified
             $stmt = $this->pdo->prepare("
                 SELECT id FROM email_verifications 
                 WHERE email = ? AND is_verified = TRUE AND expires_at > NOW()
@@ -110,18 +112,18 @@ class RegistrationController
 
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-            // Extraire prénom et nom depuis l'email
+            // Extract first and last name from email
             list($firstName, $lastName) = $this->extractNameFromEmail($email);
 
-            // Vérifier si l'email existe déjà dans users
-            $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = ?");
+            // Check if email already exists in users
+            $stmt = $this->pdo->prepare('SELECT id FROM users WHERE email = ?');
             $stmt->execute([$email]);
             $existingUser = $stmt->fetch();
 
             $successMessage = '';
 
             if ($existingUser) {
-                // L'email existe déjà, mettre à jour le mot de passe
+                // Email already exists, update the password
                 $stmt = $this->pdo->prepare("
                     UPDATE users 
                     SET password_hash = ?, email_verified = TRUE, updated_at = CURRENT_TIMESTAMP
@@ -131,7 +133,7 @@ class RegistrationController
 
                 $successMessage = 'Mot de passe mis à jour avec succès !';
             } else {
-                // L'email n'existe pas, créer un nouveau compte
+                // Email does not exist, create a new account
                 $stmt = $this->pdo->prepare("
                     INSERT INTO users (email, password_hash, role, email_verified, last_name, first_name) 
                     VALUES (?, ?, 'student', TRUE, ?, ?)
@@ -141,8 +143,8 @@ class RegistrationController
                 $successMessage = 'Nouveau compte créé avec succès !';
             }
 
-            // Supprimer les codes de vérification utilisés
-            $stmt = $this->pdo->prepare("DELETE FROM email_verifications WHERE email = ?");
+            // Delete used verification codes
+            $stmt = $this->pdo->prepare('DELETE FROM email_verifications WHERE email = ?');
             $stmt->execute([$email]);
 
             return ['success' => true, 'message' => $successMessage];
@@ -152,30 +154,30 @@ class RegistrationController
     }
 
     /**
-     * Extrait le prénom et le nom à partir de l'adresse email
-     * Format attendu: prenom.nom@domain.com
+     * Extracts first and last name from the email address
+     * Expected format: firstname.lastname@domain.com
      */
-    protected function extractNameFromEmail($email)
+    protected function extractNameFromEmail(string $email): array
     {
-        // Récupérer la partie avant le @
+        // Get the part before @
         $emailParts = explode('@', $email);
         $localPart = $emailParts[0];
 
-        // Séparer par le point
+        // Split by dot
         $nameParts = explode('.', $localPart);
 
         if (count($nameParts) >= 2) {
             $firstName = ucfirst(strtolower($nameParts[0]));
 
-            // Pour le nom, prendre tout ce qui est après le premier point
+            // For last name, take everything after the first dot
             $lastNameParts = array_slice($nameParts, 1);
             $lastName = implode('.', $lastNameParts);
 
-            // Supprimer les chiffres du nom de famille
+            // Remove digits from the last name
             $lastName = preg_replace('/\d+/', '', $lastName);
             $lastName = ucfirst(strtolower($lastName));
         } else {
-            // Si pas de point, utiliser l'email comme prénom
+            // If no dot, use the email as first name
             $firstName = ucfirst(strtolower($localPart));
             $lastName = 'À compléter';
         }
@@ -183,7 +185,7 @@ class RegistrationController
         return [$firstName, $lastName];
     }
 
-    private function getVerificationEmailTemplate($code)
+    private function getVerificationEmailTemplate(string $code): string
     {
         return "
         <html>
@@ -219,7 +221,7 @@ class RegistrationController
     }
 }
 
-// Traitement des requêtes
+// Request processing
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller = new RegistrationController();
 

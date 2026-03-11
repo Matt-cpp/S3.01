@@ -131,7 +131,7 @@ button[type="submit"]:hover {
     background-color: #5a6268;
 }
 
-/* Compteur de résultats */
+/* Results counter */
 .results-counter {
     margin-bottom: 15px;
     font-size: 0.95rem;
@@ -269,7 +269,7 @@ button[type="submit"]:hover {
     border: 1px solid #e5e7eb;
 }
 
-/* Badges pour évaluation */
+/* Evaluation badges */
 .eval-badge {
     background-color: #fff3cd;
     color: #856404;
@@ -319,7 +319,7 @@ button[type="submit"]:hover {
     border: 1px solid #e0e0e0;
 }
 
-/* Anciens styles - à conserver pour compatibilité si nécessaire */
+/* Legacy styles - keep for compatibility if needed */
 .badge-evaluation-yes {
     background-color: #f8d7da;
     color: #721c24;
@@ -334,7 +334,7 @@ button[type="submit"]:hover {
     font-weight: 600;
 }
 
-/* Badge pour évaluation */
+/* Evaluation badge */
 .evaluation-badge {
     background-color: #fff3cd;
     color: #856404;
@@ -345,7 +345,7 @@ button[type="submit"]:hover {
     margin-left: 0.5rem;
 }
 
-/* Message pour aucun résultat */
+/* No results message */
 .no-results {
     text-align: center;
     padding: 40px 20px;

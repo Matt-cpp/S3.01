@@ -1,14 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: ProofModel.php
- * 
- * Modèle Justificatif (Proof) - Gère les justificatifs d'absence dans la base de données.
- * Fournit des méthodes pour:
- * - Récupérer les détails d'un justificatif
- * - Mettre à jour le statut d'un justificatif (accepté, rejeté, en révision)
- * - Mettre à jour les absences liées selon la décision
- * - Enregistrer les motifs de rejet
+ * Proof model - Manages absence justifications in the database.
+ * Provides methods to:
+ * - Retrieve proof details
+ * - Update proof status (accepted, rejected, under review)
+ * - Update linked absences based on the decision
+ * - Record rejection reasons
  */
 
 require_once __DIR__ . '/database.php';
@@ -16,8 +16,8 @@ require_once __DIR__ . '/AbsenceMonitoringModel.php';
 
 class ProofModel
 {
-    private $db;
-    private $monitoringModel;
+    private Database $db;
+    private AbsenceMonitoringModel $monitoringModel;
 
     public function __construct()
     {
@@ -25,8 +25,8 @@ class ProofModel
         $this->monitoringModel = new AbsenceMonitoringModel();
     }
 
-    //Récupère les informations complètes d’un justificatif d’absence
-    // Récupère les détails d'un justificatif par son ID
+    //RÃ©cupÃ¨re les informations complÃ¨tes dâ€™un justificatif dâ€™absence
+    // RÃ©cupÃ¨re les dÃ©tails d'un justificatif par son ID
     public function getProofDetails(int $proofId): ?array
     {
         $sql = "
@@ -56,11 +56,11 @@ class ProofModel
             $result = $this->db->selectOne($sql, ['id' => $proofId]);
 
             if ($result === false || $result === null || empty($result)) {
-                error_log("ProofModel->getProofDetails: Aucun résultat pour proof_id=$proofId");
+                error_log('ProofModel->getProofDetails: No result for proof_id=' . $proofId);
                 return null;
             }
 
-            // récupération heure de début et de fin via la table proof_absences
+            // Retrieve start and end times via proof_absences table
             $sqlAbs = "SELECT cs.course_date, cs.start_time, cs.end_time
                 FROM proof_absences pa
                 JOIN absences a ON pa.absence_id = a.id
@@ -78,26 +78,26 @@ class ProofModel
                 $result['absence_end_datetime'] = $last['course_date'] . ' ' . $last['end_time'];
             }
 
-            // Extraire les fichiers depuis proof_files (JSONB) ou file_path
+            // Extract files from proof_files (JSONB) or file_path
             $result['files'] = $this->extractProofFiles($result);
 
             return $result;
         } catch (Exception $e) {
-            error_log("Erreur ProofModel->getProofDetails : " . $e->getMessage());
+            error_log('Error ProofModel->getProofDetails: ' . $e->getMessage());
             return null;
         }
     }
 
-    // Extrait la liste des fichiers depuis proof_files (JSONB) ou file_path
+    // Extract file list from proof_files (JSONB) or file_path
     private function extractProofFiles(array $proof): array
     {
         $files = [];
 
-        // 1. Vérifier le champ proof_files (JSONB)
+        // 1. Check the proof_files field (JSONB)
         if (!empty($proof['proof_files'])) {
             $jsonFiles = $proof['proof_files'];
 
-            // Si c'est une chaîne JSON, la décoder
+            // If it's a JSON string, decode it
             if (is_string($jsonFiles)) {
                 $decoded = json_decode($jsonFiles, true);
                 if (is_array($decoded)) {
@@ -105,23 +105,23 @@ class ProofModel
                 }
             }
 
-            // Si c'est un tableau, extraire les fichiers avec path et name
+            // If it's an array, extract files with path and name
             if (is_array($jsonFiles)) {
                 foreach ($jsonFiles as $file) {
                     if (is_array($file) && isset($file['path'])) {
-                        // Fichier avec structure complète {path, name}
+                        // File with complete structure {path, name}
                         $files[] = [
                             'path' => $file['path'],
                             'name' => $file['name'] ?? basename($file['path'])
                         ];
                     } elseif (is_array($file) && isset($file['file_path'])) {
-                        // Fichier avec structure alternative {file_path}
+                        // File with alternative structure {file_path}
                         $files[] = [
                             'path' => $file['file_path'],
                             'name' => $file['name'] ?? basename($file['file_path'])
                         ];
                     } elseif (is_string($file)) {
-                        // Fichier simple (juste le chemin)
+                        // Simple file (just the path)
                         $files[] = [
                             'path' => $file,
                             'name' => basename($file)
@@ -131,7 +131,7 @@ class ProofModel
             }
         }
 
-        // 2. Fallback sur file_path si proof_files est vide
+        // 2. Fallback to file_path if proof_files is empty
         if (empty($files) && !empty($proof['file_path'])) {
             $files[] = [
                 'path' => $proof['file_path'],
@@ -142,7 +142,7 @@ class ProofModel
         return $files;
     }
 
-    // Met à jour le statut du justificatif
+    // Update proof status
     public function updateProofStatus(int $proofId, string $status): bool
     {
         try {
@@ -151,8 +151,7 @@ class ProofModel
 
             // Update proof status
             $sql = "UPDATE proof SET status = :status WHERE id = :id";
-            $affected = $this->db->execute($sql, ['status' => $status, 'id' => $proofId]);
-            echo "<pre>Résultat update : lignes affectées = " . var_export($affected, true) . "</pre>";
+            $this->db->execute($sql, ['status' => $status, 'id' => $proofId]);
 
             // Update absence monitoring based on proof status
             if ($proofDetails && in_array($status, ['accepted', 'pending', 'under_review'])) {
@@ -186,13 +185,13 @@ class ProofModel
 
             return true;
         } catch (Exception $e) {
-            error_log("Erreur updateProofStatus : " . $e->getMessage());
+            error_log('Error updateProofStatus: ' . $e->getMessage());
             return false;
         }
     }
 
-    // Met à jour les absences associées au justificatif en fonction de la décision prise
-    public function updateAbsencesForProof(string $studentIdentifier, string $startDate, string $endDate, string $decision)
+    // Update absences linked to the proof based on the decision
+    public function updateAbsencesForProof(string $studentIdentifier, string $startDate, string $endDate, string $decision): void
     {
         if ($decision === 'accepted') {
             $sql = "UPDATE absences a
@@ -222,16 +221,16 @@ class ProofModel
     }
 
 
-    // Enregistre la raison de rejet et le commentaire dans decision_history
+    // Record rejection reason and comment in decision_history
     public function setRejectionReason(int $proofId, string $reason, string $comment = '', ?int $userId = null): bool
     {
         $this->db->beginTransaction();
         try {
-            // Récupération de l'ancien statut avant modification
+            // Retrieve old status before modification
             $proof = $this->getProofDetails($proofId);
             $oldStatus = $proof ? $proof['status'] : null;
 
-            // Si aucun userId fourni, essayer d'utiliser processed_by_user_id du justificatif
+            // If no userId provided, try to use processed_by_user_id from the proof
             if ($userId === null) {
                 try {
                     $row = $this->db->selectOne("SELECT processed_by_user_id FROM proof WHERE id = :id", ['id' => $proofId]);
@@ -239,32 +238,32 @@ class ProofModel
                         $userId = $row['processed_by_user_id'];
                     }
                 } catch (Exception $e) {
-                    // ignore, userId restera null
+                    // ignore, userId will remain null
                 }
             }
 
-            // Si toujours aucun user_id après tentative, utiliser un fallback configurable (SYSTEM_USER_ID) ou 1
+            // If still no user_id after attempt, use a configurable fallback (SYSTEM_USER_ID) or 1
             if ($userId === null) {
                 $fallback = (int) (env('SYSTEM_USER_ID', '1') ?? 1);
-                error_log("setRejectionReason: aucun user_id trouvé, utilisation du fallback SYSTEM_USER_ID={$fallback}");
+                error_log('setRejectionReason: no user_id found, using fallback SYSTEM_USER_ID=' . $fallback);
                 $userId = $fallback;
             }
-            // Vérifier que le userId existe dans la table users ; sinon, essayer de récupérer le premier user existant
+            // Verify that userId exists in users table; otherwise try to get the first existing user
             try {
                 $exists = $this->db->selectOne("SELECT id FROM users WHERE id = :id", ['id' => $userId]);
                 if (!$exists) {
                     $first = $this->db->selectOne("SELECT id FROM users ORDER BY id LIMIT 1");
                     if ($first && isset($first['id'])) {
-                        error_log("setRejectionReason: user_id {$userId} introuvable, fallback vers user_id {$first['id']}");
+                        error_log('setRejectionReason: user_id ' . $userId . ' not found, falling back to user_id ' . $first['id']);
                         $userId = $first['id'];
                     } else {
-                        throw new \Exception('Aucun utilisateur trouvé dans la table users ; créer au moins un utilisateur avant d\'enregistrer une décision');
+                        throw new \Exception('No user found in users table; create at least one user before recording a decision');
                     }
                 }
             } catch (Exception $e) {
-                throw $e; // sera capturé par le catch de la transaction
+                throw $e; // will be caught by the transaction catch
             }
-            // Mise à jour du statut et du commentaire dans proof (dans la même transaction)
+            // Update status and comment in proof (within the same transaction)
             $sql = "UPDATE proof
             SET status = :status,
                 manager_comment = :comment,
@@ -277,7 +276,7 @@ class ProofModel
                 'id' => $proofId
             ]);
 
-            // Insertion dans decision_history : stocker le motif dans la colonne rejection_reason
+            // Insert into decision_history: store reason in rejection_reason column
             $sqlHistory = "INSERT INTO decision_history
             (justification_id, user_id, action, old_status, new_status, rejection_reason, comment, created_at)
             VALUES
@@ -296,12 +295,12 @@ class ProofModel
             return true;
         } catch (\Exception $e) {
             $this->db->rollBack();
-            error_log("Erreur setRejectionReason : " . $e->getMessage());
-            // Stocker le message d'erreur en session pour affichage côté presenter (dev)
+            error_log('Error setRejectionReason: ' . $e->getMessage());
+            // Store error message in session for display on presenter side (dev)
             if (session_status() === PHP_SESSION_NONE) {
                 @session_start();
             }
-            $_SESSION['last_model_error'] = "setRejectionReason: " . $e->getMessage();
+            $_SESSION['last_model_error'] = 'setRejectionReason: ' . $e->getMessage();
             return false;
         }
     }
@@ -310,11 +309,11 @@ class ProofModel
     {
         $this->db->beginTransaction();
         try {
-            // Récupération de l'ancien statut avant modification
+            // Retrieve old status before modification
             $proof = $this->getProofDetails($proofId);
             $oldStatus = $proof ? $proof['status'] : null;
 
-            // Si aucun userId fourni, essayer d'utiliser processed_by_user_id du justificatif
+            // If no userId provided, try to use processed_by_user_id from the proof
             if ($userId === null) {
                 try {
                     $row = $this->db->selectOne("SELECT processed_by_user_id FROM proof WHERE id = :id", ['id' => $proofId]);
@@ -322,32 +321,32 @@ class ProofModel
                         $userId = $row['processed_by_user_id'];
                     }
                 } catch (Exception $e) {
-                    // ignore, userId restera null
+                    // ignore, userId will remain null
                 }
             }
 
-            // Si toujours aucun user_id après tentative, utiliser un fallback configurable (SYSTEM_USER_ID) ou 1
+            // If still no user_id after attempt, use a configurable fallback (SYSTEM_USER_ID) or 1
             if ($userId === null) {
                 $fallback = (int) (env('SYSTEM_USER_ID', '1') ?? 1);
-                error_log("setValidationReason: aucun user_id trouvé, utilisation du fallback SYSTEM_USER_ID={$fallback}");
+                error_log('setValidationReason: no user_id found, using fallback SYSTEM_USER_ID=' . $fallback);
                 $userId = $fallback;
             }
-            // Vérifier que le userId existe dans la table users ; sinon, essayer de récupérer le premier user existant
+            // Verify that userId exists in users table; otherwise try to get the first existing user
             try {
                 $exists = $this->db->selectOne("SELECT id FROM users WHERE id = :id", ['id' => $userId]);
                 if (!$exists) {
                     $first = $this->db->selectOne("SELECT id FROM users ORDER BY id LIMIT 1");
                     if ($first && isset($first['id'])) {
-                        error_log("setValidationReason: user_id {$userId} introuvable, fallback vers user_id {$first['id']}");
+                        error_log('setValidationReason: user_id ' . $userId . ' not found, falling back to user_id ' . $first['id']);
                         $userId = $first['id'];
                     } else {
-                        throw new \Exception('Aucun utilisateur trouvé dans la table users ; créer au moins un utilisateur avant d\'enregistrer une décision');
+                        throw new \Exception('No user found in users table; create at least one user before recording a decision');
                     }
                 }
             } catch (Exception $e) {
-                throw $e; // sera capturé par le catch de la transaction
+                throw $e; // will be caught by the transaction catch
             }
-            // Mise à jour du statut et du commentaire dans proof (dans la même transaction)
+            // Update status and comment in proof (within the same transaction)
             $sql = "UPDATE proof
                 SET status = :status,
                     manager_comment = :comment,
@@ -360,7 +359,7 @@ class ProofModel
                 'id' => $proofId
             ]);
 
-            // Insertion dans decision_history : stocker le motif de validation dans la colonne rejection_reason
+            // Insert into decision_history: store validation reason in rejection_reason column
             $sqlHistory = "INSERT INTO decision_history
             (justification_id, user_id, action, old_status, new_status, rejection_reason, comment, created_at)
             VALUES
@@ -387,7 +386,7 @@ class ProofModel
             return true;
         } catch (Exception $e) {
             $this->db->rollBack();
-            error_log("Erreur setValidationReason : " . $e->getMessage());
+            error_log('Error setValidationReason: ' . $e->getMessage());
             if (session_status() === PHP_SESSION_NONE) {
                 @session_start();
             }
@@ -396,7 +395,7 @@ class ProofModel
         }
     }
 
-    // Enregistre une demande d'information (commentaire obligatoire) et insère une ligne dans decision_history
+    // Record an information request (mandatory comment) and insert a row in decision_history
     public function setRequestInfo(int $proofId, string $message, ?int $userId = null): bool
     {
         $this->db->beginTransaction();
@@ -417,27 +416,27 @@ class ProofModel
 
             if ($userId === null) {
                 $fallback = (int) (env('SYSTEM_USER_ID', '1') ?? 1);
-                error_log("setRequestInfo: aucun user_id trouvé, utilisation du fallback SYSTEM_USER_ID={$fallback}");
+                error_log('setRequestInfo: no user_id found, using fallback SYSTEM_USER_ID=' . $fallback);
                 $userId = $fallback;
             }
 
-            // Vérifier existence user
+            // Verify user exists
             try {
                 $exists = $this->db->selectOne("SELECT id FROM users WHERE id = :id", ['id' => $userId]);
                 if (!$exists) {
                     $first = $this->db->selectOne("SELECT id FROM users ORDER BY id LIMIT 1");
                     if ($first && isset($first['id'])) {
-                        error_log("setRequestInfo: user_id {$userId} introuvable, fallback vers user_id {$first['id']}");
+                        error_log('setRequestInfo: user_id ' . $userId . ' not found, falling back to user_id ' . $first['id']);
                         $userId = $first['id'];
                     } else {
-                        throw new \Exception('Aucun utilisateur trouvé dans la table users ; créer au moins un utilisateur avant d\'enregistrer une décision');
+                        throw new \Exception('No user found in users table; create at least one user before recording a decision');
                     }
                 }
             } catch (Exception $e) {
                 throw $e;
             }
 
-            // Mise à jour du commentaire et du statut en under_review
+            // Update comment and status to under_review
             $sql = "UPDATE proof
                 SET status = :status,
                     manager_comment = :comment,
@@ -450,7 +449,7 @@ class ProofModel
                 'id' => $proofId
             ]);
 
-            // Insertion dans decision_history avec action request_info
+            // Insert into decision_history with action request_info
             $sqlHistory = "INSERT INTO decision_history
             (justification_id, user_id, action, old_status, new_status, rejection_reason, comment, created_at)
             VALUES
@@ -469,7 +468,7 @@ class ProofModel
             return true;
         } catch (Exception $e) {
             $this->db->rollBack();
-            error_log("Erreur setRequestInfo : " . $e->getMessage());
+            error_log('Error setRequestInfo: ' . $e->getMessage());
             if (session_status() === PHP_SESSION_NONE) {
                 @session_start();
             }
@@ -478,7 +477,7 @@ class ProofModel
         }
     }
 
-    // Récupère les motifs de rejet ou de validation en fonction du type depuis la table rejection_validation_reasons
+    // Retrieve rejection or validation reasons by type from the rejection_validation_reasons table
     public function getReasons(string $type): array
     {
         $sql = "SELECT label FROM rejection_validation_reasons WHERE type_of_reason = :type ORDER BY label ASC";
@@ -486,17 +485,17 @@ class ProofModel
             $results = $this->db->select($sql, ['type' => $type]);
             return array_map(fn($row) => $row['label'], $results);
         } catch (Exception $e) {
-            error_log("Erreur getReasons : " . $e->getMessage());
+            error_log('Error getReasons: ' . $e->getMessage());
             return [];
         }
     }
 
-    // Ajoute un nouveau motif de rejet ou de validation dans la table rejection_validation_reasons en fonction du type
+    // Add a new rejection or validation reason to the rejection_validation_reasons table by type
     public function addReason(string $label, string $type): bool
     {
-        // insère seulement si le couple (label, type_of_reason) n'existe pas
-        // ON CONFLICT doit correspondre à un index existant: le schéma a une contrainte UNIQUE(label)
-        // on utilise ON CONFLICT (label) DO NOTHING pour éviter une erreur si aucun index composite n'existe
+        // Insert only if the (label, type_of_reason) pair doesn't exist
+        // ON CONFLICT must match an existing index: the schema has a UNIQUE(label) constraint
+        // Using ON CONFLICT (label) DO NOTHING to avoid errors if no composite index exists
         $sql = "INSERT INTO rejection_validation_reasons (label, type_of_reason)
                 VALUES (:label, :type)
                 ON CONFLICT (label) DO NOTHING";
@@ -504,17 +503,17 @@ class ProofModel
             $conn = $this->db->getConnection();
             $stmt = $conn->prepare($sql);
             $stmt->execute(['label' => $label, 'type' => $type]);
-            // Si la requête a réussi, vérifier si l'enregistrement existe (fallback)
+            // If query succeeded, verify the record exists (fallback)
             $checkSql = "SELECT id FROM rejection_validation_reasons WHERE label = :label AND type_of_reason = :type LIMIT 1";
             $exists = $this->db->select($checkSql, ['label' => $label, 'type' => $type]);
             return !empty($exists);
         } catch (Exception $e) {
-            error_log("Erreur addReason : " . $e->getMessage());
+            error_log('Error addReason: ' . $e->getMessage());
             return false;
         }
     }
 
-    // méthodes getter pour les motifs de rejet et de validation et méthodes pour ajouter un motif de rejet ou de validation directement avec le type (rejet ou validation)
+    // Getter methods for rejection and validation reasons, and methods to add a reason by type directly
     public function getRejectionReasons(): array
     {
         return $this->getReasons('rejection');
@@ -535,26 +534,26 @@ class ProofModel
         return $this->addReason($label, 'validation');
     }
 
-    public function deverouiller(int $proofId): bool
+    public function unlock(int $proofId): bool
     {
         $sql = "UPDATE proof SET locked = 'false' WHERE id = :id";
         try {
             $affected = $this->db->execute($sql, ['id' => $proofId]);
             return $affected > 0;
         } catch (Exception $e) {
-            error_log("Erreur deverouiller : " . $e->getMessage());
+            error_log('Error unlock: ' . $e->getMessage());
             return false;
         }
     }
 
-    public function verrouiller(int $proofId): bool
+    public function lock(int $proofId): bool
     {
         $sql = "UPDATE proof SET locked = 'true' WHERE id = :id";
         try {
             $affected = $this->db->execute($sql, ['id' => $proofId]);
             return $affected > 0;
         } catch (Exception $e) {
-            error_log("Erreur verrouiller : " . $e->getMessage());
+            error_log('Error lock: ' . $e->getMessage());
             return false;
         }
     }
@@ -566,12 +565,12 @@ class ProofModel
             $result = $this->db->selectOne($sql, ['id' => $proofId]);
             return $result && ($result['locked'] === 'true' || $result['locked'] === true);
         } catch (Exception $e) {
-            error_log("Erreur isLocked : " . $e->getMessage());
+            error_log('Error isLocked: ' . $e->getMessage());
             return false;
         }
     }
 
-    // Fonction pour formater la date au format français
+    // Format date to French format
     public function formatDateFr($datetimeStr)
     {
         if (!$datetimeStr)
@@ -579,10 +578,10 @@ class ProofModel
         try {
             $timezone = new DateTimeZone('Europe/Paris');
             $date = new DateTime($datetimeStr, $timezone);
-            // Utiliser IntlDateFormatter si disponible (recommandé depuis PHP 8.1)
+            // Use IntlDateFormatter if available (recommended since PHP 8.1)
             if (class_exists('\IntlDateFormatter')) {
-                // pattern : 02/01/2025 à 14h30
-                $pattern = "dd/MM/yyyy 'à' HH'h'mm";
+                // pattern: 02/01/2025 Ã  14h30
+                $pattern = "dd/MM/yyyy 'Ã ' HH'h'mm";
                 $formatter = new \IntlDateFormatter(
                     'fr_FR',
                     \IntlDateFormatter::NONE,
@@ -594,27 +593,27 @@ class ProofModel
                 $formatted = $formatter->format($date);
                 if ($formatted === false) {
                     // fallback
-                    return $date->format('d/m/Y \à H\hi');
+                    return $date->format('d/m/Y \Ã  H\hi');
                 }
                 return $formatted;
             }
 
-            // Fallback simple si Intl non disponible
-            return $date->format('d/m/Y \à H\hi');
+            // Simple fallback if Intl not available
+            return $date->format('d/m/Y \Ã  H\hi');
         } catch (Exception $e) {
-            error_log("Erreur formatDateFr: " . $e->getMessage());
+            error_log('Error formatDateFr: ' . $e->getMessage());
             return '';
         }
     }
 
     /**
-     * Valide que les périodes de scission ne coupent pas un créneau de cours en plein milieu
-     * et que chaque période aura au moins une absence assignée
+     * Validates that split periods don't cut a course slot in the middle
+     * and that each period will have at least one assigned absence
      */
     public function validateSplitPeriods(int $proofId, array $periods): array
     {
         try {
-            // Récupérer tous les créneaux de cours liés à ce justificatif
+            // Retrieve all course slots linked to this proof
             $sqlSlots = "SELECT DISTINCT 
                             cs.id as slot_id,
                             cs.course_date,
@@ -633,19 +632,19 @@ class ProofModel
             if (empty($slots)) {
                 return [
                     'valid' => false,
-                    'error' => "Aucune absence n'est liée à ce justificatif. La scission est impossible."
+                    'error' => 'No absence is linked to this proof. Splitting is impossible.'
                 ];
             }
 
             if (count($slots) < 2) {
                 return [
                     'valid' => false,
-                    'error' => "Ce justificatif n'a qu'un seul créneau de cours lié. La scission est impossible car il n'y a qu'une seule absence à distribuer."
+                    'error' => 'This proof has only one linked course slot. Splitting is impossible as there is only one absence to distribute.'
                 ];
             }
 
-            // Vérifier que chaque limite de période (fin d'une période / début de la suivante)
-            // ne coupe pas un créneau en plein milieu
+            // Check that each period boundary (end of one period / start of next)
+            // doesn't cut a slot in the middle
             for ($i = 0; $i < count($periods) - 1; $i++) {
                 $periodEnd = strtotime($periods[$i]['end']);
                 $periodNextStart = strtotime($periods[$i + 1]['start']);
@@ -654,20 +653,20 @@ class ProofModel
                     $slotStart = strtotime($slot['slot_start']);
                     $slotEnd = strtotime($slot['slot_end']);
 
-                    // Vérifier si la fin de période coupe le créneau
+                    // Check if period end cuts the slot
                     if ($periodEnd > $slotStart && $periodEnd < $slotEnd) {
                         return [
                             'valid' => false,
-                            'error' => "La fin de la période " . ($i + 1) . " (" . $periods[$i]['end'] . ") coupe le créneau de cours du "
-                                . $slot['course_date'] . " (" . substr($slot['start_time'], 0, 5) . " - " . substr($slot['end_time'], 0, 5) . ") en plein milieu. "
-                                . "Veuillez ajuster les heures pour terminer avant " . substr($slot['start_time'], 0, 5)
-                                . " ou après " . substr($slot['end_time'], 0, 5) . "."
+                            'error' => 'The end of period ' . ($i + 1) . ' (' . $periods[$i]['end'] . ') cuts the course slot on '
+                                . $slot['course_date'] . ' (' . substr($slot['start_time'], 0, 5) . ' - ' . substr($slot['end_time'], 0, 5) . ') in the middle. '
+                                . 'Please adjust the times to end before ' . substr($slot['start_time'], 0, 5)
+                                . ' or after ' . substr($slot['end_time'], 0, 5) . '.'
                         ];
                     }
                 }
             }
 
-            // Vérifier que chaque période aura au moins une absence
+            // Check that each period will have at least one absence
             foreach ($periods as $index => $period) {
                 $periodStart = strtotime($period['start']);
                 $periodEnd = strtotime($period['end']);
@@ -677,7 +676,7 @@ class ProofModel
                     $slotStart = strtotime($slot['slot_start']);
                     $slotEnd = strtotime($slot['slot_end']);
 
-                    // Un créneau est dans la période si son début est >= début période et < fin période
+                    // A slot belongs to the period if its start is >= period start and < period end
                     if ($slotStart >= $periodStart && $slotStart < $periodEnd) {
                         $hasAbsence = true;
                         break;
@@ -687,44 +686,43 @@ class ProofModel
                 if (!$hasAbsence) {
                     return [
                         'valid' => false,
-                        'error' => "La période " . ($index + 1) . " (" . $period['start'] . " → " . $period['end'] . ") ne contient aucun créneau de cours. Chaque période doit couvrir au moins une absence."
+                        'error' => 'Period ' . ($index + 1) . ' (' . $period['start'] . ' â†’ ' . $period['end'] . ') contains no course slot. Each period must cover at least one absence.'
                     ];
                 }
             }
 
             return ['valid' => true, 'error' => null];
-
         } catch (Exception $e) {
-            error_log("Erreur validateSplitPeriods: " . $e->getMessage());
+            error_log('Error validateSplitPeriods: ' . $e->getMessage());
             return [
                 'valid' => false,
-                'error' => "Erreur lors de la validation: " . $e->getMessage()
+                'error' => 'Validation error: ' . $e->getMessage()
             ];
         }
     }
 
-    // Scinde un justificatif en N périodes distinctes
+    // Split a proof into N distinct periods
     public function splitProofMultiple(int $proofId, array $periods, string $reason, ?int $userId = null): bool
     {
         $this->db->beginTransaction();
         try {
             // Validate input
             if (empty($periods)) {
-                throw new Exception("Au moins une période est requise pour scinder un justificatif");
+                throw new Exception('At least one period is required to split a proof');
             }
 
-            // Récupérer le justificatif original
+            // Retrieve original proof
             $proof = $this->getProofDetails($proofId);
             if (!$proof) {
-                throw new Exception("Justificatif introuvable");
+                throw new Exception('Proof not found');
             }
 
             $newProofIds = [];
-            $periodDates = []; // Stockera les dates réelles basées sur les cours
+            $periodDates = []; // Will store actual dates based on courses
 
-            // D'abord, déterminer les dates réelles basées sur les cours pour chaque période
+            // First, determine actual dates based on courses for each period
             foreach ($periods as $index => $period) {
-                // Récupérer la date/heure min et max des cours dans cette période
+                // Get min and max date/time of courses in this period
                 $sqlGetDates = "
                     SELECT 
                         MIN(cs.course_date || ' ' || cs.start_time) as real_start,
@@ -749,7 +747,7 @@ class ProofModel
                         'end_date' => substr($result['real_end'], 0, 10)
                     ];
                 } else {
-                    // Fallback sur les dates saisies si aucun cours trouvé
+                    // Fallback to entered dates if no courses found
                     $periodDates[$index] = [
                         'start_date' => substr($period['start'], 0, 10),
                         'end_date' => substr($period['end'], 0, 10)
@@ -767,11 +765,11 @@ class ProofModel
                 :student_comment, :status, :submission_date, :manager_comment
             )";
 
-            // Créer un justificatif pour chaque période
+            // Create a proof for each period
             foreach ($periods as $index => $period) {
-                // Construire les dates de début et fin depuis les champs fournis
-                // Support format 1: 'start' et 'end' (datetime complets)
-                // Support format 2: 'startDate', 'endDate', 'startTime', 'endTime' (séparés)
+                // Build start and end dates from provided fields
+                // Support format 1: 'start' and 'end' (full datetime)
+                // Support format 2: 'startDate', 'endDate', 'startTime', 'endTime' (separate)
                 $startDatetime = null;
                 $endDatetime = null;
 
@@ -791,17 +789,15 @@ class ProofModel
                     $endDatetime = $period['endDate'] . ' 23:59:59';
                 }
 
-                // Extraire les dates seules (YYYY-MM-DD) pour absence_start_date et absence_end_date
+                // Extract dates only (YYYY-MM-DD) for absence_start_date and absence_end_date
                 $startDate = $startDatetime ? substr($startDatetime, 0, 10) : null;
                 $endDate = $endDatetime ? substr($endDatetime, 0, 10) : null;
 
-                // Déterminer le motif (reason) pour ce justificatif
+                // Determine the reason for this proof
                 $periodReason = isset($period['reason']) ? $period['reason'] : $proof['main_reason'];
 
-                // Définir le statut : 'accepted' si validate=true, sinon 'pending'
+                // Set status: 'accepted' if validate=true, otherwise 'pending'
                 $status = (!empty($period['validate']) && $period['validate'] === true) ? 'accepted' : 'pending';
-
-                error_log("DEBUG: Inserting proof with status: $status, validate=" . var_export($period['validate'], true));
 
                 $this->db->execute($sqlInsert, [
                     'student_identifier' => $proof['student_identifier'],
@@ -814,12 +810,12 @@ class ProofModel
                     'student_comment' => $proof['student_comment'] ?? null,
                     'status' => $status,
                     'submission_date' => $proof['submission_date'],
-                    'manager_comment' => 'Scindé depuis justificatif #' . $proofId . ' (période ' . ($index + 1) . ') : ' . $reason
+                    'manager_comment' => 'Split from proof #' . $proofId . ' (period ' . ($index + 1) . '): ' . $reason
                 ]);
                 $newProofId = $this->db->lastInsertId();
                 $newProofIds[] = ['id' => $newProofId, 'start' => $startDatetime, 'end' => $endDatetime];
 
-                // Si validé, enregistrer dans l'historique avec action 'accept' et verrouiller
+                // If validated, record in history with action 'accept' and lock
                 if ($status === 'accepted' && $userId !== null) {
                     $sqlHistoryValidation = "INSERT INTO decision_history
                         (justification_id, user_id, action, old_status, new_status, comment, created_at)
@@ -827,18 +823,18 @@ class ProofModel
                     $this->db->execute($sqlHistoryValidation, [
                         'justification_id' => $newProofId,
                         'user_id' => $userId,
-                        'comment' => 'Validé automatiquement lors de la scission'
+                        'comment' => 'Automatically validated during split'
                     ]);
 
-                    // Verrouiller automatiquement le justificatif validé lors de la scission
+                    // Automatically lock the validated proof during split
                     $sqlLock = "UPDATE proof SET locked = 'true' WHERE id = :id";
                     $this->db->execute($sqlLock, ['id' => $newProofId]);
                 }
             }
 
-            // Réassigner les absences aux nouveaux justificatifs selon les périodes
-            // Un créneau est assigné à la période où son heure de DÉBUT tombe
-            // Condition: start_time >= début_période ET start_time < fin_période
+            // Reassign absences to new proofs based on periods
+            // A slot is assigned to the period where its START time falls
+            // Condition: start_time >= period_start AND start_time < period_end
             $sqlInsertAbsences = "INSERT INTO proof_absences (proof_id, absence_id)
                 SELECT :new_proof_id, pa.absence_id
                 FROM proof_absences pa
@@ -857,7 +853,7 @@ class ProofModel
                 ]);
             }
 
-            // Mettre à jour les dates des nouveaux justificatifs basées sur les cours réellement assignés
+            // Update dates of new proofs based on actually assigned courses
             $sqlUpdateDates = "
                 UPDATE proof SET
                     absence_start_date = (
@@ -881,18 +877,18 @@ class ProofModel
                 $this->db->execute($sqlUpdateDates, ['proof_id' => $proofData['id']]);
             }
 
-            // Note: L'historique de scission n'est pas enregistré car 'split' n'est pas une action valide
-            // Les nouveaux justificatifs créés contiennent l'information dans manager_comment
+            // Note: Split history is not recorded because 'split' is not a valid action
+            // New proofs contain the information in manager_comment
 
-            // Supprimer l'historique de décisions du justificatif original (avant de supprimer le justificatif)
+            // Delete decision history of original proof (before deleting the proof)
             $sqlDeleteHistory = "DELETE FROM decision_history WHERE justification_id = :proof_id";
             $this->db->execute($sqlDeleteHistory, ['proof_id' => $proofId]);
 
-            // Supprimer les liens dans proof_absences de l'original
+            // Delete proof_absences links from original
             $sqlDeleteAbsences = "DELETE FROM proof_absences WHERE proof_id = :proof_id";
             $this->db->execute($sqlDeleteAbsences, ['proof_id' => $proofId]);
 
-            // Supprimer le justificatif original
+            // Delete original proof
             $sqlDelete = "DELETE FROM proof WHERE id = :id";
             $this->db->execute($sqlDelete, ['id' => $proofId]);
 
@@ -900,7 +896,7 @@ class ProofModel
             return true;
         } catch (Exception $e) {
             $this->db->rollBack();
-            error_log("Erreur splitProofMultiple : " . $e->getMessage());
+            error_log('Error splitProofMultiple: ' . $e->getMessage());
             if (session_status() === PHP_SESSION_NONE) {
                 @session_start();
             }
@@ -909,18 +905,18 @@ class ProofModel
         }
     }
 
-    // Scinde un justificatif en deux périodes distinctes (conservé pour compatibilité)
+    // Split a proof into two distinct periods (kept for backward compatibility)
     public function splitProof(int $proofId, string $split1Start, string $split1End, string $split2Start, string $split2End, string $reason, ?int $userId = null): bool
     {
         $this->db->beginTransaction();
         try {
-            // Récupérer le justificatif original
+            // Retrieve original proof
             $proof = $this->getProofDetails($proofId);
             if (!$proof) {
-                throw new Exception("Justificatif introuvable");
+                throw new Exception('Proof not found');
             }
 
-            // Créer le premier justificatif
+            // Create first proof
             $sql1 = "INSERT INTO proof (
                 student_identifier, absence_start_date, absence_end_date,
                 concerned_courses, main_reason, custom_reason, file_path,
@@ -941,11 +937,11 @@ class ProofModel
                 'file_path' => $proof['file_path'] ?? null,
                 'student_comment' => $proof['student_comment'] ?? null,
                 'submission_date' => $proof['submission_date'],
-                'manager_comment' => 'Scindé depuis justificatif #' . $proofId . ' : ' . $reason
+                'manager_comment' => 'Split from proof #' . $proofId . ': ' . $reason
             ]);
             $newProofId1 = $this->db->lastInsertId();
 
-            // Créer le second justificatif
+            // Create second proof
             $this->db->execute($sql1, [
                 'student_identifier' => $proof['student_identifier'],
                 'start_date' => $split2Start,
@@ -956,12 +952,12 @@ class ProofModel
                 'file_path' => $proof['file_path'] ?? null,
                 'student_comment' => $proof['student_comment'] ?? null,
                 'submission_date' => $proof['submission_date'],
-                'manager_comment' => 'Scindé depuis justificatif #' . $proofId . ' : ' . $reason
+                'manager_comment' => 'Split from proof #' . $proofId . ': ' . $reason
             ]);
             $newProofId2 = $this->db->lastInsertId();
 
-            // Réassigner les absences aux nouveaux justificatifs en tenant compte des heures
-            // Un créneau est inclus s'il chevauche la période (pas nécessairement entièrement contenu)
+            // Reassign absences to new proofs considering times
+            // A slot is included if it overlaps the period (not necessarily fully contained)
             $sqlUpdateAbs1 = "INSERT INTO proof_absences (proof_id, absence_id)
                 SELECT :new_proof_id, pa.absence_id
                 FROM proof_absences pa
@@ -985,18 +981,18 @@ class ProofModel
                 'end_datetime' => $split2End
             ]);
 
-            // Note: L'historique de scission n'est pas enregistré car 'split' n'est pas une action valide
-            // Les nouveaux justificatifs créés contiennent l'information dans manager_comment
+            // Note: Split history is not recorded because 'split' is not a valid action
+            // New proofs contain the information in manager_comment
 
-            // Supprimer l'historique de décisions du justificatif original (avant de supprimer le justificatif)
+            // Delete decision history of original proof (before deleting the proof)
             $sqlDeleteHistory = "DELETE FROM decision_history WHERE justification_id = :proof_id";
             $this->db->execute($sqlDeleteHistory, ['proof_id' => $proofId]);
 
-            // Supprimer les liens dans proof_absences de l'original
+            // Delete proof_absences links from original
             $sqlDeleteAbsences = "DELETE FROM proof_absences WHERE proof_id = :proof_id";
             $this->db->execute($sqlDeleteAbsences, ['proof_id' => $proofId]);
 
-            // Supprimer le justificatif original
+            // Delete original proof
             $sqlDelete = "DELETE FROM proof WHERE id = :id";
             $this->db->execute($sqlDelete, ['id' => $proofId]);
 
@@ -1004,7 +1000,7 @@ class ProofModel
             return true;
         } catch (Exception $e) {
             $this->db->rollBack();
-            error_log("Erreur splitProof : " . $e->getMessage());
+            error_log('Error splitProof: ' . $e->getMessage());
             if (session_status() === PHP_SESSION_NONE) {
                 @session_start();
             }
@@ -1013,7 +1009,7 @@ class ProofModel
         }
     }
 
-    // Traduction simple
+    // Simple translation (UI labels)
     public function translate(string $category, string $value): string
     {
         if ($value === null || $value === '') {
@@ -1024,19 +1020,19 @@ class ProofModel
         $maps = [
             'status' => [
                 'pending' => 'En attente',
-                'approved' => 'Accepté',
-                'accepted' => 'Accepté',
-                'rejected' => 'Rejeté',
-                'under_review' => 'En révision',
-                'split' => 'Scindé',
+                'approved' => 'AcceptÃ©',
+                'accepted' => 'AcceptÃ©',
+                'rejected' => 'RejetÃ©',
+                'under_review' => 'En rÃ©vision',
+                'split' => 'ScindÃ©',
             ],
             'reason' => [
                 'illness' => 'Maladie',
-                'death' => 'Décès',
+                'death' => 'DÃ©cÃ¨s',
                 'family_obligations' => 'Obligations familiales',
-                'rdv_medical' => 'Rendez-vous médical',
+                'rdv_medical' => 'Rendez-vous mÃ©dical',
                 'official_summons' => 'Convocation officielle',
-                'transport_issue' => 'Problème de transport',
+                'transport_issue' => 'ProblÃ¨me de transport',
                 'other' => 'Autre',
             ],
         ];
@@ -1070,7 +1066,7 @@ class ProofModel
         try {
             return $this->db->select($sql, ['limit' => $limit]);
         } catch (Exception $e) {
-            error_log("Erreur getRecentProofs : " . $e->getMessage());
+            error_log('Error getRecentProofs: ' . $e->getMessage());
             return [];
         }
     }
@@ -1126,8 +1122,8 @@ class ProofModel
         if (!empty($filters['status'])) {
             $statusMap = [
                 'En attente' => 'pending',
-                'Acceptée' => 'accepted',
-                'Rejetée' => 'rejected',
+                'AcceptÃ©e' => 'accepted',
+                'RejetÃ©e' => 'rejected',
                 'En cours d\'examen' => 'under_review'
             ];
             $dbStatus = $statusMap[$filters['status']] ?? $filters['status'];
@@ -1139,7 +1135,7 @@ class ProofModel
         if (!empty($filters['reason'])) {
             $reasonMap = [
                 'Maladie' => 'illness',
-                'Décès' => 'death',
+                'DÃ©cÃ¨s' => 'death',
                 'Obligations familiales' => 'family_obligations',
                 'Autre' => 'other'
             ];
@@ -1153,7 +1149,7 @@ class ProofModel
         try {
             return $this->db->select($sql, $params);
         } catch (Exception $e) {
-            error_log("Erreur getAllProofs : " . $e->getMessage());
+            error_log('Error getAllProofs: ' . $e->getMessage());
             return [];
         }
     }
@@ -1165,7 +1161,7 @@ class ProofModel
         try {
             return $this->db->select($sql);
         } catch (Exception $e) {
-            error_log("Erreur getProofReasons : " . $e->getMessage());
+            error_log('Error getProofReasons: ' . $e->getMessage());
             return [];
         }
     }
@@ -1188,7 +1184,7 @@ class ProofModel
             $files = json_decode($result['proof_files'], true);
             return is_array($files) ? $files : [];
         } catch (Exception $e) {
-            error_log("Erreur getProofFiles : " . $e->getMessage());
+            error_log('Error getProofFiles: ' . $e->getMessage());
             return [];
         }
     }

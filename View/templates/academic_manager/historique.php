@@ -1,18 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: historique.php
- * 
- * Template de l'historique des absences pour le responsable pédagogique - Consultation avancée.
- * Fonctionnalités principales :
- * - Recherche et filtrage multi-critères :
- *   - Recherche par nom d'étudiant
- *   - Filtrage par période (date de début et fin)
- *   - Filtrage par statut de justification
- *   - Filtrage par type de cours
- * - Affichage détaillé de toutes les absences avec justificatifs associés
- * - Compteur du nombre de résultats trouvés
- * - Tableau complet avec toutes les informations (date, heure, étudiant, cours, type, évaluation, statut)
- * Utilise HistoriquePresenter pour gérer les filtres et récupérer les données.
+ * Absence history template for the academic manager - Advanced consultation.
+ * Main features:
+ * - Multi-criteria search and filtering:
+ *   - Search by student name
+ *   - Filtering by period (start and end date)
+ *   - Filtering by justification status
+ *   - Filtering by course type
+ * - Detailed display of all absences with associated proofs
+ * - Result count
+ * - Complete table with all information (date, time, student, course, type, evaluation, status)
+ * Uses AbsenceHistoryPresenter to manage filters and retrieve data.
  */
 
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
@@ -21,7 +22,7 @@ $user = requireRole('academic_manager');
 require_once __DIR__ . '/../../../Presenter/academic_manager/historique.php';
 
 // Instantiate the presenter
-$presenter = new HistoriquePresenter();
+$presenter = new AbsenceHistoryPresenter();
 
 $absences = $presenter->getAbsences();
 $courseTypes = $presenter->getCourseTypes();
@@ -57,7 +58,7 @@ $errorMessage = $presenter->getErrorMessage();
             </div>
         <?php endif; ?>
 
-        <!-- Formulaire de filtrage multi-critères -->
+        <!-- Multi-criteria filtering form -->
         <form method="POST" action="">
             <div class="filter-grid">
                 <div class="filter-input">

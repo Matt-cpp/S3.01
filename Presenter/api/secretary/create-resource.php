@@ -1,14 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: create-resource.php
- * 
- * API de création de ressource - Permet au secrétaire de créer une nouvelle ressource/matière.
- * Fonctionnalités principales :
- * - Validation du code de ressource (requis)
- * - Création de la ressource dans la table resources
- * - Vérification des doublons
- * - Retourne les informations de la ressource créée
- * Utilisé par le formulaire de création manuelle d'absence quand une ressource n'existe pas.
+ * Resource creation API - Allows the secretary to create a new resource/subject.
+ * Main features:
+ * - Resource code validation (required)
+ * - Creation of the resource in the resources table
+ * - Duplicate checking
+ * - Returns the created resource information
+ * Used by the manual absence creation form when a resource does not exist.
  */
 
 header('Content-Type: application/json');
@@ -24,7 +25,7 @@ $code = $_POST['code'] ?? '';
 
 if (empty($code)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Code requis']);
+    echo json_encode(['success' => false, 'message' => 'Code de ressource requis']);
     exit;
 }
 

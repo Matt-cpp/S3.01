@@ -1,34 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: logout.php
- * 
- * Contrôleur de déconnexion - Gère la déconnexion des utilisateurs.
- * Détruit la session en cours, supprime les cookies de session et redirige vers la page de connexion.
+ * File: logout_presenter.php
+ *
+ * Logout controller — handles user logout.
+ * Destroys the current session, removes session cookies and redirects to the login page.
  */
 
 session_start();
 
-// Supprimer toutes les variables de session
+// Remove all session variables
 $_SESSION = array();
 
-// Détruire le cookie de session si il existe
-if (ini_get("session.use_cookies")) {
+// Destroy the session cookie if it exists
+if (ini_get('session.use_cookies')) {
     $params = session_get_cookie_params();
     setcookie(
         session_name(),
         '',
         time() - 42000,
-        $params["path"],
-        $params["domain"],
-        $params["secure"],
-        $params["httponly"]
+        $params['path'],
+        $params['domain'],
+        $params['secure'],
+        $params['httponly']
     );
 }
 
-// Détruire la session
+// Destroy the session
 session_destroy();
 
-// Rediriger vers la page de connexion
+// Redirect to the login page
 header("Location: ../../View/templates/shared/login.php");
 exit;

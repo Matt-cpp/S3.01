@@ -1,16 +1,18 @@
 <?php
+
+declare(strict_types=1);
 /**
- * Fichier: absences.php
- * 
- * Template de gestion des absences pour les étudiants - Affiche la liste complète des absences de l'étudiant.
- * Fonctionnalités principales :
- * - Liste détaillée de toutes les absences avec informations (date, horaire, cours, enseignant, salle, durée)
- * - Système de filtrage avancé (par date, statut, type de cours)
- * - Affichage du statut de justification pour chaque absence
- * - Modal de détails pour chaque absence avec informations complètes
- * - Gestion des absences aux évaluations et des rattrapages prévus
- * - Compteur du nombre total de demi-journées manquées
- * Utilise le système de cache de session pour optimiser les performances.
+ * File: absences.php
+ *
+ * Student absence management template - Displays the complete list of the student's absences.
+ * Main features:
+ * - Detailed list of all absences with information (date, time, course, teacher, room, duration)
+ * - Advanced filtering system (by date, status, course type)
+ * - Justification status display for each absence
+ * - Detail modal for each absence with full information
+ * - Evaluation absence and scheduled makeup handling
+ * - Total half-days missed counter
+ * Uses the session cache system for performance optimization.
  */
 ?>
 <!DOCTYPE html>
@@ -28,15 +30,15 @@ require_once __DIR__ . '/../../../Presenter/shared/session_cache.php';
 require_once __DIR__ . '/../../../Presenter/student/absences_presenter.php';
 require_once __DIR__ . '/../../../Presenter/student/get_info.php';
 
-// Récupération de l'identifiant étudiant depuis la session
-$student_identifier = getStudentIdentifier($_SESSION['id_student']);
+// Retrieve the student identifier from the session
+$studentIdentifier = getStudentIdentifier($_SESSION['id_student']);
 
-// Initialisation du presenter pour gérer les données d'absences
-$presenter = new StudentAbsencesPresenter($student_identifier);
+// Initialize the presenter to manage absence data
+$presenter = new StudentAbsencesPresenter($studentIdentifier);
 
 // Utilisation du cache de session pour optimiser les performances (refresh toutes les 15 minutes)
 if (!isset($_SESSION['Absences']) || (!isset($_SESSION['CourseTypes']) || !isset($_SESSION['Filters']) || !isset($_SESSION['ErrorMessage'])) || shouldRefreshCache(15)) {
-    
+
     $absences = $presenter->getAbsences();
     $courseTypes = $presenter->getCourseTypes();
     $_SESSION['Absences'] = $absences;
@@ -65,7 +67,7 @@ $errorMessage = $presenter->getErrorMessage();
 
 <body>
     <?php include __DIR__ . '/../navbar.php'; ?>
-    
+
     <main>
         <h1 class="page-title">Mes Absences</h1>
 
@@ -76,7 +78,7 @@ $errorMessage = $presenter->getErrorMessage();
         <?php endif; ?>
 
         <?php
-        // Affichage du message de succès stocké en session (après soumission/modification d'un justificatif)
+        // Display success message stored in session (after proof submission/modification)
         if (isset($_SESSION['success_message'])) {
             echo '<div class="success-message" style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 20px;">';
             echo '<strong>✅ Succès:</strong> ' . htmlspecialchars($_SESSION['success_message']);
@@ -92,22 +94,22 @@ $errorMessage = $presenter->getErrorMessage();
         }
         ?>
 
-        <!-- Formulaire de filtrage des absences -->
+        <!-- Absence filtering form -->
         <form method="POST" class="filter-form">
             <div class="filter-grid">
-                <!-- Filtre par date de début -->
+                <!-- Start date filter -->
                 <div class="filter-input">
                     <label for="firstDateFilter">Date de début</label>
-                    <input type="date" name="firstDateFilter" id="firstDateFilter" 
+                    <input type="date" name="firstDateFilter" id="firstDateFilter"
                         value="<?php echo htmlspecialchars($filters['start_date'] ?? ''); ?>">
                 </div>
-                
+
                 <div class="filter-input">
                     <label for="lastDateFilter">Date de fin</label>
-                    <input type="date" name="lastDateFilter" id="lastDateFilter" 
+                    <input type="date" name="lastDateFilter" id="lastDateFilter"
                         value="<?php echo htmlspecialchars($filters['end_date'] ?? ''); ?>">
                 </div>
-                
+
                 <div class="filter-input">
                     <label for="statusFilter">Statut</label>
                     <select name="statusFilter" id="statusFilter">
@@ -119,21 +121,21 @@ $errorMessage = $presenter->getErrorMessage();
                         <option value="non_justifiée" <?php echo (($filters['status'] ?? '') === 'non_justifiée') ? 'selected' : ''; ?>>Non Justifiée</option>
                     </select>
                 </div>
-                
+
                 <div class="filter-input">
                     <label for="courseTypeFilter">Type de cours</label>
                     <select name="courseTypeFilter" id="courseTypeFilter">
                         <option value="">Tous les types</option>
                         <?php foreach ($courseTypes as $type): ?>
-                            <option value="<?php echo htmlspecialchars($type['course_type']); ?>" 
-                                    <?php echo (($filters['course_type'] ?? '') === $type['course_type']) ? 'selected' : ''; ?>>
+                            <option value="<?php echo htmlspecialchars($type['course_type']); ?>"
+                                <?php echo (($filters['course_type'] ?? '') === $type['course_type']) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($type['course_type']); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
             </div>
-            
+
             <div class="button-container">
                 <button type="submit">Filtrer</button>
                 <a href="student_absences.php" class="btn btn-secondary">Réinitialiser</a>
@@ -144,7 +146,7 @@ $errorMessage = $presenter->getErrorMessage();
             <strong>Nombre d'absences trouvées: <?php echo count($absences); ?> • Demi-journées manquées: <?php echo $presenter->getTotalHalfDays($absences); ?></strong>
         </div>
 
-        <!-- Tableau des absences avec toutes les informations détaillées -->
+        <!-- Absence table with all detailed information -->
         <div class="table-container">
             <table id="absenceTable">
                 <thead>
@@ -170,31 +172,31 @@ $errorMessage = $presenter->getErrorMessage();
                         </tr>
                     <?php else: ?>
                         <?php foreach ($absences as $absence): ?>
-                            <?php 
-                            // Préparation des données pour l'affichage de chaque absence
+                            <?php
+                            // Prepare data for each absence display
                             $courseType = strtoupper($absence['course_type'] ?? 'Autre');
-                            $badge_class = '';
-                            
-                            switch($courseType) {
+                            $badgeClass = '';
+
+                            switch ($courseType) {
                                 case 'CM':
-                                    $badge_class = 'badge-cm';
+                                    $badgeClass = 'badge-cm';
                                     break;
                                 case 'TD':
-                                    $badge_class = 'badge-td';
+                                    $badgeClass = 'badge-td';
                                     break;
                                 case 'TP':
-                                    $badge_class = 'badge-tp';
+                                    $badgeClass = 'badge-tp';
                                     break;
                                 default:
-                                    $badge_class = 'badge-other';
+                                    $badgeClass = 'badge-other';
                             }
-                            
+
                             $status = $presenter->getProofStatus($absence);
-                            $teacher = !empty($absence['teacher_first_name']) && !empty($absence['teacher_last_name']) 
-                                ? htmlspecialchars($absence['teacher_first_name'] . ' ' . $absence['teacher_last_name']) 
+                            $teacher = !empty($absence['teacher_first_name']) && !empty($absence['teacher_last_name'])
+                                ? htmlspecialchars($absence['teacher_first_name'] . ' ' . $absence['teacher_last_name'])
                                 : '-';
-                            
-                            // Déterminer le statut pour la couleur de la bordure
+
+                            // Determine the status for the border color
                             $modalStatus = 'none';
                             if ($absence['proof_status'] === 'accepted') $modalStatus = 'accepted';
                             elseif ($absence['proof_status'] === 'rejected') $modalStatus = 'rejected';
@@ -214,7 +216,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-room="<?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?>"
                                 data-duration="<?php echo number_format($absence['duration_minutes'] / 60, 1); ?>"
                                 data-type="<?php echo htmlspecialchars($courseType); ?>"
-                                data-type-badge="<?php echo $badge_class; ?>"
+                                data-type-badge="<?php echo $badgeClass; ?>"
                                 data-evaluation="<?php echo $absence['is_evaluation'] ? 'Oui' : 'Non'; ?>"
                                 data-is-evaluation="<?php echo $absence['is_evaluation'] ? '1' : '0'; ?>"
                                 data-has-makeup="<?php echo !empty($absence['makeup_id']) ? '1' : '0'; ?>"
@@ -225,7 +227,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-makeup-room="<?php echo htmlspecialchars($absence['makeup_room'] ?? ''); ?>"
                                 data-makeup-resource="<?php echo htmlspecialchars($absence['makeup_resource_label'] ?? ''); ?>"
                                 data-makeup-comment="<?php echo htmlspecialchars($absence['makeup_comment'] ?? ''); ?>"
-                                data-motif="<?php echo htmlspecialchars($presenter->translateMotif($absence['motif'], $absence['custom_motif'])); ?>"
+                                data-motif="<?php echo htmlspecialchars($presenter->translateReason($absence['motif'], $absence['custom_motif'])); ?>"
                                 data-status-text="<?php echo $status['text']; ?>"
                                 data-status-icon="<?php echo $status['icon']; ?>"
                                 data-status-class="<?php echo $status['class']; ?>">
@@ -243,7 +245,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 <td data-label="Salle"><?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?></td>
                                 <td data-label="Durée"><strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong></td>
                                 <td data-label="Type">
-                                    <span class="course-type-badge <?php echo $badge_class; ?>">
+                                    <span class="course-type-badge <?php echo $badgeClass; ?>">
                                         <?php echo htmlspecialchars($courseType); ?>
                                     </span>
                                 </td>
@@ -257,7 +259,7 @@ $errorMessage = $presenter->getErrorMessage();
                                         <span class="no-eval">Non</span>
                                     <?php endif; ?>
                                 </td>
-                                <td data-label="Motif"><?php echo $presenter->translateMotif($absence['motif'], $absence['custom_motif']); ?></td>
+                                <td data-label="Motif"><?php echo $presenter->translateReason($absence['motif'], $absence['custom_motif']); ?></td>
                                 <td data-label="Statut">
                                     <span class="badge <?php echo $status['class']; ?>">
                                         <?php echo $status['icon'] . ' ' . $status['text']; ?>
@@ -271,7 +273,7 @@ $errorMessage = $presenter->getErrorMessage();
         </div>
     </main>
 
-    <!-- Modal pour afficher les détails de l'absence -->
+    <!-- Modal to display absence details -->
     <div id="absenceModal" class="modal">
         <div class="modal-overlay"></div>
         <div id="modalContent" class="modal-content">
@@ -325,7 +327,7 @@ $errorMessage = $presenter->getErrorMessage();
                     </div>
                 </div>
 
-                <!-- Section Évaluation ratée (visible uniquement si is_evaluation) -->
+                <!-- Missed evaluation section (visible only if is_evaluation) -->
                 <div id="evaluationSection" class="modal-info-group" style="display: none; background-color: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
                     <h3 style="color: #856404; margin-bottom: 10px; font-size: 16px;">⚠️ Évaluation ratée</h3>
                     <div class="modal-info-item">
@@ -342,7 +344,7 @@ $errorMessage = $presenter->getErrorMessage();
                     </div>
                 </div>
 
-                <!-- Section Rattrapage (visible uniquement si makeup existe) -->
+                <!-- Makeup section (visible only if makeup exists) -->
                 <div id="makeupSection" class="modal-info-group" style="display: none; background-color: #d1ecf1; padding: 15px; border-radius: 8px; margin-top: 15px;">
                     <h3 style="color: #0c5460; margin-bottom: 10px; font-size: 16px;">Rattrapage prévu</h3>
                     <div class="modal-info-item">

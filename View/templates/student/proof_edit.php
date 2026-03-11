@@ -1,16 +1,18 @@
 <?php
+
+declare(strict_types=1);
 /**
- * Fichier: proof_edit.php
- * 
- * Template de modification d'un justificatif d'absence existant pour les étudiants.
- * Fonctionnalités principales :
- * - Modification d'un justificatif en attente ou en révision
- * - Pré-remplissage automatique du formulaire avec les données existantes
- * - Gestion des fichiers justificatifs (conservation, suppression, ajout de nouveaux)
- * - Affichage du commentaire du responsable académique si disponible
- * - Restriction de la modification des dates (seuls le motif et les fichiers sont modifiables)
- * - Validation et chargement dynamique des cours concernés
- * Les données sont récupérées depuis la session et doivent être préparées par la page appelante.
+ * File: proof_edit.php
+ *
+ * Template for editing an existing absence proof for students.
+ * Main features:
+ * - Editing a pending or under-review proof
+ * - Auto-populated form with existing data
+ * - Proof file management (keep, delete, add new)
+ * - Academic manager comment display if available
+ * - Date modification restriction (only reason and files are editable)
+ * - Dynamic course loading and validation
+ * Data is retrieved from the session and must be prepared by the calling page.
  */
 ?>
 <!DOCTYPE html>
@@ -24,8 +26,8 @@ if (!isset($_SESSION['id_student'])) {
     $_SESSION['id_student'] = $user['id'];
 }
 
-// Vérification de la présence des données de modification en session
-// Redirection vers la page des absences si aucune donnée n'est disponible
+// Check for edit data in session
+// Redirect to the absences page if no data is available
 if (!isset($_SESSION['edit_proof'])) {
     $_SESSION['error_message'] = "Aucun justificatif à modifier.";
     header('Location: absences.php');
@@ -82,7 +84,7 @@ $editData = $_SESSION['edit_proof'];
 
         <h1 class="page-title">Modification de justificatif</h1>
 
-        <!-- Affichage du commentaire du responsable académique s'il existe (cas de demande de révision) -->
+        <!-- Display academic manager comment if available (revision request case) -->
         <?php if (!empty($editData['manager_comment'])): ?>
             <div class="manager-comment-section"
                 style="background-color: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
@@ -93,11 +95,11 @@ $editData = $_SESSION['edit_proof'];
             </div>
         <?php endif; ?>
 
-        <!-- Formulaire de modification du justificatif (multipart pour upload de fichiers) -->
+        <!-- Proof edit form (multipart for file upload) -->
         <form action="../../../Presenter/student/proof_update.php" method="post" enctype="multipart/form-data">
             <input type="hidden" name="proof_id" value="<?php echo htmlspecialchars($editData['proof_id']); ?>">
 
-            <!-- Dates d'absence (non modifiables, affichées en lecture seule) -->
+            <!-- Absence dates (non-editable, displayed as read-only) -->
             <div class="form-group">
                 <label for="datetime_start">Date et heure de début d'absence :</label>
                 <input type="datetime-local" id="datetime_start" name="datetime_start"
@@ -165,11 +167,11 @@ $editData = $_SESSION['edit_proof'];
                     value="<?php echo htmlspecialchars($editData['other_reason']); ?>">
             </div>
 
-            <!-- Gestion des fichiers justificatifs (existants et nouveaux) -->
+            <!-- Proof file management (existing and new) -->
             <div class="form-group">
                 <label>Fichiers justificatifs actuels :</label>
                 <?php
-                // Récupération et affichage des fichiers déjà téléchargés
+                // Retrieve and display already uploaded files
                 $existingFiles = $editData['existing_files'] ?? [];
                 if (!empty($existingFiles)): ?>
                     <div id="existing-files-list" style="margin-bottom: 15px;">

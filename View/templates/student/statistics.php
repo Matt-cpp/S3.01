@@ -1,20 +1,21 @@
 <?php
 
+declare(strict_types=1);
 /**
- * Fichier: statistics.php
- * 
- * Template de statistiques d'absences pour les étudiants - Affiche des visualisations graphiques et des analyses.
- * Fonctionnalités principales :
- * - Vue d'ensemble des statistiques générales (total absences, heures manquées, demi-journées)
- * - Graphiques interactifs avec Chart.js :
- *   - Répartition par type de cours (CM, TD, TP, DS)
- *   - Répartition par matière/ressource
- *   - Évolution mensuelle des absences
- * - Système de filtrage (par période, type de cours)
- * - Liste des absences récentes
- * - Cartes statistiques colorées pour visualisation rapide
- * - Export possible des données via les graphiques
- * Utilise Chart.js pour la génération des graphiques interactifs.
+ * File: statistics.php
+ *
+ * Student absence statistics template - Displays graphic visualizations and analyses.
+ * Main features:
+ * - General statistics overview (total absences, missed hours, half-days)
+ * - Interactive charts with Chart.js:
+ *   - Distribution by course type (CM, TD, TP, DS)
+ *   - Distribution by subject/resource
+ *   - Monthly absence trends
+ * - Filtering system (by period, course type)
+ * - Recent absences list
+ * - Color-coded statistics cards for quick visualization
+ * - Data export via charts
+ * Uses Chart.js for interactive chart generation.
  */
 ?>
 <!DOCTYPE html>
@@ -41,7 +42,7 @@
 
     require_once __DIR__ . '/../../../Presenter/student/statistics_presenter.php';
 
-    // Récupération de l'identifiant étudiant à partir de l'ID utilisateur
+    // Retrieve the student identifier from the user ID
     $studentIdentifier = StudentStatisticsPresenter::getStudentIdentifierFromUserId($user['id']);
 
     if (!$studentIdentifier) {
@@ -51,10 +52,10 @@
 
     $presenter = new StudentStatisticsPresenter($studentIdentifier);
 
-    // Récupération des filtres appliqués
+    // Retrieve applied filters
     $filters = $presenter->getFilters();
 
-    // Récupération de toutes les données statistiques pour l'affichage
+    // Retrieve all statistical data for display
     $generalStats = $presenter->getGeneralStats($filters);
     $courseTypeData = $presenter->getCourseTypeData($filters);
     $resourceData = $presenter->getResourceData($filters);
@@ -71,7 +72,7 @@
             <p class="subtitle">Vue d'ensemble de vos absences</p>
         </div>
 
-        <!-- Section de filtrage des statistiques -->
+        <!-- Statistics filtering section -->
         <div class="filters-container">
             <button class="toggle-filters-btn" onclick="toggleFilters()">
                 <span>Filtres</span>
@@ -111,7 +112,7 @@
             </div>
         </div>
 
-        <!-- Cartes récapitulatives des statistiques principales -->
+        <!-- Summary cards for main statistics -->
         <?php if ($generalStats): ?>
             <div class="stats-grid">
                 <div class="stat-card">
@@ -365,29 +366,29 @@
                 const monthlyTrendData = {
                     labels: <?php echo json_encode($monthlyTrends['months']); ?>,
                     datasets: [{
-                        label: 'Total',
-                        data: <?php echo json_encode($monthlyTrends['total']); ?>,
-                        borderColor: chartColors.primary,
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Justifiées',
-                        data: <?php echo json_encode($monthlyTrends['justified']); ?>,
-                        borderColor: chartColors.success,
-                        backgroundColor: 'transparent',
-                        borderDash: [5, 5],
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Non justifiées',
-                        data: <?php echo json_encode($monthlyTrends['unjustified']); ?>,
-                        borderColor: chartColors.danger,
-                        backgroundColor: 'transparent',
-                        borderDash: [5, 5],
-                        tension: 0.4
-                    }
+                            label: 'Total',
+                            data: <?php echo json_encode($monthlyTrends['total']); ?>,
+                            borderColor: chartColors.primary,
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Justifiées',
+                            data: <?php echo json_encode($monthlyTrends['justified']); ?>,
+                            borderColor: chartColors.success,
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Non justifiées',
+                            data: <?php echo json_encode($monthlyTrends['unjustified']); ?>,
+                            borderColor: chartColors.danger,
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.4
+                        }
                     ]
                 };
 

@@ -1,17 +1,19 @@
 <?php
+
+declare(strict_types=1);
 /**
- * Fichier: proofs.php
- * 
- * Template de gestion des justificatifs pour les étudiants - Affiche la liste de tous les justificatifs soumis.
- * Fonctionnalités principales :
- * - Liste complète des justificatifs avec leur statut (accepté, en attente, en révision, refusé)
- * - Système de filtrage avancé (par date d'absence, statut, motif)
- * - Affichage des détails de chaque justificatif (dates, motif, fichiers)
- * - Visualisation des absences associées à chaque justificatif
- * - Actions disponibles : modification (si en attente ou en révision), consultation des fichiers
- * - Affichage du commentaire du responsable pour les justificatifs refusés ou en révision
- * - Compteur du nombre total de justificatifs
- * Utilise le système de cache de session pour optimiser les performances.
+ * File: proofs.php
+ *
+ * Student proof management template - Displays the list of all submitted proofs.
+ * Main features:
+ * - Full list of proofs with their status (accepted, pending, under review, rejected)
+ * - Advanced filtering system (by absence date, status, reason)
+ * - Detail display for each proof (dates, reason, files)
+ * - Viewing absences associated with each proof
+ * - Available actions: edit (if pending or under review), view files
+ * - Manager comment display for rejected or under-review proofs
+ * - Total proofs counter
+ * Uses the session cache system for performance optimization.
  */
 ?>
 <!DOCTYPE html>
@@ -29,15 +31,15 @@ require_once __DIR__ . '/../../../Presenter/shared/session_cache.php';
 require_once __DIR__ . '/../../../Presenter/student/proofs_presenter.php';
 require_once __DIR__ . '/../../../Presenter/student/get_info.php';
 
-$student_identifier = getStudentIdentifier($_SESSION['id_student']);
+$studentIdentifier = getStudentIdentifier($_SESSION['id_student']);
 
-$presenter = new StudentProofsPresenter($student_identifier);
+$presenter = new StudentProofsPresenter($studentIdentifier);
 
-// Gestion intelligente du cache : désactivé si filtres GET présents (venant de la page d'accueil)
+// Smart cache management: disabled when GET filters are present (coming from home page)
 $useCache = empty($_GET['status']);
 
-// Utiliser les données en session si disponibles et récentes (défini dans session_cache.php), par défaut 1 minutes
-// sinon les récupérer de la BD
+// Use session data if available and recent (defined in session_cache.php), default 1 minute
+// otherwise retrieve from the database
 if (!$useCache || !isset($_SESSION['Proofs']) || !isset($_SESSION['Reasons']) || !isset($_SESSION['ProofsFilters']) || !isset($_SESSION['ProofsErrorMessage']) || shouldRefreshCache(15)) {
     $proofs = $presenter->getProofs();
     $reasons = $presenter->getReasons();
@@ -70,7 +72,7 @@ $errorMessage = $presenter->getErrorMessage();
 
 <body>
     <?php include __DIR__ . '/../navbar.php'; ?>
-    
+
     <main>
         <h1 class="page-title">Mes Justificatifs</h1>
 
@@ -90,22 +92,22 @@ $errorMessage = $presenter->getErrorMessage();
         }
         ?>
 
-        <!-- Formulaire de filtrage des justificatifs -->
+        <!-- Proof filtering form -->
         <form method="POST" class="filter-form">
             <div class="filter-grid">
-                <!-- Filtre par date de début d'absence -->
+                <!-- Filter by absence start date -->
                 <div class="filter-input">
                     <label for="firstDateFilter">Date de début d'absence</label>
-                    <input type="date" name="firstDateFilter" id="firstDateFilter" 
+                    <input type="date" name="firstDateFilter" id="firstDateFilter"
                         value="<?php echo htmlspecialchars($filters['start_date'] ?? ''); ?>">
                 </div>
-                
+
                 <div class="filter-input">
                     <label for="lastDateFilter">Date de fin d'absence</label>
-                    <input type="date" name="lastDateFilter" id="lastDateFilter" 
+                    <input type="date" name="lastDateFilter" id="lastDateFilter"
                         value="<?php echo htmlspecialchars($filters['end_date'] ?? ''); ?>">
                 </div>
-                
+
                 <div class="filter-input">
                     <label for="statusFilter">Statut</label>
                     <select name="statusFilter" id="statusFilter">
@@ -116,14 +118,14 @@ $errorMessage = $presenter->getErrorMessage();
                         <option value="rejected" <?php echo (($filters['status'] ?? '') === 'rejected') ? 'selected' : ''; ?>>Refusé</option>
                     </select>
                 </div>
-                
+
                 <div class="filter-input">
                     <label for="reasonFilter">Motif</label>
                     <select name="reasonFilter" id="reasonFilter">
                         <option value="">Tous les motifs</option>
                         <?php foreach ($reasons as $reason): ?>
-                            <option value="<?php echo htmlspecialchars($reason['reason']); ?>" 
-                                    <?php echo (($filters['reason'] ?? '') === $reason['reason']) ? 'selected' : ''; ?>>
+                            <option value="<?php echo htmlspecialchars($reason['reason']); ?>"
+                                <?php echo (($filters['reason'] ?? '') === $reason['reason']) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($reason['label']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -139,7 +141,7 @@ $errorMessage = $presenter->getErrorMessage();
                     </select>
                 </div>
             </div>
-            
+
             <div class="button-container">
                 <button type="submit">Filtrer</button>
                 <a href="proofs.php" class="btn btn-secondary">Réinitialiser</a>
@@ -173,7 +175,7 @@ $errorMessage = $presenter->getErrorMessage();
                         </tr>
                     <?php else: ?>
                         <?php foreach ($proofs as $proof): ?>
-                            <?php 
+                            <?php
                             $status = $presenter->getStatusBadge($proof['status']);
                             $proofFiles = [];
                             if (!empty($proof['proof_files'])) {
@@ -181,7 +183,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 $proofFiles = is_array($proofFiles) ? $proofFiles : [];
                             }
                             ?>
-                            <tr class="proof-row" data-proof-id="<?php echo $proof['proof_id']; ?>" 
+                            <tr class="proof-row" data-proof-id="<?php echo $proof['proof_id']; ?>"
                                 data-status="<?php echo $proof['status']; ?>"
                                 data-period="<?php echo htmlspecialchars($presenter->formatPeriod($proof['absence_start_date'], $proof['absence_end_date'])); ?>"
                                 data-start-datetime="<?php echo htmlspecialchars($proof['absence_start_datetime'] ?? $proof['absence_start_date']); ?>"
@@ -242,7 +244,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 <td data-label="Commentaire">
                                     <?php if ($proof['manager_comment']): ?>
                                         <span class="comment-preview" title="<?php echo htmlspecialchars($proof['manager_comment']); ?>">
-                                            <?php 
+                                            <?php
                                             echo htmlspecialchars(substr($proof['manager_comment'], 0, 50));
                                             echo strlen($proof['manager_comment']) > 50 ? '...' : '';
                                             ?>
@@ -259,7 +261,7 @@ $errorMessage = $presenter->getErrorMessage();
         </div>
     </main>
 
-    <!-- Modal pour afficher les détails du justificatif -->
+    <!-- Modal to display proof details -->
     <div id="proofModal" class="modal">
         <div class="modal-overlay"></div>
         <div id="modalContent" class="modal-content">
@@ -334,7 +336,7 @@ $errorMessage = $presenter->getErrorMessage();
                     <div class="modal-comment-box" id="modalComment"></div>
                 </div>
 
-                <!-- Bouton Modifier (visible uniquement pour les justificatifs en révision) -->
+                <!-- Edit button (visible only for proofs under review) -->
                 <div class="modal-action-section" id="actionSection" style="display: none; margin-top: 20px; text-align: center;">
                     <a href="#" id="modalEditBtn" class="btn-add-info" style="display: inline-block; padding: 12px 24px; text-decoration: none; background-color: #ffc107; color: #000; font-weight: bold;">
                         Modifier le justificatif

@@ -1,15 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: home.php
- * 
- * Template du tableau de bord du responsable pédagogique - Affiche une vue d'ensemble des absences.
- * Fonctionnalités principales :
- * - Affichage de cartes statistiques (absences du jour, du mois, non justifiées, justificatifs en attente)
- * - Liste paginnée des absences récentes avec détails complets
- * - Tableau des justificatifs récemment soumis (5 derniers)
- * - Système de pagination pour parcourir l'historique
- * - Liens rapides vers les pages de gestion détaillées
- * Utilise AcademicManagerDashboardPresenter pour récupérer les données.
+ * Academic manager dashboard template - Displays an overview of absences.
+ * Main features:
+ * - Display of statistical cards (today's absences, monthly, unjustified, pending proofs)
+ * - Paginated list of recent absences with full details
+ * - Table of recently submitted proofs (last 5)
+ * - Pagination system to browse history
+ * - Quick links to detailed management pages
+ * Uses AcademicManagerDashboardPresenter to retrieve data.
  */
 ?>
 <!DOCTYPE html>
@@ -41,7 +42,7 @@
     ?>
     <?php include __DIR__ . '/../navbar.php'; ?>
 
-    <!-- Section des cartes statistiques (KPIs) -->
+    <!-- Statistical cards section (KPIs) -->
     <div class="main-content">
         <div class="stats-grid">
             <div class="stat-card">
@@ -104,7 +105,7 @@
                 </thead>
                 <tbody>
                     <?php
-                    $f = $donnes->laTable();
+                    $f = $donnes->buildTable();
                     $tabel = json_decode(json_encode($f), true);
                     $labels = ['Date', 'Heure', 'Étudiant', 'Cours', 'Type', 'Statut'];
 
@@ -167,7 +168,7 @@
             </div>
         </div>
 
-        <!-- Justificatifs Récents Section -->
+        <!-- Recent Proofs Section -->
         <div class="absences-section">
             <h2 class="section-title">Justificatifs Récents</h2>
             <p class="section-subtitle">Derniers justificatifs soumis dans le système</p>

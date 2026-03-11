@@ -1,14 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: create-manual-absence.php
- * 
- * API de création manuelle d'absence - Permet au secrétaire de créer une absence manuellement.
- * Fonctionnalités principales :
- * - Validation de tous les champs requis (student_id, absence_date, start_time, end_time, resource_id, room_id, course_type)
- * - Création d'un créneau de cours (course_slot) si nécessaire
- * - Enregistrement de l'absence dans la table absences
- * - Retourne l'ID de l'absence créée
- * Utilisé par le dashboard secrétaire pour ajouter des absences manuellement.
+ * Manual absence creation API - Allows the secretary to create an absence manually.
+ * Main features:
+ * - Validation of all required fields (student_id, absence_date, start_time, end_time, resource_id, room_id, course_type)
+ * - Creation of a course slot (course_slot) if necessary
+ * - Recording the absence in the absences table
+ * - Returns the created absence ID
+ * Used by the secretary dashboard to add absences manually.
  */
 
 header('Content-Type: application/json');

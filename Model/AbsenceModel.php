@@ -1,27 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: AbsenceModel.php
- * 
- * Modèle Absence - Gère les données des absences dans la base de données.
- * Fournit des méthodes pour récupérer les absences avec des filtres (nom, date, statut, type de cours).
- * Permet d'obtenir les types de cours disponibles et les informations des utilisateurs.
- * Utilisé principalement par la page historique des absences.
+ * Absence model - Manages absence data in the database.
+ * Provides methods to retrieve absences with filters (name, date, status, course type).
+ * Allows retrieving available course types and user information.
+ * Primarily used by the absence history page.
  */
 
 require_once __DIR__ . '/database.php';
 
 class AbsenceModel
 {
-    private $db;
+    private Database $db;
 
     public function __construct()
     {
         $this->db = getDatabase();
     }
 
-    //Récupère toutes les absences avec des filtres optionnels
-    public function getAllAbsences($filters = [])
+    // Retrieve all absences with optional filters
+    public function getAllAbsences(array $filters = []): array
     {
         $query = "
             SELECT
@@ -102,20 +102,20 @@ class AbsenceModel
         try {
             return $this->db->select($query, $params);
         } catch (Exception $e) {
-            error_log("Erreur lors de la récupération des absences: " . $e->getMessage());
+            error_log('Error retrieving absences: ' . $e->getMessage());
             return [];
         }
     }
 
 
-    //Récupère tous les types de cours disponibles
-    public function getCourseTypes()
+    // Retrieve all available course types
+    public function getCourseTypes(): array
     {
         $query = "SELECT DISTINCT course_type FROM course_slots WHERE course_type IS NOT NULL ORDER BY course_type";
         try {
             return $this->db->select($query);
         } catch (Exception $e) {
-            error_log("Erreur lors de la récupération des types de cours: " . $e->getMessage());
+            error_log('Error retrieving course types: ' . $e->getMessage());
             return [];
         }
     }

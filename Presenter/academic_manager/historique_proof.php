@@ -1,32 +1,33 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: historique_proof.php
- * 
- * Présentateur de l'historique des justificatifs - Gère l'affichage et le filtrage complet des justificatifs.
- * Fournit des méthodes pour:
- * - Filtrer les justificatifs par multiples critères :
- *   - Recherche par nom d'étudiant
- *   - Filtrage par période de soumission
- *   - Filtrage par statut (en attente, accepté, rejeté, en cours d'examen)
- *   - Filtrage par motif d'absence
- * - Récupérer les justificatifs avec statistiques (nombre d'absences, heures totales)
- * - Traduire les statuts et motifs en français
- * - Vérifier la présence de fichiers justificatifs
- * - Valider la cohérence des dates saisies
- * Utilisé par la vue templates/academic_manager/historique_proof.php.
+ * Proof history presenter - Manages display and filtering of the full proof history.
+ * Provides methods for:
+ * - Filtering proofs by multiple criteria:
+ *   - Search by student name
+ *   - Filter by submission period
+ *   - Filter by status (pending, accepted, rejected, under review)
+ *   - Filter by absence reason
+ * - Retrieving proofs with statistics (absence count, total hours)
+ * - Translating statuses and reasons to French
+ * - Checking presence of proof files
+ * - Validating date consistency
+ * Used by the view templates/academic_manager/historique_proof.php.
  */
 
-// Protection de la page avec authentification simple
+// Page protection with authentication
 require_once __DIR__ . '/../shared/auth_guard.php';
 $user = requireAuth();
 
 require_once __DIR__ . '/../../Model/ProofModel.php';
 
-class HistoriqueProofPresenter
+class ProofHistoryPresenter
 {
-    private $proofModel;
-    private $filters;
-    private $errorMessage;
+    private ProofModel $proofModel;
+    private array $filters;
+    private string $errorMessage;
 
     public function __construct()
     {
@@ -36,16 +37,16 @@ class HistoriqueProofPresenter
         $this->processRequest();
     }
 
-    private function processRequest()
+    private function processRequest(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->validateAndSetFilters();
         }
     }
 
-    private function validateAndSetFilters()
+    private function validateAndSetFilters(): void
     {
-        // Validation des dates
+        // Date validation
         if (!empty($_POST['firstDateFilter']) && !empty($_POST['lastDateFilter'])) {
             if ($_POST['firstDateFilter'] > $_POST['lastDateFilter']) {
                 $this->errorMessage = "La première date doit être antérieure à la deuxième date.";
@@ -82,17 +83,17 @@ class HistoriqueProofPresenter
         return $this->errorMessage;
     }
 
-    public function translateStatus($status): string
+    public function translateStatus(string $status): string
     {
         return $this->proofModel->translate('status', $status);
     }
 
-    public function translateReason($reason): string
+    public function translateReason(string $reason): string
     {
         return $this->proofModel->translate('reason', $reason);
     }
 
-    public function hasProof($proof): bool
+    public function hasProof(array $proof): bool
     {
         if (!empty($proof['proof_files'])) {
             $files = is_array($proof['proof_files']) ? $proof['proof_files'] : json_decode($proof['proof_files'], true);
@@ -101,7 +102,7 @@ class HistoriqueProofPresenter
         return !empty($proof['file_path']);
     }
 
-    public function getProofFiles($proof): array
+    public function getProofFiles(array $proof): array
     {
         if (!empty($proof['proof_files'])) {
             if (is_array($proof['proof_files'])) {
@@ -113,7 +114,7 @@ class HistoriqueProofPresenter
         return [];
     }
 
-    public function getProofPath($proof): string
+    public function getProofPath(array $proof): string
     {
         if ($this->hasProof($proof)) {
             return '../../' . ($proof['file_path'] ?? '');
@@ -121,17 +122,17 @@ class HistoriqueProofPresenter
         return '';
     }
 
-    public function formatDate($date): string
+    public function formatDate(string $date): string
     {
         if (empty($date))
             return '';
         return date('d/m/Y', strtotime($date));
     }
 
-    public function getProofDetailsUrl($proofId): string
+    public function getProofDetailsUrl(string $proofId): string
     {
         return 'view_proof.php?proof_id=' . urlencode($proofId);
     }
 }
 
-$presenter = new HistoriqueProofPresenter();
+$presenter = new ProofHistoryPresenter();

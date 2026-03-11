@@ -73,7 +73,7 @@
 
 <script>
     function resendCode() {
-        // Créer un formulaire invisible pour renvoyer le code
+        // Create an invisible form to resend the code
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '../../../Presenter/shared/forgot_password_presenter.php';
@@ -94,9 +94,9 @@
         form.submit();
     }
 
-    // Auto-format du code (optionnel)
-    document.getElementById('reset_code').addEventListener('input', function (e) {
-        // Supprimer tout caractère non-numérique
+    // Auto-format the code (optional)
+    document.getElementById('reset_code').addEventListener('input', function(e) {
+        // Remove all non-numeric characters
         this.value = this.value.replace(/\D/g, '');
     });
 </script>

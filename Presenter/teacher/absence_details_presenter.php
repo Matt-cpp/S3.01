@@ -1,25 +1,29 @@
 <?php
-// La class ci dessous permet de gérer la page des détails des absences pour les professeurs
-// elle montre les détails des absences (justifiées ou non) pour un ds spécifique
-// Elle interviens apres avoir cliqué sur un ds dans la page des évaluations
-class detailsAbs
+
+declare(strict_types=1);
+
+// Manages the absence details page for teachers
+// Shows absence details (justified or not) for a specific evaluation
+// Used after clicking on an evaluation on the evaluations page
+class AbsenceDetailsPresenter
 {
-    private $db;
-    private $courseSlotId;
-    // Constructeur qui initialise la connexion à la base de données et l'identifiant du cours
-    public function __construct($courseId)
+    private Database $db;
+    private int $courseSlotId;
+
+    public function __construct(int $courseId)
     {
         require_once __DIR__ . '/../../Model/database.php';
         $this->db = Database::getInstance();
         $this->courseSlotId = $courseId;
     }
-    public function getCourseId()
+
+    public function getCourseId(): int
     {
         return $this->courseSlotId;
     }
-    // Récupère les détails du ds spécifique (matière, date, heure)
 
-    public function getAbsenceDetails()
+    // Retrieve details of the specific evaluation (subject, date, time)
+    public function getAbsenceDetails(): array
     {
         $query = "SELECT resources.label, course_slots.course_date, course_slots.start_time
         FROM course_slots LEFT JOIN resources ON course_slots.subject_identifier = resources.code
@@ -27,8 +31,8 @@ class detailsAbs
         $result = $this->db->select($query);
         return $result[0];
     }
-    // Récupère la liste des absences (justifiées ou non) pour le ds spécifique
-    public function getAbsences()
+    // Retrieve the list of absences (justified or not) for the specific evaluation
+    public function getAbsences(): array
     {
         $query = "SELECT users.first_name, users.last_name, absences.justified
         FROM absences LEFT JOIN users ON absences.student_identifier = users.identifier
@@ -36,5 +40,4 @@ class detailsAbs
         $result = $this->db->select($query);
         return $result;
     }
-
 }

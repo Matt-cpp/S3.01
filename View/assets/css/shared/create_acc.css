@@ -191,7 +191,7 @@ html.dark-mode body::before {
     transform: none;
 }
 
-/* Styles pour le code de vérification */
+/* Verification code styles */
 input[name="verification_code"] {
     text-align: center;
     font-size: 24px;
@@ -200,7 +200,7 @@ input[name="verification_code"] {
     font-family: monospace;
 }
 
-/* Animation pour les messages de succès */
+/* Success message animation */
 .success-message {
     animation: slideIn 0.3s ease-out;
 }
@@ -220,7 +220,7 @@ input[name="verification_code"] {
     }
 }
 
-/* Styles pour le champ mot de passe avec icône d'œil */
+/* Password field styles with eye icon */
 .password-wrapper {
     position: relative;
 }

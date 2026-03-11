@@ -1,21 +1,22 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: statistics-presenter.php
- * 
- * Présentateur des statistiques responsable pédagogique - Gère les statistiques avancées et graphiques.
- * Fournit des méthodes pour:
- * - Gérer les filtres multi-critères (dates, groupe, ressource, type de cours, semestre, année, étudiant)
- * - Récupérer les statistiques générales (total, heures, demi-journées, évaluations, taux justification)
- * - Générer des données pour graphiques Chart.js :
- *   - Répartition par type de cours (camembert)
- *   - Répartition par ressource/matière (barres)
- *   - Évolution mensuelle (ligne)
- *   - Répartition par semestre
- *   - Top étudiants les plus absents
- * - Calculer le taux de justification par période
- * - Fournir des statistiques individuelles par étudiant
- * - Fournir les options de filtres (groupes, ressources, années)
- * Utilise StatisticsModel et UserModel pour les requêtes.
+ * Academic manager statistics presenter - Manages advanced statistics and chart data.
+ * Provides methods for:
+ * - Managing multi-criteria filters (dates, group, resource, course type, semester, year, student)
+ * - Retrieving general statistics (total, hours, half-days, evaluations, justification rate)
+ * - Generating Chart.js data:
+ *   - Distribution by course type (pie chart)
+ *   - Distribution by resource/subject (bar chart)
+ *   - Monthly evolution (line chart)
+ *   - Distribution by semester
+ *   - Top absent students
+ * - Calculating justification rate by period
+ * - Providing individual student statistics
+ * - Providing filter options (groups, resources, years)
+ * Uses StatisticsModel and UserModel for queries.
  */
 
 require_once __DIR__ . '/../../Model/StatisticsModel.php';
@@ -23,8 +24,8 @@ require_once __DIR__ . '/../../Model/UserModel.php';
 
 class AcademicManagerStatisticsPresenter
 {
-    private $statisticsModel;
-    private $userModel;
+    private StatisticsModel $statisticsModel;
+    private UserModel $userModel;
 
     public function __construct()
     {
@@ -36,33 +37,29 @@ class AcademicManagerStatisticsPresenter
      * Format resource label to show "CODE : LABEL" format
      * Example: "INFFIS2-DEVELOPPEMENT ORIENTE OBJETS (T3BUTINFFI-R2.01)" => "R2.01 : DEVELOPPEMENT ORIENTE OBJETS"
      */
-    private function formatResourceLabel($fullLabel)
+    private function formatResourceLabel(string $fullLabel): string
     {
         if (empty($fullLabel) || $fullLabel === 'N/A') {
             return 'N/A';
         }
 
-        // Extract code from parentheses (e.g., "R2.01" from "T3BUTINFFI-R2.01")
         if (preg_match('/\(([^)]+)\)/', $fullLabel, $matches)) {
             $fullCode = $matches[1];
-            // Get the resource code (part after last hyphen)
             $codeParts = explode('-', $fullCode);
             $code = end($codeParts);
 
-            // Extract label (part before parentheses, after first hyphen)
             if (preg_match('/^[^-]+-(.+?)\s*\(/', $fullLabel, $labelMatches)) {
                 $label = trim($labelMatches[1]);
                 return $code . ' : ' . $label;
             }
         }
 
-        // Fallback to original label if pattern doesn't match
         return $fullLabel;
     }
 
-    // Récupère et valide les filtres depuis les paramètres GET de l'URL
-    // @return array - Tableau associatif des filtres actifs
-    public function getFilters()
+    // Retrieve and validate filters from GET URL parameters
+    // @return array Associative array of active filters
+    public function getFilters(): array
     {
         $filters = [];
 
@@ -101,14 +98,14 @@ class AcademicManagerStatisticsPresenter
         return $filters;
     }
 
-    //Get general statistics
-    public function getGeneralStats($filters = [])
+    // Get general statistics
+    public function getGeneralStats(array $filters = []): array
     {
         return $this->statisticsModel->getGeneralStatistics($filters);
     }
 
-    //Get absences by course type for pie chart
-    public function getCourseTypeData($filters = [])
+    // Get absences by course type for pie chart
+    public function getCourseTypeData(array $filters = []): array
     {
         $data = $this->statisticsModel->getAbsencesByCourseType($filters);
 
@@ -139,8 +136,8 @@ class AcademicManagerStatisticsPresenter
         ];
     }
 
-    //Get absences by resource for pie chart
-    public function getResourceData($filters = [])
+    // Get absences by resource for pie chart
+    public function getResourceData(array $filters = []): array
     {
         $data = $this->statisticsModel->getAbsencesByResource($filters);
 
@@ -161,8 +158,8 @@ class AcademicManagerStatisticsPresenter
         ];
     }
 
-    //Get evaluation absences by resource for chart
-    public function getEvaluationResourceData($filters = [])
+    // Get evaluation absences by resource for chart
+    public function getEvaluationResourceData(array $filters = []): array
     {
         $data = $this->statisticsModel->getEvaluationAbsencesByResource($filters);
 
@@ -180,8 +177,8 @@ class AcademicManagerStatisticsPresenter
         ];
     }
 
-    //Get justification rate by resource for chart
-    public function getJustificationRateData($filters = [])
+    // Get justification rate by resource for chart
+    public function getJustificationRateData(array $filters = []): array
     {
         $data = $this->statisticsModel->getJustificationRateByResource($filters);
 
@@ -199,8 +196,8 @@ class AcademicManagerStatisticsPresenter
         ];
     }
 
-    //Get monthly trends for line chart
-    public function getMonthlyTrends($filters = [])
+    // Get monthly trends for line chart
+    public function getMonthlyTrends(array $filters = []): array
     {
         $data = $this->statisticsModel->getAbsencesTrendsByMonth($filters);
 
@@ -224,8 +221,8 @@ class AcademicManagerStatisticsPresenter
         ];
     }
 
-    //Get resource trends over time
-    public function getResourceTrends($filters = [])
+    // Get resource trends over time
+    public function getResourceTrends(array $filters = []): array
     {
         $rawData = $this->statisticsModel->getResourceTrendsOverTime($filters);
 
@@ -284,8 +281,8 @@ class AcademicManagerStatisticsPresenter
         ];
     }
 
-    //Get semester data
-    public function getSemesterData($filters = [])
+    // Get semester data
+    public function getSemesterData(array $filters = []): array
     {
         $data = $this->statisticsModel->getAbsencesBySemester($filters);
 
@@ -313,20 +310,20 @@ class AcademicManagerStatisticsPresenter
         return $semesters;
     }
 
-    //Get top absent students
-    public function getTopAbsentStudents($limit = 10, $filters = [])
+    // Get top absent students
+    public function getTopAbsentStudents(int $limit = 10, array $filters = []): array
     {
         return $this->statisticsModel->getTopAbsentStudents($limit, $filters);
     }
 
-    //Get student statistics
-    public function getStudentStatistics($studentIdentifier, $filters = [])
+    // Get student statistics
+    public function getStudentStatistics(string $studentIdentifier, array $filters = []): array
     {
         return $this->statisticsModel->getStudentStatistics($studentIdentifier, $filters);
     }
 
-    //Get student absences by resource
-    public function getStudentResourceData($studentIdentifier, $filters = [])
+    // Get student absences by resource
+    public function getStudentResourceData(string $studentIdentifier, array $filters = []): array
     {
         $data = $this->statisticsModel->getStudentAbsencesByResource($studentIdentifier, $filters);
 
@@ -344,8 +341,8 @@ class AcademicManagerStatisticsPresenter
         ];
     }
 
-    //Get student trends
-    public function getStudentTrends($studentIdentifier, $filters = [])
+    // Get student trends
+    public function getStudentTrends(string $studentIdentifier, array $filters = []): array
     {
         $data = $this->statisticsModel->getStudentAbsencesTrends($studentIdentifier, $filters);
 
@@ -363,26 +360,26 @@ class AcademicManagerStatisticsPresenter
         ];
     }
 
-    //Get all groups for filter dropdown
-    public function getAllGroups()
+    // Get all groups for filter dropdown
+    public function getAllGroups(): array
     {
         return $this->statisticsModel->getAllGroups();
     }
 
-    //Get all resources for filter dropdown
-    public function getAllResources()
+    // Get all resources for filter dropdown
+    public function getAllResources(): array
     {
         return $this->statisticsModel->getAllResources();
     }
 
-    //Get available years
-    public function getAvailableYears()
+    // Get available years
+    public function getAvailableYears(): array
     {
         return $this->statisticsModel->getAvailableYears();
     }
 
-    //Search students by name or identifier
-    public function searchStudents($query)
+    // Search students by name or identifier
+    public function searchStudents(string $query): array
     {
         // Simple implementation without using UserModel method
         $db = getDatabase();
@@ -406,8 +403,8 @@ class AcademicManagerStatisticsPresenter
         }
     }
 
-    //Export statistics to JSON for API use
-    public function exportToJson($data)
+    // Export statistics to JSON for API use
+    public function exportToJson(array $data): void
     {
         header('Content-Type: application/json');
         echo json_encode($data, JSON_PRETTY_PRINT);

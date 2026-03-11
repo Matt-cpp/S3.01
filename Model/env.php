@@ -1,13 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: env.php
- * 
- * Gestionnaire de variables d'environnement - Charge et gère les variables du fichier .env.
- * Permet de récupérer facilement les paramètres de configuration (BDD, email, etc.)
- * sans les coder en dur dans l'application.
- * Implémente un pattern Singleton pour charger le fichier .env une seule fois.
- * Fournit la fonction env() pour accéder facilement aux variables.
+ * Environment variable manager - Loads and manages variables from the .env file.
+ * Allows easy retrieval of configuration parameters (database, email, etc.)
+ * without hardcoding them in the application.
+ * Implements a Singleton pattern to load the .env file only once.
+ * Provides the env() function for easy variable access.
  */
 
 /**
@@ -15,10 +15,10 @@
  */
 class EnvLoader
 {
-    private static $loaded = false;
-    private static $variables = [];
+    private static bool $loaded = false;
+    private static array $variables = [];
 
-    // Loads the .env file
+    // Load the .env file
     public static function load(?string $path = null): void
     {
         if (self::$loaded) {
@@ -63,8 +63,8 @@ class EnvLoader
         self::$loaded = true;
     }
 
-    // Retrieves an environment variable
-    public static function get(string $key, $default = null)
+    // Retrieve an environment variable
+    public static function get(string $key, mixed $default = null): mixed
     {
         self::load(); // Ensure .env is loaded
 
@@ -72,14 +72,14 @@ class EnvLoader
         return $_ENV[$key] ?? $_SERVER[$key] ?? self::$variables[$key] ?? $default;
     }
 
-    // Checks if a variable exists
+    // Check if a variable exists
     public static function has(string $key): bool
     {
         self::load();
         return isset($_ENV[$key]) || isset($_SERVER[$key]) || isset(self::$variables[$key]);
     }
 
-    // Retrieves all loaded variables
+    // Retrieve all loaded variables
     public static function all(): array
     {
         self::load();
@@ -87,11 +87,11 @@ class EnvLoader
     }
 }
 
-// Function to quickly get an environment variable
-function env(string $key, $default = null)
+// Quickly get an environment variable
+function env(string $key, mixed $default = null): mixed
 {
     return EnvLoader::get($key, $default);
 }
 
-// Automatically load .env on first call
+// Automatically load .env on first inclusion
 EnvLoader::load();

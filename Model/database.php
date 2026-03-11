@@ -1,13 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * Fichier: database.php
- * 
- * Modèle de connexion à la base de données - Gère la connexion PostgreSQL.
- * Implémente le pattern Singleton pour assurer une seule instance de connexion.
- * Fournit des méthodes pour exécuter des requêtes SQL (SELECT, INSERT, UPDATE, DELETE).
- * Gère les transactions, les requêtes préparées et la gestion des erreurs.
- * Configure la connexion avec les paramètres du fichier .env.
+ * Database connection model - Manages the PostgreSQL connection.
+ * Implements the Singleton pattern to ensure a single connection instance.
+ * Provides methods to execute SQL queries (SELECT, INSERT, UPDATE, DELETE).
+ * Handles transactions, prepared statements and error management.
+ * Configures the connection with parameters from the .env file.
  */
 
 // Load environment variables
@@ -76,9 +76,7 @@ class Database
     }
 
     // Prevent cloning the instance to avoid multiple connections
-    private function __clone()
-    {
-    }
+    private function __clone() {}
 
     // Prevent unserializing the Singleton instance to avoid multiple connections
     public function __wakeup()

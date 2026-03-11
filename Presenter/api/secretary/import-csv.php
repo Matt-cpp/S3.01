@@ -1,16 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Fichier: import-csv.php
- * 
- * API d'import de fichier CSV - Gestion de l'upload et enregistrement initial d'un fichier CSV.
- * Fonctionnalités principales :
- * - Validation du fichier uploadé (type CSV uniquement)
- * - Génération d'un ID unique pour l'import
- * - Sauvegarde du fichier dans le dossier uploads/imports/
- * - Comptage du nombre total de lignes dans le CSV
- * - Création d'un enregistrement dans import_jobs avec statut 'pending'
- * - Retourne l'ID d'import pour le traitement asynchrone
- * Utilisé par le dashboard secrétaire pour démarrer un processus d'importation.
+ * CSV file import API - Handles upload and initial registration of a CSV file.
+ * Main features:
+ * - Validation of the uploaded file (CSV type only)
+ * - Generation of a unique import ID
+ * - Saving the file to the uploads/imports/ folder
+ * - Counting the total number of rows in the CSV
+ * - Creating a record in import_jobs with 'pending' status
+ * - Returns the import ID for asynchronous processing
+ * Used by the secretary dashboard to start an import process.
  */
 
 header('Content-Type: application/json');
@@ -34,9 +35,9 @@ $file = $_FILES['csv_file'];
 
 // Validate file type
 $allowedExtensions = ['csv'];
-$fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+$extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-if (!in_array($fileExtension, $allowedExtensions)) {
+if (!in_array($extension, $allowedExtensions)) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Type de fichier non autorisé. Seuls les fichiers CSV sont acceptés.']);
     exit;
@@ -92,14 +93,13 @@ try {
         'import_id' => $importId,
         'message' => 'Import démarré'
     ]);
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 
 // Start the import process in the background
-function startBackgroundImport($importId, $filepath)
+function startBackgroundImport(string $importId, string $filepath): void
 {
     // For Windows, use start /B to run in background
     // For Unix/Linux, use & at the end

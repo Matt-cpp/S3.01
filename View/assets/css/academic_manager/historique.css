@@ -244,7 +244,7 @@ button[type="submit"] {
     min-width: 80px;
 }
 
-/* Classes spécifiques pour chaque statut avec badges */
+/* Specific classes for each status with badges */
 .status-en-attente {
     background-color: #fff3cd;
     color: #664d03;
@@ -288,7 +288,7 @@ button[type="submit"] {
 }
 
 
-/* Message pour aucun résultat */
+/* No results message */
 .no-results {
     text-align: center;
     padding: 20px;
@@ -296,7 +296,7 @@ button[type="submit"] {
     font-style: italic;
 }
 
-/* Compteur de résultats */
+/* Results counter */
 .results-counter {
     margin-bottom: 1rem;
     font-size: 0.95rem;
