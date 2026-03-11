@@ -231,7 +231,14 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-status-class="<?php echo $status['class']; ?>">
                                 <td data-label="Date"><?php echo $presenter->formatDate($absence['course_date']); ?></td>
                                 <td data-label="Horaire"><?php echo $presenter->formatTime($absence['start_time'], $absence['end_time']); ?></td>
-                                <td data-label="Cours"><?php echo htmlspecialchars($absence['course_name'] ?? 'Non spécifié'); ?></td>
+                                <td data-label="Cours" class="course-cell">
+                                    <div class="course-info">
+                                        <?php if (!empty($absence['course_code'])): ?>
+                                            <span class="course-code"><?php echo htmlspecialchars($absence['course_code']); ?></span>
+                                        <?php endif; ?>
+                                        <span class="course-name"><?php echo htmlspecialchars($absence['course_name'] ?? 'Non spécifié'); ?></span>
+                                    </div>
+                                </td>
                                 <td data-label="Enseignant"><?php echo $teacher; ?></td>
                                 <td data-label="Salle"><?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?></td>
                                 <td data-label="Durée"><strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong></td>

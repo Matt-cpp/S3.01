@@ -80,17 +80,7 @@
             margin-bottom: 2rem;
         }
 
-        @media (max-width: 900px) {
-            .overview-section {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 600px) {
-            .overview-section {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* Responsive styles gérés dans responsive-mobile.css */
 
         .overview-card {
             background: white;
@@ -786,37 +776,12 @@
         }
 
         @media (max-width: 768px) {
-            .header {
-                padding: 1rem;
-            }
-            
-            .main-content {
-                padding: 1rem;
-            }
-            
             .dashboard-container {
                 padding: 1rem;
             }
 
             .dashboard-title {
                 font-size: 1.5rem;
-            }
-            
-            .overview-section {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .overview-card {
-                padding: 1.25rem;
-            }
-
-            .card-icon {
-                font-size: 2.5rem;
-            }
-
-            .card-value {
-                font-size: 2rem;
             }
 
             .section-heading {
@@ -848,23 +813,6 @@
                 align-items: flex-start;
             }
 
-            .proofs-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-            }
-
-            .proof-card {
-                padding: 1.25rem;
-            }
-
-            .proof-icon {
-                font-size: 2.5rem;
-            }
-
-            .proof-count {
-                font-size: 2rem;
-            }
-
             .alert-box {
                 padding: 1.25rem;
                 flex-direction: column;
@@ -881,11 +829,6 @@
 
             .alert-message {
                 font-size: 0.875rem;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
             }
             
             .absences-table {
@@ -1235,20 +1178,4 @@
             }
         }
 
-        @media (max-width: 1200px) {
-            .stats-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 900px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* Responsive pour stats-grid géré dans responsive.css et responsive-mobile.css */

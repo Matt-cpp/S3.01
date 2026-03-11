@@ -172,6 +172,31 @@ button[type="submit"]:hover {
     font-size: 0.9rem;
 }
 
+/* Styles pour le cours (code + nom) */
+.course-code {
+    font-weight: 600;
+    color: #0081A1;
+    font-size: 0.85rem;
+}
+
+.course-name {
+    color: #374151;
+    font-size: 0.85rem;
+}
+
+/* En mode desktop, afficher sur la même ligne */
+@media (min-width: 993px) {
+    .course-code {
+        display: inline;
+    }
+    .course-code::after {
+        content: " - ";
+    }
+    .course-name {
+        display: inline;
+    }
+}
+
 #absenceTable tbody tr:hover {
     background-color: #f8f9fa;
 }
@@ -543,6 +568,18 @@ button[type="submit"]:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Tablettes moyennes (769px - 992px) - Modal uniquement */
+@media (min-width: 769px) and (max-width: 992px) {
+    .modal-content {
+        width: 85%;
+        max-height: 85vh;
+    }
+    
+    .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 /* Responsive pour le modal */
 @media (max-width: 768px) {
     .modal-content {
@@ -580,14 +617,5 @@ button[type="submit"]:hover {
 @media (max-width: 768px) {
     .filter-grid {
         grid-template-columns: 1fr;
-    }
-    
-    #absenceTable {
-        font-size: 0.85rem;
-    }
-    
-    #absenceTable th,
-    #absenceTable td {
-        padding: 8px 10px;
     }
 }

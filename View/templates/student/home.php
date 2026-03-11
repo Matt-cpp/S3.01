@@ -364,12 +364,15 @@ if (!isset($_SESSION['id_student'])) {
                                             date('H\hi', strtotime($absence['end_time']));
                                         ?>
                                     </td>
-                                    <td data-label="Cours">
-                                        <strong><?php echo htmlspecialchars($absence['course_code'] ?? 'N/A'); ?></strong>
-                                        <?php if ($absence['course_name']): ?>
-                                            <br><small
-                                                class="course-code"><?php echo htmlspecialchars($absence['course_name']); ?></small>
-                                        <?php endif; ?>
+                                    <td data-label="Cours" class="course-cell">
+                                        <div class="course-info">
+                                            <?php if (!empty($absence['course_code'])): ?>
+                                                <span class="course-code"><?php echo htmlspecialchars($absence['course_code']); ?></span>
+                                            <?php endif; ?>
+                                            <?php if ($absence['course_name']): ?>
+                                                <span class="course-name"><?php echo htmlspecialchars($absence['course_name']); ?></span>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                     <td data-label="Enseignant">
                                         <?php

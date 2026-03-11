@@ -201,10 +201,10 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-comment="<?php echo htmlspecialchars($proof['manager_comment'] ?? ''); ?>"
                                 data-files="<?php echo htmlspecialchars(json_encode($proofFiles)); ?>"
                                 style="cursor: pointer;">
-                                <td>
+                                <td data-label="Période">
                                     <strong><?php echo $presenter->formatPeriod($proof['absence_start_date'], $proof['absence_end_date']); ?></strong>
                                 </td>
-                                <td>
+                                <td data-label="Motif">
                                     <div>
                                         <?php echo $presenter->translateReason($proof['main_reason'], $proof['custom_reason']); ?>
                                     </div>
@@ -212,13 +212,13 @@ $errorMessage = $presenter->getErrorMessage();
                                         <small class="course-code"><?php echo htmlspecialchars($proof['custom_reason']); ?></small>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td data-label="Heures ratées">
                                     <strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong>
                                 </td>
-                                <td>
+                                <td data-label="Date soumission">
                                     <?php echo $presenter->formatDateTime($proof['submission_date']); ?>
                                 </td>
-                                <td>
+                                <td data-label="Date traitement">
                                     <?php 
                                     if ($proof['processing_date']) {
                                         echo $presenter->formatDateTime($proof['processing_date']);
@@ -227,19 +227,19 @@ $errorMessage = $presenter->getErrorMessage();
                                     }
                                     ?>
                                 </td>
-                                <td>
+                                <td data-label="Évaluation">
                                     <?php if ($proof['has_exam']): ?>
                                         <span class="eval-badge">⚠️ Oui</span>
                                     <?php else: ?>
                                         <span class="no-eval">Non</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td data-label="Statut">
                                     <span class="badge <?php echo $status['class']; ?>">
                                         <?php echo $status['icon'] . ' ' . $status['text']; ?>
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Commentaire">
                                     <?php if ($proof['manager_comment']): ?>
                                         <span class="comment-preview" title="<?php echo htmlspecialchars($proof['manager_comment']); ?>">
                                             <?php 

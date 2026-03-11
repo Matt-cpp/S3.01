@@ -356,15 +356,6 @@ body {
         align-items: flex-start;
     }
 
-    .table {
-        font-size: 0.85rem;
-    }
-
-    .table th,
-    .table td {
-        padding: 0.75rem;
-    }
-
     .actions-grid {
         grid-template-columns: 1fr;
     }
