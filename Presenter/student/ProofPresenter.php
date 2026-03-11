@@ -97,7 +97,8 @@ class ProofPresenter
                 } elseif ($action === 'unlock') {
                     $this->model->deverouiller($proofId);
                 }
-                $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                $feedback = ($action === 'lock') ? 'locked' : 'unlocked';
+                $data['redirect'] = 'view_proof.php?proof_id=' . $proofId . '&feedback=' . $feedback;
                 $this->enrichViewData($data);
                 return $data;
             }
@@ -149,7 +150,7 @@ class ProofPresenter
                     // Send email notification to student
                     $this->sendProofRejectionEmail($data['proof'], $rejectionReason, $rejectionDetails);
 
-                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId . '&feedback=rejected';
                 } else {
                     $data['showRejectForm'] = true;
                     // Récupérer le message d'erreur détaillé mis en session par le modèle (si présent)
@@ -205,7 +206,7 @@ class ProofPresenter
                     // Send email notification to student
                     $this->sendProofAcceptedEmail($data['proof'], $validationReason, $validationDetails);
 
-                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId . '&feedback=validated';
                 } else {
                     $data['showValidateForm'] = true;
                     if (session_status() === PHP_SESSION_NONE) {
@@ -336,7 +337,7 @@ class ProofPresenter
                     // Send email notification to student
                     $this->sendProofInfoRequestEmail($data['proof'], $infoMessage);
 
-                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId;
+                    $data['redirect'] = 'view_proof.php?proof_id=' . $proofId . '&feedback=info';
                 } else {
                     $data['showInfoForm'] = true;
                     if (session_status() === PHP_SESSION_NONE) {

@@ -25,6 +25,8 @@
     <link rel="icon" type="image/x-icon" href="../../img/logoIUT.ico">
     <link rel="stylesheet" href="../../assets/css/shared/base.css">
     <link rel="stylesheet" href="../../assets/css/academic_manager/home.css">
+    <script src="../../assets/js/shared/base.js" defer></script>
+    <script src="../../assets/js/academic_manager/home.js" defer></script>
 </head>
 
 <body>

@@ -992,5 +992,17 @@ window.addEventListener("DOMContentLoaded", function () {
 
     // IMPORTANT: Sync selectedFiles array to the actual file input before submission
     updateFileInputWithSelectedFiles();
+
+    // Feedback immédiat : désactiver le bouton après sérialisation des données
+    // (setTimeout 0 garantit que la désactivation arrive après la collecte des données du formulaire)
+    var submitBtn = document.querySelector(".submit-btn");
+    if (submitBtn) {
+      setTimeout(function () {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Envoi en cours…";
+        submitBtn.style.opacity = "0.7";
+        submitBtn.style.cursor = "not-allowed";
+      }, 0);
+    }
   });
 });
