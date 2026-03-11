@@ -52,6 +52,13 @@ if (!isset($_SESSION['id_student'])) {
     <div class="dashboard-container">
         <h1 class="dashboard-title" data-translate="dashboard_title">Tableau de Bord</h1>
 
+        <!-- Bouton d'action principal - Soumettre un justificatif (Incitation) -->
+        <div class="cta-section">
+            <a href="proof_submit.php" class="btn-cta" data-translate="submit_proof">
+                Soumettre un justificatif
+            </a>
+        </div>
+
         <!-- Vue d'ensemble avec les cartes statistiques principales (3 cartes : total, non justifiées, justifiables) -->
         <div class="overview-section">
             <div class="overview-card primary">
@@ -111,6 +118,52 @@ if (!isset($_SESSION['id_student'])) {
             </div>
         </div>
 
+        <!-- Statut des justificatifs (groupé en haut pour visibilité) -->
+        <div class="proofs-status-section">
+            <h2 class="section-heading">
+                <span class="heading-icon"></span>
+                <span data-translate="proofs_status">État de vos justificatifs</span>
+            </h2>
+            <div class="proofs-grid">
+                <a href="proofs.php?status=accepted" class="proof-card proof-accepted">
+                    <div class="proof-icon"></div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['accepted_proofs']; ?></div>
+                        <div class="proof-label" data-translate="accepted">Acceptés</div>
+                        <div class="proof-description" data-translate="validated_proofs">Justificatifs validés</div>
+                    </div>
+                </a>
+
+                <a href="proofs.php?status=pending" class="proof-card proof-pending">
+                    <div class="proof-icon"></div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['pending_proofs']; ?></div>
+                        <div class="proof-label" data-translate="pending">En attente</div>
+                        <div class="proof-description" data-translate="under_review_desc">En cours d'examen</div>
+                    </div>
+                </a>
+
+                <a href="proofs.php?status=under_review" class="proof-card proof-review">
+                    <div class="proof-icon"></div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['under_review_proofs']; ?></div>
+                        <div class="proof-label" data-translate="under_review">En révision</div>
+                        <div class="proof-description" data-translate="additional_info_requested">Infos complémentaires
+                            demandées</div>
+                    </div>
+                </a>
+
+                <a href="proofs.php?status=rejected" class="proof-card proof-rejected">
+                    <div class="proof-icon"></div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['rejected_proofs']; ?></div>
+                        <div class="proof-label" data-translate="rejected">Refusés</div>
+                        <div class="proof-description" data-translate="not_accepted">Non acceptés</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
         <!-- Barre de progression de justification -->
         <div class="justification-progress-section">
             <h2 class="section-heading" data-translate="justification_rate">
@@ -159,52 +212,6 @@ if (!isset($_SESSION['id_student'])) {
                         <?php endif; ?>
                     </span>
                 </div>
-            </div>
-        </div>
-
-        <!-- Statut des justificatifs -->
-        <div class="proofs-status-section">
-            <h2 class="section-heading">
-                <span class="heading-icon"></span>
-                <span data-translate="proofs_status">État de vos justificatifs</span>
-            </h2>
-            <div class="proofs-grid">
-                <a href="proofs.php?status=accepted" class="proof-card proof-accepted">
-                    <div class="proof-icon"></div>
-                    <div class="proof-content">
-                        <div class="proof-count"><?php echo $stats['accepted_proofs']; ?></div>
-                        <div class="proof-label" data-translate="accepted">Acceptés</div>
-                        <div class="proof-description" data-translate="validated_proofs">Justificatifs validés</div>
-                    </div>
-                </a>
-
-                <a href="proofs.php?status=pending" class="proof-card proof-pending">
-                    <div class="proof-icon"></div>
-                    <div class="proof-content">
-                        <div class="proof-count"><?php echo $stats['pending_proofs']; ?></div>
-                        <div class="proof-label" data-translate="pending">En attente</div>
-                        <div class="proof-description" data-translate="under_review_desc">En cours d'examen</div>
-                    </div>
-                </a>
-
-                <a href="proofs.php?status=under_review" class="proof-card proof-review">
-                    <div class="proof-icon"></div>
-                    <div class="proof-content">
-                        <div class="proof-count"><?php echo $stats['under_review_proofs']; ?></div>
-                        <div class="proof-label" data-translate="under_review">En révision</div>
-                        <div class="proof-description" data-translate="additional_info_requested">Infos complémentaires
-                            demandées</div>
-                    </div>
-                </a>
-
-                <a href="proofs.php?status=rejected" class="proof-card proof-rejected">
-                    <div class="proof-icon"></div>
-                    <div class="proof-content">
-                        <div class="proof-count"><?php echo $stats['rejected_proofs']; ?></div>
-                        <div class="proof-label" data-translate="rejected">Refusés</div>
-                        <div class="proof-description" data-translate="not_accepted">Non acceptés</div>
-                    </div>
-                </a>
             </div>
         </div>
 
@@ -374,7 +381,8 @@ if (!isset($_SESSION['id_student'])) {
                                         ?>
                                     </td>
                                     <td data-label="Salle"><?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?></td>
-                                    <td data-label="Durée"><strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong>
+                                    <td data-label="Durée">
+                                        <strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong>
                                     </td>
                                     <td data-label="Type">
                                         <span class="course-type-badge <?php echo $badge_class; ?>">
@@ -495,8 +503,10 @@ if (!isset($_SESSION['id_student'])) {
                                         }
                                         ?>
                                     </td>
-                                    <td data-label="Heures"><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
-                                    <td data-label="Soumis le"><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
+                                    <td data-label="Heures">
+                                        <strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
+                                    <td data-label="Soumis le">
+                                        <?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
                                     <td data-label="Évaluation">
                                         <?php if ($proof['has_exam']): ?>
                                             <span class="eval-badge" data-translate="eval">Éval</span>
@@ -612,8 +622,10 @@ if (!isset($_SESSION['id_student'])) {
                                         }
                                         ?>
                                     </td>
-                                    <td data-label="Heures"><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
-                                    <td data-label="Soumis le"><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
+                                    <td data-label="Heures">
+                                        <strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
+                                    <td data-label="Soumis le">
+                                        <?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
                                     <td data-label="Évaluation">
                                         <?php if ($proof['has_exam']): ?>
                                             <span class="eval-badge" data-translate="eval">Éval</span>
@@ -716,9 +728,12 @@ if (!isset($_SESSION['id_student'])) {
                                         }
                                         ?>
                                     </td>
-                                    <td data-label="Heures"><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
-                                    <td data-label="Soumis le"><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
-                                    <td data-label="Traité le"><?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : 'N/A'; ?>
+                                    <td data-label="Heures">
+                                        <strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
+                                    <td data-label="Soumis le">
+                                        <?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
+                                    <td data-label="Traité le">
+                                        <?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : 'N/A'; ?>
                                     </td>
                                     <td data-label="Évaluation">
                                         <?php if ($proof['has_exam']): ?>
@@ -823,9 +838,12 @@ if (!isset($_SESSION['id_student'])) {
                                         }
                                         ?>
                                     </td>
-                                    <td data-label="Heures"><strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
-                                    <td data-label="Soumis le"><?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
-                                    <td data-label="Refusé le"><?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : 'N/A'; ?>
+                                    <td data-label="Heures">
+                                        <strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong></td>
+                                    <td data-label="Soumis le">
+                                        <?php echo date('d/m/Y \à H\hi', strtotime($proof['submission_date'])); ?></td>
+                                    <td data-label="Refusé le">
+                                        <?php echo $proof['processing_date'] ? date('d/m/Y \à H\hi', strtotime($proof['processing_date'])) : 'N/A'; ?>
                                     </td>
                                     <td data-label="Évaluation">
                                         <?php if ($proof['has_exam']): ?>

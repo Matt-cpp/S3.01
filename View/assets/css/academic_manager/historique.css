@@ -96,6 +96,29 @@ main {
     margin: 0 auto;
 }
 
+/* Page Title */
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0081A1;
+    margin-bottom: 1.5rem;
+}
+
+/* Filter input with label */
+.filter-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.filter-input label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
 /* Messages d'erreur */
 .error-message {
     background-color: #f8d7da;
@@ -152,7 +175,8 @@ button[type="submit"] {
 }
 
 
-.reset-link {
+.reset-link,
+.btn-secondary {
     background: #6b7280;
     color: white;
     text-decoration: none;
@@ -162,6 +186,14 @@ button[type="submit"] {
     font-weight: 600;
     display: inline-block;
     margin-left: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.reset-link:hover,
+.btn-secondary:hover {
+    background: #4b5563;
 }
 
 /* Tableau */

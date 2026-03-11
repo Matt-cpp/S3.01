@@ -3628,5 +3628,53 @@ html.dark-mode body {
   min-width: 100px;
 }
 
+/* Dark mode - New UI elements (Bastien & Scapin compliance) */
+.dark-mode .btn-cta {
+  background: var(--primary);
+  color: white;
+}
+
+.dark-mode .btn-cta:hover {
+  background: var(--primary-hover);
+}
+
+.dark-mode .btn-primary-action {
+  background: var(--primary);
+  color: white;
+}
+
+.dark-mode .btn-primary-action:hover {
+  background: var(--primary-hover);
+  color: white;
+}
+
+.dark-mode .btn-secondary,
+.dark-mode .btn.btn-secondary {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-mode .btn-secondary:hover,
+.dark-mode .btn.btn-secondary:hover {
+  background-color: var(--border-dark);
+}
+
+.dark-mode .quick-actions a {
+  color: white;
+}
+
+.dark-mode .page-title {
+  color: var(--primary);
+}
+
+.dark-mode .filter-input label {
+  color: var(--text-secondary);
+}
+
+.dark-mode .cta-section .btn-cta {
+  box-shadow: 0 2px 8px rgba(0, 129, 161, 0.4);
+}
+
 
 

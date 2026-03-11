@@ -116,11 +116,14 @@ body {
     background: var(--bg-secondary);
     border-radius: 8px;
     border: 1px solid var(--border-color);
+    min-height: 25px;
+    display: flex;
+    align-items: center;
 }
 
 .role-badge {
     display: inline-block;
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 1rem;
     background: var(--primary-color);
     color: white;
     border-radius: 20px;

@@ -58,10 +58,10 @@
                 </div>
                 <div class="pagination-buttons">
                     <a href="?page=<?php echo $donnes->getPreviousPage(); ?>">
-                        <button class="btn" type="button">Précédent</button>
+                        <button class="btn btn-secondary" type="button">Précédent</button>
                     </a>
                     <a href="?page=<?php echo $donnes->getNextPage(); ?>">
-                        <button class="btn" type="button">Suivant</button>
+                        <button class="btn btn-secondary" type="button">Suivant</button>
                     </a>
                 </div>
             </div>
@@ -144,7 +144,7 @@
             </table>
 
             <div class="history-section">
-                <a href="historique.php" class="btn-history">Consulter l'historique complet</a>
+                <a href="historique.php" class="btn-history btn-primary-action">Consulter l'historique complet</a>
             </div>
         </div>
     </div>

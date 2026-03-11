@@ -49,6 +49,8 @@ $errorMessage = $presenter->getErrorMessage();
 <body>
     <?php include __DIR__ . '/../navbar.php'; ?>
     <main>
+        <h1 class="page-title">Historique des absences</h1>
+
         <?php if (!empty($errorMessage)): ?>
             <div class="error-message">
                 <?php echo htmlspecialchars($errorMessage); ?>
@@ -58,13 +60,24 @@ $errorMessage = $presenter->getErrorMessage();
         <!-- Formulaire de filtrage multi-critères -->
         <form method="POST" action="">
             <div class="filter-grid">
-                <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..."
-                    value="<?php echo htmlspecialchars($filters['name'] ?? ''); ?>">
-                <input type="date" name="firstDateFilter" id="firstDateFilter"
-                    value="<?php echo htmlspecialchars($filters['start_date'] ?? ''); ?>">
-                <input type="date" name="lastDateFilter" id="lastDateFilter"
-                    value="<?php echo htmlspecialchars($filters['end_date'] ?? ''); ?>">
-                <select name="JustificationStatusFilter" id="JustificationStatusFilter">
+                <div class="filter-input">
+                    <label for="nameFilter">Nom de l'étudiant</label>
+                    <input type="text" name="nameFilter" id="nameFilter" placeholder="Rechercher par nom..."
+                        value="<?php echo htmlspecialchars($filters['name'] ?? ''); ?>">
+                </div>
+                <div class="filter-input">
+                    <label for="firstDateFilter">Date de début</label>
+                    <input type="date" name="firstDateFilter" id="firstDateFilter"
+                        value="<?php echo htmlspecialchars($filters['start_date'] ?? ''); ?>">
+                </div>
+                <div class="filter-input">
+                    <label for="lastDateFilter">Date de fin</label>
+                    <input type="date" name="lastDateFilter" id="lastDateFilter"
+                        value="<?php echo htmlspecialchars($filters['end_date'] ?? ''); ?>">
+                </div>
+                <div class="filter-input">
+                    <label for="JustificationStatusFilter">Statut</label>
+                    <select name="JustificationStatusFilter" id="JustificationStatusFilter">
                     <option value="">Tous les statuts</option>
                     <option value="En attente" <?php echo (($filters['JustificationStatus'] ?? '') === 'En attente') ? 'selected' : ''; ?>>En attente</option>
                     <option value="Acceptée" <?php echo (($filters['JustificationStatus'] ?? '') === 'Acceptée') ? 'selected' : ''; ?>>Acceptée</option>
@@ -72,7 +85,10 @@ $errorMessage = $presenter->getErrorMessage();
                     <option value="En cours d'examen" <?php echo (($filters['JustificationStatus'] ?? '') === 'En cours d\'examen') ? 'selected' : ''; ?>>En cours d'examen</option>
                     <option value="Non justifiée" <?php echo (($filters['JustificationStatus'] ?? '') === 'Non justifiée') ? 'selected' : ''; ?>>Non justifiée</option>
                 </select>
-                <select name="courseTypeFilter" id="courseTypeFilter">
+                </div>
+                <div class="filter-input">
+                    <label for="courseTypeFilter">Type de cours</label>
+                    <select name="courseTypeFilter" id="courseTypeFilter">
                     <option value="">Tous les types</option>
                     <?php foreach ($courseTypes as $type): ?>
                         <option value="<?php echo htmlspecialchars($type['course_type']); ?>"
@@ -81,12 +97,13 @@ $errorMessage = $presenter->getErrorMessage();
                         </option>
                     <?php endforeach; ?>
                 </select>
+                </div>
             </div>
             <div class="button-container">
                 <button type="submit" id="filterButton">
                     Filtrer
                 </button>
-                <a href="historique.php" class="reset-link">
+                <a href="historique.php" class="btn btn-secondary">
                     Réinitialiser
                 </a>
             </div>

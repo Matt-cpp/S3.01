@@ -59,6 +59,12 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
     <div class="main-content">
         <h1 class="page-title" data-translate="dashboard_title">Tableau de bord - Professeur</h1>
 
+        <!-- Action principale - Planifier un rattrapage (Incitation) -->
+        <div class="quick-actions">
+            <a href="planifier_rattrapage.php" class="btn-primary-action" data-translate="schedule_makeup">Planifier un
+                rattrapage</a>
+        </div>
+
         <!-- Vue globale des absences -->
         <div class="section">
             <h2 class="section-title" data-translate="global_view">Vue globale des absences</h2>
@@ -128,7 +134,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
             <?php if ($table->getNombrePages() > 1): ?>
                 <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.5rem;">
                     <a href="?page=<?php echo $table->getPreviousPage(); ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
-                        class="btn-primary"
+                        class="btn-secondary"
                         style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($table->getCurrentPage() == 0) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>"
                         data-translate="previous">
                         Précédent
@@ -138,7 +144,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
                             data-translate="of">sur</span> <?php echo $table->getNombrePages(); ?>
                     </span>
                     <a href="?page=<?php echo $table->getNextPage(); ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
-                        class="btn-primary"
+                        class="btn-secondary"
                         style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($table->getCurrentPage() >= $table->getNombrePages() - 1) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>"
                         data-translate="next">
                         Suivant
@@ -191,7 +197,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
             <?php if ($tableRattrapage->getNombrePages() > 1): ?>
                 <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.5rem;">
                     <a href="?page_rattrapage=<?php echo $tableRattrapage->getPreviousPage(); ?><?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
-                        class="btn-primary"
+                        class="btn-secondary"
                         style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($tableRattrapage->getCurrentPage() == 0) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>"
                         data-translate="previous">
                         Précédent
@@ -202,7 +208,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
                         <?php echo $tableRattrapage->getNombrePages(); ?>
                     </span>
                     <a href="?page_rattrapage=<?php echo $tableRattrapage->getNextPage(); ?><?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
-                        class="btn-primary"
+                        class="btn-secondary"
                         style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($tableRattrapage->getCurrentPage() >= $tableRattrapage->getNombrePages() - 1) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>"
                         data-translate="next">
                         Suivant
