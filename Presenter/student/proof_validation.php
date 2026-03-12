@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     session_start();
 
     try {
-        $db = getDatabase();
+        $db = Database::getInstance();
 
         // Multi-file proof upload with full validation
         $uploadedFiles = [];
