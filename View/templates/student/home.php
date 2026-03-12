@@ -330,7 +330,6 @@ if (!isset($_SESSION['id_student'])) {
                                     data-date="<?php echo date('d/m/Y', strtotime($absence['course_date'])); ?>"
                                     data-time="<?php echo date('H\hi', strtotime($absence['start_time'])) . ' - ' . date('H\hi', strtotime($absence['end_time'])); ?>"
                                     data-course="<?php echo htmlspecialchars(formatResourceLabel($absence['course_name'] ?? 'N/A')); ?>"
-                                    data-course-code="<?php echo htmlspecialchars($absence['course_code'] ?? ''); ?>"
                                     data-teacher="<?php echo $teacher; ?>"
                                     data-room="<?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?>"
                                     data-duration="<?php echo number_format($absence['duration_minutes'] / 60, 1); ?>"
