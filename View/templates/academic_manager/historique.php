@@ -19,6 +19,7 @@ require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('academic_manager');
 
 require_once __DIR__ . '/../../../Presenter/academic_manager/historique.php';
+require_once __DIR__ . '/../../../Model/format_ressource.php';
 
 // Instantiate the presenter
 $presenter = new HistoriquePresenter();
@@ -118,7 +119,7 @@ $errorMessage = $presenter->getErrorMessage();
                     <?php foreach ($absences as $absence): ?>
                         <tr class="<?php echo $absence['status'] ? 'status-justified' : 'status-unjustified'; ?>">
                             <td><?php echo htmlspecialchars($absence['student_name']); ?></td>
-                            <td><?php echo htmlspecialchars($absence['course']); ?></td>
+                            <td><?php echo htmlspecialchars(formatResourceLabel($absence['course'] ?? 'Non spécifié')); ?></td>
                             <td><?php echo htmlspecialchars($presenter->formatDate($absence['date'])); ?></td>
                             <td><?php echo htmlspecialchars($presenter->formatTime($absence['start_time'], $absence['end_time'])); ?></td>
                             <td><?php echo htmlspecialchars($absence['course_type'] ?? 'Non spécifié'); ?></td>
