@@ -2,6 +2,21 @@
 
 declare(strict_types=1);
 
+// Buffer all output to prevent any stray HTML before JSON
+ob_start();
+
+// Catch any errors and convert to JSON
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => "PHP Error: $errstr on line $errline",
+        'courses' => [],
+        'file' => $errfile,
+        'line' => $errline
+    ]);
+    exit;
+});
+
 /**
  * File: get_absences_of_student.php
  *
@@ -21,30 +36,34 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../../Presenter/shared/login_presenter.php';
-
+// Set JSON headers BEFORE any includes that might output HTML
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
+require_once __DIR__ . '/../../Model/database.php';
+
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    ob_end_clean();
     exit(0);
 }
 
-require_once __DIR__ . '/../../Model/database.php';
-
 try {
-    $db = getDatabase();
+    // Clean any output that might have been buffered
+    ob_end_clean();
+    ob_start();
+    
+    $db = Database::getInstance();
 
     // Get parameters from request
     $datetime_start = $_GET['datetime_start'] ?? '';
     $datetime_end = $_GET['datetime_end'] ?? '';
 
     // Get student_id from session (current user) instead of default to 1
-    $current_user = getCurrentUser();
-    if (!$current_user) {
+    if (!isset($_SESSION['id_student'])) {
+        ob_end_clean();
         http_response_code(401);
         echo json_encode([
             'error' => 'User not authenticated',
@@ -53,10 +72,11 @@ try {
         exit;
     }
 
-    $student_id = $current_user['id'];
+    $student_id = $_SESSION['id_student'];
     $proof_id = $_GET['proof_id'] ?? null;
 
-    if (empty($datetimeStart) || empty($datetimeEnd)) {
+    if (empty($datetime_start) || empty($datetime_end)) {
+        ob_end_clean();
         http_response_code(400);
         echo json_encode([
             'error' => 'datetime_start and datetime_end are required',
@@ -102,7 +122,8 @@ try {
         }
     }
 
-    if (!$startDate || !$endDate) {
+    if (!$start_date || !$end_date) {
+        ob_end_clean();
         http_response_code(400);
         echo json_encode([
             'error' => 'Invalid datetime format',
@@ -118,9 +139,10 @@ try {
     }
 
     $sqlUser = 'SELECT identifier FROM users WHERE id = :student_id';
-    $user = $db->selectOne($sqlUser, ['student_id' => $studentId]);
+    $user = $db->selectOne($sqlUser, ['student_id' => $student_id]);
 
     if (!$user) {
+        ob_end_clean();
         http_response_code(404);
         echo json_encode([
             'error' => 'Student not found',
@@ -133,7 +155,9 @@ try {
 
     // Get unjustified absences, excluding those already linked to a proof
     // (unless editing an existing proof)
-    $sql = "        SELECT DISTINCT
+    if ($proof_id) {
+        // In edit mode: show absences not linked to any proof, OR linked to this proof
+        $sql = "SELECT DISTINCT
             cs.course_date,
             cs.start_time,
             cs.end_time,
@@ -158,46 +182,58 @@ try {
             AND cs.course_date + cs.start_time <= :datetime_end::timestamp
             AND (
                 NOT EXISTS (
-                    SELECT 1 
-                    FROM proof_absences pa 
-                    WHERE pa.absence_id = a.id
+                    SELECT 1 FROM proof_absences pa WHERE pa.absence_id = a.id
                 )
-                " . ($proofId ? "OR EXISTS (
-                    SELECT 1 
-                    FROM proof_absences pa 
+                OR EXISTS (
+                    SELECT 1 FROM proof_absences pa 
                     WHERE pa.absence_id = a.id AND pa.proof_id = :proof_id
-                )" : "") . "
+                )
             )
-        ORDER BY cs.course_date, cs.start_time
-    ";
+        ORDER BY cs.course_date, cs.start_time";
+    } else {
+        // Normal mode: show only absences not linked to any proof
+        $sql = "SELECT DISTINCT
+            cs.course_date,
+            cs.start_time,
+            cs.end_time,
+            cs.course_type,
+            cs.is_evaluation,
+            r.label as resource_label,
+            r.code as resource_code,
+            t.last_name as teacher_last_name,
+            t.first_name as teacher_first_name,
+            rm.code as room_label,
+            a.id as absence_id,
+            cs.id as course_slot_id
+        FROM absences a
+        JOIN course_slots cs ON a.course_slot_id = cs.id
+        LEFT JOIN resources r ON cs.resource_id = r.id
+        LEFT JOIN teachers t ON cs.teacher_id = t.id
+        LEFT JOIN rooms rm ON cs.room_id = rm.id
+        WHERE a.student_identifier = :student_identifier
+            AND a.justified = FALSE
+            AND a.status = 'absent'
+            AND cs.course_date + cs.start_time >= :datetime_start::timestamp
+            AND cs.course_date + cs.start_time <= :datetime_end::timestamp
+            AND NOT EXISTS (
+                SELECT 1 FROM proof_absences pa WHERE pa.absence_id = a.id
+            )
+        ORDER BY cs.course_date, cs.start_time";
+    }
 
     $params = [
         'student_identifier' => $studentIdentifier,
-        'datetime_start' => $startDate,
-        'datetime_end' => $endDate
+        'datetime_start' => $start_date,
+        'datetime_end' => $end_date
     ];
 
-    if ($proofId) {
-        $params['proof_id'] = $proofId;
+    if ($proof_id) {
+        $params['proof_id'] = $proof_id;
     }
 
     $absences = $db->select($sql, $params);
 
-    echo json_encode([
-        'success' => true,
-        'courses' => [],
-        'count' => 0,
-        'debug_sql' => $sql,
-        'debug_params' => $params,
-        'debug_absences_count' => count($absences),
-        'query_params' => [
-            'datetime_start' => $start_date,
-            'datetime_end' => $end_date,
-            'student_id' => $student_id,
-            'student_identifier' => $student_identifier
-        ]
-    ]);
-    exit;
+    $courses = [];
     foreach ($absences as $absence) {
         $courseInfo = '';
 
@@ -245,7 +281,7 @@ try {
             'is_evaluation' => $absence['is_evaluation'] ?? false
         ];
     }
-
+    ob_end_clean();
     echo json_encode([
         'success' => true,
         'courses' => $courses,
@@ -254,13 +290,19 @@ try {
             'datetime_start' => $start_date,
             'datetime_end' => $end_date,
             'student_id' => $student_id,
-            'student_identifier' => $student_identifier
+            'student_identifier' => $studentIdentifier
         ]
     ]);
 } catch (Exception $e) {
+    ob_end_clean();
     http_response_code(500);
+    error_log("GET_ABSENCES ERROR: " . $e->getMessage());
+    error_log("SQL: " . ($sql ?? 'N/A'));
+    error_log("Params: " . json_encode(($params ?? [])));
     echo json_encode([
-        'error' => 'Database error: ' . $e->getMessage(),
-        'courses' => []
+        'error' => $e->getMessage(),
+        'courses' => [],
+        'sql' => ($sql ?? 'N/A'),
+        'params' => ($params ?? [])
     ]);
 }
