@@ -421,13 +421,13 @@ declare(strict_types=1);
                             <tbody>
                                 <?php foreach ($topStudents as $index => $student): ?>
                                     <tr>
-                                        <td class="rank-cell">
+                                        <td class="rank-cell" data-label="Rang">
                                             <span class="rank-badge rank-<?php echo $index + 1; ?>"><?php echo $index + 1; ?></span>
                                         </td>
-                                        <td><?php echo htmlspecialchars($student['student_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($student['identifier']); ?></td>
-                                        <td><strong><?php echo $student['total_absences']; ?></strong></td>
-                                        <td>
+                                        <td data-label="Étudiant"><?php echo htmlspecialchars($student['student_name']); ?></td>
+                                        <td data-label="Identifiant"><?php echo htmlspecialchars($student['identifier']); ?></td>
+                                        <td data-label="Total absences"><strong><?php echo $student['total_absences']; ?></strong></td>
+                                        <td data-label="Non justifiées">
                                             <span class="badge badge-danger"><?php echo $student['unjustified_absences']; ?></span>
                                         </td>
                                         <td>
