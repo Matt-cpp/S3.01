@@ -83,7 +83,7 @@ class AbsenceHistoryPresenter
     }
 
     // Translate reason to French (UI text)
-    public function translateMotif(string $motif): string
+    public function translateMotif(?string $motif): string
     {
         $translations = [
             'illness' => 'Maladie',

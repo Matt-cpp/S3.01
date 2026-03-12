@@ -270,6 +270,8 @@ body {
 
 .btn-secondary:hover {
     background: #4b5563;
+}
+
 .btn-pagination {
     padding: 0.5rem 1rem;
     font-size: 14px;

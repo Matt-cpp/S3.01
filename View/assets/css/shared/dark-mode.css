@@ -236,10 +236,6 @@ html.dark-mode body {
   color: #ffffff;
 }
 
-/* Mobile menu dark mode - surcharge des styles mobiles */
-.dark-mode .nav-menu {
-  background: var(--bg-secondary) !important;
-}
 
 .dark-mode .nav-menu .nav-link {
   color: var(--text-primary) !important;
@@ -1843,7 +1839,7 @@ html.dark-mode body {
 
 .dark-mode .btn-primary,
 .dark-mode button[type="submit"] {
-  background: var(--primary);
+  background: var(--bg-tertiary);
   color: #ffffff !important;
   border-color: var(--primary);
 }
@@ -2140,6 +2136,11 @@ html.dark-mode body {
 @media (max-width: 1200px) {
   .dark-mode .student-view .stats-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+    /* Mobile menu dark mode - surcharge des styles mobiles */
+  .dark-mode .nav-menu {
+    background: var(--bg-secondary) !important;
   }
 }
 

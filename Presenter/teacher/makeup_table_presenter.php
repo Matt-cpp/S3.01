@@ -61,6 +61,11 @@ class MakeupTablePresenter
         return $this->pageCount;
     }
 
+    public function getNombrePages(): int
+    {
+        return $this->pageCount;
+    }
+
     // Return current page number
     public function getPage(): int
     {

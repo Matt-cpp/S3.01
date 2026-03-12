@@ -83,14 +83,14 @@ class ProofHistoryPresenter
         return $this->errorMessage;
     }
 
-    public function translateStatus(string $status): string
+    public function translateStatus(?string $status): string
     {
-        return $this->proofModel->translate('status', $status);
+        return $this->proofModel->translate('status', $status ?? '');
     }
 
-    public function translateReason(string $reason): string
+    public function translateReason(?string $reason): string
     {
-        return $this->proofModel->translate('reason', $reason);
+        return $this->proofModel->translate('reason', $reason ?? '');
     }
 
     public function hasProof(array $proof): bool
@@ -122,16 +122,16 @@ class ProofHistoryPresenter
         return '';
     }
 
-    public function formatDate(string $date): string
+    public function formatDate(?string $date): string
     {
         if (empty($date))
             return '';
         return date('d/m/Y', strtotime($date));
     }
 
-    public function getProofDetailsUrl(string $proofId): string
+    public function getProofDetailsUrl(string|int $proofId): string
     {
-        return 'view_proof.php?proof_id=' . urlencode($proofId);
+        return 'view_proof.php?proof_id=' . urlencode((string)$proofId);
     }
 }
 

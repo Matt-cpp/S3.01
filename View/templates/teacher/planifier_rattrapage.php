@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 }, $students);
                                 $elevesJson = htmlspecialchars(json_encode($elevesNames), ENT_QUOTES, 'UTF-8');
                             ?>
-                                <option value="<?php echo htmlspecialchars($ds['id']); ?>"
+                                <option value="<?php echo htmlspecialchars((string)$ds['id']); ?>"
                                     data-date="<?php echo htmlspecialchars($ds['course_date']); ?>"
                                     data-time="<?php echo htmlspecialchars($ds['start_time']); ?>"
                                     data-resource="<?php echo htmlspecialchars(formatResourceLabel($ds['resource_label'] ?? $ds['resource_code'] ?? 'Non défini')); ?>"
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <select id="salle_id" name="salle_id" onchange="toggleNewRoomInput(this)">
                             <option value="">-- Aucune salle --</option>
                             <?php foreach ($rooms as $room): ?>
-                                <option value="<?php echo htmlspecialchars($room['id']); ?>">
+                                <option value="<?php echo htmlspecialchars((string)$room['id']); ?>">
                                     <?php echo htmlspecialchars($room['code']); ?>
                                 </option>
                             <?php endforeach; ?>

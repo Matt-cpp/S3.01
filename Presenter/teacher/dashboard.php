@@ -27,9 +27,9 @@ class TeacherDashboardPresenter
         require_once __DIR__ . '/../../Model/database.php';
         $this->db = Database::getInstance();
         $this->userId = $this->linkTeacherUser($id);
-        $this->pageCount = $this->getTotalPages();
         $this->hasFilter = false;
         $this->filter = '';
+        $this->pageCount = $this->getTotalPages();
     }
 
     private function linkTeacherUser(int $id): int
@@ -71,6 +71,11 @@ class TeacherDashboardPresenter
 
     // Return total page count without re-querying
     public function getPageCount(): int
+    {
+        return $this->pageCount;
+    }
+
+    public function getNombrePages(): int
     {
         return $this->pageCount;
     }

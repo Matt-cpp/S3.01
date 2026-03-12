@@ -106,8 +106,8 @@ declare(strict_types=1);
                             <select id="year" name="year">
                                 <option value="">Toutes les années</option>
                                 <?php foreach ($years as $year): ?>
-                                    <option value="<?php echo htmlspecialchars($year['year']); ?>" <?php echo (isset($_GET['year']) && $_GET['year'] == $year['year']) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($year['year']); ?>
+                                <option value="<?php echo htmlspecialchars((string)$year['year']); ?>" <?php echo (isset($_GET['year']) && $_GET['year'] == $year['year']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars((string)$year['year']); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -133,7 +133,7 @@ declare(strict_types=1);
                             <select id="group_id" name="group_id">
                                 <option value="">Tous les groupes</option>
                                 <?php foreach ($groups as $group): ?>
-                                    <option value="<?php echo htmlspecialchars($group['id']); ?>" <?php echo (isset($_GET['group_id']) && $_GET['group_id'] == $group['id']) ? 'selected' : ''; ?>>
+                                    <option value="<?php echo htmlspecialchars((string)$group['id']); ?>" <?php echo (isset($_GET['group_id']) && $_GET['group_id'] == $group['id']) ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($group['label']); ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -145,7 +145,7 @@ declare(strict_types=1);
                             <select id="resource_id" name="resource_id">
                                 <option value="">Toutes les matières</option>
                                 <?php foreach ($resources as $resource): ?>
-                                    <option value="<?php echo htmlspecialchars($resource['id']); ?>" <?php echo (isset($_GET['resource_id']) && $_GET['resource_id'] == $resource['id']) ? 'selected' : ''; ?>>
+                                    <option value="<?php echo htmlspecialchars((string)$resource['id']); ?>" <?php echo (isset($_GET['resource_id']) && $_GET['resource_id'] == $resource['id']) ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars(formatResourceLabel($resource['label'])); ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -490,7 +490,9 @@ declare(strict_types=1);
         function selectStudent(identifier) {
             window.location.href = `?student=${encodeURIComponent(identifier)}`;
         }
+    </script>
 
+    <script>
         // Chart colors
         const chartColors = {
             primary: '#4338ca',

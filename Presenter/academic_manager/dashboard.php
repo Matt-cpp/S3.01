@@ -175,31 +175,11 @@ class AcademicManagerDashboardPresenter
             $date = date('d/m/Y', strtotime($row['course_date']));
             $time = substr($row['start_time'], 0, 5) . ' - ' . substr($row['end_time'], 0, 5);
             $student = $row['first_name'] . ' ' . $row['last_name'];
-            $course = $row['label'] ?? 'Non spécifié';
+            $course = formatResourceLabel($row['label'] ?? 'Non spécifié');
             $type = strtoupper($row['course_type'] ?? '');
             $status = $this->translateStatus($row['status']);
 
-        // Remplissage des données
-        foreach ($donnees as $ligne) {
-            // Format date (YYYY-MM-DD to DD/MM/YYYY)
-            $date = date('d/m/Y', strtotime($ligne['course_date']));
-
-            // Format time (HH:MM:SS to HH:MM)
-            $time = substr($ligne['start_time'], 0, 5) . ' - ' . substr($ligne['end_time'], 0, 5);
-
-            // Student name
-            $student = $ligne['first_name'] . ' ' . $ligne['last_name'];
-
-            // Course
-            $course = formatResourceLabel($ligne['label'] ?? 'Non spécifié');
-
-            // Course type (uppercase)
-            $type = strtoupper($ligne['course_type'] ?? '');
-
-            // Status translated
-            $status = $this->translateStatus($ligne['status']);
-
-            $tableau[] = [
+            $table[] = [
                 $date,
                 $time,
                 $student,
@@ -209,5 +189,11 @@ class AcademicManagerDashboardPresenter
             ];
         }
         return $table;
+    }
+
+    // Alias for backward compatibility
+    public function laTable(): array
+    {
+        return $this->buildTable();
     }
 }

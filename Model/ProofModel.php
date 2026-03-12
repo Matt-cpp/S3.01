@@ -1020,19 +1020,19 @@ class ProofModel
         $maps = [
             'status' => [
                 'pending' => 'En attente',
-                'approved' => 'AcceptÃ©',
-                'accepted' => 'AcceptÃ©',
-                'rejected' => 'RejetÃ©',
-                'under_review' => 'En rÃ©vision',
-                'split' => 'ScindÃ©',
+                'approved' => 'Accepté',
+                'accepted' => 'Accepté',
+                'rejected' => 'Rejeté',
+                'under_review' => 'En révision',
+                'split' => 'Scindé',
             ],
             'reason' => [
                 'illness' => 'Maladie',
-                'death' => 'DÃ©cÃ¨s',
+                'death' => 'Décès',
                 'family_obligations' => 'Obligations familiales',
-                'rdv_medical' => 'Rendez-vous mÃ©dical',
+                'rdv_medical' => 'Rendez-vous médical',
                 'official_summons' => 'Convocation officielle',
-                'transport_issue' => 'ProblÃ¨me de transport',
+                'transport_issue' => 'Problème de transport',
                 'other' => 'Autre',
             ],
         ];
@@ -1122,8 +1122,8 @@ class ProofModel
         if (!empty($filters['status'])) {
             $statusMap = [
                 'En attente' => 'pending',
-                'AcceptÃ©e' => 'accepted',
-                'RejetÃ©e' => 'rejected',
+                'Acceptée' => 'accepted',
+                'Rejetée' => 'rejected',
                 'En cours d\'examen' => 'under_review'
             ];
             $dbStatus = $statusMap[$filters['status']] ?? $filters['status'];
@@ -1135,7 +1135,7 @@ class ProofModel
         if (!empty($filters['reason'])) {
             $reasonMap = [
                 'Maladie' => 'illness',
-                'DÃ©cÃ¨s' => 'death',
+                'Décès' => 'death',
                 'Obligations familiales' => 'family_obligations',
                 'Autre' => 'other'
             ];

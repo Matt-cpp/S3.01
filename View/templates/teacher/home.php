@@ -159,7 +159,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
         <div class="section">
             <div class="section-header">
                 <h2 class="section-title" data-translate="makeup_management">Gestion des rattrapages</h2>
-                <a href="planifier_rattrapage.php" class="btn-primary" style="text-decoration: none;"
+                <a href="planifier_rattrapage.php" class="btn-primary-action" style="text-decoration: none;"
                     data-translate="schedule_makeup">Planifier un
                     rattrapage</a>
             </div>

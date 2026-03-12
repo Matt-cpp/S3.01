@@ -30,7 +30,7 @@ function shouldRefreshCache($cache_duration = 90)
     if (!isset($_SESSION['cache_timestamp'])) {
         return true;
     }
-    return (time() - $_SESSION['cache_timestamp']) > $cacheDuration;
+    return (time() - $_SESSION['cache_timestamp']) > $cache_duration;
 }
 
 function updateCacheTimestamp(): void
