@@ -194,8 +194,8 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-hours="<?php echo number_format($proof['total_hours_missed'], 1); ?>"
                                 data-absences="<?php echo $proof['absence_count']; ?>"
                                 data-half-days="<?php echo $proof['half_days_count'] ?? 0; ?>"
-                                data-submission="<?php echo htmlspecialchars($presenter->formatDateTime($proof['submission_date'])); ?>"
-                                data-processing="<?php echo $proof['processing_date'] ? htmlspecialchars($presenter->formatDateTime($proof['processing_date'])) : '-'; ?>"
+                                data-submission="<?php echo htmlspecialchars(date('d/m/Y \\à H\\hi', strtotime($proof['submission_date']))); ?>"
+                                data-processing="<?php echo $proof['processing_date'] ? htmlspecialchars(date('d/m/Y \\à H\\hi', strtotime($proof['processing_date']))) : '-'; ?>"
                                 data-status-text="<?php echo $status['text']; ?>"
                                 data-status-icon="<?php echo $status['icon']; ?>"
                                 data-status-class="<?php echo $status['class']; ?>"
@@ -218,12 +218,12 @@ $errorMessage = $presenter->getErrorMessage();
                                     <strong><?php echo number_format($proof['total_hours_missed'], 1); ?>h</strong>
                                 </td>
                                 <td data-label="Date soumission">
-                                    <?php echo $presenter->formatDateTime($proof['submission_date']); ?>
+                                    <?php echo date('d/m/Y \\à H\\hi', strtotime($proof['submission_date'])); ?>
                                 </td>
                                 <td data-label="Date traitement">
                                     <?php 
                                     if ($proof['processing_date']) {
-                                        echo $presenter->formatDateTime($proof['processing_date']);
+                                        echo date('d/m/Y \\à H\\hi', strtotime($proof['processing_date']));
                                     } else {
                                         echo '<span class="course-code">-</span>';
                                     }

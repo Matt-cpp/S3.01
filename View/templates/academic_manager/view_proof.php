@@ -125,7 +125,7 @@ if (!$proof) {
             <div class="info-field">
                 <strong>Verrouillage:</strong> <?= htmlspecialchars($lockStatus) ?>
                 <form method="POST" action="view_proof.php" class="lock-form">
-                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
+                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>">
                     <?php if ($islocked): ?>
                         <input type="hidden" name="lock_action" value="unlock">
                         <button type="submit" name="toggle_lock" value="1" class="btn btn-unlock">Déverrouiller</button>
@@ -199,7 +199,7 @@ if (!$proof) {
         <div class="actions">
             <?php if ($showInfoForm): ?>
                 <form method="POST" class="rejection-form">
-                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
+                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>">
                     <div class="form-group">
                         <label for="info_message">Message à l'étudiant :</label>
                         <textarea name="info_message" id="info_message" rows="3"
@@ -210,14 +210,14 @@ if (!$proof) {
                     <?php endif; ?>
                     <div class="button-group">
                         <button type="submit" name="request_info" value="1" class="btn btn-info">Envoyer la demande</button>
-                        <a href="view_proof.php?proof_id=<?= htmlspecialchars($proof['proof_id'] ?? '') ?>"
+                        <a href="view_proof.php?proof_id=<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>"
                             class="btn btn-cancel">Annuler</a>
                     </div>
                 </form>
 
             <?php elseif ($showRejectForm): ?>
                 <form method="POST" class="rejection-form">
-                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
+                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>">
                     <div class="form-group">
                         <label for="rejection_reason">Motif du rejet :</label>
                         <select name="rejection_reason" id="rejection_reason" required>
@@ -245,14 +245,14 @@ if (!$proof) {
                     <?php endif; ?>
                     <div class="button-group">
                         <button type="submit" name="reject" value="1" class="btn btn-reject">Confirmer le rejet</button>
-                        <a href="view_proof.php?proof_id=<?= htmlspecialchars($proof['proof_id'] ?? '') ?>"
+                        <a href="view_proof.php?proof_id=<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>"
                             class="btn btn-cancel">Annuler</a>
                     </div>
                 </form>
 
             <?php elseif ($showValidateForm): ?>
                 <form method="POST" class="validation-form">
-                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
+                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>">
                     <div class="form-group">
                         <label for="validation_reason">Motif de validation :</label>
                         <select name="validation_reason" id="validation_reason">
@@ -281,14 +281,14 @@ if (!$proof) {
                     <div class="button-group">
                         <button type="submit" name="validate" value="1" class="btn btn-validate">Confirmer la
                             validation</button>
-                        <a href="view_proof.php?proof_id=<?= htmlspecialchars($proof['proof_id'] ?? '') ?>"
+                        <a href="view_proof.php?proof_id=<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>"
                             class="btn btn-cancel">Annuler</a>
                     </div>
                 </form>
 
             <?php elseif ($showSplitForm): ?>
                 <form method="POST" class="split-form" id="splitForm">
-                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
+                    <input type="hidden" name="proof_id" value="<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>">
                     <h3 class="split-title">Scinder le justificatif en plusieurs périodes</h3>
 
                     <div class="form-group">
@@ -322,7 +322,7 @@ if (!$proof) {
                     <div class="button-group">
                         <button type="submit" name="split_proof" value="1" class="btn btn-validate">Confirmer la
                             scission</button>
-                        <a href="view_proof.php?proof_id=<?= htmlspecialchars($proof['proof_id'] ?? '') ?>"
+                        <a href="view_proof.php?proof_id=<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>"
                             class="btn btn-cancel">Annuler</a>
                     </div>
                 </form>
@@ -330,7 +330,7 @@ if (!$proof) {
             <?php else: ?>
                 <div class="decision-buttons">
                     <form method="POST" action="view_proof.php" class="action-form">
-                        <input type="hidden" name="proof_id" value="<?= htmlspecialchars($proof['proof_id'] ?? '') ?>">
+                        <input type="hidden" name="proof_id" value="<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>">
                         <div class="button-container">
                             <?php
                             // Get current status to hide the corresponding button
