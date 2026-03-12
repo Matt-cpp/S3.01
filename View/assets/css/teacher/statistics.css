@@ -19,6 +19,127 @@ body {
     padding: 2rem;
 }
 
+/* =============================================
+   RESPONSIVE - Teacher Statistics
+   ============================================= */
+
+/* 993px - 1200px : conteneur élargi, charts sur 1 colonne */
+@media (min-width: 993px) and (max-width: 1200px) {
+    .statistics-container {
+        width: 98% !important;
+        padding: 1rem !important;
+    }
+
+    .charts-section {
+        grid-template-columns: 1fr !important;
+    }
+
+    .kpi-cards {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    .semester-cards {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .stats-header {
+        padding: 20px 25px !important;
+    }
+
+    .stats-title h1 {
+        font-size: 22px !important;
+    }
+}
+
+/* 769px - 992px : 2 colonnes KPI, 1 colonne charts */
+@media (min-width: 769px) and (max-width: 992px) {
+    .statistics-container {
+        width: 98% !important;
+        padding: 0.75rem !important;
+    }
+
+    .kpi-cards {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .charts-section {
+        grid-template-columns: 1fr !important;
+    }
+
+    .semester-cards {
+        grid-template-columns: 1fr !important;
+    }
+
+    .filters-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .stats-title h1 {
+        font-size: 20px !important;
+    }
+
+    .chart-container {
+        height: 200px !important;
+    }
+
+    .chart-container-large {
+        height: 250px !important;
+    }
+
+    .ranking-table th,
+    .ranking-table td {
+        padding: 10px 12px !important;
+        font-size: 12px !important;
+    }
+}
+
+/* 577px - 768px */
+@media (min-width: 577px) and (max-width: 768px) {
+    .statistics-container {
+        width: 100% !important;
+        padding: 0.75rem !important;
+    }
+
+    .kpi-cards {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .kpi-value {
+        font-size: 22px !important;
+    }
+
+    .charts-section {
+        grid-template-columns: 1fr !important;
+    }
+
+    .semester-cards {
+        grid-template-columns: 1fr !important;
+    }
+
+    .semester-chart {
+        width: 90px !important;
+        height: 90px !important;
+    }
+
+    .chart-container {
+        height: 180px !important;
+    }
+
+    .chart-container-large {
+        height: 220px !important;
+    }
+
+    .ranking-card {
+        padding: 15px !important;
+    }
+
+    .ranking-table th,
+    .ranking-table td {
+        padding: 8px 10px !important;
+        font-size: 12px !important;
+    }
+}
+
 /* Header Section */
 .stats-header {
     background: white;
@@ -285,6 +406,8 @@ body {
     border-radius: 16px;
     padding: 25px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    min-width: 0;
+    overflow: hidden;
 }
 
 .chart-card h3 {
@@ -297,14 +420,8 @@ body {
 .chart-container {
     position: relative;
     height: 250px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.chart-container canvas {
-    max-width: 250px;
-    max-height: 250px;
+    width: 100%;
+    overflow: hidden;
 }
 
 .chart-full {
@@ -312,7 +429,10 @@ body {
 }
 
 .chart-container-large {
+    position: relative;
     height: 300px;
+    width: 100%;
+    overflow: hidden;
 }
 
 .chart-legend {
@@ -368,8 +488,21 @@ body {
 }
 
 @media (max-width: 600px) {
+    .statistics-container {
+        width: 100% !important;
+        padding: 0.5rem !important;
+    }
+
     .kpi-cards {
         grid-template-columns: 1fr;
+    }
+
+    .kpi-value {
+        font-size: 20px !important;
+    }
+
+    .kpi-label {
+        font-size: 11px !important;
     }
     
     .filters-grid {
@@ -379,6 +512,49 @@ body {
     .stats-title {
         flex-direction: column;
         text-align: center;
+    }
+
+    .stats-header {
+        padding: 15px !important;
+    }
+
+    .stats-title h1 {
+        font-size: 18px !important;
+    }
+
+    .charts-section {
+        grid-template-columns: 1fr !important;
+    }
+
+    .chart-card {
+        padding: 15px !important;
+    }
+
+    .chart-container {
+        height: 200px !important;
+    }
+
+    .chart-container-large {
+        height: 200px !important;
+    }
+
+    .semester-cards {
+        grid-template-columns: 1fr !important;
+    }
+
+    .ranking-card {
+        padding: 12px !important;
+    }
+
+    .ranking-table th,
+    .ranking-table td {
+        padding: 8px !important;
+        font-size: 11px !important;
+    }
+
+    .modal-content-large {
+        padding: 15px !important;
+        max-height: 95vh !important;
     }
 }
 
@@ -462,9 +638,39 @@ body {
     overflow-x: auto;
 }
 
+/* Prevent responsive.css card-mode from breaking ranking table (no data-label attrs) */
 .ranking-table {
+    display: table !important;
     width: 100%;
     border-collapse: collapse;
+    min-width: 550px;
+}
+
+.ranking-table thead {
+    display: table-header-group !important;
+}
+
+.ranking-table tbody {
+    display: table-row-group !important;
+}
+
+.ranking-table tr {
+    display: table-row !important;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    margin-bottom: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+.ranking-table th,
+.ranking-table td {
+    display: table-cell !important;
+}
+
+.ranking-table td::before {
+    content: none !important;
 }
 
 .ranking-table th {

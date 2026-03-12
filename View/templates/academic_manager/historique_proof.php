@@ -148,12 +148,12 @@ $errorMessage = $presenter->getErrorMessage();
                             <td data-label="Début"><?php echo htmlspecialchars($presenter->formatDate($proof['absence_start_date'])); ?></td>
                             <td data-label="Fin"><?php echo htmlspecialchars($presenter->formatDate($proof['absence_end_date'])); ?></td>
                             <td data-label="Motif">
-                                <?php
+                                <span class="motif-value"><?php
                                 echo htmlspecialchars($presenter->translateReason($proof['main_reason']));
                                 if (!empty($proof['custom_reason'])) {
                                     echo '<br><small class="custom-reason-text">(' . htmlspecialchars($proof['custom_reason']) . ')</small>';
                                 }
-                                ?>
+                                ?></span>
                             </td>
                             <td data-label="Statut" class="status-cell">
                                 <?php

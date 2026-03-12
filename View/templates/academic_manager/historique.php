@@ -114,7 +114,7 @@ $errorMessage = $presenter->getErrorMessage();
             <strong>Nombre d'absences trouvées: <?php echo count($absences); ?></strong>
         </div>
 
-        <table id="absenceTable">
+        <table id="absenceTable" class="show-motif">
             <thead>
                 <tr>
                     <th>Étudiant</th>
@@ -142,7 +142,7 @@ $errorMessage = $presenter->getErrorMessage();
                             <td data-label="Date"><?php echo htmlspecialchars($presenter->formatDate($absence['date'])); ?></td>
                             <td data-label="Horaire"><?php echo htmlspecialchars($presenter->formatTime($absence['start_time'], $absence['end_time'])); ?></td>
                             <td data-label="Type"><?php echo htmlspecialchars($absence['course_type'] ?? 'Non spécifié'); ?></td>
-                            <td data-label="Motif"><?php echo htmlspecialchars($presenter->translateMotif($absence['motif'])); ?></td>
+                            <td data-label="Motif"><span class="motif-value"><?php echo htmlspecialchars($presenter->translateMotif($absence['motif'])); ?></span></td>
                             <td data-label="Statut" class="status-cell">
                                 <?php
                                 $status = $presenter->getStatus($absence);

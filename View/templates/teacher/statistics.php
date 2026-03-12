@@ -16,6 +16,7 @@ require_once __DIR__ . '/../../../Presenter/teacher/statistics_presenter.php';
     <title>Statistiques des absences - Enseignant</title>
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
+    <link rel="stylesheet" href="/View/assets/css/shared/base.css">
     <link rel="stylesheet" href="/View/assets/css/teacher/statistics.css">
     <link rel="stylesheet" href="/View/assets/css/shared/responsive.css">
     <link rel="stylesheet" href="/View/assets/css/shared/responsive-mobile.css">

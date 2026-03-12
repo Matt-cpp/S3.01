@@ -319,6 +319,13 @@
         display: none !important;
     }
 
+    /* Motif cell full width pour tableaux academic manager */
+    .table td[data-label="Motif"],
+    table:not(#absenceTable) td[data-label="Motif"] {
+        align-items: flex-start !important;
+        max-width: none !important;
+    }
+
     /* Enhanced style for absence cards */
     #absenceTable tr {
         position: relative;
@@ -724,7 +731,7 @@
 
     .chart-container canvas {
         max-width: 100% !important;
-        max-height: 160px !important;
+        max-height: 180px !important;
     }
 
     .chart-container-large {

@@ -27,6 +27,7 @@ declare(strict_types=1);
     <title>Statistiques - Responsable Pédagogique</title>
     <?php include __DIR__ . '/../../includes/theme-helper.php';
     renderThemeSupport(); ?>
+    <link rel="stylesheet" href="../../assets/css/shared/base.css">
     <link rel="stylesheet" href="../../assets/css/academic_manager/navbar.css">
     <link rel="stylesheet" href="../../assets/css/academic_manager/statistics.css">
     <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
@@ -263,17 +264,23 @@ declare(strict_types=1);
                 <div class="charts-grid">
                     <div class="chart-card">
                         <h3>Absences par type de cours</h3>
-                        <canvas id="studentCourseTypeChart"></canvas>
+                        <div class="chart-container">
+                            <canvas id="studentCourseTypeChart"></canvas>
+                        </div>
                     </div>
 
                     <div class="chart-card">
                         <h3>Absences par matière (Top 10)</h3>
-                        <canvas id="studentResourceChart"></canvas>
+                        <div class="chart-container">
+                            <canvas id="studentResourceChart"></canvas>
+                        </div>
                     </div>
 
                     <div class="chart-card chart-card-large">
                         <h3>Évolution des absences dans le temps</h3>
-                        <canvas id="studentTrendChart"></canvas>
+                        <div class="chart-container-large">
+                            <canvas id="studentTrendChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -373,32 +380,44 @@ declare(strict_types=1);
             <div class="charts-grid">
                 <div class="chart-card">
                     <h3>Répartition par type de cours</h3>
-                    <canvas id="courseTypeChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="courseTypeChart"></canvas>
+                    </div>
                 </div>
 
                 <div class="chart-card">
                     <h3>Répartition par matière (Top 10)</h3>
-                    <canvas id="resourceChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="resourceChart"></canvas>
+                    </div>
                 </div>
 
                 <div class="chart-card">
                     <h3>Absences en évaluation par matière</h3>
-                    <canvas id="evaluationResourceChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="evaluationResourceChart"></canvas>
+                    </div>
                 </div>
 
                 <div class="chart-card">
                     <h3>Taux de justification par matière</h3>
-                    <canvas id="justificationRateChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="justificationRateChart"></canvas>
+                    </div>
                 </div>
 
                 <div class="chart-card chart-card-large">
                     <h3>Évolution mensuelle des absences</h3>
-                    <canvas id="monthlyTrendChart"></canvas>
+                    <div class="chart-container-large">
+                        <canvas id="monthlyTrendChart"></canvas>
+                    </div>
                 </div>
 
                 <div class="chart-card chart-card-large">
                     <h3>Tendances par matière (Top 5)</h3>
-                    <canvas id="resourceTrendChart"></canvas>
+                    <div class="chart-container-large">
+                        <canvas id="resourceTrendChart"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -531,7 +550,7 @@ declare(strict_types=1);
                 data: studentCourseData,
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             position: 'bottom'
@@ -557,7 +576,7 @@ declare(strict_types=1);
                     options: {
                         indexAxis: 'y',
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: {
                                 display: false
@@ -586,7 +605,7 @@ declare(strict_types=1);
                     data: studentTrendData,
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: {
                                 display: false
@@ -612,7 +631,7 @@ declare(strict_types=1);
                     data: courseTypeData,
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: {
                                 position: 'bottom'
@@ -637,7 +656,7 @@ declare(strict_types=1);
                     data: resourceData,
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: {
                                 position: 'bottom'
@@ -669,7 +688,7 @@ declare(strict_types=1);
                     options: {
                         indexAxis: 'y',
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: {
                                 display: false
@@ -710,7 +729,7 @@ declare(strict_types=1);
                     options: {
                         indexAxis: 'y',
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: {
                                 display: false
@@ -774,7 +793,7 @@ declare(strict_types=1);
                     data: monthlyTrendData,
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         interaction: {
                             mode: 'index',
                             intersect: false
@@ -812,7 +831,7 @@ declare(strict_types=1);
                     data: resourceTrendData,
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         interaction: {
                             mode: 'index',
                             intersect: false

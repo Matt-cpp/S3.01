@@ -208,7 +208,7 @@ declare(strict_types=1);
                                     <?php echo htmlspecialchars(date('d/m/Y', strtotime($proof['absence_end_date']))); ?>
                                 </td>
                                 <td data-label="Motif">
-                                    <?php echo htmlspecialchars($donnes->translateProof('reason', $proof['main_reason'])); ?>
+                                    <span class="motif-value"><?php echo htmlspecialchars($donnes->translateProof('reason', $proof['main_reason'])); ?></span>
                                 </td>
                                 <td data-label="Statut" class="status-cell">
                                     <?php

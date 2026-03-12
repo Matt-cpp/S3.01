@@ -100,6 +100,13 @@
     white-space: nowrap;
 }
 
+/* Colonne Motif dans les tableaux .table */
+.table td[data-label="Motif"] {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
 .table tr:hover {
     background-color: #f8f9fa;
 }

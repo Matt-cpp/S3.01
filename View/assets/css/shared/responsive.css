@@ -95,11 +95,69 @@ img {
     }
 }
 
-/* Large tablets / Small desktops (993px - 1200px) */
+/* Large tablets / Small desktops (993px - 1200px) - tableau réduit */
 @media (min-width: 993px) and (max-width: 1200px) {
     .statistics-container,
     .main-content {
-        width: 90% !important;
+        width: 98% !important;
+        padding: 1rem !important;
+    }
+
+    /* Réduction des marges du conteneur principal */
+    main {
+        width: 98% !important;
+        padding: 1rem !important;
+    }
+
+    /* Réduction de la taille du tableau pour tenir dans l'écran */
+    .absences-table,
+    #absenceTable,
+    .table,
+    table {
+        font-size: 0.78rem !important;
+        width: 100% !important;
+        table-layout: fixed !important;
+    }
+
+    .absences-table th,
+    #absenceTable th,
+    .table th,
+    table th {
+        padding: 0.6rem 0.5rem !important;
+        font-size: 0.72rem !important;
+        white-space: nowrap;
+    }
+
+    .absences-table td,
+    #absenceTable td,
+    .table td,
+    table td {
+        padding: 0.6rem 0.5rem !important;
+        font-size: 0.78rem !important;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Colonne Cours : laisse le texte se reformater */
+    #absenceTable td[data-label="Cours"],
+    .table td[data-label="Cours"] {
+        white-space: normal !important;
+        max-width: 160px;
+    }
+
+    /* Colonne Motif : taille réduite, retour à la ligne autorisé */
+    #absenceTable td:nth-child(6),
+    .table td[data-label="Motif"],
+    table td[data-label="Motif"] {
+        white-space: normal !important;
+        max-width: 140px;
+    }
+
+    /* Statut : badge compact */
+    .status-text {
+        padding: 4px 8px !important;
+        font-size: 0.7rem !important;
+        min-width: auto !important;
     }
 }
 
@@ -152,7 +210,7 @@ img {
 
     .chart-container canvas {
         max-width: 100% !important;
-        max-height: 200px !important;
+        max-height: 220px !important;
     }
 
     .chart-container-large {
@@ -355,33 +413,11 @@ img {
         display: none !important;
     }
 
-    /* Statut en évidence */
-    #absenceTable td[data-label="Statut"] {
-        background-color: #f8f9fa;
-        border-radius: 6px;
-        margin-top: 8px;
-        padding: 12px !important;
-    }
-
-    .clickable-row,
-    .absence-row {
-        -webkit-tap-highlight-color: rgba(0, 129, 161, 0.2);
-        touch-action: manipulation;
-        cursor: pointer;
-    }
-
-    .clickable-row:active,
-    .absence-row:active {
-        transform: scale(0.98);
-        background: #f0f9ff !important;
-    }
-
-    .semester-cards {
-        grid-template-columns: repeat(2, 1fr) !important;
-    }
-
-    .proofs-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
+    /* Motif cell full width pour tableaux academic manager */
+    .table td[data-label="Motif"],
+    table:not(#absenceTable) td[data-label="Motif"] {
+        align-items: flex-start !important;
+        max-width: none !important;
     }
 }
 
@@ -570,32 +606,11 @@ img {
         display: none !important;
     }
 
-    /* Statut en évidence */
-    #absenceTable td[data-label="Statut"] {
-        background-color: #f8f9fa;
-        border-radius: 6px;
-        margin-top: 8px;
-        padding: 10px !important;
-    }
-
-    .clickable-row,
-    .absence-row {
-        -webkit-tap-highlight-color: rgba(0, 129, 161, 0.2);
-        touch-action: manipulation;
-        cursor: pointer;
-    }
-
-    .clickable-row:active,
-    .absence-row:active {
-        transform: scale(0.98);
-        background: #f0f9ff !important;
-    }
-
-    /* ===== Statistics pages - Small Tablets ===== */
-    .statistics-container,
-    .main-content {
-        width: 95% !important;
-        padding: 12px !important;
+    /* Motif cell full width pour tableaux academic manager */
+    .table td[data-label="Motif"],
+    table:not(#absenceTable) td[data-label="Motif"] {
+        align-items: flex-start !important;
+        max-width: none !important;
     }
 
     .stats-header {
@@ -653,7 +668,7 @@ img {
 
     .chart-container canvas {
         max-width: 100% !important;
-        max-height: 180px !important;
+        max-height: 200px !important;
     }
 
     .chart-container-large {

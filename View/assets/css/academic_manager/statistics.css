@@ -21,6 +21,98 @@ body {
     padding: 0 2rem;
 }
 
+/* =============================================
+   RESPONSIVE - Academic Manager Statistics
+   ============================================= */
+
+/* 993px - 1200px : conteneur élargi, charts sur 1 colonne */
+@media (min-width: 993px) and (max-width: 1200px) {
+    .main-content {
+        width: 98% !important;
+        padding: 0 1rem !important;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    .stats-header h1 {
+        font-size: 1.8rem !important;
+    }
+}
+
+/* 769px - 992px : 2 colonnes stats, 1 colonne charts */
+@media (min-width: 769px) and (max-width: 992px) {
+    .main-content {
+        width: 98% !important;
+        padding: 0 0.75rem !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .semester-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .filter-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .stats-header h1 {
+        font-size: 1.6rem !important;
+    }
+
+    .stats-header .subtitle {
+        font-size: 0.9rem !important;
+    }
+}
+
+/* 577px - 768px : tout en 1 colonne */
+@media (min-width: 577px) and (max-width: 768px) {
+    .main-content {
+        width: 100% !important;
+        padding: 0 0.75rem !important;
+    }
+
+    .stats-header {
+        padding: 1rem !important;
+    }
+
+    .stats-header h1 {
+        font-size: 1.4rem !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .semester-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .filter-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .stat-number {
+        font-size: 1.5rem !important;
+    }
+}
+
 /* Header */
 .stats-header {
     text-align: center;
@@ -411,6 +503,9 @@ body {
 
 .semester-chart-mini {
     height: 150px;
+    max-width: 150px;
+    overflow: hidden;
+    margin: 0 auto;
 }
 
 /* Charts Grid */
@@ -427,6 +522,8 @@ body {
     border-radius: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .chart-card:hover {
@@ -435,6 +532,18 @@ body {
 
 .chart-card-large {
     grid-column: 1 / -1;
+}
+
+.chart-container {
+    position: relative;
+    height: 350px;
+    overflow: hidden;
+}
+
+.chart-container-large {
+    position: relative;
+    height: 350px;
+    overflow: hidden;
 }
 
 .chart-card h3 {
@@ -606,11 +715,21 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-content {
-        padding: 0 1rem;
+        width: 100% !important;
+        padding: 0 0.5rem;
+    }
+
+    .stats-header {
+        padding: 1rem;
+        margin-bottom: 1rem;
     }
 
     .stats-header h1 {
-        font-size: 1.8rem;
+        font-size: 1.3rem;
+    }
+
+    .stats-header .subtitle {
+        font-size: 0.85rem;
     }
 
     .stats-grid {
@@ -627,6 +746,18 @@ body {
 
     .filter-row {
         grid-template-columns: 1fr;
+    }
+
+    .chart-card {
+        padding: 1rem;
+    }
+
+    .chart-card canvas {
+        max-height: 250px !important;
+    }
+
+    .top-students-section {
+        padding: 1rem;
     }
 
     /* Responsive table: card layout on mobile */
