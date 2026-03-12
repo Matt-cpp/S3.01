@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/makeup_presenter.php';
+require_once __DIR__ . '/../../../Model/format_ressource.php';
 
 // Teacher ID from session
 $teacherId = $user['id'];
@@ -90,13 +91,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <option value="<?php echo htmlspecialchars($ds['id']); ?>"
                                     data-date="<?php echo htmlspecialchars($ds['course_date']); ?>"
                                     data-time="<?php echo htmlspecialchars($ds['start_time']); ?>"
-                                    data-resource="<?php echo htmlspecialchars($ds['resource_label'] ?? $ds['resource_code'] ?? 'Non défini'); ?>"
+                                    data-resource="<?php echo htmlspecialchars(formatResourceLabel($ds['resource_label'] ?? $ds['resource_code'] ?? 'Non défini')); ?>"
                                     data-group="<?php echo htmlspecialchars($ds['group_code'] ?? ''); ?>"
                                     data-students="<?php echo $elevesJson; ?>" data-count="<?php echo $nbEleves; ?>">
-                                    <?php echo htmlspecialchars($ds['resource_label'] ?? $ds['resource_code'] ?? 'DS'); ?>
+                                    <?php echo htmlspecialchars(formatResourceLabel($ds['resource_label'] ?? $ds['resource_code'] ?? 'DS')); ?>
                                     - <?php echo htmlspecialchars($ds['course_date']); ?>
-                                    à <?php echo htmlspecialchars(substr($ds['start_time'], 0, 5)); ?>
-                                    (<?php echo $nbEleves; ?> étudiant<?php echo $nbEleves > 1 ? 's' : ''; ?>)
+                                    &agrave; <?php echo htmlspecialchars(substr($ds['start_time'], 0, 5)); ?>
+                                    (<?php echo $nbEleves; ?> &eacute;tudiant<?php echo $nbEleves > 1 ? 's' : ''; ?>)
                                 </option>
                             <?php endforeach; ?>
                         <?php endif; ?>

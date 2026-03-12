@@ -5,7 +5,8 @@ require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/absence_details_presenter.php';
-// Retrieve the course ID from GET parameters
+require_once __DIR__ . '/../../../Model/format_ressource.php';
+// Récupération de l'ID du cours depuis les paramètres GET
 $courseSlotId = isset($_GET['course_slot_id']) ? (int) $_GET['course_slot_id'] : 0;
 if ($courseSlotId <= 0) {
     die("ID de cours invalide.");
@@ -39,9 +40,15 @@ if ($courseSlotId <= 0) {
         <a href="evaluations.php" class="back-button">← Retour</a>
         <h1>Détails des Absences pour l'Évaluation</h1>
         <div class="course-info">
-            <h2><?php echo htmlspecialchars($courseInfo['label']); ?></h2>
-            <p>Date : <?php echo htmlspecialchars($courseInfo['course_date']); ?></p>
-            <p>Heure : <?php echo htmlspecialchars($courseInfo['start_time']); ?></p>
+            <h2>
+                <?php echo htmlspecialchars(formatResourceLabel($courseInfo['label'])); ?>
+            </h2>
+            <p>Date :
+                <?php echo htmlspecialchars($courseInfo['course_date']); ?>
+            </p>
+            <p>Heure :
+                <?php echo htmlspecialchars($courseInfo['start_time']); ?>
+            </p>
         </div>
 
         <div class="section">
@@ -60,9 +67,15 @@ if ($courseSlotId <= 0) {
                     <tbody>
                         <?php foreach ($absences as $absence): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($absence['first_name']); ?></td>
-                                <td><?php echo htmlspecialchars($absence['last_name']); ?></td>
-                                <td><?php echo $absence['justified'] ? 'Oui' : 'Non'; ?></td>
+                                <td>
+                                    <?php echo htmlspecialchars($absence['first_name']); ?>
+                                </td>
+                                <td>
+                                    <?php echo htmlspecialchars($absence['last_name']); ?>
+                                </td>
+                                <td>
+                                    <?php echo $absence['justified'] ? 'Oui' : 'Non'; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

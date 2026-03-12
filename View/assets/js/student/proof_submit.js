@@ -13,7 +13,26 @@ const FILE_CONFIG = {
   },
 };
 
-// Global variable to store selected files
+/**
+ * Format a raw resource label into a clean display string.
+ * Input : "INFFIS2-DEVELOPPEMENT ORIENTE OBJETS (T3BUTINFFI-R2.01)"
+ * Output: "R2.01 - DEVELOPPEMENT ORIENTE OBJETS"
+ */
+function formatResourceLabel(fullLabel) {
+  if (!fullLabel || fullLabel === "N/A") return fullLabel || "N/A";
+  var parenMatch = fullLabel.match(/\(([^)]+)\)/);
+  if (parenMatch) {
+    var codeParts = parenMatch[1].split("-");
+    var code = codeParts[codeParts.length - 1];
+    var labelMatch = fullLabel.match(/^[^-]+-(.+?)\s*\(/);
+    if (labelMatch) {
+      return code + " - " + labelMatch[1].trim();
+    }
+  }
+  return fullLabel;
+}
+
+// Variable globale pour stocker les fichiers sélectionnés
 let selectedFiles = [];
 
 //Adds new files to the existing selection
@@ -60,7 +79,7 @@ function validateDates() {
 
     if (fin <= debut) {
       alert(
-        "La date/heure de fin doit être postérieure à la date/heure de début."
+        "La date/heure de fin doit être postérieure à la date/heure de début.",
       );
       document.getElementById("datetime_end").value = "";
       return false;
@@ -69,7 +88,7 @@ function validateDates() {
     // Check if end date is more than 1 day after current date
     if (fin > maxEndDate) {
       alert(
-        "La date/heure de fin ne peut pas être plus d'un jour après la date actuelle."
+        "La date/heure de fin ne peut pas être plus d'un jour après la date actuelle.",
       );
       document.getElementById("datetime_end").value = "";
       return false;
@@ -91,7 +110,8 @@ function handleFileSelection(event) {
     // Avoid duplicates based on name and size
     return !selectedFiles.some(
       (existingFile) =>
-        existingFile.name === newFile.name && existingFile.size === newFile.size
+        existingFile.name === newFile.name &&
+        existingFile.size === newFile.size,
     );
   });
 
@@ -197,10 +217,10 @@ function displayFilesPreview(files, totalSize) {
                 <span style="font-size: 24px;">${icon}</span>
                 <div style="flex: 1; min-width: 0;">
                     <div style="font-weight: 500; word-break: break-all;">${escapeHtml(
-                      file.name
+                      file.name,
                     )}</div>
                     <div style="font-size: 12px; color: #6c757d;">${formatFileSize(
-                      file.size
+                      file.size,
                     )}</div>
                 </div>
                 <button type="button" class="file-remove" onclick="removeFile(${index})" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">
@@ -225,7 +245,7 @@ function displayFilesPreview(files, totalSize) {
   totalSizeDiv.innerHTML = `
         <div style="margin-bottom: 10px;">
             Taille totale : <strong>${formatFileSize(
-              totalSize
+              totalSize,
             )}</strong> / ${formatFileSize(FILE_CONFIG.maxTotalSize)}
             (${sizePercent.toFixed(1)}%)
         </div>
@@ -335,11 +355,14 @@ function fetchAbsences() {
         try {
           var response = JSON.parse(xhr.responseText);
           console.log("API Response:", response);
-          
+
           if (response.error) {
             var errorMsg = response.error;
             if (response.debug) {
-              errorMsg += "<br><small>DEBUG: " + JSON.stringify(response.debug).replace(/,/g, "<br>") + "</small>";
+              errorMsg +=
+                "<br><small>DEBUG: " +
+                JSON.stringify(response.debug).replace(/,/g, "<br>") +
+                "</small>";
             }
             showCoursesError(errorMsg);
             showCoursesPlaceholder();
@@ -347,7 +370,9 @@ function fetchAbsences() {
             coursesData = response.courses;
             displayCourses(response.courses);
           } else {
-            showCoursesError("Aucune absence non justifiée trouvée pour cette période");
+            showCoursesError(
+              "Aucune absence non justifiée trouvée pour cette période",
+            );
             showCoursesPlaceholder();
           }
         } catch (e) {
@@ -358,7 +383,9 @@ function fetchAbsences() {
       } else {
         console.error("HTTP Error:", xhr.status, xhr.statusText);
         console.error("Response:", xhr.responseText);
-        showCoursesError("Erreur serveur (" + xhr.status + "): " + xhr.statusText);
+        showCoursesError(
+          "Erreur serveur (" + xhr.status + "): " + xhr.statusText,
+        );
       }
     }
   };
@@ -464,11 +491,7 @@ function displayCourses(courses) {
     coursesHtml += '<div class="course-header">';
     coursesHtml += '<h4 class="course-title">';
     if (course.resource_label) {
-      coursesHtml += course.resource_label;
-      if (course.resource_code) {
-        coursesHtml +=
-          ' <span class="course-code">(' + course.resource_code + ")</span>";
-      }
+      coursesHtml += formatResourceLabel(course.resource_label);
     } else {
       coursesHtml += "Cours non spécifié";
     }
@@ -557,7 +580,7 @@ function displayCourses(courses) {
   setTimeout(function () {
     courses.forEach(function (course, index) {
       var courseItem = document.querySelector(
-        '[data-course-id="' + index + '"]'
+        '[data-course-id="' + index + '"]',
       );
       if (courseItem) {
         courseItem.classList.add("selected");
@@ -586,7 +609,7 @@ function updateSelectedCoursesFromButtons() {
     if (checkbox.checked) {
       var index = checkbox.id.replace("course_", "");
       var courseItem = document.querySelector(
-        '[data-course-id="' + index + '"]'
+        '[data-course-id="' + index + '"]',
       );
       if (courseItem) {
         var courseTitle = courseItem
@@ -617,11 +640,11 @@ function updateStatisticsFields() {
   updateHiddenField("absence_stats_evaluations", stats.evaluations.toString());
   updateHiddenField(
     "absence_stats_course_types",
-    JSON.stringify(stats.courseTypes)
+    JSON.stringify(stats.courseTypes),
   );
   updateHiddenField(
     "absence_stats_evaluation_details",
-    JSON.stringify(stats.evaluationDetails)
+    JSON.stringify(stats.evaluationDetails),
   );
 }
 
@@ -709,7 +732,10 @@ function calculateAbsenceStats() {
         }
 
         // Calculate time in each period (8h-12h30 morning, 12h-18h30 afternoon)
-        if (startInMinutes < afternoonThreshold && endInMinutes <= afternoonThreshold) {
+        if (
+          startInMinutes < afternoonThreshold &&
+          endInMinutes <= afternoonThreshold
+        ) {
           // Entirely in the morning
           periodDurations[date].morning_minutes += durationMinutes;
         } else if (startInMinutes >= afternoonThreshold) {
@@ -777,7 +803,7 @@ function updateAbsenceRecap() {
   document.getElementById("absence_stats_evaluations").value =
     stats.evaluations;
   document.getElementById("absence_stats_course_types").value = JSON.stringify(
-    stats.courseTypes
+    stats.courseTypes,
   );
   document.getElementById("absence_stats_evaluation_details").value =
     JSON.stringify(stats.evaluationDetails);
@@ -933,8 +959,8 @@ window.addEventListener("DOMContentLoaded", function () {
 
   // Pre-fill dates if passed as URL parameters (from the absences page)
   var urlParams = new URLSearchParams(window.location.search);
-  var prefillStart = urlParams.get('prefill_start');
-  var prefillEnd = urlParams.get('prefill_end');
+  var prefillStart = urlParams.get("prefill_start");
+  var prefillEnd = urlParams.get("prefill_end");
   if (prefillStart) {
     document.getElementById("datetime_start").value = prefillStart;
   }
@@ -988,7 +1014,7 @@ window.addEventListener("DOMContentLoaded", function () {
   // Validate dates, file size, and selected courses on form submission
   document.querySelector("form").addEventListener("submit", function (e) {
     var classInvolvedValue = document.getElementById(
-      "class_involved_hidden"
+      "class_involved_hidden",
     ).value;
 
     // Skip date validation in edit mode (dates are readonly and shouldn't be changed)
@@ -1001,7 +1027,7 @@ window.addEventListener("DOMContentLoaded", function () {
     if (!classInvolvedValue || classInvolvedValue.trim() === "") {
       e.preventDefault();
       alert(
-        "Veuillez sélectionner les dates pour voir les absences concernées avant de soumettre le formulaire."
+        "Veuillez sélectionner les dates pour voir les absences concernées avant de soumettre le formulaire.",
       );
       return;
     }
@@ -1014,5 +1040,17 @@ window.addEventListener("DOMContentLoaded", function () {
 
     // IMPORTANT: Sync selectedFiles array to the actual file input before submission
     updateFileInputWithSelectedFiles();
+
+    // Feedback immédiat : désactiver le bouton après sérialisation des données
+    // (setTimeout 0 garantit que la désactivation arrive après la collecte des données du formulaire)
+    var submitBtn = document.querySelector(".submit-btn");
+    if (submitBtn) {
+      setTimeout(function () {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Envoi en cours…";
+        submitBtn.style.opacity = "0.7";
+        submitBtn.style.cursor = "not-allowed";
+      }, 0);
+    }
   });
 });

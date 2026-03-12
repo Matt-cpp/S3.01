@@ -20,6 +20,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once(__DIR__ . '/../../vendor/autoload.php');
 require_once(__DIR__ . '/../../Model/database.php');
+require_once(__DIR__ . '/../../Model/format_ressource.php');
 
 if (!isset($_SESSION['reason_data'])) {
     die('Aucune donnée de justificatif trouvée.');
@@ -237,15 +238,15 @@ if ($statsHours > 0 || (!empty($courses) && $courses !== '')) {
                             <th width="10%">Salle</th>
                           </tr>';
 
-        foreach ($statsEvaluationDetails as $eval) {
-            $htmlContent .= '<tr>';
-            $htmlContent .= '<td>' . htmlspecialchars($eval['resource_label'] ?? 'Non spécifié') . '</td>';
-            $htmlContent .= '<td>' . htmlspecialchars($eval['course_date'] ?? '') . '</td>';
-            $htmlContent .= '<td>' . htmlspecialchars($eval['start_time'] ?? '') . '-' . htmlspecialchars($eval['end_time'] ?? '') . '</td>';
-            $htmlContent .= '<td>' . htmlspecialchars($eval['course_type'] ?? '') . '</td>';
-            $htmlContent .= '<td>' . htmlspecialchars($eval['teacher'] ?? '') . '</td>';
-            $htmlContent .= '<td>' . htmlspecialchars($eval['room'] ?? '') . '</td>';
-            $htmlContent .= '</tr>';
+        foreach ($stats_evaluation_details as $eval) {
+            $html_content .= '<tr>';
+            $html_content .= '<td>' . htmlspecialchars(formatResourceLabel($eval['resource_label'] ?? 'Non spécifié')) . '</td>';
+            $html_content .= '<td>' . htmlspecialchars($eval['course_date'] ?? '') . '</td>';
+            $html_content .= '<td>' . htmlspecialchars($eval['start_time'] ?? '') . '-' . htmlspecialchars($eval['end_time'] ?? '') . '</td>';
+            $html_content .= '<td>' . htmlspecialchars($eval['course_type'] ?? '') . '</td>';
+            $html_content .= '<td>' . htmlspecialchars($eval['teacher'] ?? '') . '</td>';
+            $html_content .= '<td>' . htmlspecialchars($eval['room'] ?? '') . '</td>';
+            $html_content .= '</tr>';
         }
         $htmlContent .= '</table>';
     }

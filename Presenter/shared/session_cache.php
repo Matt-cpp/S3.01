@@ -24,8 +24,8 @@ function clearStudentCache(): void
     unset($_SESSION['Proofs']);
 }
 
-// Checks whether the cache should be refreshed
-function shouldRefreshCache(int $cacheDuration = 60): bool
+// Vérifie si le cache doit être rafraîchi
+function shouldRefreshCache($cache_duration = 90)
 {
     if (!isset($_SESSION['cache_timestamp'])) {
         return true;

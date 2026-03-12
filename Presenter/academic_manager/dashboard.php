@@ -28,6 +28,7 @@ class AcademicManagerDashboardPresenter
         $this->page = 0;
         require_once __DIR__ . '/../../Model/database.php';
         require_once __DIR__ . '/../../Model/ProofModel.php';
+        require_once __DIR__ . '/../../Model/format_ressource.php';
         $this->db = Database::getInstance();
         $this->alldata = $this->db->select('SELECT * FROM absences');
         $this->proofModel = new ProofModel();
@@ -178,7 +179,27 @@ class AcademicManagerDashboardPresenter
             $type = strtoupper($row['course_type'] ?? '');
             $status = $this->translateStatus($row['status']);
 
-            $table[] = [
+        // Remplissage des données
+        foreach ($donnees as $ligne) {
+            // Format date (YYYY-MM-DD to DD/MM/YYYY)
+            $date = date('d/m/Y', strtotime($ligne['course_date']));
+
+            // Format time (HH:MM:SS to HH:MM)
+            $time = substr($ligne['start_time'], 0, 5) . ' - ' . substr($ligne['end_time'], 0, 5);
+
+            // Student name
+            $student = $ligne['first_name'] . ' ' . $ligne['last_name'];
+
+            // Course
+            $course = formatResourceLabel($ligne['label'] ?? 'Non spécifié');
+
+            // Course type (uppercase)
+            $type = strtoupper($ligne['course_type'] ?? '');
+
+            // Status translated
+            $status = $this->translateStatus($ligne['status']);
+
+            $tableau[] = [
                 $date,
                 $time,
                 $student,

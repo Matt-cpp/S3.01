@@ -7,6 +7,7 @@ $user = requireRole('teacher');
 
 require_once __DIR__ . '/../../../Presenter/teacher/dashboard.php';
 require_once __DIR__ . '/../../../Presenter/teacher/makeup_table_presenter.php';
+require_once __DIR__ . '/../../../Model/format_ressource.php';
 
 // Teacher ID from session
 $teacherId = $user['id'];
@@ -50,6 +51,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
     <link rel="stylesheet" href="../../assets/css/shared/language-switcher.css">
     <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
     <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
+    <script src="../../assets/js/teacher/home.js" defer></script>
     <style>
         <?php include __DIR__ . '/../../assets/css/teacher/home.css'; ?>
     </style>
@@ -77,7 +79,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
                     <option value="" data-translate="all_courses">Tous les cours</option>
                     <?php foreach ($ressourcesLabels as $label): ?>
                         <option value="<?php echo htmlspecialchars($label); ?>" <?php echo (isset($_GET['filtre']) && $_GET['filtre'] === $label) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($label); ?>
+                            <?php echo htmlspecialchars(formatResourceLabel($label)); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -111,8 +113,8 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
                             <tr>
                                 <td><?php echo htmlspecialchars($ligne['last_name'] . ' ' . $ligne['first_name']); ?></td>
                                 <td><?php echo htmlspecialchars($ligne['degrees']); ?></td>
-                                <td><?php echo htmlspecialchars($ligne['label']); ?></td>
-                                <td><?php echo htmlspecialchars($ligne['course_date']); ?></td>
+                                <td><?php echo htmlspecialchars(formatResourceLabel($ligne['label'])); ?></td>
+                                <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($ligne['course_date']))); ?></td>
                                 <td><?php
                                 if ($ligne['status'] == 'excused') {
                                     echo '<span data-translate="excused">Excusée</span>';
@@ -133,21 +135,19 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
             </table>
 
             <!-- Pagination -->
-            <?php if ($table->getPageCount() > 1): ?>
-                <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.5rem;">
+            <?php if ($table->getNombrePages() > 1): ?>
+                <div class="pagination-container">
                     <a href="?page=<?php echo $table->getPreviousPage(); ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
-                        class="btn-secondary"
-                        style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($table->getCurrentPage() == 0) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>"
+                        class="btn-primary btn-pagination<?php echo ($table->getCurrentPage() == 0) ? ' btn-pagination-disabled' : ''; ?>"
                         data-translate="previous">
                         Précédent
                     </a>
-                    <span style="font-weight: 500; color: #333;">
+                    <span class="pagination-info">
                         <span data-translate="page">Page</span> <?php echo ($table->getCurrentPage() + 1); ?> <span
                             data-translate="of">sur</span> <?php echo $table->getPageCount(); ?>
                     </span>
                     <a href="?page=<?php echo $table->getNextPage(); ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
-                        class="btn-secondary"
-                        style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($table->getCurrentPage() >= $table->getNombrePages() - 1) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>"
+                        class="btn-primary btn-pagination<?php echo ($table->getCurrentPage() >= $table->getNombrePages() - 1) ? ' btn-pagination-disabled' : ''; ?>"
                         data-translate="next">
                         Suivant
                     </a>
@@ -187,8 +187,8 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
                         <?php foreach ($donneesRattrapage as $ligne): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($ligne['last_name'] . ' ' . $ligne['first_name']); ?></td>
-                                <td><?php echo htmlspecialchars($ligne['label']); ?></td>
-                                <td><?php echo htmlspecialchars($ligne['course_date']); ?></td>
+                                <td><?php echo htmlspecialchars(formatResourceLabel($ligne['label'])); ?></td>
+                                <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($ligne['course_date']))); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -196,22 +196,20 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
             </table>
 
             <!-- Pagination rattrapages -->
-            <?php if ($tableRattrapage->getPageCount() > 1): ?>
-                <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.5rem;">
+            <?php if ($tableRattrapage->getNombrePages() > 1): ?>
+                <div class="pagination-container">
                     <a href="?page_rattrapage=<?php echo $tableRattrapage->getPreviousPage(); ?><?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
-                        class="btn-secondary"
-                        style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($tableRattrapage->getCurrentPage() == 0) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>"
+                        class="btn-primary btn-pagination<?php echo ($tableRattrapage->getCurrentPage() == 0) ? ' btn-pagination-disabled' : ''; ?>"
                         data-translate="previous">
                         Précédent
                     </a>
-                    <span style="font-weight: 500; color: #333;">
+                    <span class="pagination-info">
                         <span data-translate="page">Page</span> <?php echo ($tableRattrapage->getCurrentPage() + 1); ?>
                         <span data-translate="of">sur</span>
                         <?php echo $tableRattrapage->getPageCount(); ?>
                     </span>
                     <a href="?page_rattrapage=<?php echo $tableRattrapage->getNextPage(); ?><?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?><?php echo isset($_GET['filtre']) ? '&filtre=' . urlencode($_GET['filtre']) : ''; ?>"
-                        class="btn-secondary"
-                        style="padding: 0.5rem 1rem; font-size: 14px; text-decoration: none; <?php echo ($tableRattrapage->getCurrentPage() >= $tableRattrapage->getNombrePages() - 1) ? 'opacity: 0.5; pointer-events: none;' : ''; ?>"
+                        class="btn-primary btn-pagination<?php echo ($tableRattrapage->getCurrentPage() >= $tableRattrapage->getNombrePages() - 1) ? ' btn-pagination-disabled' : ''; ?>"
                         data-translate="next">
                         Suivant
                     </a>

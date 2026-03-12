@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('student');
+require_once __DIR__ . '/../../../Model/format_ressource.php';
 
 // Use the authenticated user's ID
 if (!isset($_SESSION['id_student'])) {
@@ -244,14 +245,14 @@ $uploadedFileName = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dispo
                                 <?php foreach ($statsEvaluationDetails as $eval): ?>
                                     <div class="evaluation-detail">
                                         <div class="eval-header">
-                                            <strong><?php echo htmlspecialchars($eval['resource_label'] ?? 'Cours non spécifié'); ?></strong>
+                                            <strong><?php echo htmlspecialchars(formatResourceLabel($eval['resource_label'] ?? 'Cours non spécifié')); ?></strong>
                                             <?php if (!empty($eval['resource_code'])): ?>
                                                 <span class="eval-code">(<?php echo htmlspecialchars($eval['resource_code']); ?>)</span>
                                             <?php endif; ?>
                                         </div>
                                         <div class="eval-details">
                                             <?php echo htmlspecialchars($eval['course_date'] ?? ''); ?>
-                                            <?php echo htmlspecialchars($eval['start_time'] ?? ''); ?>-<?php echo htmlspecialchars($eval['end_time'] ?? ''); ?></span>
+                                            <?php echo htmlspecialchars(substr($eval['start_time'] ?? '', 0, 5)) . ' - ' . htmlspecialchars(substr($eval['end_time'] ?? '', 0, 5)); ?></span>
                                             <?php if (!empty($eval['course_type'])): ?>
                                                 <span class="eval-info"><?php echo htmlspecialchars($eval['course_type']); ?></span>
                                             <?php endif; ?>

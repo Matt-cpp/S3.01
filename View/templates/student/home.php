@@ -13,6 +13,7 @@
  */
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('student');
+require_once __DIR__ . '/../../../Model/format_ressource.php';
 
 // Use the authenticated user's ID
 if (!isset($_SESSION['id_student'])) {
@@ -482,6 +483,254 @@ if (!isset($_SESSION['id_student'])) {
                                 <a href="student_absences.php" class="btn-more" data-translate="more">Plus</a>
                             </div>
                         <?php endif; ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statut des justificatifs -->
+        <div class="proofs-status-section">
+            <h2 class="section-heading">
+                <span class="heading-icon"></span>
+                <span data-translate="proofs_status">État de vos justificatifs</span>
+            </h2>
+            <div class="proofs-grid">
+                <a href="proofs.php?status=accepted" class="proof-card proof-accepted">
+                    <div class="proof-icon"></div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['accepted_proofs']; ?></div>
+                        <div class="proof-label" data-translate="accepted">Acceptés</div>
+                        <div class="proof-description" data-translate="validated_proofs">Justificatifs validés</div>
+                    </div>
+                </a>
+
+                <a href="proofs.php?status=pending" class="proof-card proof-pending">
+                    <div class="proof-icon"></div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['pending_proofs']; ?></div>
+                        <div class="proof-label" data-translate="pending">En attente</div>
+                        <div class="proof-description" data-translate="under_review_desc">En cours d'examen</div>
+                    </div>
+                </a>
+
+                <a href="proofs.php?status=under_review" class="proof-card proof-review">
+                    <div class="proof-icon"></div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['under_review_proofs']; ?></div>
+                        <div class="proof-label" data-translate="under_review">En révision</div>
+                        <div class="proof-description" data-translate="additional_info_requested">Infos complémentaires
+                            demandées</div>
+                    </div>
+                </a>
+
+                <a href="proofs.php?status=rejected" class="proof-card proof-rejected">
+                    <div class="proof-icon"></div>
+                    <div class="proof-content">
+                        <div class="proof-count"><?php echo $stats['rejected_proofs']; ?></div>
+                        <div class="proof-label" data-translate="rejected">Refusés</div>
+                        <div class="proof-description" data-translate="not_accepted">Non acceptés</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Alerte si demi-journées non justifiées -->
+        <?php if ($stats['half_days_justifiable'] > 0 && $stats['under_review_proofs'] == 0): ?>
+            <div class="alert-box alert-warning">
+                <div class="alert-icon"></div>
+                <div class="alert-content">
+                    <div class="alert-title" data-translate="action_required">Action requise : Demi-journées non justifiées
+                    </div>
+                    <div class="alert-message">
+                        <span data-translate="you_have">Vous avez</span>
+                        <strong><?php echo $stats['half_days_justifiable']; ?> <span
+                                data-translate="unjustified_half_days_alert">demi-journée(s) d'absence non
+                                justifiée(s)</span></strong>.
+                        <span data-translate="submit_within_48h">Pensez à soumettre vos justificatifs dans les 48h suivant
+                            votre retour en cours pour éviter des pénalités.</span>
+                    </div>
+                    <a href="proof_submit.php" class="alert-action" data-translate="submit_proof">
+                        Soumettre un justificatif
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <!-- Alerte si justificatifs en révision -->
+        <?php if ($stats['under_review_proofs'] > 0): ?>
+            <div class="alert-box alert-info">
+                <div class="alert-icon"></div>
+                <div class="alert-content">
+                    <div class="alert-title" data-translate="additional_info_title">Informations complémentaires requises
+                    </div>
+                    <div class="alert-message">
+                        <span data-translate="you_have">Vous avez</span>
+                        <strong><?php echo $stats['under_review_proofs']; ?> <span
+                                data-translate="proofs_under_review">justificatif(s) en révision</span></strong>.
+                        <span data-translate="team_needs_info">L'équipe pédagogique a besoin d'informations
+                            supplémentaires.</span>
+                    </div>
+                    <a href="proofs.php?status=under_review" class="alert-action" data-translate="view_my_proofs">
+                        Consulter mes justificatifs
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <!-- Recent Absences Section -->
+        <?php if (count($recentAbsences) > 0): ?>
+            <div class="absences-section">
+                <h2 class="section-title">
+                    <span class="status-badge" style="background-color: #e0e7ff; color: #4338ca;"
+                        data-translate="recent_absences">Dernières absences</span>
+                </h2>
+                <div class="absences-subtitle" data-translate="recent_courses_missed">Derniers cours manqués</div>
+                <div class="absences-table-container">
+                    <table class="absences-table">
+                        <thead>
+                            <tr>
+                                <th data-translate="date">Date</th>
+                                <th data-translate="time">Horaire</th>
+                                <th data-translate="course">Cours</th>
+                                <th data-translate="teacher">Enseignant</th>
+                                <th data-translate="room">Salle</th>
+                                <th data-translate="duration">Durée</th>
+                                <th data-translate="type">Type</th>
+                                <th data-translate="evaluation">Évaluation</th>
+                                <th data-translate="status">Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach (array_slice($recentAbsences, 0, 5) as $absence): ?>
+                                <?php
+                                // Déterminer le statut en fonction du proof_status ou justified
+                                $proofStatus = $absence['proof_status'] ?? null;
+                                $modalStatus = 'none';
+                                $statusText = 'Non justifiée';
+                                $statusIcon = '';
+                                $statusClass = 'status-unjustified';
+
+                                if ($proofStatus === 'accepted') {
+                                    $modalStatus = 'accepted';
+                                    $statusText = 'Justifiée';
+                                    $statusIcon = '';
+                                    $statusClass = 'status-justified';
+                                } elseif ($proofStatus === 'under_review') {
+                                    $modalStatus = 'under_review';
+                                    $statusText = 'En révision';
+                                    $statusIcon = '';
+                                    $statusClass = 'status-under-review';
+                                } elseif ($proofStatus === 'pending') {
+                                    $modalStatus = 'pending';
+                                    $statusText = 'En attente';
+                                    $statusIcon = '';
+                                    $statusClass = 'status-pending';
+                                } elseif ($proofStatus === 'rejected') {
+                                    $modalStatus = 'rejected';
+                                    $statusText = 'Rejeté';
+                                    $statusIcon = '';
+                                    $statusClass = 'status-unjustified';
+                                }
+
+                                $teacher = ($absence['teacher_first_name'] && $absence['teacher_last_name'])
+                                    ? htmlspecialchars($absence['teacher_first_name'] . ' ' . $absence['teacher_last_name'])
+                                    : '-';
+
+                                $courseType = strtoupper($absence['course_type'] ?? 'Autre');
+                                $badge_class = '';
+
+                                switch ($courseType) {
+                                    case 'CM':
+                                        $badge_class = 'badge-cm';
+                                        break;
+                                    case 'TD':
+                                        $badge_class = 'badge-td';
+                                        break;
+                                    case 'TP':
+                                        $badge_class = 'badge-tp';
+                                        break;
+                                    default:
+                                        $badge_class = 'badge-other';
+                                }
+                                ?>
+                                <tr class="clickable-row absence-row" style="cursor: pointer;"
+                                    data-modal-status="<?php echo $modalStatus; ?>"
+                                    data-date="<?php echo date('d/m/Y', strtotime($absence['course_date'])); ?>"
+                                    data-time="<?php echo date('H\hi', strtotime($absence['start_time'])) . ' - ' . date('H\hi', strtotime($absence['end_time'])); ?>"
+                                    data-course="<?php echo htmlspecialchars(formatResourceLabel($absence['course_name'] ?? 'N/A')); ?>"
+                                    data-course-code="<?php echo htmlspecialchars($absence['course_code'] ?? ''); ?>"
+                                    data-teacher="<?php echo $teacher; ?>"
+                                    data-room="<?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?>"
+                                    data-duration="<?php echo number_format($absence['duration_minutes'] / 60, 1); ?>"
+                                    data-type="<?php echo $courseType; ?>" data-type-badge="<?php echo $badge_class; ?>"
+                                    data-evaluation="<?php echo $absence['is_evaluation'] ? 'Oui' : 'Non'; ?>"
+                                    data-is-evaluation="<?php echo $absence['is_evaluation'] ? '1' : '0'; ?>"
+                                    data-has-makeup="<?php echo !empty($absence['makeup_id']) ? '1' : '0'; ?>"
+                                    data-makeup-scheduled="<?php echo !empty($absence['makeup_scheduled']) ? '1' : '0'; ?>"
+                                    data-makeup-date="<?php echo !empty($absence['makeup_date']) ? date('d/m/Y', strtotime($absence['makeup_date'])) : ''; ?>"
+                                    data-makeup-time="<?php echo !empty($absence['makeup_start_time']) && !empty($absence['makeup_end_time']) ? date('H\hi', strtotime($absence['makeup_start_time'])) . ' - ' . date('H\hi', strtotime($absence['makeup_end_time'])) : ''; ?>"
+                                    data-makeup-duration="<?php echo !empty($absence['makeup_duration']) ? number_format($absence['makeup_duration'] / 60, 1) : ''; ?>"
+                                    data-makeup-room="<?php echo htmlspecialchars($absence['makeup_room'] ?? ''); ?>"
+                                    data-makeup-resource="<?php echo htmlspecialchars(formatResourceLabel($absence['makeup_resource_label'] ?? '')); ?>"
+                                    data-makeup-comment="<?php echo htmlspecialchars($absence['makeup_comment'] ?? ''); ?>"
+                                    data-motif="Aucun motif spécifié" data-status-text="<?php echo $statusText; ?>"
+                                    data-status-icon="<?php echo $statusIcon; ?>"
+                                    data-status-class="<?php echo $statusClass; ?>">
+                                    <td><?php echo date('d/m/Y', strtotime($absence['course_date'])); ?></td>
+                                    <td>
+                                        <?php
+                                        echo date('H\hi', strtotime($absence['start_time'])) . ' - ' .
+                                            date('H\hi', strtotime($absence['end_time']));
+                                        ?>
+                                    </td>
+                                    <td>
+                                        <strong><?php echo htmlspecialchars($absence['course_code'] ?? 'N/A'); ?></strong>
+                                        <?php if ($absence['course_name']): ?>
+                                            <br><small
+                                                class="course-code"><?php echo htmlspecialchars(formatResourceLabel($absence['course_name'])); ?></small>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php
+                                        if ($absence['teacher_first_name'] && $absence['teacher_last_name']) {
+                                            echo htmlspecialchars($absence['teacher_first_name'] . ' ' . $absence['teacher_last_name']);
+                                        } else {
+                                            echo '-';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?></td>
+                                    <td><strong><?php echo number_format($absence['duration_minutes'] / 60, 1); ?>h</strong>
+                                    </td>
+                                    <td>
+                                        <span class="course-type-badge <?php echo $badge_class; ?>">
+                                            <?php echo $courseType; ?>
+                                        </span>
+                                    <td>
+                                        <?php if ($absence['is_evaluation']): ?>
+                                            <span class="eval-badge" data-translate="yes">Oui</span>
+                                            <?php if (!empty($absence['makeup_id']) && !empty($absence['makeup_scheduled'])): ?>
+                                                <br><span class="makeup-badge"
+                                                    style="background-color: #17a2b8; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; display: inline-block;"
+                                                    data-translate="makeup_scheduled">Rattrapage
+                                                    prévu</span>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <span class="no-eval" data-translate="no">Non</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="status-badge <?php echo $statusClass; ?>"><?php echo $statusIcon . ' ' . $statusText; ?></span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php if (count($recentAbsences) > 5): ?>
+                    <div class="section-footer">
+                        <a href="student_absences.php" class="btn-more" data-translate="more">Plus</a>
                     </div>
                 <?php endif; ?>
 

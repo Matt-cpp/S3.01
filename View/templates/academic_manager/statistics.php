@@ -146,7 +146,7 @@ declare(strict_types=1);
                                 <option value="">Toutes les matières</option>
                                 <?php foreach ($resources as $resource): ?>
                                     <option value="<?php echo htmlspecialchars($resource['id']); ?>" <?php echo (isset($_GET['resource_id']) && $_GET['resource_id'] == $resource['id']) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($resource['label']); ?>
+                                        <?php echo htmlspecialchars(formatResourceLabel($resource['label'])); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

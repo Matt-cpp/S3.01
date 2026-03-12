@@ -4,6 +4,72 @@
  * - Dynamic generation of split periods
  */
 
+;// Affiche un toast de feedback temporaire
+function showToast(message, type) {
+    const existing = document.querySelector('.vp-toast');
+    if (existing) existing.remove();
+
+    const colors = {
+        success: { bg: '#d1fae5', text: '#065f46', border: '#10b981' },
+        error:   { bg: '#fee2e2', text: '#991b1b', border: '#ef4444' },
+        info:    { bg: '#dbeafe', text: '#1e40af', border: '#3b82f6' },
+        warning: { bg: '#fef3c7', text: '#92400e', border: '#f59e0b' },
+    };
+    const c = colors[type] || colors.info;
+
+    const toast = document.createElement('div');
+    toast.className = 'vp-toast';
+    toast.textContent = message;
+    Object.assign(toast.style, {
+        position: 'fixed', top: '20px', right: '20px',
+        padding: '0.9rem 1.4rem', borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        zIndex: '9999', fontSize: '0.875rem', fontWeight: '500',
+        border: '1px solid ' + c.border,
+        backgroundColor: c.bg, color: c.text,
+        transition: 'opacity 0.4s ease', opacity: '1',
+    });
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; }, 3500);
+    setTimeout(() => { toast.remove(); }, 3900);
+}
+
+// Détection du paramètre feedback après une action
+document.addEventListener('DOMContentLoaded', function () {
+    const feedbackMessages = {
+        validated: { msg: 'Justificatif validé avec succès.', type: 'success' },
+        rejected:  { msg: 'Justificatif rejeté.', type: 'error' },
+        locked:    { msg: 'Justificatif verrouillé.', type: 'info' },
+        unlocked:  { msg: 'Justificatif déverrouillé.', type: 'info' },
+        info:      { msg: "Demande d'informations envoyée à l'étudiant.", type: 'warning' },
+    };
+    const params = new URLSearchParams(window.location.search);
+    const feedback = params.get('feedback');
+    if (feedback && feedbackMessages[feedback]) {
+        const { msg, type } = feedbackMessages[feedback];
+        showToast(msg, type);
+        // Supprimer le paramètre de l'URL sans recharger la page
+        const cleanUrl = window.location.pathname + '?proof_id=' + (params.get('proof_id') || '');
+        history.replaceState(null, '', cleanUrl);
+    }
+
+    // Feedback immédiat sur les boutons de formulaire (désactivation après soumission)
+    document.querySelectorAll('form').forEach(function (form) {
+        form.addEventListener('submit', function () {
+            const btn = form.querySelector('[type="submit"]');
+            if (!btn) return;
+            // setTimeout 0 : le navigateur sérialise d’abord les données (nom du bouton inclus),
+            // puis le callback désactive le bouton pour éviter le double-clic.
+            setTimeout(function () {
+                btn.disabled = true;
+                btn.textContent = 'Traitement en cours\u2026';
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'not-allowed';
+            }, 0);
+        });
+    });
+});
+
 (function() {
     // Conditional display management for the "Other" field in rejection reasons
     const rejSel = document.getElementById('rejection_reason');
@@ -155,3 +221,4 @@ function updatePeriodFields(startDate, endDate, startTime = '08:00', endTime = '
         container.appendChild(periodDiv);
     }
 }
+

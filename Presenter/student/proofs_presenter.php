@@ -334,6 +334,6 @@ class StudentProofsPresenter
     {
         $start = $this->formatDate($startDate);
         $end = $this->formatDate($endDate);
-        return $start === $end ? $start : "$start - $end";
+        return $start === $end ? $start : "$start $end";
     }
 }

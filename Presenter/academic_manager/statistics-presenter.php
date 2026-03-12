@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../Model/StatisticsModel.php';
 require_once __DIR__ . '/../../Model/UserModel.php';
+require_once __DIR__ . '/../../Model/format_ressource.php';
 
 class AcademicManagerStatisticsPresenter
 {
@@ -33,28 +34,9 @@ class AcademicManagerStatisticsPresenter
         $this->userModel = new UserModel();
     }
 
-    /**
-     * Format resource label to show "CODE : LABEL" format
-     * Example: "INFFIS2-DEVELOPPEMENT ORIENTE OBJETS (T3BUTINFFI-R2.01)" => "R2.01 : DEVELOPPEMENT ORIENTE OBJETS"
-     */
-    private function formatResourceLabel(string $fullLabel): string
+    private function formatResourceLabel($fullLabel)
     {
-        if (empty($fullLabel) || $fullLabel === 'N/A') {
-            return 'N/A';
-        }
-
-        if (preg_match('/\(([^)]+)\)/', $fullLabel, $matches)) {
-            $fullCode = $matches[1];
-            $codeParts = explode('-', $fullCode);
-            $code = end($codeParts);
-
-            if (preg_match('/^[^-]+-(.+?)\s*\(/', $fullLabel, $labelMatches)) {
-                $label = trim($labelMatches[1]);
-                return $code . ' : ' . $label;
-            }
-        }
-
-        return $fullLabel;
+        return \formatResourceLabel($fullLabel);
     }
 
     // Retrieve and validate filters from GET URL parameters

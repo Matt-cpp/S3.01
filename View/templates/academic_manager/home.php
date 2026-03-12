@@ -28,6 +28,8 @@ declare(strict_types=1);
     <link rel="stylesheet" href="../../assets/css/academic_manager/home.css">
     <link rel="stylesheet" href="../../assets/css/shared/responsive.css">
     <link rel="stylesheet" href="../../assets/css/shared/responsive-mobile.css">
+    <script src="../../assets/js/shared/base.js" defer></script>
+    <script src="../../assets/js/academic_manager/home.js" defer></script>
 </head>
 
 <body>

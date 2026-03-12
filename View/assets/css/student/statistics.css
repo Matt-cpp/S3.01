@@ -330,6 +330,14 @@ body {
     font-size: 0.9rem;
 }
 
+/* Colonnes Date et Horaire : pas de retour à la ligne */
+.recent-table th:nth-child(1),
+.recent-table td:nth-child(1),
+.recent-table th:nth-child(2),
+.recent-table td:nth-child(2) {
+    white-space: nowrap;
+}
+
 .recent-table tr:hover {
     background: #f9fafb;
 }

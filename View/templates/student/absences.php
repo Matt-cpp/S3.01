@@ -29,6 +29,7 @@ if (!isset($_SESSION['id_student'])) {
 require_once __DIR__ . '/../../../Presenter/shared/session_cache.php';
 require_once __DIR__ . '/../../../Presenter/student/absences_presenter.php';
 require_once __DIR__ . '/../../../Presenter/student/get_info.php';
+require_once __DIR__ . '/../../../Model/format_ressource.php';
 
 // Retrieve the student identifier from the session
 $studentIdentifier = getStudentIdentifier($_SESSION['id_student']);
@@ -210,7 +211,7 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-end-time-raw="<?php echo htmlspecialchars($absence['end_time']); ?>"
                                 data-date="<?php echo htmlspecialchars($presenter->formatDate($absence['course_date'])); ?>"
                                 data-time="<?php echo htmlspecialchars($presenter->formatTime($absence['start_time'], $absence['end_time'])); ?>"
-                                data-course="<?php echo htmlspecialchars($absence['course_name'] ?? 'Non spécifié'); ?>"
+                                data-course="<?php echo htmlspecialchars(formatResourceLabel($absence['course_name'] ?? 'Non spécifié')); ?>"
                                 data-course-code="<?php echo htmlspecialchars($absence['course_code'] ?? ''); ?>"
                                 data-teacher="<?php echo $teacher; ?>"
                                 data-room="<?php echo htmlspecialchars($absence['room_name'] ?? '-'); ?>"
@@ -225,20 +226,17 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-makeup-time="<?php echo !empty($absence['makeup_start_time']) && !empty($absence['makeup_end_time']) ? $presenter->formatTime($absence['makeup_start_time'], $absence['makeup_end_time']) : ''; ?>"
                                 data-makeup-duration="<?php echo !empty($absence['makeup_duration']) ? number_format($absence['makeup_duration'] / 60, 1) : ''; ?>"
                                 data-makeup-room="<?php echo htmlspecialchars($absence['makeup_room'] ?? ''); ?>"
-                                data-makeup-resource="<?php echo htmlspecialchars($absence['makeup_resource_label'] ?? ''); ?>"
+                                data-makeup-resource="<?php echo htmlspecialchars(formatResourceLabel($absence['makeup_resource_label'] ?? '')); ?>"
                                 data-makeup-comment="<?php echo htmlspecialchars($absence['makeup_comment'] ?? ''); ?>"
                                 data-motif="<?php echo htmlspecialchars($presenter->translateReason($absence['motif'], $absence['custom_motif'])); ?>"
                                 data-status-text="<?php echo $status['text']; ?>"
                                 data-status-icon="<?php echo $status['icon']; ?>"
                                 data-status-class="<?php echo $status['class']; ?>">
-                                <td data-label="Date"><?php echo $presenter->formatDate($absence['course_date']); ?></td>
-                                <td data-label="Horaire"><?php echo $presenter->formatTime($absence['start_time'], $absence['end_time']); ?></td>
-                                <td data-label="Cours" class="course-cell">
-                                    <div class="course-info">
-                                        <?php if (!empty($absence['course_code'])): ?>
-                                            <span class="course-code"><?php echo htmlspecialchars($absence['course_code']); ?></span>
-                                        <?php endif; ?>
-                                        <span class="course-name"><?php echo htmlspecialchars($absence['course_name'] ?? 'Non spécifié'); ?></span>
+                                <td><?php echo $presenter->formatDate($absence['course_date']); ?></td>
+                                <td><?php echo $presenter->formatTime($absence['start_time'], $absence['end_time']); ?></td>
+                                <td>
+                                    <div>
+                                        <?php echo htmlspecialchars(formatResourceLabel($absence['course_name'] ?? 'Non spécifié')); ?>
                                     </div>
                                 </td>
                                 <td data-label="Enseignant"><?php echo $teacher; ?></td>

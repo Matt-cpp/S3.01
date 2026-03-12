@@ -162,7 +162,7 @@ if (!isset($_SESSION['id_student'])) {
             </div>
 
             <div class="form-group">
-                <button type="submit" class="submit-btn">Soumettre le justificatif</button>
+                <button type="submit" class="submit-btn" title="Envoie le justificatif au responsable pédagogique qui traitera votre demande.">Soumettre le justificatif</button>
             </div>
         </form>
     </main>

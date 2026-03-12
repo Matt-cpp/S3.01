@@ -178,6 +178,7 @@ html.dark-mode body {
 .dark-mode .table {
   color: var(--text-primary);
   border-color: var(--table-border);
+  background-color: var(--bg-card);
 }
 
 .dark-mode thead,
@@ -523,6 +524,10 @@ html.dark-mode body {
 }
 
 .dark-mode h1 {
+  color: var(--text-primary);
+}
+
+.dark-mode h2 {
   color: var(--text-primary);
 }
 
@@ -1267,6 +1272,11 @@ html.dark-mode body {
   color: var(--text-secondary);
 }
 
+.dark-mode .semester-total {
+  color: var(--text-primary);
+  border-top-color: var(--border-color);
+}
+
 .dark-mode .chart-card {
   background: var(--bg-card);
 }
@@ -1357,6 +1367,10 @@ html.dark-mode body {
 .dark-mode .ds-info-panel {
   background: var(--bg-tertiary);
   border-color: var(--border-color);
+}
+
+.dark-mode .ds-info-panel h4 {
+  color: var(--primary);
 }
 
 .dark-mode .ds-info-panel 
@@ -2528,6 +2542,17 @@ html.dark-mode body {
   color: var(--primary);
 }
 
+.dark-mode .btn-back {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-mode .btn-back:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 /* Student info additional styles */
 .dark-mode .profile-header {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
@@ -2728,6 +2753,10 @@ html.dark-mode body {
 }
 
 .dark-mode .info-box strong {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .info-box p {
   color: var(--text-primary) !important;
 }
 
