@@ -629,13 +629,49 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .students-table {
-        font-size: 0.9rem;
+    /* Responsive table: card layout on mobile */
+    .students-table table,
+    .students-table thead,
+    .students-table tbody,
+    .students-table th,
+    .students-table td,
+    .students-table tr {
+        display: block;
     }
 
-    .students-table th,
+    .students-table thead {
+        display: none;
+    }
+
+    .students-table tbody tr {
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 0.5rem 0;
+        background: white;
+    }
+
     .students-table td {
-        padding: 0.75rem 0.5rem;
+        padding: 0.6rem 1rem;
+        text-align: right;
+        position: relative;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .students-table td:last-child {
+        border-bottom: none;
+    }
+
+    .students-table td::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: 600;
+        color: #374151;
+        text-transform: none;
+    }
+
+    .students-table td.rank-cell {
+        text-align: right;
     }
 }
 
