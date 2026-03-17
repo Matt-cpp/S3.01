@@ -6,7 +6,7 @@ declare(strict_types=1);
 ob_start();
 
 // Catch any errors and convert to JSON
-set_error_handler(function($errno, $errstr, $errfile, $errline) {
+set_error_handler(function ($errno, $errstr, $errfile, $errline) {
     http_response_code(500);
     echo json_encode([
         'error' => "PHP Error: $errstr on line $errline",
@@ -42,7 +42,8 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
+require_once __DIR__ . '/../../Model/AbsenceModel.php';
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -54,8 +55,9 @@ try {
     // Clean any output that might have been buffered
     ob_end_clean();
     ob_start();
-    
-    $db = Database::getInstance();
+
+    $userModel = new UserModel();
+    $absenceModel = new AbsenceModel();
 
     // Get parameters from request
     $datetime_start = $_GET['datetime_start'] ?? '';
@@ -138,8 +140,7 @@ try {
         exit;
     }
 
-    $sqlUser = 'SELECT identifier FROM users WHERE id = :student_id';
-    $user = $db->selectOne($sqlUser, ['student_id' => $student_id]);
+    $user = $userModel->getUserById((int) $student_id);
 
     if (!$user) {
         ob_end_clean();
@@ -153,85 +154,12 @@ try {
 
     $studentIdentifier = $user['identifier'];
 
-    // Get unjustified absences, excluding those already linked to a proof
-    // (unless editing an existing proof)
-    if ($proof_id) {
-        // In edit mode: show absences not linked to any proof, OR linked to this proof
-        $sql = "SELECT DISTINCT
-            cs.course_date,
-            cs.start_time,
-            cs.end_time,
-            cs.course_type,
-            cs.is_evaluation,
-            r.label as resource_label,
-            r.code as resource_code,
-            t.last_name as teacher_last_name,
-            t.first_name as teacher_first_name,
-            rm.code as room_label,
-            a.id as absence_id,
-            cs.id as course_slot_id
-        FROM absences a
-        JOIN course_slots cs ON a.course_slot_id = cs.id
-        LEFT JOIN resources r ON cs.resource_id = r.id
-        LEFT JOIN teachers t ON cs.teacher_id = t.id
-        LEFT JOIN rooms rm ON cs.room_id = rm.id
-        WHERE a.student_identifier = :student_identifier
-            AND a.justified = FALSE
-            AND a.status = 'absent'
-            AND cs.course_date + cs.start_time >= :datetime_start::timestamp
-            AND cs.course_date + cs.start_time <= :datetime_end::timestamp
-            AND (
-                NOT EXISTS (
-                    SELECT 1 FROM proof_absences pa WHERE pa.absence_id = a.id
-                )
-                OR EXISTS (
-                    SELECT 1 FROM proof_absences pa 
-                    WHERE pa.absence_id = a.id AND pa.proof_id = :proof_id
-                )
-            )
-        ORDER BY cs.course_date, cs.start_time";
-    } else {
-        // Normal mode: show only absences not linked to any proof
-        $sql = "SELECT DISTINCT
-            cs.course_date,
-            cs.start_time,
-            cs.end_time,
-            cs.course_type,
-            cs.is_evaluation,
-            r.label as resource_label,
-            r.code as resource_code,
-            t.last_name as teacher_last_name,
-            t.first_name as teacher_first_name,
-            rm.code as room_label,
-            a.id as absence_id,
-            cs.id as course_slot_id
-        FROM absences a
-        JOIN course_slots cs ON a.course_slot_id = cs.id
-        LEFT JOIN resources r ON cs.resource_id = r.id
-        LEFT JOIN teachers t ON cs.teacher_id = t.id
-        LEFT JOIN rooms rm ON cs.room_id = rm.id
-        WHERE a.student_identifier = :student_identifier
-            AND a.justified = FALSE
-            AND a.status = 'absent'
-            AND cs.course_date + cs.start_time >= :datetime_start::timestamp
-            AND cs.course_date + cs.start_time <= :datetime_end::timestamp
-            AND NOT EXISTS (
-                SELECT 1 FROM proof_absences pa WHERE pa.absence_id = a.id
-            )
-        ORDER BY cs.course_date, cs.start_time";
-    }
-
-    $params = [
-        'student_identifier' => $studentIdentifier,
-        'datetime_start' => $start_date,
-        'datetime_end' => $end_date
-    ];
-
-    if ($proof_id) {
-        $params['proof_id'] = $proof_id;
-    }
-
-    $absences = $db->select($sql, $params);
+    $absences = $absenceModel->getAbsencesForProofSubmission(
+        $studentIdentifier,
+        $start_date,
+        $end_date,
+        $proof_id ? (int) $proof_id : null
+    );
 
     $courses = [];
     foreach ($absences as $absence) {

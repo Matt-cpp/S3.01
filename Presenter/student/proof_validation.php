@@ -21,7 +21,10 @@
  * Stores data in session for the confirmation page.
  */
 
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
+require_once __DIR__ . '/../../Model/AbsenceModel.php';
+require_once __DIR__ . '/../../Model/ProofModel.php';
+require_once __DIR__ . '/../../Model/NotificationModel.php';
 require_once __DIR__ . '/../../Model/email.php';
 require_once __DIR__ . '/../../Model/AbsenceMonitoringModel.php';
 
@@ -29,7 +32,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     session_start();
 
     try {
-        $db = Database::getInstance();
+        $absenceModel = new AbsenceModel();
+        $proofModel = new ProofModel();
+        $notificationModel = new NotificationModel();
 
         // Multi-file proof upload with full validation
         $uploadedFiles = [];
@@ -114,13 +119,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Retrieve student information from database
         if (isset($_SESSION['id_student'])) {
             try {
-                $db = Database::getInstance();
-                $_SESSION['student_info'] = $db->selectOne(
-                    "SELECT id, identifier, last_name, first_name, middle_name, birth_date, degrees, department, email, role 
-                    FROM users 
-                    WHERE id = ?",
-                    [$_SESSION['id_student']]
-                );
+                $userModel = new UserModel();
+                $_SESSION['student_info'] = $userModel->getUserById((int) $_SESSION['id_student']);
             } catch (Exception $e) {
                 error_log("Error retrieving student information: " . $e->getMessage());
             }
@@ -151,12 +151,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $studentId = $_SESSION['id_student'] ?? 1; // Default from your session
 
         // Get student identifier from database
-        $studentInfo = $db->selectOne("SELECT identifier FROM users WHERE id = :student_id", ['student_id' => $studentId]);
-
+        $studentInfo = (new UserModel())->getUserById((int) $studentId);
         if (!$studentInfo) {
             throw new Exception('Étudiant non trouvé dans le système.');
         }
-
         $studentIdentifier = $studentInfo['identifier'];
 
         // Check if there are absences for the specified period
@@ -168,54 +166,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Subtract 1 minute from end date to exclude courses starting exactly at the end time
         $endTimestamp = date('Y-m-d H:i:s', strtotime($datetimeEnd . ' -1 minute'));
 
-        // Query to verify absences exist for the period
-        $sqlCheck = "
-            SELECT COUNT(DISTINCT a.id) as absence_count
-            FROM absences a
-            JOIN course_slots cs ON a.course_slot_id = cs.id
-            LEFT JOIN resources r ON cs.resource_id = r.id
-            LEFT JOIN teachers t ON cs.teacher_id = t.id
-            LEFT JOIN rooms rm ON cs.room_id = rm.id
-            WHERE a.student_identifier = :student_identifier
-                AND a.justified = FALSE
-                AND a.status = 'absent'
-                AND (cs.course_date + cs.start_time)::timestamp >= :datetime_start::timestamp
-                AND (cs.course_date + cs.start_time)::timestamp <= :datetime_end::timestamp
-        ";
+        $foundAbsences = $absenceModel->getAbsencesForProofSubmission(
+            $studentIdentifier,
+            $startTimestamp,
+            $endTimestamp
+        );
 
-        $paramsCheck = [
-            'student_identifier' => $studentIdentifier,
-            'datetime_start' => $startTimestamp,
-            'datetime_end' => $endTimestamp
-        ];
-
-        $absenceCheck = $db->selectOne($sqlCheck, $paramsCheck);
-
-        // Get actual absences for the period
-        $sqlAbsences = "
-            SELECT DISTINCT
-                cs.course_date,
-                cs.start_time,
-                cs.end_time,
-                cs.course_type,
-                r.label as resource_label,
-                a.id as absence_id
-            FROM absences a
-            JOIN course_slots cs ON a.course_slot_id = cs.id
-            LEFT JOIN resources r ON cs.resource_id = r.id
-            LEFT JOIN teachers t ON cs.teacher_id = t.id
-            LEFT JOIN rooms rm ON cs.room_id = rm.id
-            WHERE a.student_identifier = :student_identifier
-                AND a.justified = FALSE
-                AND a.status = 'absent'
-                AND (cs.course_date + cs.start_time)::timestamp >= :datetime_start::timestamp
-                AND (cs.course_date + cs.start_time)::timestamp <= :datetime_end::timestamp
-            ORDER BY cs.course_date, cs.start_time
-        ";
-
-        $foundAbsences = $db->select($sqlAbsences, $paramsCheck);
-
-        if (!$absenceCheck || $absenceCheck['absence_count'] == 0) {
+        if (count($foundAbsences) === 0) {
             // Clean up uploaded files if no absences found
             foreach ($uploadedFiles as $fileInfo) {
                 $fileToDelete = __DIR__ . '/../' . $fileInfo['path'];
@@ -272,39 +229,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $formReason = $_SESSION['reason_data']['absence_reason'];
         $absenceReasonMapped = $absenceReasons[$formReason]['db_value'] ?? 'other';
 
-        $db->beginTransaction();
         try {
-            // Insert the main proof record
-            $sqlInsert = "
-                INSERT INTO proof (
-                    student_identifier, 
-                    absence_start_date, 
-                    absence_end_date, 
-                    concerned_courses, 
-                    main_reason, 
-                    custom_reason, 
-                    file_path, 
-                    proof_files,
-                    student_comment, 
-                    status, 
-                    submission_date
-                ) 
-                VALUES (
-                    :student_identifier, 
-                    :absence_start_date, 
-                    :absence_end_date, 
-                    :concerned_courses, 
-                    :main_reason, 
-                    :custom_reason, 
-                    :file_path, 
-                    CAST(:proof_files AS jsonb),
-                    :student_comment, 
-                    'pending', 
-                    :submission_date
-                )
-            ";
-
-            $paramsInsert = [
+            $proofData = [
                 'student_identifier' => $studentIdentifier,
                 'absence_start_date' => date('Y-m-d', strtotime($datetimeStart)),
                 'absence_end_date' => date('Y-m-d', strtotime($datetimeEnd)),
@@ -317,22 +243,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'submission_date' => $_SESSION['reason_data']['submission_date']
             ];
 
-            $db->execute($sqlInsert, $paramsInsert);
-            $proofId = $db->lastInsertId();
-
-            // Insert associations between this proof and all related absences
-            foreach ($absenceIds as $absenceId) {
-                $sqlAssoc = "
-                    INSERT INTO proof_absences (proof_id, absence_id) 
-                    VALUES (:proof_id, :absence_id)
-                ";
-                $db->execute($sqlAssoc, [
-                    'proof_id' => $proofId,
-                    'absence_id' => $absenceId
-                ]);
-            }
-
-            $db->commit();
+            $proofModel->createPendingProofWithAbsences($proofData, $absenceIds);
 
             // Update absence monitoring to mark as justified
             try {
@@ -445,8 +356,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($response['success']) {
                 // Email sent successfully
                 try {
-                    insert_notification(
-                        $db,
+                    $notificationModel->createNotification(
                         $studentIdentifier,
                         'justification_processed',
                         'Justificatif reçu',
@@ -459,8 +369,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 error_log('Email error: ' . $response['message']);
                 try {
-                    insert_notification(
-                        $db,
+                    $notificationModel->createNotification(
                         $studentIdentifier,
                         'justification_processed',
                         'Justificatif reçu (email échoué)',
@@ -493,11 +402,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: ../../View/templates/student/proof_validation.php");
             exit();
         } catch (Exception $e) {
-            // Only rollback if transaction is still active
-            if ($db->inTransaction()) {
-                $db->rollBack();
-            }
-
             // ===== Clean up all files on error =====
             foreach ($uploadedFiles as $fileInfo) {
                 $fileToDelete = __DIR__ . '/../../' . $fileInfo['path'];
@@ -517,23 +421,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Redirect if not POST request
     header("Location: ../../View/templates/student/proof_submit.php");
     exit();
-}
-
-function insert_notification(mixed $db, string $studentIdentifier, string $notificationType, string $subject, string $message, bool $sent): bool
-{
-    try {
-        $sql = "INSERT INTO notifications (student_identifier, notification_type, subject, message , sent, sent_date) 
-                VALUES (:student_identifier, :notification_type, :subject, :message, :sent::boolean, CASE WHEN :sent::boolean = TRUE THEN NOW() ELSE NULL END)";
-        $db->execute($sql, [
-            'student_identifier' => $studentIdentifier,
-            'notification_type' => $notificationType,
-            'subject' => $subject,
-            'message' => $message,
-            'sent' => $sent ? 'true' : 'false'
-        ]);
-        return true;
-    } catch (Exception $e) {
-        error_log('Error inserting notification: ' . $e->getMessage());
-        return false;
-    }
 }

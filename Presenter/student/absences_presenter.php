@@ -16,17 +16,22 @@ declare(strict_types=1);
  * Used by the student "My absences" page.
  */
 
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
+require_once __DIR__ . '/../../Model/AbsenceModel.php';
 
 class StudentAbsencesPresenter
 {
     private array $filters;
     private string $errorMessage;
     private string $studentIdentifier;
+    private UserModel $userModel;
+    private AbsenceModel $absenceModel;
 
     public function __construct(string $studentIdentifier)
     {
         $this->studentIdentifier = $studentIdentifier;
+        $this->userModel = new UserModel();
+        $this->absenceModel = new AbsenceModel();
         $this->filters = [];
         $this->errorMessage = '';
         $this->processRequest();
@@ -64,10 +69,7 @@ class StudentAbsencesPresenter
             return $studentIdOrIdentifier;
         }
 
-        $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare('SELECT identifier, first_name, last_name FROM users WHERE id = :id');
-        $stmt->execute([':id' => $studentIdOrIdentifier]);
-        $result = $stmt->fetch();
+        $result = $this->userModel->getUserById((int) $studentIdOrIdentifier);
 
         if ($result) {
             $_SESSION['first_name'] = $result['first_name'];
@@ -80,89 +82,8 @@ class StudentAbsencesPresenter
 
     public function getAbsences(): array
     {
-        $db = Database::getInstance()->getConnection();
-
-        $query = "
-            SELECT 
-                a.id as absence_id,
-                cs.course_date,
-                cs.start_time,
-                cs.end_time,
-                cs.duration_minutes,
-                cs.course_type,
-                cs.is_evaluation,
-                a.justified,
-                r.code as course_code,
-                r.label as course_name,
-                t.first_name as teacher_first_name,
-                t.last_name as teacher_last_name,
-                rm.code as room_name,
-                p.id as proof_id,
-                p.main_reason as motif,
-                p.custom_reason as custom_motif,
-                p.file_path as file_path,
-                p.status as proof_status,
-                p.manager_comment,
-                m.id as makeup_id,
-                m.scheduled as makeup_scheduled,
-                m.makeup_date as makeup_date,
-                m.comment as makeup_comment,
-                m.duration_minutes as makeup_duration,
-                makeup_rm.code as makeup_room,
-                makeup_cs.start_time as makeup_start_time,
-                makeup_cs.end_time as makeup_end_time,
-                makeup_r.label as makeup_resource_label
-            FROM absences a
-            JOIN course_slots cs ON a.course_slot_id = cs.id
-            LEFT JOIN resources r ON cs.resource_id = r.id
-            LEFT JOIN teachers t ON cs.teacher_id = t.id
-            LEFT JOIN rooms rm ON cs.room_id = rm.id
-            LEFT JOIN proof_absences pa ON a.id = pa.absence_id
-            LEFT JOIN proof p ON pa.proof_id = p.id
-            LEFT JOIN makeups m ON a.id = m.absence_id
-            LEFT JOIN rooms makeup_rm ON m.room_id = makeup_rm.id
-            LEFT JOIN course_slots makeup_cs ON m.evaluation_slot_id = makeup_cs.id
-            LEFT JOIN resources makeup_r ON makeup_cs.resource_id = makeup_r.id
-            WHERE a.student_identifier = :student_id
-        ";
-
-        $params = [':student_id' => $this->studentIdentifier];
-
-        if (!empty($this->filters['start_date'])) {
-            $query .= " AND cs.course_date >= :start_date";
-            $params[':start_date'] = $this->filters['start_date'];
-        }
-
-        if (!empty($this->filters['end_date'])) {
-            $query .= " AND cs.course_date <= :end_date";
-            $params[':end_date'] = $this->filters['end_date'];
-        }
-
-        if (!empty($this->filters['status'])) {
-            if ($this->filters['status'] === 'justifiée') {
-                $query .= " AND p.status = 'accepted'";
-            } elseif ($this->filters['status'] === 'en_attente') {
-                $query .= " AND p.status = 'pending'";
-            } elseif ($this->filters['status'] === 'en_revision') {
-                $query .= " AND p.status = 'under_review'";
-            } elseif ($this->filters['status'] === 'refusé') {
-                $query .= " AND p.status = 'rejected'";
-            } elseif ($this->filters['status'] === 'non_justifiée') {
-                $query .= " AND (p.id IS NULL OR p.status IS NULL)";
-            }
-        }
-
-        if (!empty($this->filters['course_type'])) {
-            $query .= " AND cs.course_type = :course_type";
-            $params[':course_type'] = $this->filters['course_type'];
-        }
-
-        $query .= " ORDER BY cs.course_date DESC, cs.start_time DESC";
-
         try {
-            $stmt = $db->prepare($query);
-            $stmt->execute($params);
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = $this->absenceModel->getStudentAbsencesDetailed($this->studentIdentifier, $this->filters);
 
             // Sort results by date and time descending (most recent first)
             usort($results, function ($a, $b) {

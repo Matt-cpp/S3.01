@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../../Model/database.php';
+require_once __DIR__ . '/../../../Model/ImportModel.php';
 require_once __DIR__ . '/../../secretary/dashboard-presenter.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -62,8 +63,7 @@ if (!move_uploaded_file($file['tmp_name'], $filepath)) {
 }
 
 try {
-    // Create import record in database
-    $db = Database::getInstance();
+    $importModel = new ImportModel();
 
     // Count total rows in CSV (excluding header)
     $handle = fopen($filepath, 'r');
@@ -74,16 +74,7 @@ try {
     }
     fclose($handle);
 
-    // Insert job record
-    $sql = "INSERT INTO import_jobs (id, filename, filepath, status, total_rows) 
-            VALUES (:id, :filename, :filepath, 'pending', :total_rows)";
-
-    $db->execute($sql, [
-        ':id' => $importId,
-        ':filename' => $file['name'],
-        ':filepath' => $filepath,
-        ':total_rows' => $totalRows
-    ]);
+    $importModel->createJob($importId, $file['name'], $filepath, $totalRows);
 
     // Start background processing
     startBackgroundImport($importId, $filepath);

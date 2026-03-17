@@ -19,7 +19,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once(__DIR__ . '/../../vendor/autoload.php');
-require_once(__DIR__ . '/../../Model/database.php');
+require_once(__DIR__ . '/../../Model/UserModel.php');
 require_once(__DIR__ . '/../../Model/format_ressource.php');
 
 if (!isset($_SESSION['reason_data'])) {
@@ -32,13 +32,8 @@ $reasonData = $_SESSION['reason_data'];
 $studentInfo = null;
 if (isset($_SESSION['id_student'])) {
     try {
-        $db = Database::getInstance();
-        $studentInfo = $db->selectOne(
-            "SELECT id, identifier, last_name, first_name, middle_name, birth_date, degrees, department, email, role
-                FROM users
-                WHERE id = ?",
-            [$_SESSION['id_student']]
-        );
+        $userModel = new UserModel();
+        $studentInfo = $userModel->getUserById((int) $_SESSION['id_student']);
     } catch (Exception $e) {
         error_log('Error retrieving student information: ' . $e->getMessage());
     }

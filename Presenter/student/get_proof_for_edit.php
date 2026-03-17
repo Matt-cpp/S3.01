@@ -17,7 +17,8 @@ declare(strict_types=1);
 
 session_start();
 
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/ProofModel.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
 
 if (!isset($_GET['proof_id'])) {
     $_SESSION['error_message'] = 'Aucun justificatif spécifié.';
@@ -28,27 +29,9 @@ if (!isset($_GET['proof_id'])) {
 $proofId = (int) $_GET['proof_id'];
 
 try {
-    $db = Database::getInstance();
-
-    $sql = "
-        SELECT 
-            p.id,
-            p.student_identifier,
-            p.absence_start_date,
-            p.absence_end_date,
-            p.main_reason,
-            p.custom_reason,
-            p.status,
-            p.student_comment,
-            p.manager_comment,
-            p.file_path,
-            p.proof_files,
-            p.concerned_courses
-        FROM proof p
-        WHERE p.id = :proof_id
-    ";
-
-    $proof = $db->selectOne($sql, [':proof_id' => $proofId]);
+    $proofModel = new ProofModel();
+    $userModel = new UserModel();
+    $proof = $proofModel->getProofForEdit($proofId);
 
     if (!$proof) {
         $_SESSION['error_message'] = 'Justificatif non trouvé.';
@@ -69,7 +52,7 @@ try {
     }
 
     $studentId = $_SESSION['id_student'];
-    $studentInfo = $db->selectOne('SELECT identifier FROM users WHERE id = :student_id', [':student_id' => $studentId]);
+    $studentInfo = $userModel->getUserById((int) $studentId);
 
     if (!$studentInfo || $proof['student_identifier'] !== $studentInfo['identifier']) {
         $_SESSION['error_message'] = "Vous n'êtes pas autorisé à modifier ce justificatif.";

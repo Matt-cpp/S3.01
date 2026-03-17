@@ -363,22 +363,8 @@ class AcademicManagerStatisticsPresenter
     // Search students by name or identifier
     public function searchStudents(string $query): array
     {
-        // Simple implementation without using UserModel method
-        $db = getDatabase();
-        $sql = "
-            SELECT identifier, first_name, last_name, email
-            FROM users
-            WHERE role = 'student'
-            AND (
-                LOWER(first_name) LIKE LOWER(:query)
-                OR LOWER(last_name) LIKE LOWER(:query)
-                OR LOWER(identifier) LIKE LOWER(:query)
-            )
-            LIMIT 10
-        ";
-
         try {
-            return $db->select($sql, [':query' => '%' . $query . '%']);
+            return $this->userModel->searchStudents($query);
         } catch (Exception $e) {
             error_log("Error searching students: " . $e->getMessage());
             return [];

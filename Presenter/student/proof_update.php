@@ -18,13 +18,15 @@ declare(strict_types=1);
  * - Confirmation email sending
  */
 
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/ProofModel.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     session_start();
 
     try {
-        $db = Database::getInstance();
+        $proofModel = new ProofModel();
+        $userModel = new UserModel();
 
         // Check that the proof ID is provided
         if (!isset($_POST['proof_id'])) {
@@ -33,11 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $proofId = (int) $_POST['proof_id'];
 
-        // Retrieve the existing proof
-        $existingProof = $db->selectOne(
-            "SELECT id, student_identifier, file_path, proof_files, status FROM proof WHERE id = :proof_id",
-            ['proof_id' => $proofId]
-        );
+        $existingProof = $proofModel->getProofForUpdate($proofId);
 
         if (!$existingProof) {
             throw new Exception('Justificatif non trouvé.');
@@ -53,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             throw new Exception('Veuillez vous connecter pour effectuer cette action.');
         }
         $studentId = $_SESSION['id_student'];
-        $studentInfo = $db->selectOne("SELECT identifier FROM users WHERE id = :student_id", ['student_id' => $studentId]);
+        $studentInfo = $userModel->getUserById((int) $studentId);
 
         if (!$studentInfo || $existingProof['student_identifier'] !== $studentInfo['identifier']) {
             throw new Exception('Vous n\'êtes pas autorisé à modifier ce justificatif.');
@@ -202,45 +200,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $customReason = ($mainReason === 'other' || $absenceReason === 'rdv_medical') ? $otherReason : null;
 
         // Update the proof in the database
-        $sqlUpdate = "
-            UPDATE proof 
-            SET 
-                main_reason = :main_reason,
-                custom_reason = :custom_reason,
-                proof_files = :proof_files::jsonb,
-                student_comment = :student_comment,
-                concerned_courses = :concerned_courses,
-                status = 'pending',
-                processing_date = NULL,
-                manager_comment = NULL,
-                updated_at = NOW()
-            WHERE id = :proof_id
-        ";
+        $updated = $proofModel->updateProofAfterStudentEdit(
+            $proofId,
+            $mainReason,
+            $customReason,
+            $filesJson,
+            $comments,
+            $classInvolved
+        );
+        if (!$updated) {
+            throw new Exception('Impossible de mettre à jour le justificatif.');
+        }
 
-        $paramsUpdate = [
-            'main_reason' => $mainReason,
-            'custom_reason' => $customReason,
-            'proof_files' => $filesJson,
-            'student_comment' => $comments,
-            'concerned_courses' => $classInvolved,
-            'proof_id' => $proofId
-        ];
-
-        $db->execute($sqlUpdate, $paramsUpdate);
-
-        // Update associated absences to set them back to unjustified
-        $sqlUpdateAbsences = "
-            UPDATE absences a
-            SET 
-                justified = FALSE,
-                status = 'absent',
-                updated_at = NOW()
-            FROM proof_absences pa
-            WHERE pa.proof_id = :proof_id
-              AND a.id = pa.absence_id
-        ";
-
-        $db->execute($sqlUpdateAbsences, ['proof_id' => $proofId]);
+        if (!$proofModel->resetLinkedAbsencesToUnjustified($proofId)) {
+            throw new Exception('Impossible de mettre à jour les absences associées.');
+        }
 
         // Clean session
         unset($_SESSION['edit_proof']);

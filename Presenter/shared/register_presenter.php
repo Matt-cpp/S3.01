@@ -14,17 +14,20 @@ declare(strict_types=1);
  */
 
 session_start();
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
+require_once __DIR__ . '/../../Model/EmailVerificationModel.php';
 require_once __DIR__ . '/../../Model/email.php';
 
 class RegistrationController
 {
-    private PDO $pdo;
+    private UserModel $userModel;
+    private EmailVerificationModel $verificationModel;
     private EmailService $emailService;
 
     public function __construct()
     {
-        $this->pdo = getConnection();
+        $this->userModel = new UserModel();
+        $this->verificationModel = new EmailVerificationModel();
         $this->emailService = new EmailService();
     }
 
@@ -34,14 +37,9 @@ class RegistrationController
             // Generate a 6-digit verification code
             $verificationCode = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
 
-            // Delete old codes for this email
-            $stmt = $this->pdo->prepare('DELETE FROM email_verifications WHERE email = ?');
-            $stmt->execute([$email]);
-
             // Insert the new code (expires in 15 minutes)
             $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-            $stmt = $this->pdo->prepare('INSERT INTO email_verifications (email, verification_code, expires_at) VALUES (?, ?, ?)');
-            $stmt->execute([$email, $verificationCode, $expiresAt]);
+            $this->verificationModel->createVerification($email, $verificationCode, $expiresAt);
 
             // Send the email
             $subject = 'Code de vérification - Gestion Absence UPHF';
@@ -67,16 +65,8 @@ class RegistrationController
     public function verifyCode(string $email, string $code): array
     {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT id FROM email_verifications 
-                WHERE email = ? AND verification_code = ? AND expires_at > NOW() AND is_verified = FALSE
-            ");
-            $stmt->execute([$email, $code]);
-
-            if ($stmt->fetch()) {
-                // Mark as verified
-                $stmt = $this->pdo->prepare('UPDATE email_verifications SET is_verified = TRUE WHERE email = ? AND verification_code = ?');
-                $stmt->execute([$email, $code]);
+            if ($this->verificationModel->getValidVerification($email, $code)) {
+                $this->verificationModel->markVerified($email, $code);
                 return ['success' => true, 'message' => 'Code vérifié avec succès.'];
             } else {
                 return ['success' => false, 'message' => 'Code invalide ou expiré.'];
@@ -101,12 +91,7 @@ class RegistrationController
             }
 
             // Check that the email has been verified
-            $stmt = $this->pdo->prepare("
-                SELECT id FROM email_verifications 
-                WHERE email = ? AND is_verified = TRUE AND expires_at > NOW()
-            ");
-            $stmt->execute([$email]);
-            if (!$stmt->fetch()) {
+            if (!$this->verificationModel->getVerifiedAndActive($email)) {
                 return ['success' => false, 'message' => 'Email non vérifié ou code expiré.'];
             }
 
@@ -116,36 +101,24 @@ class RegistrationController
             list($firstName, $lastName) = $this->extractNameFromEmail($email);
 
             // Check if email already exists in users
-            $stmt = $this->pdo->prepare('SELECT id FROM users WHERE email = ?');
-            $stmt->execute([$email]);
-            $existingUser = $stmt->fetch();
+            $existingUser = $this->userModel->isEmailRegistered($email);
 
             $successMessage = '';
 
             if ($existingUser) {
                 // Email already exists, update the password
-                $stmt = $this->pdo->prepare("
-                    UPDATE users 
-                    SET password_hash = ?, email_verified = TRUE, updated_at = CURRENT_TIMESTAMP
-                    WHERE email = ?
-                ");
-                $stmt->execute([$passwordHash, $email]);
+                $this->userModel->setPasswordAndVerifyEmail($email, $passwordHash);
 
                 $successMessage = 'Mot de passe mis à jour avec succès !';
             } else {
                 // Email does not exist, create a new account
-                $stmt = $this->pdo->prepare("
-                    INSERT INTO users (email, password_hash, role, email_verified, last_name, first_name) 
-                    VALUES (?, ?, 'student', TRUE, ?, ?)
-                ");
-                $stmt->execute([$email, $passwordHash, $lastName, $firstName]);
+                $this->userModel->createUser($email, $passwordHash, $firstName, $lastName);
 
                 $successMessage = 'Nouveau compte créé avec succès !';
             }
 
             // Delete used verification codes
-            $stmt = $this->pdo->prepare('DELETE FROM email_verifications WHERE email = ?');
-            $stmt->execute([$email]);
+            $this->verificationModel->deleteVerifications($email);
 
             return ['success' => true, 'message' => $successMessage];
         } catch (Exception $e) {
