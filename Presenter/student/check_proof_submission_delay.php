@@ -25,15 +25,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
+require_once __DIR__ . '/../../Model/AbsenceModel.php';
 
 try {
-    $db = getDatabase();
+    $userModel = new UserModel();
+    $absenceModel = new AbsenceModel();
 
     $studentId = $_GET['student_id'] ?? 1;
 
-    $sqlUser = 'SELECT identifier FROM users WHERE id = :student_id';
-    $user = $db->selectOne($sqlUser, ['student_id' => $studentId]);
+    $user = $userModel->getUserById((int) $studentId);
 
     if (!$user) {
         http_response_code(404);
@@ -46,24 +47,7 @@ try {
 
     $studentIdentifier = $user['identifier'];
 
-    // Get the last absence not linked to a proof (truly unjustified)
-    $sqlLastAbsence = "
-        SELECT 
-            cs.course_date,
-            cs.end_time,
-            (cs.course_date + cs.end_time)::timestamp as last_absence_datetime
-        FROM absences a
-        JOIN course_slots cs ON a.course_slot_id = cs.id
-        LEFT JOIN proof_absences pa ON a.id = pa.absence_id
-        WHERE a.student_identifier = :student_identifier
-            AND a.status = 'absent'
-            AND a.justified = FALSE
-            AND pa.absence_id IS NULL
-        ORDER BY cs.course_date DESC, cs.end_time DESC
-        LIMIT 1
-    ";
-
-    $lastAbsence = $db->selectOne($sqlLastAbsence, ['student_identifier' => $studentIdentifier]);
+    $lastAbsence = $absenceModel->getLastUnjustifiedAbsence($studentIdentifier);
 
     if (!$lastAbsence) {
         echo json_encode([

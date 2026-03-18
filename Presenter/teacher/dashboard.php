@@ -15,7 +15,7 @@ declare(strict_types=1);
 class TeacherDashboardPresenter
 {
     private int $page;
-    private Database $db;
+    private TeacherDataModel $teacherModel;
     private int $userId;
     private int $pageCount;
     private bool $hasFilter;
@@ -24,8 +24,8 @@ class TeacherDashboardPresenter
     public function __construct(int $id)
     {
         $this->page = 0;
-        require_once __DIR__ . '/../../Model/database.php';
-        $this->db = Database::getInstance();
+        require_once __DIR__ . '/../../Model/TeacherDataModel.php';
+        $this->teacherModel = new TeacherDataModel();
         $this->userId = $this->linkTeacherUser($id);
         $this->hasFilter = false;
         $this->filter = '';
@@ -34,35 +34,20 @@ class TeacherDashboardPresenter
 
     private function linkTeacherUser(int $id): int
     {
-        $query = "SELECT teachers.id as id
-        FROM users LEFT JOIN teachers ON teachers.email = users.email
-        WHERE users.id = " . $id;
-        $result = $this->db->select($query);
-        return $result[0]['id'];
+        return (int) ($this->teacherModel->getTeacherIdByUserId($id) ?? 0);
     }
     // Calculate total number of table pages
     public function getTotalPages(): int
     {
         try {
-            if ($this->hasFilter === false) {
-                $query = "SELECT COUNT(*) as count 
-                FROM absences LEFT JOIN course_slots 
-                ON absences.course_slot_id = course_slots.id
-                WHERE course_slots.teacher_id = " . intval($this->userId);
-            } else {
-                $query = "SELECT COUNT(*) as count 
-                FROM absences LEFT JOIN course_slots 
-                ON absences.course_slot_id = course_slots.id
-                LEFT JOIN resources ON course_slots.resource_id = resources.id
-                WHERE course_slots.teacher_id = " . intval($this->userId) . "
-                AND resources.label = '" . addslashes($this->filter) . "'";
-            }
-
-            $result = $this->db->select($query);
-            if (empty($result)) {
+            $total = $this->teacherModel->countTeacherAbsences(
+                $this->userId,
+                $this->hasFilter ? $this->filter : null
+            );
+            if ($total <= 0) {
                 return 1;
             }
-            return (int) ceil($result[0]['count'] / 5);
+            return (int) ceil($total / 5);
         } catch (Exception $e) {
             error_log('Error in getTotalPages: ' . $e->getMessage());
             return 1;
@@ -89,33 +74,12 @@ class TeacherDashboardPresenter
     public function getData(int $page): array
     {
         $offset = (int) ($page * 5);
-        $userId = intval($this->userId);
-        if ($this->hasFilter === true) {
-            $query = "SELECT users.first_name, users.last_name, COALESCE(groups.label, 'N/A') as degrees, course_slots.course_date, absences.status, resources.label
-            FROM absences 
-            LEFT JOIN users ON absences.student_identifier = users.identifier
-            LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
-            LEFT JOIN resources ON course_slots.resource_id = resources.id
-            LEFT JOIN user_groups ON users.id = user_groups.user_id
-            LEFT JOIN groups ON user_groups.group_id = groups.id
-            WHERE course_slots.teacher_id = " . $userId . "
-            AND resources.label = '" . addslashes($this->filter) . "'
-            ORDER BY course_slots.course_date DESC
-            LIMIT 5 OFFSET " . $offset;
-        } else {
-            $query = "SELECT users.first_name, users.last_name, COALESCE(groups.label, 'N/A') as degrees, course_slots.course_date, absences.status, resources.label
-            FROM absences 
-            LEFT JOIN users ON absences.student_identifier = users.identifier
-            LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
-            LEFT JOIN resources ON course_slots.resource_id = resources.id
-            LEFT JOIN user_groups ON users.id = user_groups.user_id
-            LEFT JOIN groups ON user_groups.group_id = groups.id
-            WHERE course_slots.teacher_id = " . $userId . "
-            ORDER BY course_slots.course_date DESC
-            LIMIT 5 OFFSET " . $offset;
-        }
-
-        return $this->db->select($query);
+        return $this->teacherModel->getTeacherAbsencesPage(
+            $this->userId,
+            5,
+            $offset,
+            $this->hasFilter ? $this->filter : null
+        );
     }
 
     public function setPage(int $page): void
@@ -199,15 +163,6 @@ class TeacherDashboardPresenter
 
     public function getResourceLabels(): array
     {
-        $query = "SELECT DISTINCT resources.label
-        From course_slots 
-        Left Join resources ON course_slots.resource_id = resources.id
-        WHERE course_slots.teacher_id=" . $this->userId;
-        $result = $this->db->select($query);
-        $labels = [];
-        foreach ($result as $row) {
-            $labels[] = $row['label'];
-        }
-        return $labels;
+        return $this->teacherModel->getTeacherResourceLabels($this->userId);
     }
 }

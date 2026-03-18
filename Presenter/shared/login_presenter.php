@@ -14,7 +14,7 @@ declare(strict_types=1);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
 
 // Login form processing
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_POST['password'])) {
@@ -39,10 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
             if (!$db->testConnection()) {
                 $errors[] = 'Impossible de se connecter à la base de données.';
             } else {
-                $query = "SELECT id, email, password_hash, first_name, last_name, role::text as role
-                        FROM users WHERE email = :email";
-
-                $user = $db->selectOne($query, [':email' => strtolower($email)]);
+                $userModel = new UserModel($db);
+                $user = $userModel->getUserByEmail(strtolower($email));
 
                 if ($user && password_verify($password, $user['password_hash'])) {
                     // Login successful

@@ -12,7 +12,7 @@ declare(strict_types=1);
  */
 
 header('Content-Type: application/json');
-require_once __DIR__ . '/../../../Model/database.php';
+require_once __DIR__ . '/../../../Model/ImportModel.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
@@ -29,13 +29,7 @@ if (empty($importId)) {
 }
 
 try {
-    $db = Database::getInstance();
-
-    $sql = "SELECT id, status, total_rows, processed_rows, message, updated_at 
-            FROM import_jobs 
-            WHERE id = :id";
-
-    $job = $db->selectOne($sql, [':id' => $importId]);
+    $job = (new ImportModel())->getJobStatus($importId);
 
     if (!$job) {
         http_response_code(404);

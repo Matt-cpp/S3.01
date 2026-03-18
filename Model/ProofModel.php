@@ -1188,4 +1188,367 @@ class ProofModel
             return [];
         }
     }
+
+    /**
+     * Return only file_path and proof_files for a proof (used by view_upload_proof.php).
+     */
+    public function getProofFilePaths(int $proofId): ?array
+    {
+        $sql = "SELECT file_path, proof_files FROM proof WHERE id = :id LIMIT 1";
+        try {
+            return $this->db->selectOne($sql, ['id' => $proofId]) ?: null;
+        } catch (Exception $e) {
+            error_log('Error getProofFilePaths: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Return lightweight proof data needed for the update/status check (proof_update.php).
+     */
+    public function getProofForUpdate(int $proofId): ?array
+    {
+        $sql = "SELECT id, student_identifier, file_path, proof_files, status
+                FROM proof WHERE id = :proof_id";
+        try {
+            return $this->db->selectOne($sql, ['proof_id' => $proofId]) ?: null;
+        } catch (Exception $e) {
+            error_log('Error getProofForUpdate: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Return full proof data for the student edit form (get_proof_for_edit.php).
+     */
+    public function getProofForEdit(int $proofId): ?array
+    {
+        $sql = "SELECT p.id, p.student_identifier,
+                       p.absence_start_date, p.absence_end_date,
+                       p.main_reason, p.custom_reason, p.status,
+                       p.student_comment, p.manager_comment,
+                       p.file_path, p.proof_files, p.concerned_courses
+                FROM proof p
+                WHERE p.id = :proof_id";
+        try {
+            return $this->db->selectOne($sql, ['proof_id' => $proofId]) ?: null;
+        } catch (Exception $e) {
+            error_log('Error getProofForEdit: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Retrieve a student's proofs with aggregated absence/hour/half-day stats and optional filters.
+     * Supports status, reason, has_exam, start_date, end_date filters.
+     * Used by proofs_presenter.php::getProofs().
+     */
+    public function getStudentProofsFiltered(string $studentIdentifier, array $filters = []): array
+    {
+        $query = "
+            SELECT
+                p.id as proof_id,
+                p.absence_start_date,
+                p.absence_end_date,
+                p.main_reason,
+                p.custom_reason,
+                p.student_comment,
+                p.submission_date,
+                p.processing_date,
+                p.status,
+                p.manager_comment,
+                p.file_path,
+                p.proof_files,
+                COUNT(DISTINCT pa.absence_id) as absence_count,
+                SUM(cs.duration_minutes) as total_duration_minutes,
+                MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) as has_exam,
+                COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:30:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+                MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
+                MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
+            FROM proof p
+            LEFT JOIN proof_absences pa ON p.id = pa.proof_id
+            LEFT JOIN absences a ON pa.absence_id = a.id
+            LEFT JOIN course_slots cs ON a.course_slot_id = cs.id
+            WHERE p.student_identifier = :student_id
+        ";
+
+        $params = [':student_id' => $studentIdentifier];
+
+        if (!empty($filters['start_date'])) {
+            $query .= " AND p.absence_start_date >= :start_date";
+            $params[':start_date'] = $filters['start_date'];
+        }
+
+        if (!empty($filters['end_date'])) {
+            $query .= " AND p.absence_end_date <= :end_date";
+            $params[':end_date'] = $filters['end_date'];
+        }
+
+        $query .= " GROUP BY p.id";
+
+        if (!empty($filters['status'])) {
+            $query .= " HAVING p.status = :status";
+            $params[':status'] = $filters['status'];
+        }
+
+        if (!empty($filters['reason'])) {
+            $query .= (strpos($query, 'HAVING') !== false ? ' AND' : ' HAVING') . " p.main_reason = :reason";
+            $params[':reason'] = $filters['reason'];
+        }
+
+        if (!empty($filters['has_exam'])) {
+            $examCond = $filters['has_exam'] === 'yes'
+                ? " MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) = 1"
+                : " MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) = 0";
+            $query .= (strpos($query, 'HAVING') !== false ? ' AND' : ' HAVING') . $examCond;
+        }
+
+        $query .= "
+            ORDER BY
+                CASE
+                    WHEN p.status = 'under_review' THEN 1
+                    WHEN p.status = 'pending'      THEN 2
+                    WHEN p.status = 'rejected'     THEN 3
+                    WHEN p.status = 'accepted'     THEN 4
+                    ELSE 5
+                END,
+                p.submission_date DESC
+        ";
+
+        try {
+            return $this->db->select($query, $params);
+        } catch (Exception $e) {
+            error_log('Error getStudentProofsFiltered: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Return the course slot data for each absence in a proof (for half-day calculation).
+     * Used by proofs_presenter.php::calculateHalfDaysForProof().
+     */
+    public function getAbsenceSlotsForProof(int $proofId): array
+    {
+        $sql = "
+            SELECT
+                cs.course_date,
+                cs.start_time,
+                cs.end_time,
+                cs.duration_minutes
+            FROM proof_absences pa
+            JOIN absences a ON pa.absence_id = a.id
+            JOIN course_slots cs ON a.course_slot_id = cs.id
+            WHERE pa.proof_id = :proof_id
+        ";
+        try {
+            return $this->db->select($sql, ['proof_id' => $proofId]);
+        } catch (Exception $e) {
+            error_log('Error getAbsenceSlotsForProof: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Retrieve proofs for a student filtered by a specific status with full aggregated stats.
+     * Used by get_info.php::getProofsByCategory() (four calls: under_review, pending, accepted, rejected).
+     */
+    public function getStudentProofsByStatus(string $studentIdentifier, string $status): array
+    {
+        $includeResource = in_array($status, ['accepted', 'rejected'], true);
+        $includeManagerComment = in_array($status, ['under_review', 'rejected'], true);
+        $includeProcessingDate = in_array($status, ['accepted', 'rejected'], true);
+
+        $selectExtra = '';
+        if ($includeResource) {
+            $selectExtra .= ",\n                STRING_AGG(DISTINCT r.code, ', ') as course_codes,
+                STRING_AGG(DISTINCT r.label, ' | ') as course_names";
+        }
+        if ($includeManagerComment) {
+            $selectExtra .= ",\n                p.manager_comment";
+        }
+        if ($includeProcessingDate) {
+            $selectExtra .= ",\n                p.processing_date";
+        }
+
+        $groupExtra = '';
+        if ($includeManagerComment) {
+            $groupExtra .= ', p.manager_comment';
+        }
+        if ($includeProcessingDate) {
+            $groupExtra .= ', p.processing_date';
+        }
+
+        $joinExtra = $includeResource
+            ? "\n        LEFT JOIN resources r ON r.id = cs.resource_id"
+            : '';
+
+        $orderBy = $includeProcessingDate ? 'p.processing_date DESC' : 'p.submission_date DESC';
+
+        $sql = "
+            SELECT
+                p.id as proof_id,
+                p.absence_start_date,
+                p.absence_end_date,
+                p.main_reason,
+                p.custom_reason,
+                p.student_comment,
+                p.submission_date,
+                p.proof_files,
+                COUNT(DISTINCT pa.absence_id) as nb_absences,
+                COALESCE(SUM(cs.duration_minutes) / 60.0, 0) as total_hours_missed,
+                BOOL_OR(cs.is_evaluation) as has_exam,
+                COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:30:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
+                MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
+                MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
+                {$selectExtra}
+            FROM proof p
+            LEFT JOIN proof_absences pa ON pa.proof_id = p.id
+            LEFT JOIN absences a ON a.id = pa.absence_id
+            LEFT JOIN course_slots cs ON cs.id = a.course_slot_id
+            {$joinExtra}
+            WHERE p.student_identifier = :student_id
+              AND p.status = :status
+            GROUP BY p.id, p.absence_start_date, p.absence_end_date, p.main_reason,
+                     p.custom_reason, p.submission_date, p.proof_files{$groupExtra}
+            ORDER BY {$orderBy}
+        ";
+
+        try {
+            return $this->db->select($sql, [
+                'student_id' => $studentIdentifier,
+                'status' => $status,
+            ]);
+        } catch (Exception $e) {
+            error_log('Error getStudentProofsByStatus: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Update proof fields after a student edit and set it back to pending review.
+     */
+    public function updateProofAfterStudentEdit(
+        int $proofId,
+        string $mainReason,
+        ?string $customReason,
+        string $proofFilesJson,
+        string $studentComment,
+        string $concernedCourses
+    ): bool {
+        $sql = "
+            UPDATE proof
+            SET
+                main_reason = :main_reason,
+                custom_reason = :custom_reason,
+                proof_files = :proof_files::jsonb,
+                student_comment = :student_comment,
+                concerned_courses = :concerned_courses,
+                status = 'pending',
+                processing_date = NULL,
+                manager_comment = NULL,
+                updated_at = NOW()
+            WHERE id = :proof_id
+        ";
+
+        try {
+            $affected = $this->db->execute($sql, [
+                'main_reason' => $mainReason,
+                'custom_reason' => $customReason,
+                'proof_files' => $proofFilesJson,
+                'student_comment' => $studentComment,
+                'concerned_courses' => $concernedCourses,
+                'proof_id' => $proofId,
+            ]);
+            return $affected > 0;
+        } catch (Exception $e) {
+            error_log('Error updateProofAfterStudentEdit: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Reset absences linked to a proof back to unjustified absent state.
+     */
+    public function resetLinkedAbsencesToUnjustified(int $proofId): bool
+    {
+        $sql = "
+            UPDATE absences a
+            SET
+                justified = FALSE,
+                status = 'absent',
+                updated_at = NOW()
+            FROM proof_absences pa
+            WHERE pa.proof_id = :proof_id
+              AND a.id = pa.absence_id
+        ";
+
+        try {
+            $this->db->execute($sql, ['proof_id' => $proofId]);
+            return true;
+        } catch (Exception $e) {
+            error_log('Error resetLinkedAbsencesToUnjustified: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Create a pending proof and link it to all provided absence IDs in one transaction.
+     * Returns the created proof ID.
+     */
+    public function createPendingProofWithAbsences(array $proofData, array $absenceIds): int
+    {
+        $this->db->beginTransaction();
+        try {
+            $sqlInsert = "
+                INSERT INTO proof (
+                    student_identifier,
+                    absence_start_date,
+                    absence_end_date,
+                    concerned_courses,
+                    main_reason,
+                    custom_reason,
+                    file_path,
+                    proof_files,
+                    student_comment,
+                    status,
+                    submission_date
+                )
+                VALUES (
+                    :student_identifier,
+                    :absence_start_date,
+                    :absence_end_date,
+                    :concerned_courses,
+                    :main_reason,
+                    :custom_reason,
+                    :file_path,
+                    CAST(:proof_files AS jsonb),
+                    :student_comment,
+                    'pending',
+                    :submission_date
+                )
+            ";
+
+            $this->db->execute($sqlInsert, $proofData);
+            $proofId = (int) $this->db->lastInsertId();
+            if ($proofId <= 0) {
+                throw new Exception('Unable to create proof record');
+            }
+
+            $sqlAssoc = "INSERT INTO proof_absences (proof_id, absence_id)
+                         VALUES (:proof_id, :absence_id)";
+            foreach ($absenceIds as $absenceId) {
+                $this->db->execute($sqlAssoc, [
+                    'proof_id' => $proofId,
+                    'absence_id' => (int) $absenceId,
+                ]);
+            }
+
+            $this->db->commit();
+            return $proofId;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log('Error createPendingProofWithAbsences: ' . $e->getMessage());
+            throw $e;
+        }
+    }
 }

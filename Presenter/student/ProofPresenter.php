@@ -20,16 +20,19 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/../../Model/ProofModel.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
 require_once __DIR__ . '/../../Model/email.php';
 
 class ProofPresenter
 {
     private ProofModel $model;
+    private UserModel $userModel;
     private EmailService $emailService;
 
     public function __construct()
     {
         $this->model = new ProofModel();
+        $this->userModel = new UserModel();
         $this->emailService = new EmailService();
     }
 
@@ -493,15 +496,8 @@ class ProofPresenter
      */
     private function getStudentEmail(string $studentIdentifier): ?string
     {
-        require_once __DIR__ . '/../../Model/database.php';
-        $db = getDatabase();
-
         try {
-            $result = $db->selectOne(
-                "SELECT email FROM users WHERE LOWER(identifier) = LOWER(:identifier)",
-                ['identifier' => $studentIdentifier]
-            );
-            return $result ? $result['email'] : null;
+            return $this->userModel->getEmailByIdentifier($studentIdentifier);
         } catch (Exception $e) {
             error_log("Error fetching student email: " . $e->getMessage());
             return null;

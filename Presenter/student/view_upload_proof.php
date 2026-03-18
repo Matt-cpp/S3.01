@@ -17,7 +17,7 @@ declare(strict_types=1);
  */
 
 session_start();
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/ProofModel.php';
 
 // Utility function to return an HTTP error
 function http_err(int $code, string $msg): void
@@ -26,15 +26,6 @@ function http_err(int $code, string $msg): void
     echo $msg;
     exit;
 }
-function getDb()
-{
-    if (class_exists('Database'))
-        return Database::getInstance();
-    if (function_exists('getDatabase'))
-        return getDatabase();
-    return null;
-}
-
 // Request parameters (debug, raw mode, proof_id, file_index)
 $debug = isset($_GET['debug']) ? (int) $_GET['debug'] : 0;
 $rawMode = isset($_GET['raw']) ? (int) $_GET['raw'] : 0;
@@ -64,11 +55,7 @@ $clientName = null;
 
 if ($proofId > 0) {
     // Read by ID mode
-    $db = getDb();
-    if (!$db)
-        http_err(500, 'Database unavailable.');
-
-    $row = $db->selectOne('SELECT file_path, proof_files FROM proof WHERE id = :id LIMIT 1', ['id' => $proofId]);
+    $row = (new ProofModel())->getProofFilePaths($proofId);
     if (!$row) {
         http_err(404, 'Proof not found.');
     }

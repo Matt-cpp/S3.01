@@ -35,13 +35,16 @@ ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
 require_once __DIR__ . '/../../../Model/database.php';
+require_once __DIR__ . '/../../../Model/ImportModel.php';
+require_once __DIR__ . '/../../../Model/CsvImportModel.php';
 require_once __DIR__ . '/../../secretary/dashboard-presenter.php';
 
 try {
-    $db = Database::getInstance();
+    $importModel = new ImportModel();
+    $csvImportModel = new CsvImportModel();
 
     // Update job status to processing
-    updateJobStatus($db, $importId, 'processing', 0, 'Démarrage du traitement...');
+    updateJobStatus($importModel, $importId, 'processing', 0, 'Démarrage du traitement...');
 
     // Count total rows
     $handle = fopen($filepath, 'r');
@@ -53,16 +56,13 @@ try {
     fclose($handle);
 
     // Update total
-    $db->execute(
-        "UPDATE import_jobs SET total_rows = :total WHERE id = :id",
-        [':total' => $totalRows, ':id' => $importId]
-    );
+    $importModel->updateTotalRows($importId, $totalRows);
 
     // Process the CSV file using DataExtractor
-    processCSVWithExtractor($db, $importId, $filepath, $totalRows);
+    processCSVWithExtractor($importModel, $csvImportModel, $importId, $filepath, $totalRows);
 
     // Update job status to completed
-    updateJobStatus($db, $importId, 'completed', $totalRows, 'Import terminé avec succès');
+    updateJobStatus($importModel, $importId, 'completed', $totalRows, 'Import terminé avec succès');
 
     // Log to history
     $presenter = new DashboardSecretaryPresenter();
@@ -74,8 +74,8 @@ try {
 } catch (Exception $e) {
     error_log("Import error: " . $e->getMessage());
 
-    if (isset($db) && isset($importId)) {
-        updateJobStatus($db, $importId, 'error', null, 'Erreur: ' . $e->getMessage());
+    if (isset($importModel) && isset($importId)) {
+        updateJobStatus($importModel, $importId, 'error', null, 'Erreur: ' . $e->getMessage());
     }
 
     // Log error to history
@@ -94,43 +94,12 @@ try {
  * Update job status using a separate connection to bypass any active transactions.
  * This ensures progress updates are immediately visible.
  */
-function updateJobStatus(Database $db, string $importId, string $status, ?int $processedRows = null, ?string $message = null): void
+function updateJobStatus(ImportModel $importModel, string $importId, string $status, ?int $processedRows = null, ?string $message = null): void
 {
-    $updates = ["status = :status", "updated_at = NOW()"];
-    $params = [':id' => $importId, ':status' => $status];
-
-    if ($processedRows !== null) {
-        $updates[] = "processed_rows = :processed_rows";
-        $params[':processed_rows'] = $processedRows;
-    }
-
-    if ($message !== null) {
-        $updates[] = "message = :message";
-        $params[':message'] = $message;
-    }
-
-    $sql = "UPDATE import_jobs SET " . implode(', ', $updates) . " WHERE id = :id";
-
-    // Use a separate PDO connection to bypass the main transaction.
-    // This ensures progress updates are immediately committed and visible.
-    static $progressPdo = null;
-    if ($progressPdo === null) {
-        require_once __DIR__ . '/../../../Model/env.php';
-        $host = env('DB_HOST', 'localhost');
-        $port = env('DB_PORT', '5432');
-        $dbname = env('DB_NAME', 'database');
-        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};options='--client_encoding=UTF8'";
-        $progressPdo = new PDO($dsn, env('DB_USER', 'user'), env('DB_PASSWORD', ''), [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]);
-    }
-
-    $stmt = $progressPdo->prepare($sql);
-    $stmt->execute($params);
+    $importModel->updateJobStatusImmediate($importId, $status, $processedRows, $message);
 }
 
-function processCSVWithExtractor(Database $db, string $importId, string $filepath, int $totalRows): void
+function processCSVWithExtractor(ImportModel $importModel, CsvImportModel $csvImportModel, string $importId, string $filepath, int $totalRows): void
 {
     $handle = fopen($filepath, 'r');
     if (!$handle) {
@@ -153,6 +122,7 @@ function processCSVWithExtractor(Database $db, string $importId, string $filepat
     $errorCount = 0;
 
     // Start transaction for the entire import
+    $db = getDatabase();
     $db->beginTransaction();
 
     try {
@@ -166,13 +136,13 @@ function processCSVWithExtractor(Database $db, string $importId, string $filepat
 
             try {
                 // Process using the same logic as extract_datas.php
-                processRowFromExtractor($db, $data);
+                processRowFromExtractor($csvImportModel, $data);
                 $processedCount++;
 
                 // Update progress every 2 rows
                 if ($processedCount % 2 === 0 || $processedCount === $totalRows) {
                     $message = "Traitement en cours: $processedCount/$totalRows lignes";
-                    updateJobStatus($db, $importId, 'processing', $processedCount, $message);
+                    updateJobStatus($importModel, $importId, 'processing', $processedCount, $message);
                 }
             } catch (Exception $e) {
                 error_log("Error processing row: " . $e->getMessage());
@@ -198,7 +168,7 @@ function processCSVWithExtractor(Database $db, string $importId, string $filepat
  * Process a single row using the same logic as DataExtractor.
  * This is a simplified version adapted from extract_datas.php.
  */
-function processRowFromExtractor(Database $db, array $data): void
+function processRowFromExtractor(CsvImportModel $csvImportModel, array $data): void
 {
     // Skip if no identifier
     if (!isset($data['Identifiant']) || empty(trim($data['Identifiant']))) {
@@ -208,79 +178,69 @@ function processRowFromExtractor(Database $db, array $data): void
     $identifier = trim($data['Identifiant']);
 
     // Process user
-    $userId = processUser($db, $data, $identifier);
+    $userId = processUser($csvImportModel, $data, $identifier);
 
     // Process group
     $groupId = null;
     if (!empty($data['Groupes'] ?? '')) {
-        $groupId = processGroup($db, $data);
-        linkUserToGroup($db, $userId, $groupId);
+        $groupId = processGroup($csvImportModel, $data);
+        linkUserToGroup($csvImportModel, $userId, $groupId);
     }
 
     // Process resource
     $resourceId = null;
     if (!empty($data['Identifiant matière'] ?? '')) {
-        $resourceId = processResource($db, $data);
+        $resourceId = processResource($csvImportModel, $data);
     }
 
     // Process room
     $roomId = null;
     if (!empty($data['Salles'] ?? '')) {
-        $roomId = processRoom($db, $data);
+        $roomId = processRoom($csvImportModel, $data);
     }
 
     // Process teacher
     $teacherId = null;
     if (!empty($data['Profs'] ?? '')) {
-        $teacherId = processTeacher($db, $data);
+        $teacherId = processTeacher($csvImportModel, $data);
     }
 
     // Process course slot
     $courseSlotId = null;
     if ($resourceId && !empty($data['Date'] ?? '')) {
-        $courseSlotId = processCourseSlot($db, $data, $resourceId, $roomId, $teacherId, $groupId);
+        $courseSlotId = processCourseSlot($csvImportModel, $data, $resourceId, $roomId, $teacherId, $groupId);
     }
 
     // Process absence if present
     if ($courseSlotId && isset($data['Absent/Présent']) && $data['Absent/Présent'] === 'Absence') {
-        processAbsence($db, $data, $identifier, $courseSlotId);
+        processAbsence($csvImportModel, $data, $identifier, $courseSlotId);
     }
 }
 
 // Helper functions adapted from extract_datas.php
-function processUser(Database $db, array $data, string $identifier): int
+function processUser(CsvImportModel $csvImportModel, array $data, string $identifier): int
 {
-    $existing = $db->selectOne(
-        "SELECT id FROM users WHERE identifier = :identifier",
-        [':identifier' => $identifier]
-    );
-
-    if ($existing) {
-        return $existing['id'];
+    $existing = $csvImportModel->getUserIdByIdentifier($identifier);
+    if ($existing !== null) {
+        return $existing;
     }
 
     $birthDate = parseDate($data['Date de naissance'] ?? '');
     $lastName = trim($data['Nom'] ?? 'User_' . $identifier);
     $firstName = trim($data['Prénom'] ?? 'Unknown');
 
-    $sql = "INSERT INTO users (identifier, last_name, first_name, middle_name, birth_date, degrees, department, role) 
-            VALUES (:identifier, :last_name, :first_name, :middle_name, :birth_date, :degrees, :department, 'student') 
-            RETURNING id";
-
-    $result = $db->selectOne($sql, [
-        ':identifier' => $identifier,
-        ':last_name' => $lastName,
-        ':first_name' => $firstName,
-        ':middle_name' => !empty($data['Prénom 2']) ? trim($data['Prénom 2']) : null,
-        ':birth_date' => $birthDate,
-        ':degrees' => !empty($data['Diplômes']) ? trim($data['Diplômes']) : null,
-        ':department' => !empty($data['Composante']) ? trim($data['Composante']) : null
+    return $csvImportModel->createUser([
+        'identifier' => $identifier,
+        'last_name' => $lastName,
+        'first_name' => $firstName,
+        'middle_name' => !empty($data['Prénom 2']) ? trim($data['Prénom 2']) : null,
+        'birth_date' => $birthDate,
+        'degrees' => !empty($data['Diplômes']) ? trim($data['Diplômes']) : null,
+        'department' => !empty($data['Composante']) ? trim($data['Composante']) : null,
     ]);
-
-    return $result['id'];
 }
 
-function processGroup(Database $db, array $data): ?int
+function processGroup(CsvImportModel $csvImportModel, array $data): ?int
 {
     $groupCode = trim($data['Groupes'] ?? '');
 
@@ -288,13 +248,9 @@ function processGroup(Database $db, array $data): ?int
         return null;
     }
 
-    $existing = $db->selectOne(
-        "SELECT id FROM groups WHERE code = :code",
-        [':code' => $groupCode]
-    );
-
-    if ($existing) {
-        return $existing['id'];
+    $existing = $csvImportModel->getGroupIdByCode($groupCode);
+    if ($existing !== null) {
+        return $existing;
     }
 
     $year = null;
@@ -304,21 +260,10 @@ function processGroup(Database $db, array $data): ?int
 
     $program = (strpos($groupCode, 'INFO') !== false) ? 'Informatique' : 'Unknown';
 
-    $sql = "INSERT INTO groups (code, label, program, year) 
-            VALUES (:code, :label, :program, :year) 
-            RETURNING id";
-
-    $result = $db->selectOne($sql, [
-        ':code' => $groupCode,
-        ':label' => $groupCode,
-        ':program' => $program,
-        ':year' => $year
-    ]);
-
-    return $result['id'];
+    return $csvImportModel->createGroup($groupCode, $groupCode, $program, $year);
 }
 
-function processResource(Database $db, array $data): ?int
+function processResource(CsvImportModel $csvImportModel, array $data): ?int
 {
     $resourceCode = trim($data['Identifiant matière'] ?? '');
 
@@ -326,32 +271,18 @@ function processResource(Database $db, array $data): ?int
         return null;
     }
 
-    $existing = $db->selectOne(
-        "SELECT id FROM resources WHERE code = :code",
-        [':code' => $resourceCode]
-    );
-
-    if ($existing) {
-        return $existing['id'];
+    $existing = $csvImportModel->getResourceIdByCode($resourceCode);
+    if ($existing !== null) {
+        return $existing;
     }
 
     $courseType = mapCourseType(trim($data['Type'] ?? ''));
     $label = trim($data['Matière'] ?? $resourceCode);
 
-    $sql = "INSERT INTO resources (code, label, teaching_type) 
-            VALUES (:code, :label, :teaching_type) 
-            RETURNING id";
-
-    $result = $db->selectOne($sql, [
-        ':code' => $resourceCode,
-        ':label' => $label,
-        ':teaching_type' => $courseType
-    ]);
-
-    return $result['id'];
+    return $csvImportModel->createResource($resourceCode, $label, $courseType);
 }
 
-function processRoom(Database $db, array $data): ?int
+function processRoom(CsvImportModel $csvImportModel, array $data): ?int
 {
     $roomCode = trim($data['Salles'] ?? '');
 
@@ -359,22 +290,15 @@ function processRoom(Database $db, array $data): ?int
         return null;
     }
 
-    $existing = $db->selectOne(
-        "SELECT id FROM rooms WHERE code = :code",
-        [':code' => $roomCode]
-    );
-
-    if ($existing) {
-        return $existing['id'];
+    $existing = $csvImportModel->getRoomIdByCode($roomCode);
+    if ($existing !== null) {
+        return $existing;
     }
 
-    $sql = "INSERT INTO rooms (code) VALUES (:code) RETURNING id";
-    $result = $db->selectOne($sql, [':code' => $roomCode]);
-
-    return $result['id'];
+    return $csvImportModel->createRoom($roomCode);
 }
 
-function processTeacher(Database $db, array $data): ?int
+function processTeacher(CsvImportModel $csvImportModel, array $data): ?int
 {
     $teacherName = trim($data['Profs'] ?? '');
 
@@ -382,32 +306,19 @@ function processTeacher(Database $db, array $data): ?int
         return null;
     }
 
-    $existing = $db->selectOne(
-        "SELECT id FROM teachers WHERE CONCAT(last_name, ' ', first_name) = :name",
-        [':name' => $teacherName]
-    );
-
-    if ($existing) {
-        return $existing['id'];
+    $existing = $csvImportModel->getTeacherIdByFullName($teacherName);
+    if ($existing !== null) {
+        return $existing;
     }
 
     $nameParts = explode(' ', $teacherName);
     $lastName = $nameParts[0];
     $firstName = isset($nameParts[1]) ? $nameParts[1] : '';
 
-    $sql = "INSERT INTO teachers (last_name, first_name) 
-            VALUES (:last_name, :first_name) 
-            RETURNING id";
-
-    $result = $db->selectOne($sql, [
-        ':last_name' => $lastName,
-        ':first_name' => $firstName
-    ]);
-
-    return $result['id'];
+    return $csvImportModel->createTeacher($lastName, $firstName);
 }
 
-function processCourseSlot(Database $db, array $data, ?int $resourceId, ?int $roomId, ?int $teacherId, ?int $groupId): ?int
+function processCourseSlot(CsvImportModel $csvImportModel, array $data, ?int $resourceId, ?int $roomId, ?int $teacherId, ?int $groupId): ?int
 {
     $courseDate = parseDate($data['Date'] ?? '', 'd/m/Y');
     $startTime = parseTime($data['Heure'] ?? '');
@@ -427,50 +338,35 @@ function processCourseSlot(Database $db, array $data, ?int $resourceId, ?int $ro
     $isEvaluation = (!empty($controleValue) && $controleValue === 'Oui');
 
     // Check if exists
-    $existing = $db->selectOne(
-        "SELECT id FROM course_slots 
-         WHERE course_date = :date AND start_time = :start_time AND end_time = :end_time 
-         AND resource_id = :resource_id AND room_id = :room_id AND teacher_id = :teacher_id AND group_id = :group_id",
-        [
-            ':date' => $courseDate,
-            ':start_time' => $startTime,
-            ':end_time' => $endDateTime->format('H:i:s'),
-            ':resource_id' => $resourceId,
-            ':room_id' => $roomId,
-            ':teacher_id' => $teacherId,
-            ':group_id' => $groupId
-        ]
+    $existing = $csvImportModel->findMatchingCourseSlot(
+        $courseDate,
+        $startTime,
+        $endDateTime->format('H:i:s'),
+        $resourceId,
+        $roomId,
+        $teacherId,
+        $groupId
     );
-
-    if ($existing) {
-        return $existing['id'];
+    if ($existing !== null) {
+        return $existing;
     }
 
-    $sql = "INSERT INTO course_slots 
-            (course_date, start_time, end_time, duration_minutes, course_type, 
-             resource_id, room_id, teacher_id, group_id, is_evaluation, subject_identifier) 
-            VALUES (:date, :start_time, :end_time, :duration, :course_type, 
-                    :resource_id, :room_id, :teacher_id, :group_id, :is_evaluation, :subject_identifier)
-            RETURNING id";
-
-    $result = $db->selectOne($sql, [
-        ':date' => $courseDate,
-        ':start_time' => $startTime,
-        ':end_time' => $endDateTime->format('H:i:s'),
-        ':duration' => $durationMinutes,
-        ':course_type' => $courseType,
-        ':resource_id' => $resourceId,
-        ':room_id' => $roomId,
-        ':teacher_id' => $teacherId,
-        ':group_id' => $groupId,
-        ':is_evaluation' => $isEvaluation ? 'true' : 'false',
-        ':subject_identifier' => trim($data['Identifiant matière'] ?? '')
+    return $csvImportModel->createCourseSlot([
+        'course_date' => $courseDate,
+        'start_time' => $startTime,
+        'end_time' => $endDateTime->format('H:i:s'),
+        'duration_minutes' => $durationMinutes,
+        'course_type' => $courseType,
+        'resource_id' => $resourceId,
+        'room_id' => $roomId,
+        'teacher_id' => $teacherId,
+        'group_id' => $groupId,
+        'is_evaluation' => $isEvaluation,
+        'subject_identifier' => trim($data['Identifiant matière'] ?? ''),
     ]);
-
-    return $result['id'];
 }
 
-function processAbsence(Database $db, array $data, string $studentIdentifier, ?int $courseSlotId): void
+function processAbsence(CsvImportModel $csvImportModel, array $data, string $studentIdentifier, ?int $courseSlotId): void
 {
     if (!$courseSlotId) {
         return;
@@ -484,43 +380,24 @@ function processAbsence(Database $db, array $data, string $studentIdentifier, ?i
         $status = 'excused';
     }
 
-    $existing = $db->selectOne(
-        "SELECT id FROM absences WHERE student_identifier = :id AND course_slot_id = :slot",
-        [':id' => $studentIdentifier, ':slot' => $courseSlotId]
-    );
-
-    if ($existing) {
+    if ($csvImportModel->absenceExists($studentIdentifier, $courseSlotId)) {
         return;
     }
 
-    $sql = "INSERT INTO absences (student_identifier, course_slot_id, status, justified) 
-            VALUES (:student_identifier, :course_slot_id, :status, :justified)";
-
-    $db->execute($sql, [
-        ':student_identifier' => $studentIdentifier,
-        ':course_slot_id' => $courseSlotId,
-        ':status' => $status,
-        ':justified' => $justified ? 'true' : 'false'
-    ]);
+    $csvImportModel->createAbsence($studentIdentifier, $courseSlotId, $status, $justified);
 }
 
-function linkUserToGroup(Database $db, ?int $userId, ?int $groupId): void
+function linkUserToGroup(CsvImportModel $csvImportModel, ?int $userId, ?int $groupId): void
 {
     if (!$userId || !$groupId) {
         return;
     }
 
-    $existing = $db->selectOne(
-        "SELECT 1 FROM user_groups WHERE user_id = :user_id AND group_id = :group_id",
-        [':user_id' => $userId, ':group_id' => $groupId]
-    );
-
-    if ($existing) {
+    if ($csvImportModel->userGroupLinkExists($userId, $groupId)) {
         return;
     }
 
-    $sql = "INSERT INTO user_groups (user_id, group_id) VALUES (:user_id, :group_id)";
-    $db->execute($sql, [':user_id' => $userId, ':group_id' => $groupId]);
+    $csvImportModel->linkUserToGroup($userId, $groupId);
 }
 
 // Parsing helper functions

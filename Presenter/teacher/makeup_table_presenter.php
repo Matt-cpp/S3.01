@@ -15,41 +15,32 @@ declare(strict_types=1);
 class MakeupTablePresenter
 {
     private int $page;
-    private Database $db;
+    private TeacherDataModel $teacherModel;
     private int $userId;
     private int $pageCount;
 
     public function __construct(int $id)
     {
         $this->page = 0;
-        require_once __DIR__ . '/../../Model/database.php';
-        $this->db = Database::getInstance();
+        require_once __DIR__ . '/../../Model/TeacherDataModel.php';
+        $this->teacherModel = new TeacherDataModel();
         $this->userId = $this->linkTeacherUser($id);
         $this->pageCount = $this->getTotalPages();
     }
 
     private function linkTeacherUser(int $id): int
     {
-        $query = "SELECT teachers.id as id
-        FROM users LEFT JOIN teachers ON teachers.email = users.email
-        WHERE users.id = " . $id;
-        $result = $this->db->select($query);
-        return $result[0]['id'];
+        return (int) ($this->teacherModel->getTeacherIdByUserId($id) ?? 0);
     }
     // Calculate total number of table pages
     public function getTotalPages(): int
     {
         try {
-            $query = "SELECT COUNT(*) as count FROM absences 
-            LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
-            LEFT JOIN makeups ON absences.id = makeups.absence_id
-            WHERE course_slots.teacher_id=" . $this->userId . " AND absences.justified=TRUE 
-            AND course_slots.is_evaluation=true AND makeups.id IS NULL";
-            $result = $this->db->select($query);
-            if (empty($result)) {
+            $total = $this->teacherModel->countPendingMakeups($this->userId);
+            if ($total <= 0) {
                 return 1;
             }
-            return (int) ceil($result[0]['count'] / 5);
+            return (int) ceil($total / 5);
         } catch (Exception $e) {
             return 1;
         }
@@ -75,20 +66,7 @@ class MakeupTablePresenter
     public function getData(int $page): array
     {
         $offset = (int) ($page * 5);
-        $userId = (int) $this->userId;
-
-        $query = "SELECT users.first_name, users.last_name, resources.label, course_slots.course_date, 
-                     course_slots.id as course_slot_id, course_slots.duration_minutes
-    FROM absences 
-    LEFT JOIN course_slots ON absences.course_slot_id = course_slots.id
-    LEFT JOIN users ON absences.student_identifier = users.identifier
-    LEFT JOIN resources ON course_slots.resource_id = resources.id
-    LEFT JOIN makeups ON absences.id = makeups.absence_id
-    WHERE course_slots.teacher_id=" . $this->userId . " AND absences.justified=TRUE 
-    AND course_slots.is_evaluation=true AND makeups.id IS NULL
-    ORDER BY course_slots.course_date DESC
-    LIMIT 5 OFFSET $offset";
-        return $this->db->select($query);
+        return $this->teacherModel->getPendingMakeupsPage($this->userId, 5, $offset);
     }
     public function setPage(int $page): void
     {

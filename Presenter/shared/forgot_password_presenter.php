@@ -14,17 +14,20 @@ declare(strict_types=1);
  */
 
 session_start();
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
+require_once __DIR__ . '/../../Model/EmailVerificationModel.php';
 require_once __DIR__ . '/../../Model/email.php';
 
 class ForgotPasswordController
 {
-    private PDO $pdo;
+    private UserModel $userModel;
+    private EmailVerificationModel $verificationModel;
     private EmailService $emailService;
 
     public function __construct()
     {
-        $this->pdo = getConnection();
+        $this->userModel = new UserModel();
+        $this->verificationModel = new EmailVerificationModel();
         $this->emailService = new EmailService();
     }
 
@@ -35,10 +38,7 @@ class ForgotPasswordController
     {
         try {
             $email = strtolower(trim($email));
-            // Check that the email exists in the database
-            $stmt = $this->pdo->prepare('SELECT id, first_name, last_name FROM users WHERE email = ?');
-            $stmt->execute([$email]);
-            $user = $stmt->fetch();
+            $user = $this->userModel->getUserByEmail($email);
 
             // For security, always return a success message
             // even if the email doesn't exist, to avoid revealing account existence
@@ -50,15 +50,8 @@ class ForgotPasswordController
 
             // Generate a 6-digit verification code
             $verificationCode = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
-
-            // Delete old codes for this email
-            $stmt = $this->pdo->prepare('DELETE FROM email_verifications WHERE email = ?');
-            $stmt->execute([$email]);
-
-            // Insert the new code (expires in 15 minutes)
             $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-            $stmt = $this->pdo->prepare('INSERT INTO email_verifications (email, verification_code, expires_at) VALUES (?, ?, ?)');
-            $stmt->execute([$email, $verificationCode, $expiresAt]);
+            $this->verificationModel->createVerification($email, $verificationCode, $expiresAt);
 
             // Send the email
             $subject = 'Réinitialisation de mot de passe - Gestion Absence UPHF';
@@ -91,16 +84,8 @@ class ForgotPasswordController
     public function verifyResetCode(string $email, string $code): array
     {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT id FROM email_verifications 
-                WHERE email = ? AND verification_code = ? AND expires_at > NOW() AND is_verified = FALSE
-            ");
-            $stmt->execute([$email, $code]);
-
-            if ($stmt->fetch()) {
-                // Mark as verified
-                $stmt = $this->pdo->prepare('UPDATE email_verifications SET is_verified = TRUE WHERE email = ? AND verification_code = ?');
-                $stmt->execute([$email, $code]);
+            if ($this->verificationModel->getValidVerification($email, $code)) {
+                $this->verificationModel->markVerified($email, $code);
                 return ['success' => true, 'message' => 'Code vérifié avec succès.'];
             } else {
                 return ['success' => false, 'message' => 'Code invalide ou expiré.'];
@@ -127,32 +112,14 @@ class ForgotPasswordController
                 return ['success' => false, 'message' => 'Le mot de passe doit contenir au moins 8 caractères.'];
             }
 
-            // Check that the code has been verified and is not expired
-            $stmt = $this->pdo->prepare("
-                SELECT id FROM email_verifications 
-                WHERE email = ? AND is_verified = TRUE AND expires_at > NOW()
-            ");
-            $stmt->execute([$email]);
-            $resetCode = $stmt->fetch();
-
-            if (!$resetCode) {
+            if (!$this->verificationModel->getVerifiedAndActive($email)) {
                 return ['success' => false, 'message' => 'Code non vérifié ou expiré. Veuillez recommencer.'];
             }
 
             // Hash the new password
             $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
-
-            // Update the password in the users table
-            $stmt = $this->pdo->prepare("
-                UPDATE users 
-                SET password_hash = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE email = ?
-            ");
-            $stmt->execute([$passwordHash, $email]);
-
-            // Delete used verification codes
-            $stmt = $this->pdo->prepare('DELETE FROM email_verifications WHERE email = ?');
-            $stmt->execute([$email]);
+            $this->userModel->updatePasswordByEmail($email, $passwordHash);
+            $this->verificationModel->deleteVerifications($email);
             return ['success' => true, 'message' => 'Mot de passe réinitialisé avec succès !'];
         } catch (Exception $e) {
             error_log('Error in resetPassword: ' . $e->getMessage());

@@ -85,7 +85,7 @@ img {
    DESKTOP (> 992px)
    ============================================= */
 
-@media (min-width: 993px) {
+/* @media (min-width: 993px) {
     .overview-section,
     .stats-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -93,7 +93,7 @@ img {
     .filter-grid {
         grid-template-columns: repeat(3, 1fr);
     }
-}
+} */
 
 /* Large tablets / Small desktops (993px - 1200px) - tableau réduit */
 @media (min-width: 993px) and (max-width: 1200px) {

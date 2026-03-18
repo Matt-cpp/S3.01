@@ -20,17 +20,17 @@ class AcademicManagerDashboardPresenter
 {
     private int $page;
     private array $alldata;
-    private Database $db;
+    private AcademicManagerModel $academicManagerModel;
     private ProofModel $proofModel;
 
     public function __construct()
     {
         $this->page = 0;
-        require_once __DIR__ . '/../../Model/database.php';
+        require_once __DIR__ . '/../../Model/AcademicManagerModel.php';
         require_once __DIR__ . '/../../Model/ProofModel.php';
         require_once __DIR__ . '/../../Model/format_ressource.php';
-        $this->db = Database::getInstance();
-        $this->alldata = $this->db->select('SELECT * FROM absences');
+        $this->academicManagerModel = new AcademicManagerModel();
+        $this->alldata = [];
         $this->proofModel = new ProofModel();
     }
 
@@ -39,8 +39,7 @@ class AcademicManagerDashboardPresenter
      */
     public function pendingProofsCount(): int
     {
-        $result = $this->db->select("SELECT COUNT(*) as count FROM proof WHERE status = 'pending'");
-        return (int) $result[0]['count'];
+        return $this->academicManagerModel->countPendingProofs();
     }
 
     /**
@@ -65,22 +64,7 @@ class AcademicManagerDashboardPresenter
     public function getData(int $page): array
     {
         $offset = $page * 5;
-        $query = "SELECT 
-            course_slots.course_date,
-            course_slots.start_time,
-            course_slots.end_time,
-            users.first_name,
-            users.last_name,
-            resources.label,
-            course_slots.course_type,
-            absences.status  
-        FROM absences 
-        LEFT JOIN users ON absences.student_identifier = users.identifier 
-        LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id
-        LEFT JOIN resources ON course_slots.resource_id=resources.id
-        ORDER BY course_slots.course_date DESC, course_slots.start_time DESC, absences.id ASC 
-        LIMIT 5 OFFSET :offset";
-        return $this->db->select($query, ['offset' => $offset]);
+        return $this->academicManagerModel->getAbsencePage(5, $offset);
     }
 
     // Translate status to French (UI text)
@@ -98,8 +82,7 @@ class AcademicManagerDashboardPresenter
     // Returns the total number of pages
     public function getTotalPages(): int
     {
-        $result = $this->db->select("SELECT COUNT(*) as count FROM absences");
-        return (int) ceil($result[0]['count'] / 5);
+        return (int) ceil($this->academicManagerModel->countAllAbsences() / 5);
     }
 
     // Updates the page attribute with bounds checking
@@ -146,23 +129,17 @@ class AcademicManagerDashboardPresenter
     // Statistics
     public function todayAbs(): int
     {
-        $query = "SELECT COUNT(*) as count FROM absences LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id WHERE DATE(course_slots.course_date) = CURRENT_DATE";
-        $result = $this->db->select($query);
-        return (int) $result[0]['count'];
+        return $this->academicManagerModel->countTodayAbsences();
     }
 
     public function unjustifiedAbs(): int
     {
-        $query = "SELECT COUNT(*) as count FROM absences WHERE justified = false";
-        $result = $this->db->select($query);
-        return (int) $result[0]['count'];
+        return $this->academicManagerModel->countUnjustifiedAbsences();
     }
 
     public function thisMonthAbs(): int
     {
-        $query = "SELECT COUNT(*) as count FROM absences LEFT JOIN course_slots ON absences.course_slot_id=course_slots.id WHERE EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM course_slots.course_date) = EXTRACT(MONTH FROM CURRENT_DATE)";
-        $result = $this->db->select($query);
-        return (int) $result[0]['count'];
+        return $this->academicManagerModel->countCurrentMonthAbsences();
     }
 
     // Build table data

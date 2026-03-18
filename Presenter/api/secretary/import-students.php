@@ -18,6 +18,7 @@ declare(strict_types=1);
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../../../Model/database.php';
+require_once __DIR__ . '/../../../Model/UserModel.php';
 require_once __DIR__ . '/../../secretary/dashboard-presenter.php';
 
 try {
@@ -78,6 +79,7 @@ try {
 
     // Get database instance
     $db = Database::getInstance();
+    $userModel = new UserModel($db);
     $presenter = new DashboardSecretaryPresenter();
 
     $createdCount = 0;
@@ -116,10 +118,7 @@ try {
             }
 
             // Check if student already exists
-            $existing = $db->selectOne(
-                "SELECT id FROM users WHERE identifier = :identifier",
-                [':identifier' => $identifier]
-            );
+            $existing = $userModel->studentIdentifierExists($identifier);
 
             if ($existing) {
                 $skippedCount++;
@@ -127,15 +126,9 @@ try {
             }
             $email = strtolower($email);
             // Insert new student
-            $sql = "INSERT INTO users (identifier, last_name, first_name, email, role, created_at) 
-                    VALUES (:identifier, :last_name, :first_name, :email, 'student', NOW())";
-
-            $db->execute($sql, [
-                ':identifier' => $identifier,
-                ':last_name' => $lastName,
-                ':first_name' => $firstName,
-                ':email' => $email
-            ]);
+            if (!$userModel->createStudent($identifier, $lastName, $firstName, $email)) {
+                throw new Exception("Impossible de créer l'étudiant {$identifier}");
+            }
 
             $createdCount++;
         }

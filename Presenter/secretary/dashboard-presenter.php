@@ -15,98 +15,68 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
+require_once __DIR__ . '/../../Model/ResourceModel.php';
+require_once __DIR__ . '/../../Model/ImportModel.php';
+require_once __DIR__ . '/../../Model/AbsenceModel.php';
 
 class DashboardSecretaryPresenter
 {
     private Database $db;
+    private UserModel $userModel;
+    private ResourceModel $resourceModel;
+    private ImportModel $importModel;
+    private AbsenceModel $absenceModel;
 
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->userModel = new UserModel($this->db);
+        $this->resourceModel = new ResourceModel();
+        $this->importModel = new ImportModel();
+        $this->absenceModel = new AbsenceModel();
     }
 
     // Retrieves the list of students matching a search query by name or identifier
     public function searchStudents(string $query): array
     {
-        $sql = "SELECT id, identifier, first_name, last_name, email 
-                FROM users 
-                WHERE role = 'student' 
-                AND (first_name ILIKE :query OR last_name ILIKE :query OR identifier ILIKE :query)
-                ORDER BY last_name, first_name
-                LIMIT 20";
-
-        return $this->db->select($sql, [':query' => "%$query%"]);
+        return $this->userModel->searchStudents($query);
     }
 
     // Retrieves the list of resources matching a search query by code or label
     public function searchResources(string $query): array
     {
-        $sql = "SELECT id, code, label, teaching_type 
-                FROM resources 
-                WHERE code ILIKE :query OR label ILIKE :query
-                ORDER BY label
-                LIMIT 20";
-
-        return $this->db->select($sql, [':query' => "%$query%"]);
+        return $this->resourceModel->searchResources($query);
     }
 
     // Retrieves the list of rooms matching a search query by name
     public function searchRooms(string $query): array
     {
-        $sql = "SELECT id, code 
-                FROM rooms 
-                WHERE code ILIKE :query
-                ORDER BY code
-                LIMIT 20";
-
-        return $this->db->select($sql, [':query' => "%$query%"]);
+        return $this->resourceModel->searchRooms($query);
     }
 
     // Creates a new resource in the database
     public function createResource(string $code): array
     {
-        // Check if the resource already exists
-        $existing = $this->db->selectOne(
-            "SELECT id FROM resources WHERE code = :code",
-            [':code' => $code]
-        );
-
-        if ($existing) {
+        if ($this->resourceModel->resourceExists($code)) {
             throw new Exception("Une matière avec ce code existe déjà");
         }
 
-        $sql = "INSERT INTO resources (code, label) 
-                VALUES (:code, :label) 
-                RETURNING id, code, label, teaching_type";
-
-        $result = $this->db->selectOne($sql, [
-            ':code' => $code,
-            ':label' => $code  // Use the code as label
-        ]);
-
-        return $result;
+        $this->resourceModel->createResource($code, $code);
+        $resources = $this->resourceModel->searchResources($code);
+        return $resources[0] ?? [];
     }
 
     // Creates a new room in the database
     public function createRoom(string $code): array
     {
-        // Check if the room already exists
-        $existing = $this->db->selectOne(
-            "SELECT id FROM rooms WHERE code = :code",
-            [':code' => $code]
-        );
-
-        if ($existing) {
+        if ($this->resourceModel->roomExists($code)) {
             throw new Exception("Une salle avec ce code existe déjà");
         }
 
-        $sql = "INSERT INTO rooms (code) 
-                VALUES (:code) 
-                RETURNING id, code";
-
-        $result = $this->db->selectOne($sql, [':code' => $code]);
-
-        return $result;
+        $this->resourceModel->createRoom($code);
+        $rooms = $this->resourceModel->searchRooms($code);
+        return $rooms[0] ?? [];
     }
 
     // Creates an absence manually with course slot creation
@@ -116,10 +86,7 @@ class DashboardSecretaryPresenter
             $this->db->beginTransaction();
 
             // Retrieve the student identifier
-            $student = $this->db->selectOne(
-                "SELECT identifier FROM users WHERE id = :id",
-                [':id' => $data['student_id']]
-            );
+            $student = $this->userModel->getUserById((int) $data['student_id']);
 
             if (!$student) {
                 throw new Exception("Étudiant non trouvé");
@@ -136,37 +103,19 @@ class DashboardSecretaryPresenter
             $interval = $start->diff($end);
             $duration = ($interval->h * 60) + $interval->i;
 
-            // Create the course slot in the database
-            $courseSlotSql = "INSERT INTO course_slots 
-                (course_date, start_time, end_time, duration_minutes, course_type, 
-                 resource_id, room_id, is_evaluation) 
-                VALUES (:date, :start_time, :end_time, :duration, :course_type, 
-                        :resource_id, :room_id, :is_evaluation)
-                RETURNING id";
+            $data['start_time'] = $startTime;
+            $data['end_time'] = $endTime;
+            $data['duration_minutes'] = $duration;
 
-            $courseSlotResult = $this->db->selectOne($courseSlotSql, [
-                ':date' => $data['absence_date'],
-                ':start_time' => $startTime,
-                ':end_time' => $endTime,
-                ':duration' => $duration,
-                ':course_type' => $data['course_type'],
-                ':resource_id' => $data['resource_id'],
-                ':room_id' => $data['room_id'],
-                ':is_evaluation' => isset($data['is_evaluation']) ? 'true' : 'false'
-            ]);
+            $courseSlotId = $this->absenceModel->createCourseSlot($data);
+            if (!$courseSlotId) {
+                throw new Exception('Impossible de créer le créneau de cours');
+            }
 
-            $courseSlotId = $courseSlotResult['id'];
-
-            // Create the absence in the database
-            $absenceSql = "INSERT INTO absences 
-                (student_identifier, course_slot_id, status, justified) 
-                VALUES (:student_identifier, :course_slot_id, 'absent', false)
-                RETURNING id";
-
-            $absenceResult = $this->db->selectOne($absenceSql, [
-                ':student_identifier' => $student['identifier'],
-                ':course_slot_id' => $courseSlotId
-            ]);
+            $absenceId = $this->absenceModel->createAbsence($student['identifier'], $courseSlotId);
+            if (!$absenceId) {
+                throw new Exception('Impossible de créer l\'absence');
+            }
 
             $this->db->commit();
 
@@ -177,7 +126,7 @@ class DashboardSecretaryPresenter
                 'success'
             );
 
-            return $absenceResult['id'];
+            return $absenceId;
         } catch (Exception $e) {
             $this->db->rollBack();
             throw $e;
@@ -187,55 +136,28 @@ class DashboardSecretaryPresenter
     // Logs an action to the import history
     public function logImportHistory(string $action, string $details, string $status = 'success'): void
     {
-        $sql = "INSERT INTO import_history (action_type, description, status, created_at) 
-                VALUES (:action, :details, :status, NOW())";
-
         try {
-            $this->db->execute($sql, [
-                ':action' => $action,
-                ':details' => $details,
-                ':status' => $status
-            ]);
+            $this->importModel->logAction($action, $details, $status);
         } catch (Exception $e) {
-            // Create the table if it doesn't exist yet
-            $this->createImportHistoryTable();
-            // Retry the insertion
-            $this->db->execute($sql, [
-                ':action' => $action,
-                ':details' => $details,
-                ':status' => $status
-            ]);
+            $this->importModel->ensureTable();
+            $this->importModel->logAction($action, $details, $status);
         }
     }
 
     // Retrieves the import and recent actions history
     public function getImportHistory(int $limit = 50): array
     {
-        $sql = "SELECT action_type as action, description as details, status, created_at 
-                FROM import_history 
-                ORDER BY created_at DESC 
-                LIMIT :limit";
-
         try {
-            return $this->db->select($sql, [':limit' => $limit]);
+            return $this->importModel->getHistory($limit);
         } catch (Exception $e) {
-            // The table may not exist yet
-            $this->createImportHistoryTable();
+            $this->importModel->ensureTable();
             return [];
         }
     }
 
-    // Creates the import history table if it doesn't exist
+    // Compatibility wrapper for legacy calls
     private function createImportHistoryTable(): void
     {
-        $sql = "CREATE TABLE IF NOT EXISTS import_history (
-            id SERIAL PRIMARY KEY,
-            action VARCHAR(255) NOT NULL,
-            details TEXT,
-            status VARCHAR(50) DEFAULT 'success',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )";
-
-        $this->db->getConnection()->exec($sql);
+        $this->importModel->ensureTable();
     }
 }

@@ -272,6 +272,163 @@ class UserModel
         }
     }
 
+    // Get a user by email (used for login authentication)
+    public function getUserByEmail(string $email): ?array
+    {
+        $query = "
+            SELECT id, email, password_hash, first_name, last_name, role::text as role
+            FROM users
+            WHERE email = :email
+        ";
+        try {
+            return $this->db->selectOne($query, [':email' => strtolower($email)]);
+        } catch (Exception $e) {
+            error_log("Error fetching user by email: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    // Resolve teacher.id from connected users.id via shared email
+    public function getTeacherIdByUserId(int $userId): ?int
+    {
+        $sql = "SELECT teachers.id
+                FROM users
+                LEFT JOIN teachers ON teachers.email = users.email
+                WHERE users.id = :user_id
+                LIMIT 1";
+        try {
+            $result = $this->db->selectOne($sql, [':user_id' => $userId]);
+            return $result ? (int) $result['id'] : null;
+        } catch (Exception $e) {
+            error_log("Error resolving teacher id by user id: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    // Retrieve a student's email from identifier
+    public function getEmailByIdentifier(string $identifier): ?string
+    {
+        try {
+            $result = $this->db->selectOne(
+                "SELECT email FROM users WHERE LOWER(identifier) = LOWER(:identifier)",
+                [':identifier' => $identifier]
+            );
+            return $result['email'] ?? null;
+        } catch (Exception $e) {
+            error_log("Error fetching email by identifier: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    // Search students by name or identifier (ILIKE) — for secretary dashboard
+    public function searchStudents(string $query): array
+    {
+        $sql = "SELECT id, identifier, first_name, last_name, email
+                FROM users
+                WHERE role = 'student'
+                AND (first_name ILIKE :query OR last_name ILIKE :query OR identifier ILIKE :query)
+                ORDER BY last_name, first_name
+                LIMIT 20";
+        try {
+            return $this->db->select($sql, [':query' => '%' . $query . '%']);
+        } catch (Exception $e) {
+            error_log("Error searching students: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    // Check whether an email is already registered in the users table
+    public function isEmailRegistered(string $email): bool
+    {
+        try {
+            $result = $this->db->selectOne('SELECT id FROM users WHERE email = :email', [':email' => strtolower($email)]);
+            return $result !== null;
+        } catch (Exception $e) {
+            error_log("Error checking email registration: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Create a new user account (for self-registration)
+    public function createUser(string $email, string $passwordHash, string $firstName, string $lastName): bool
+    {
+        $sql = "INSERT INTO users (email, password_hash, role, email_verified, last_name, first_name)
+                VALUES (:email, :password_hash, 'student', TRUE, :last_name, :first_name)";
+        try {
+            $rows = $this->db->execute($sql, [
+                ':email' => strtolower($email),
+                ':password_hash' => $passwordHash,
+                ':last_name' => $lastName,
+                ':first_name' => $firstName,
+            ]);
+            return $rows > 0;
+        } catch (Exception $e) {
+            error_log("Error creating user: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Set password and mark email as verified for an existing user (registration flow)
+    public function setPasswordAndVerifyEmail(string $email, string $passwordHash): bool
+    {
+        $sql = "UPDATE users
+                SET password_hash = :password_hash, email_verified = TRUE, updated_at = CURRENT_TIMESTAMP
+                WHERE email = :email";
+        try {
+            $rows = $this->db->execute($sql, [':password_hash' => $passwordHash, ':email' => strtolower($email)]);
+            return $rows > 0;
+        } catch (Exception $e) {
+            error_log("Error setting password: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Update a user's password identified by email (password-reset flow)
+    public function updatePasswordByEmail(string $email, string $passwordHash): bool
+    {
+        $sql = "UPDATE users
+                SET password_hash = :password_hash, updated_at = CURRENT_TIMESTAMP
+                WHERE email = :email";
+        try {
+            $rows = $this->db->execute($sql, [':password_hash' => $passwordHash, ':email' => strtolower($email)]);
+            return $rows > 0;
+        } catch (Exception $e) {
+            error_log("Error updating password by email: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Check whether a student identifier already exists in the users table
+    public function studentIdentifierExists(string $identifier): bool
+    {
+        try {
+            $result = $this->db->selectOne('SELECT id FROM users WHERE identifier = :identifier', [':identifier' => $identifier]);
+            return $result !== null;
+        } catch (Exception $e) {
+            error_log("Error checking student identifier: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Insert a new student row (used during CSV import)
+    public function createStudent(string $identifier, string $lastName, string $firstName, string $email): bool
+    {
+        $sql = "INSERT INTO users (identifier, last_name, first_name, email, role, created_at)
+                VALUES (:identifier, :last_name, :first_name, :email, 'student', NOW())";
+        try {
+            $rows = $this->db->execute($sql, [
+                ':identifier' => $identifier,
+                ':last_name' => $lastName,
+                ':first_name' => $firstName,
+                ':email' => strtolower($email),
+            ]);
+            return $rows > 0;
+        } catch (Exception $e) {
+            error_log("Error creating student: " . $e->getMessage());
+            return false;
+        }
+    }
+
     /**
      * Delete a student and all related data using the user's numeric id.
      * This complements deleteStudentCascade(string $identifier) and is the

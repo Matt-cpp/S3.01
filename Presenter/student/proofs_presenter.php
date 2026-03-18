@@ -19,17 +19,19 @@ declare(strict_types=1);
  * Used by the student "My proofs" page.
  */
 
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/ProofModel.php';
 
 class StudentProofsPresenter
 {
     private array $filters;
     private string $errorMessage;
     private string $studentIdentifier;
+    private ProofModel $proofModel;
 
     public function __construct(string $studentIdentifier)
     {
         $this->studentIdentifier = $studentIdentifier;
+        $this->proofModel = new ProofModel();
         $this->filters = [];
         $this->errorMessage = '';
         $this->processRequest();
@@ -66,111 +68,12 @@ class StudentProofsPresenter
 
     public function getProofs(): array
     {
-        $db = Database::getInstance()->getConnection();
-
-        $query = "
-            SELECT 
-                p.id as proof_id,
-                p.absence_start_date,
-                p.absence_end_date,
-                p.main_reason,
-                p.custom_reason,
-                p.student_comment,
-                p.submission_date,
-                p.processing_date,
-                p.status,
-                p.manager_comment,
-                p.file_path,
-                p.proof_files,
-                COUNT(DISTINCT pa.absence_id) as absence_count,
-                SUM(cs.duration_minutes) as total_duration_minutes,
-                MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) as has_exam,
-                COUNT(DISTINCT (cs.course_date, CASE WHEN cs.start_time < '12:30:00' THEN 'morning' ELSE 'afternoon' END)) as half_days_count,
-                MIN(cs.course_date || ' ' || cs.start_time) as absence_start_datetime,
-                MAX(cs.course_date || ' ' || cs.end_time) as absence_end_datetime
-            FROM proof p
-            LEFT JOIN proof_absences pa ON p.id = pa.proof_id
-            LEFT JOIN absences a ON pa.absence_id = a.id
-            LEFT JOIN course_slots cs ON a.course_slot_id = cs.id
-            WHERE p.student_identifier = :student_id
-        ";
-
-        $params = [':student_id' => $this->studentIdentifier];
-
-        // Filter by absence start date
-        if (!empty($this->filters['start_date'])) {
-            $query .= " AND p.absence_start_date >= :start_date";
-            $params[':start_date'] = $this->filters['start_date'];
-        }
-
-        // Filter by absence end date
-        if (!empty($this->filters['end_date'])) {
-            $query .= " AND p.absence_end_date <= :end_date";
-            $params[':end_date'] = $this->filters['end_date'];
-        }
-
-        $query .= " GROUP BY p.id";
-
-        // Filter by status
-        if (!empty($this->filters['status'])) {
-            if ($this->filters['status'] === 'accepted') {
-                $query .= " HAVING p.status = 'accepted'";
-            } elseif ($this->filters['status'] === 'pending') {
-                $query .= " HAVING p.status = 'pending'";
-            } elseif ($this->filters['status'] === 'under_review') {
-                $query .= " HAVING p.status = 'under_review'";
-            } elseif ($this->filters['status'] === 'rejected') {
-                $query .= " HAVING p.status = 'rejected'";
-            }
-        }
-
-        // Filter by reason
-        if (!empty($this->filters['reason'])) {
-            if (strpos($query, 'HAVING') !== false) {
-                $query .= " AND p.main_reason = :reason";
-            } else {
-                $query .= " HAVING p.main_reason = :reason";
-            }
-            $params[':reason'] = $this->filters['reason'];
-        }
-
-        // Filter by evaluation presence
-        if (!empty($this->filters['has_exam'])) {
-            if ($this->filters['has_exam'] === 'yes') {
-                if (strpos($query, 'HAVING') !== false) {
-                    $query .= " AND MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) = 1";
-                } else {
-                    $query .= " HAVING MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) = 1";
-                }
-            } elseif ($this->filters['has_exam'] === 'no') {
-                if (strpos($query, 'HAVING') !== false) {
-                    $query .= " AND MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) = 0";
-                } else {
-                    $query .= " HAVING MAX(CASE WHEN cs.is_evaluation = true THEN 1 ELSE 0 END) = 0";
-                }
-            }
-        }
-
-        // Sort: proofs under review first, then by submission date descending
-        $query .= " ORDER BY 
-            CASE 
-                WHEN p.status = 'under_review' THEN 1
-                WHEN p.status = 'pending' THEN 2
-                WHEN p.status = 'rejected' THEN 3
-                WHEN p.status = 'accepted' THEN 4
-                ELSE 5
-            END,
-            p.submission_date DESC";
-
         try {
-            $stmt = $db->prepare($query);
-            $stmt->execute($params);
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = $this->proofModel->getStudentProofsFiltered($this->studentIdentifier, $this->filters);
 
-            // Calculate missed hours and half-days for each proof
             foreach ($results as &$proof) {
                 $proof['total_hours_missed'] = ($proof['total_duration_minutes'] ?? 0) / 60;
-                $proof['half_days_count'] = $this->calculateHalfDaysForProof($db, (int) $proof['proof_id']);
+                $proof['half_days_count'] = $this->calculateHalfDaysForProof((int) $proof['proof_id']);
             }
 
             return $results;
@@ -184,24 +87,10 @@ class StudentProofsPresenter
      * Calculate the number of half-days for a proof
      * Rule: 1 half-day counted if >= 1 minute of absence in the 8h-12h30 or 12h30-18h30 slot
      */
-    private function calculateHalfDaysForProof(PDO $db, int $proofId): int
+    private function calculateHalfDaysForProof(int $proofId): int
     {
-        $query = "
-            SELECT 
-                cs.course_date,
-                cs.start_time,
-                cs.end_time,
-                cs.duration_minutes
-            FROM proof_absences pa
-            JOIN absences a ON pa.absence_id = a.id
-            JOIN course_slots cs ON a.course_slot_id = cs.id
-            WHERE pa.proof_id = :proof_id
-        ";
-
         try {
-            $stmt = $db->prepare($query);
-            $stmt->execute([':proof_id' => $proofId]);
-            $absences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $absences = $this->proofModel->getAbsenceSlotsForProof($proofId);
 
             // Group by date and calculate duration per period
             $periodDurations = [];

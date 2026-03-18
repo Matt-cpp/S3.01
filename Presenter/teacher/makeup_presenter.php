@@ -5,15 +5,18 @@ declare(strict_types=1);
 // Handles makeup scheduling for teachers
 class MakeupSchedulingPresenter
 {
-    private Database $db;
+    private TeacherDataModel $teacherModel;
+    private UserModel $userModel;
     private int $userId;
     private EmailService $emailService;
 
     public function __construct(int $id)
     {
-        require_once __DIR__ . '/../../Model/database.php';
+        require_once __DIR__ . '/../../Model/TeacherDataModel.php';
+        require_once __DIR__ . '/../../Model/UserModel.php';
         require_once __DIR__ . '/../../Model/email.php';
-        $this->db = Database::getInstance();
+        $this->teacherModel = new TeacherDataModel();
+        $this->userModel = new UserModel();
         $this->userId = $this->linkTeacherUser($id);
         $this->emailService = new EmailService();
     }
@@ -21,53 +24,19 @@ class MakeupSchedulingPresenter
     // Link the teacher ID with the connected user ID via email
     private function linkTeacherUser(int $id): int
     {
-        $query = "SELECT teachers.id as id
-        FROM users LEFT JOIN teachers ON teachers.email = users.email
-        WHERE users.id = " . $id;
-        $result = $this->db->select($query);
-        return $result[0]['id'];
+        return (int) ($this->teacherModel->getTeacherIdByUserId($id) ?? 0);
     }
 
     // Retrieve exams with justified absences that haven't been made up yet
     public function getExams(): array
     {
-        $query = "SELECT DISTINCT cs.id, cs.course_date, cs.start_time, 
-                    r.label as resource_label, r.code as resource_code,
-                    g.code as group_code
-        FROM course_slots cs
-        INNER JOIN absences a ON a.course_slot_id = cs.id
-        LEFT JOIN resources r ON cs.resource_id = r.id
-        LEFT JOIN groups g ON cs.group_id = g.id
-        LEFT JOIN makeups m ON m.absence_id = a.id
-        WHERE cs.teacher_id = " . intval($this->userId) . " 
-            AND cs.is_evaluation = true
-            AND a.justified = true
-            AND m.id IS NULL
-        ORDER BY cs.course_date DESC, cs.start_time DESC";
-
-        $result = $this->db->select($query);
-
-        return $result;
+        return $this->teacherModel->getMakeupEligibleExams($this->userId);
     }
 
     // Retrieve absent students who haven't made up yet
     public function getStudents(int $examId): array
     {
-        $query = "SELECT a.id, cs.id as courseId, u.identifier, 
-                  u.first_name, u.last_name, r.label, cs.course_date
-        FROM absences a
-        INNER JOIN course_slots cs ON a.course_slot_id = cs.id
-        LEFT JOIN users u ON a.student_identifier = u.identifier
-        LEFT JOIN resources r ON cs.resource_id = r.id
-        LEFT JOIN makeups m ON m.absence_id = a.id
-        WHERE cs.id = " . intval($examId) . " 
-            AND a.justified = true
-            AND m.id IS NULL
-        ORDER BY cs.course_date DESC";
-
-        $result = $this->db->select($query);
-
-        return $result;
+        return $this->teacherModel->getMakeupEligibleStudents($examId);
     }
 
     /**
@@ -75,7 +44,7 @@ class MakeupSchedulingPresenter
      */
     public function getAllRooms(): array
     {
-        return $this->db->select("SELECT id, code FROM rooms ORDER BY code ASC");
+        return $this->teacherModel->getAllRooms();
     }
 
     /**
@@ -92,13 +61,12 @@ class MakeupSchedulingPresenter
             return null;
         }
 
-        $existingRoom = $this->db->selectOne("SELECT id FROM rooms WHERE code = :code", [':code' => $newRoomCode]);
-        if ($existingRoom) {
-            return $existingRoom['id'];
+        $existingRoomId = $this->teacherModel->findRoomIdByCode($newRoomCode);
+        if ($existingRoomId !== null) {
+            return $existingRoomId;
         }
 
-        $this->db->execute("INSERT INTO rooms (code) VALUES (:code)", [':code' => $newRoomCode]);
-        return $this->db->lastInsertId();
+        return $this->teacherModel->createRoom($newRoomCode);
     }
 
     /**
@@ -133,20 +101,15 @@ class MakeupSchedulingPresenter
 
     public function insertMakeupSession(int $absenceId, int $evalId, string $studentId, string $makeupDate, ?int $roomId = null, ?int $durationMinutes = null, ?string $comment = null): bool
     {
-        // Insert the new makeup session
-        $insertQuery = "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, scheduled, makeup_date, room_id, duration_minutes, comment) 
-                        VALUES (:absence_id, :evaluation_slot_id, :student_identifier, true, :makeup_date, :room_id, :duration_minutes, :comment)";
-        $insertParams = [
-            ':absence_id' => $absenceId,
-            ':evaluation_slot_id' => $evalId,
-            ':student_identifier' => $studentId,
-            ':makeup_date' => $makeupDate,
-            ':room_id' => $roomId,
-            ':duration_minutes' => $durationMinutes,
-            ':comment' => $comment
-        ];
-
-        $this->db->execute($insertQuery, $insertParams);
+        $this->teacherModel->createMakeupSession(
+            $absenceId,
+            $evalId,
+            $studentId,
+            $makeupDate,
+            $roomId,
+            $durationMinutes,
+            $comment
+        );
 
         // Send email notification to student with room and duration info
         $this->sendMakeupNotificationEmail($studentId, $evalId, $makeupDate, $roomId, $durationMinutes, $comment);
@@ -161,10 +124,7 @@ class MakeupSchedulingPresenter
     {
         try {
             // Get student information
-            $studentQuery = "SELECT u.email, u.first_name, u.last_name 
-                            FROM users u 
-                            WHERE u.identifier = :identifier";
-            $student = $this->db->selectOne($studentQuery, [':identifier' => $studentId]);
+            $student = $this->teacherModel->getStudentContactByIdentifier($studentId);
 
             if (!$student || empty($student['email'])) {
                 error_log("Cannot send makeup email: no email found for student {$studentId}");
@@ -172,12 +132,7 @@ class MakeupSchedulingPresenter
             }
 
             // Get course information (original evaluation)
-            $courseQuery = "SELECT cs.course_date, cs.start_time, cs.end_time, cs.duration_minutes as original_duration,
-                                  r.label as resource_label, cs.course_type
-                           FROM course_slots cs
-                           LEFT JOIN resources r ON cs.resource_id = r.id
-                           WHERE cs.id = :eval_id";
-            $course = $this->db->selectOne($courseQuery, [':eval_id' => $evalId]);
+            $course = $this->teacherModel->getCourseSlotForMakeupEmail($evalId);
 
             if (!$course) {
                 error_log("Cannot send makeup email: course not found for eval_id {$evalId}");
@@ -187,10 +142,9 @@ class MakeupSchedulingPresenter
             // Get makeup room information if roomId is provided
             $makeupRoomName = 'À définir';
             if ($roomId) {
-                $roomQuery = "SELECT code FROM rooms WHERE id = :room_id";
-                $room = $this->db->selectOne($roomQuery, [':room_id' => $roomId]);
-                if ($room) {
-                    $makeupRoomName = htmlspecialchars($room['code']);
+                $roomCode = $this->teacherModel->getRoomCodeById($roomId);
+                if ($roomCode) {
+                    $makeupRoomName = htmlspecialchars($roomCode);
                 }
             }
 

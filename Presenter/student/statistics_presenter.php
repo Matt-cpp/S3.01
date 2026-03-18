@@ -17,20 +17,18 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/../../Model/StatisticsModel.php';
-require_once __DIR__ . '/../../Model/database.php';
+require_once __DIR__ . '/../../Model/UserModel.php';
 require_once __DIR__ . '/../shared/auth_guard.php';
 require_once __DIR__ . '/../../Model/format_ressource.php';
 
 class StudentStatisticsPresenter
 {
     private StatisticsModel $statisticsModel;
-    private Database $db;
     private string $studentIdentifier;
 
     public function __construct(string $studentIdentifier)
     {
         $this->statisticsModel = new StatisticsModel();
-        $this->db = getDatabase();
         $this->studentIdentifier = $studentIdentifier;
     }
 
@@ -48,11 +46,10 @@ class StudentStatisticsPresenter
      */
     public static function getStudentIdentifierFromUserId(int $userId): ?string
     {
-        $db = getDatabase();
-        $result = $db->selectOne(
-            "SELECT identifier FROM users WHERE id = :id AND role = 'student'",
-            [':id' => $userId]
-        );
+        $result = (new UserModel())->getUserById($userId);
+        if (!$result || ($result['role'] ?? '') !== 'student') {
+            return null;
+        }
         return $result ? $result['identifier'] : null;
     }
 
@@ -69,31 +66,8 @@ class StudentStatisticsPresenter
      */
     public function getCourseTypeData(array $filters = []): array
     {
-        $query = "
-            SELECT 
-                cs.course_type,
-                COUNT(DISTINCT a.id) as total_absences
-            FROM absences a
-            JOIN course_slots cs ON a.course_slot_id = cs.id
-            WHERE a.student_identifier = :student_identifier
-        ";
-
-        $params = [':student_identifier' => $this->studentIdentifier];
-
-        if (!empty($filters['start_date'])) {
-            $query .= " AND cs.course_date >= :start_date";
-            $params[':start_date'] = $filters['start_date'];
-        }
-
-        if (!empty($filters['end_date'])) {
-            $query .= " AND cs.course_date <= :end_date";
-            $params[':end_date'] = $filters['end_date'];
-        }
-
-        $query .= " GROUP BY cs.course_type ORDER BY cs.course_type";
-
         try {
-            $data = $this->db->select($query, $params);
+            $data = $this->statisticsModel->getStudentAbsencesByCourseType($this->studentIdentifier, $filters);
 
             $labels = [];
             $values = [];
@@ -175,35 +149,8 @@ class StudentStatisticsPresenter
      */
     public function getDetailedMonthlyTrends(array $filters = []): array
     {
-        $query = "
-            SELECT 
-                TO_CHAR(cs.course_date, 'YYYY-MM') as month,
-                TO_CHAR(cs.course_date, 'Mon YYYY') as month_label,
-                COUNT(DISTINCT a.id) as total_absences,
-                COUNT(DISTINCT CASE WHEN a.justified = true THEN a.id END) as justified,
-                COUNT(DISTINCT CASE WHEN a.justified = false THEN a.id END) as unjustified
-            FROM absences a
-            JOIN course_slots cs ON a.course_slot_id = cs.id
-            WHERE a.student_identifier = :student_identifier
-        ";
-
-        $params = [':student_identifier' => $this->studentIdentifier];
-
-        if (!empty($filters['start_date'])) {
-            $query .= " AND cs.course_date >= :start_date";
-            $params[':start_date'] = $filters['start_date'];
-        }
-
-        if (!empty($filters['end_date'])) {
-            $query .= " AND cs.course_date <= :end_date";
-            $params[':end_date'] = $filters['end_date'];
-        }
-
-        $query .= " GROUP BY TO_CHAR(cs.course_date, 'YYYY-MM'), TO_CHAR(cs.course_date, 'Mon YYYY')
-                    ORDER BY TO_CHAR(cs.course_date, 'YYYY-MM')";
-
         try {
-            $data = $this->db->select($query, $params);
+            $data = $this->statisticsModel->getStudentDetailedMonthlyTrends($this->studentIdentifier, $filters);
 
             $months = [];
             $total = [];
@@ -256,32 +203,8 @@ class StudentStatisticsPresenter
      */
     public function getRecentAbsences(int $limit = 10): array
     {
-        $query = "
-            SELECT 
-                a.id,
-                cs.course_date,
-                cs.start_time,
-                cs.end_time,
-                cs.course_type,
-                cs.is_evaluation,
-                a.justified,
-                COALESCE(r.label, r.code) as resource_name,
-                CONCAT(t.first_name, ' ', t.last_name) as teacher_name
-            FROM absences a
-            JOIN course_slots cs ON a.course_slot_id = cs.id
-            LEFT JOIN resources r ON cs.resource_id = r.id
-            LEFT JOIN teachers t ON cs.teacher_id = t.id
-            WHERE a.student_identifier = :student_identifier
-            ORDER BY cs.course_date DESC, cs.start_time DESC
-            LIMIT :limit
-        ";
-
         try {
-            $stmt = $this->db->getConnection()->prepare($query);
-            $stmt->bindValue(':student_identifier', $this->studentIdentifier);
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->execute();
-            $absences = $stmt->fetchAll();
+            $absences = $this->statisticsModel->getStudentRecentAbsencesList($this->studentIdentifier, $limit);
 
             // Format resource labels
             foreach ($absences as &$absence) {
