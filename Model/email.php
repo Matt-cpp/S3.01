@@ -139,8 +139,16 @@ class EmailService
 
     private function appendStandardFooter(string $body): string
     {
-        $hasStandardSignature = strpos($body, 'Gestion des Absences - UPHF') !== false
-            && strpos($body, 'Cet email est envoyé automatiquement') !== false;
+        $plainBody = strip_tags($body);
+        if (function_exists('mb_strtolower')) {
+            $plainBody = mb_strtolower($plainBody, 'UTF-8');
+        } else {
+            $plainBody = strtolower($plainBody);
+        }
+
+        $hasBrand = strpos($plainBody, 'gestion des absences - uphf') !== false;
+        $hasNoReply = strpos($plainBody, 'merci de ne pas y répondre') !== false || strpos($plainBody, 'merci de ne pas y repondre') !== false;
+        $hasStandardSignature = $hasBrand && $hasNoReply;
 
         if ($hasStandardSignature) {
             return $body;

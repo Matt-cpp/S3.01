@@ -213,7 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     respondAjax([
                         'success' => true,
                         'message' => $result['message'],
-                        'redirectUrl' => '../../View/templates/shared/verify_reset_code.php'
+                        'redirectUrl' => '/View/templates/shared/verify_reset_code.php'
                     ]);
                 }
                 header('Location: ../../View/templates/shared/verify_reset_code.php');
@@ -247,7 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     respondAjax([
                         'success' => true,
                         'message' => $result['message'],
-                        'redirectUrl' => '../../View/templates/shared/reset_password.php'
+                        'redirectUrl' => '/View/templates/shared/reset_password.php'
                     ]);
                 }
                 header('Location: ../../View/templates/shared/reset_password.php');
@@ -294,7 +294,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     respondAjax([
                         'success' => true,
                         'message' => $result['message'],
-                        'redirectUrl' => '../../View/templates/shared/login.php'
+                        'redirectUrl' => '/View/templates/shared/login.php'
                     ]);
                 }
                 header('Location: ../../View/templates/shared/login.php');

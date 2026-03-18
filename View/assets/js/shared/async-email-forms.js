@@ -26,6 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
 
+      // Avoid using form.action directly because input[name="action"] can shadow it.
+      const endpoint = form.getAttribute("action") || window.location.href;
+
       const originalText = submitButton.textContent;
       const messageContainer = getOrCreateMessageContainer(form);
 
@@ -45,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loadingTextByAction[action] || "Traitement en cours...";
 
       try {
-        const response = await fetch(form.action, {
+        const response = await fetch(endpoint, {
           method: "POST",
           headers: {
             "X-Requested-With": "XMLHttpRequest",

@@ -25,7 +25,7 @@ $isAjaxRequest = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower((string
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $planif->scheduleMakeups(
-        $_POST['matiere'] ?? null,
+        (int) ($_POST['matiere'] ?? 0),
         $_POST['date'] ?? null,
         $_POST['duree'] ?? null,
         $_POST['salle_id'] ?? null,
