@@ -131,7 +131,10 @@
                 strengthDiv.id = 'password-strength';
                 strengthDiv.style.fontSize = '12px';
                 strengthDiv.style.marginTop = '5px';
-                password.parentNode.appendChild(strengthDiv);
+                const parentGroup = password.closest('.form-group');
+                if (parentGroup) {
+                    parentGroup.appendChild(strengthDiv);
+                }
             }
 
             const strengthElement = document.getElementById('password-strength');
