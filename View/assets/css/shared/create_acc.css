@@ -191,6 +191,33 @@ html.dark-mode body::before {
     transform: none;
 }
 
+.btn-submit.is-loading {
+    position: relative;
+}
+
+.btn-submit.is-loading::after {
+    content: '';
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-top-color: #fff;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: middle;
+    animation: button-spin 0.8s linear infinite;
+}
+
+.ajax-feedback {
+    min-height: 0;
+}
+
+.ajax-feedback.error-message,
+.ajax-feedback.success-message {
+    margin-bottom: 20px;
+    animation: slideIn 0.3s ease-out;
+}
+
 /* Verification code styles */
 input[name="verification_code"] {
     text-align: center;
@@ -217,6 +244,12 @@ input[name="verification_code"] {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes button-spin {
+    to {
+        transform: rotate(360deg);
     }
 }
 

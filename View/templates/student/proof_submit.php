@@ -134,6 +134,7 @@ if (!isset($_SESSION['id_student'])) {
                 <label for="proof_files">Fichiers justificatifs :</label>
                 <input type="file" id="proof_files" name="proof_files[]" multiple
                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                <div id="proof_files_status" class="file-input-status">Aucun fichier choisi</div>
                 <p class="help-text" style="color: #e36153ff; font-weight: bold; margin-top: 8px;">
                     <strong>ATTENTION :</strong><br>
                     • Vous pouvez sélectionner <strong>plusieurs fichiers</strong> (optionnel)<br>
@@ -162,7 +163,9 @@ if (!isset($_SESSION['id_student'])) {
             </div>
 
             <div class="form-group">
-                <button type="submit" class="submit-btn" title="Envoie le justificatif au responsable pédagogique qui traitera votre demande.">Soumettre le justificatif</button>
+                <button type="submit" class="submit-btn"
+                    title="Envoie le justificatif au responsable pédagogique qui traitera votre demande.">Soumettre le
+                    justificatif</button>
             </div>
         </form>
     </main>

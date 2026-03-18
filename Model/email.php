@@ -75,7 +75,7 @@ class EmailService
 
             $this->mail->isHTML($isHTML);
             $this->mail->Subject = $subject;
-            $this->mail->Body = $body;
+            $this->mail->Body = $isHTML ? $this->appendStandardFooter($body) : $body;
 
             // Add file attachments
             if (!empty($attachments)) {
@@ -135,5 +135,23 @@ class EmailService
     public function clearAttachments(): void
     {
         $this->mail->clearAttachments();
+    }
+
+    private function appendStandardFooter(string $body): string
+    {
+        $hasStandardSignature = strpos($body, 'Gestion des Absences - UPHF') !== false
+            && strpos($body, 'Cet email est envoyé automatiquement') !== false;
+
+        if ($hasStandardSignature) {
+            return $body;
+        }
+
+        $footer = "\n<hr style='border: 1px solid #eee; margin: 30px 0;'>\n" .
+            "<p style='font-size: 12px; color: #666; text-align: center;'>" .
+            "Gestion des Absences - UPHF<br>" .
+            "Cet email est envoyé automatiquement, merci de ne pas y répondre." .
+            "</p>";
+
+        return $body . $footer;
     }
 }

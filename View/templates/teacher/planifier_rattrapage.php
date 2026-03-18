@@ -20,6 +20,9 @@ $rooms = $planif->getAllRooms();
 $message = '';
 $messageType = '';
 
+$isAjaxRequest = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower((string) $_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+    || (isset($_SERVER['HTTP_ACCEPT']) && strpos((string) $_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $planif->scheduleMakeups(
         $_POST['matiere'] ?? null,
@@ -36,6 +39,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result['success']) {
         $exams = $planif->getExams();
         $rooms = $planif->getAllRooms();
+    }
+
+    if ($isAjaxRequest) {
+        http_response_code($result['success'] ? 200 : 422);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => $result['success'],
+            'message' => $result['message'],
+            'count' => $result['count'] ?? 0
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
     }
 }
 ?>
@@ -87,8 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     return $e['first_name'] . ' ' . $e['last_name'];
                                 }, $students);
                                 $elevesJson = htmlspecialchars(json_encode($elevesNames), ENT_QUOTES, 'UTF-8');
-                            ?>
-                                <option value="<?php echo htmlspecialchars((string)$ds['id']); ?>"
+                                ?>
+                                <option value="<?php echo htmlspecialchars((string) $ds['id']); ?>"
                                     data-date="<?php echo htmlspecialchars($ds['course_date']); ?>"
                                     data-time="<?php echo htmlspecialchars($ds['start_time']); ?>"
                                     data-resource="<?php echo htmlspecialchars(formatResourceLabel($ds['resource_label'] ?? $ds['resource_code'] ?? 'Non défini')); ?>"
@@ -144,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <select id="salle_id" name="salle_id" onchange="toggleNewRoomInput(this)">
                             <option value="">-- Aucune salle --</option>
                             <?php foreach ($rooms as $room): ?>
-                                <option value="<?php echo htmlspecialchars((string)$room['id']); ?>">
+                                <option value="<?php echo htmlspecialchars((string) $room['id']); ?>">
                                     <?php echo htmlspecialchars($room['code']); ?>
                                 </option>
                             <?php endforeach; ?>
@@ -248,13 +262,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Confirmation avant validation du rattrapage
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const form = document.querySelector('form');
             if (form) {
-                form.addEventListener('submit', function(e) {
+                form.addEventListener('submit', async function (e) {
                     const matiere = document.getElementById('matiere').value;
                     const date = document.getElementById('date').value;
                     const duree = document.getElementById('duree').value;
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    const existingMessage = document.querySelector('.message');
 
                     if (!matiere || !date || !duree) {
                         return;
@@ -262,6 +278,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     if (!confirm('Êtes-vous sûr de vouloir planifier ce rattrapage ?')) {
                         e.preventDefault();
+                        return;
+                    }
+
+                    e.preventDefault();
+                    submitButton.disabled = true;
+                    const originalLabel = submitButton.textContent;
+                    submitButton.textContent = 'Planification en cours...';
+
+                    try {
+                        const response = await fetch(window.location.href, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            },
+                            body: new FormData(form),
+                            credentials: 'same-origin'
+                        });
+
+                        const payload = await response.json();
+
+                        if (existingMessage) {
+                            existingMessage.remove();
+                        }
+
+                        const messageNode = document.createElement('div');
+                        messageNode.className = 'message ' + (payload.success ? 'success' : 'error');
+                        messageNode.textContent = payload.message || 'Une erreur est survenue.';
+                        form.parentNode.insertBefore(messageNode, form);
+
+                        if (payload.success) {
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 700);
+                        }
+                    } catch (error) {
+                        if (existingMessage) {
+                            existingMessage.remove();
+                        }
+                        const messageNode = document.createElement('div');
+                        messageNode.className = 'message error';
+                        messageNode.textContent = 'Erreur reseau. Veuillez reessayer.';
+                        form.parentNode.insertBefore(messageNode, form);
+                    } finally {
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalLabel;
                     }
                 });
             }

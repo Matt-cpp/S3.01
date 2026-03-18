@@ -194,9 +194,24 @@ class RegistrationController
     }
 }
 
+function isAjaxRequest(): bool
+{
+    return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower((string) $_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+        || (isset($_SERVER['HTTP_ACCEPT']) && strpos((string) $_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+}
+
+function respondAjax(array $payload, int $statusCode = 200): void
+{
+    http_response_code($statusCode);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // Request processing
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller = new RegistrationController();
+    $isAjax = isAjaxRequest();
 
     $action = $_POST['action'] ?? '';
 
@@ -205,6 +220,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = trim($_POST['email'] ?? '');
 
             if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                if ($isAjax) {
+                    respondAjax(['success' => false, 'message' => 'Email invalide.'], 422);
+                }
                 $_SESSION['error'] = 'Email invalide.';
                 header('Location: ../../View/templates/shared/create_acc.php');
                 exit;
@@ -214,8 +232,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($result['success']) {
                 $_SESSION['success'] = $result['message'];
                 $_SESSION['email_to_verify'] = $email;
+                if ($isAjax) {
+                    respondAjax([
+                        'success' => true,
+                        'message' => $result['message'],
+                        'redirectUrl' => '../../View/templates/shared/verify_email.php'
+                    ]);
+                }
                 header('Location: ../../View/templates/shared/verify_email.php');
             } else {
+                if ($isAjax) {
+                    respondAjax(['success' => false, 'message' => $result['message']], 500);
+                }
                 $_SESSION['error'] = $result['message'];
                 header('Location: ../../View/templates/shared/create_acc.php');
             }
@@ -226,6 +254,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $code = trim($_POST['verification_code'] ?? '');
 
             if (empty($email) || empty($code)) {
+                if ($isAjax) {
+                    respondAjax(['success' => false, 'message' => 'Données manquantes.'], 422);
+                }
                 $_SESSION['error'] = 'Données manquantes.';
                 header('Location: ../../View/templates/shared/verify_email.php');
                 exit;
@@ -236,8 +267,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['success'] = $result['message'];
                 $_SESSION['email_verified'] = $email;
                 unset($_SESSION['email_to_verify']);
+                if ($isAjax) {
+                    respondAjax([
+                        'success' => true,
+                        'message' => $result['message'],
+                        'redirectUrl' => '../../View/templates/shared/complete_registration.php'
+                    ]);
+                }
                 header('Location: ../../View/templates/shared/complete_registration.php');
             } else {
+                if ($isAjax) {
+                    respondAjax(['success' => false, 'message' => $result['message']], 422);
+                }
                 $_SESSION['error'] = $result['message'];
                 header('Location: ../../View/templates/shared/verify_email.php');
             }
@@ -249,6 +290,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $confirmPassword = $_POST['confirm_password'] ?? '';
 
             if (empty($email) || empty($password) || empty($confirmPassword)) {
+                if ($isAjax) {
+                    respondAjax(['success' => false, 'message' => 'Tous les champs sont requis.'], 422);
+                }
                 $_SESSION['error'] = 'Tous les champs sont requis.';
                 header('Location: ../../View/templates/shared/complete_registration.php');
                 exit;
@@ -258,14 +302,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($result['success']) {
                 $_SESSION['success'] = $result['message'];
                 unset($_SESSION['email_verified']);
+                if ($isAjax) {
+                    respondAjax([
+                        'success' => true,
+                        'message' => $result['message'],
+                        'redirectUrl' => '../../View/templates/shared/login.php'
+                    ]);
+                }
                 header('Location: ../../View/templates/shared/login.php');
             } else {
+                if ($isAjax) {
+                    respondAjax(['success' => false, 'message' => $result['message']], 422);
+                }
                 $_SESSION['error'] = $result['message'];
                 header('Location: ../../View/templates/shared/complete_registration.php');
             }
             break;
 
         default:
+            if ($isAjax) {
+                respondAjax(['success' => false, 'message' => 'Action invalide.'], 400);
+            }
             $_SESSION['error'] = 'Action invalide.';
             header('Location: ../../View/templates/shared/create_acc.php');
             break;

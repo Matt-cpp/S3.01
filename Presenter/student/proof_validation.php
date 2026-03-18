@@ -28,6 +28,41 @@ require_once __DIR__ . '/../../Model/NotificationModel.php';
 require_once __DIR__ . '/../../Model/email.php';
 require_once __DIR__ . '/../../Model/AbsenceMonitoringModel.php';
 
+function enqueueProofEmailJob(array $jobPayload): string
+{
+    $jobsDir = __DIR__ . '/../../uploads/jobs';
+    if (!is_dir($jobsDir)) {
+        mkdir($jobsDir, 0755, true);
+    }
+
+    $jobFile = $jobsDir . '/proof_email_job_' . uniqid('', true) . '.json';
+    $encoded = json_encode($jobPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($encoded === false) {
+        throw new Exception('Impossible de sérialiser la tâche email en arrière-plan.');
+    }
+
+    if (file_put_contents($jobFile, $encoded) === false) {
+        throw new Exception('Impossible de créer le fichier de tâche email.');
+    }
+
+    return $jobFile;
+}
+
+function triggerProofEmailWorker(string $jobFile): void
+{
+    $workerScript = __DIR__ . '/process_proof_email_job.php';
+    $phpBinary = PHP_BINARY ?: 'php';
+
+    if (stripos(PHP_OS, 'WIN') === 0) {
+        $command = 'start /B "" ' . escapeshellarg($phpBinary) . ' ' . escapeshellarg($workerScript) . ' ' . escapeshellarg($jobFile);
+        @pclose(@popen($command, 'r'));
+        return;
+    }
+
+    $command = escapeshellarg($phpBinary) . ' ' . escapeshellarg($workerScript) . ' ' . escapeshellarg($jobFile) . ' > /dev/null 2>&1 &';
+    @exec($command);
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     session_start();
 
@@ -257,133 +292,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 error_log('Failed to update absence monitoring: ' . $e->getMessage());
             }
 
-            // Send the email of validation to the student
-            $emailService = new EmailService();
+            // Queue PDF generation + confirmation email in a background worker.
+            try {
+                $jobPayload = [
+                    'student_id' => (int) $studentId,
+                    'student_identifier' => $studentIdentifier,
+                    'student_email' => $_SESSION['student_info']['email'] ?? $studentInfo['email'] ?? '',
+                    'reason_data' => $_SESSION['reason_data'],
+                    'queued_at' => date('c')
+                ];
 
-            $htmlBody = '
-            <h1>Confirmation de réception de votre justificatif</h1>
-            <p>Votre justificatif d\'absence a été reçu avec succès et est maintenant en attente de validation.</p>
-            <p>Vous trouverez ci-joint :</p>
-            <ul>
-                <li>Votre document justificatif original</li>
-                <li>Un récapitulatif détaillé de votre demande au format PDF</li>
-            </ul>
-            <p>Vous recevrez une notification par email une fois que votre justificatif aura été traité par l\'administration.</p>
-            <br>
-            <p style="font-size:0.85em;color:#6c757d;margin-top:10px;"><small>Ce message est automatique — merci de ne pas y répondre.</small></p>
-            <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
-            <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
-            ';
-
-            // Generate PDF summary
-            $pdfFilename = 'Justificatif_recapitulatif_' . date('Y-m-d_H-i-s') . '.pdf';
-            $pdfPath = __DIR__ . '/../../uploads/' . $pdfFilename;
-
-            // Simulate POST data for PDF generation
-            $_POST['action'] = 'download_pdf_server';
-            $_POST['name_file'] = $pdfFilename;
-
-            // Capture the PDF output
-            ob_start();
-            include __DIR__ . '/../shared/generate_pdf.php';
-            ob_end_clean();
-
-            // Check if PDF was generated successfully
-            if (!file_exists($pdfPath)) {
-                error_log('PDF generation failed - file not found: ' . $pdfPath);
+                $jobFile = enqueueProofEmailJob($jobPayload);
+                triggerProofEmailWorker($jobFile);
+            } catch (Exception $queueError) {
+                error_log('Background email queue error: ' . $queueError->getMessage());
             }
 
-            // ===== Prepare email attachments =====
-            $attachments = [];
-
-            // Add all uploaded proof files
-            foreach ($uploadedFiles as $fileInfo) {
-                $filePath = __DIR__ . '/../../' . $fileInfo['path'];
-                if (file_exists($filePath)) {
-                    $attachments[] = [
-                        'path' => $filePath,
-                        'name' => $fileInfo['original_name']
-                    ];
-                } else {
-                    error_log('File not found: ' . $filePath);
-                }
-            }
-
-            // Add PDF if generated successfully
-            if (file_exists($pdfPath)) {
-                $attachments[] = ['path' => $pdfPath, 'name' => $pdfFilename];
-            }
-
-            $images = [
-                'logoUPHF' => __DIR__ . '/../../View/img/UPHF.png',
-                'logoIUT' => __DIR__ . '/../../View/img/logoIUT.png'
-            ];
-
-            // Update email body to mention attached files
-            $htmlBody = '
-            <h1>Confirmation de réception de votre justificatif</h1>
-            <p>Votre justificatif d\'absence a été reçu avec succès et est maintenant en attente de validation.</p>
-            <p>Vous trouverez ci-joint :</p>
-            <ul>
-                <li>📄 Le récapitulatif PDF de votre demande</li>';
-
-            if (count($uploadedFiles) > 0) {
-                $htmlBody .= '<li>📎 ' . count($uploadedFiles) . ' fichier(s) justificatif(s) que vous avez soumis</li>';
-            } else {
-                $htmlBody .= '<li>⚠️ Aucun fichier justificatif fourni</li>';
-            }
-
-            $htmlBody .= '
-            </ul>
-            <p>Vous recevrez une notification par email une fois que votre justificatif aura été traité par l\'administration.</p>
-            <br>
-            <p style="font-size:0.85em;color:#6c757d;margin-top:10px;">
-                <small>Ce message est automatique — merci de ne pas y répondre.</small>
-            </p>
-            <img src="cid:logoUPHF" alt="Logo UPHF" class="logo" width="220" height="80">
-            <img src="cid:logoIUT" alt="Logo IUT" class="logo" width="100" height="90">
-            ';
-
-            $response = $emailService->sendEmail(
-                $_SESSION['student_info']['email'] ?? $studentInfo['email'] ?? 'ambroise.bisiaux@uphf.fr',
-                'Confirmation de réception - Justificatif d\'absence',
-                $htmlBody,
-                true,
-                $attachments,
-                $images
-            );
-
-            if ($response['success']) {
-                // Email sent successfully
-                try {
-                    $notificationModel->createNotification(
-                        $studentIdentifier,
-                        'justification_processed',
-                        'Justificatif reçu',
-                        'Votre justificatif a été reçu et est en attente de validation.',
-                        true
-                    );
-                } catch (Exception $notifError) {
-                    error_log("Notification insertion failed: " . $notifError->getMessage());
-                }
-            } else {
-                error_log('Email error: ' . $response['message']);
-                try {
-                    $notificationModel->createNotification(
-                        $studentIdentifier,
-                        'justification_processed',
-                        'Justificatif reçu (email échoué)',
-                        'Votre justificatif a été reçu mais l\'email de confirmation n\'a pas pu être envoyé.',
-                        false
-                    );
-                } catch (Exception $notifError) {
-                    error_log("Notification insertion failed: " . $notifError->getMessage());
-                }
-            }
-
-            // Delete the generated PDF after sending the email
-            if (file_exists($pdfPath)) {
-                unlink($pdfPath);
+            // Immediate in-app notification (email status handled by worker logs).
+            try {
+                $notificationModel->createNotification(
+                    $studentIdentifier,
+                    'justification_processed',
+                    'Justificatif reçu',
+                    'Votre justificatif a été reçu et est en attente de validation.',
+                    true
+                );
+            } catch (Exception $notifError) {
+                error_log("Notification insertion failed: " . $notifError->getMessage());
             }
 
             // Convert reason back to French for display
