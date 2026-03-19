@@ -244,7 +244,7 @@ class AbsenceModel
                 AND a.justified = FALSE
                 AND a.status = 'absent'
                 AND cs.course_date + cs.start_time >= :datetime_start::timestamp
-                AND cs.course_date + cs.start_time <= :datetime_end::timestamp
+                AND cs.course_date + cs.start_time < :datetime_end::timestamp
                 AND (
                     NOT EXISTS (SELECT 1 FROM proof_absences pa WHERE pa.absence_id = a.id)
                     OR EXISTS (SELECT 1 FROM proof_absences pa WHERE pa.absence_id = a.id AND pa.proof_id = :proof_id)
@@ -280,7 +280,7 @@ class AbsenceModel
                 AND a.justified = FALSE
                 AND a.status = 'absent'
                 AND cs.course_date + cs.start_time >= :datetime_start::timestamp
-                AND cs.course_date + cs.start_time <= :datetime_end::timestamp
+                AND cs.course_date + cs.start_time < :datetime_end::timestamp 
                 AND NOT EXISTS (SELECT 1 FROM proof_absences pa WHERE pa.absence_id = a.id)
             ORDER BY cs.course_date, cs.start_time";
 

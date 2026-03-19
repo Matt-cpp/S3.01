@@ -164,7 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Convert datetime formats to ensure consistency
         $startTimestamp = date('Y-m-d H:i:s', strtotime($datetimeStart));
         // Subtract 1 minute from end date to exclude courses starting exactly at the end time
-        $endTimestamp = date('Y-m-d H:i:s', strtotime($datetimeEnd . ' -1 minute'));
+        $endTimestamp = date('Y-m-d H:i:s', strtotime($datetimeEnd));
 
         $foundAbsences = $absenceModel->getAbsencesForProofSubmission(
             $studentIdentifier,
