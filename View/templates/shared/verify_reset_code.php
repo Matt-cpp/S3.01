@@ -95,12 +95,13 @@
     }
 
     // Auto-format the code (optional)
-    document.getElementById('reset_code').addEventListener('input', function(e) {
+    document.getElementById('reset_code').addEventListener('input', function (e) {
         // Remove all non-numeric characters
         this.value = this.value.replace(/\D/g, '');
     });
 </script>
 <script src="../../assets/js/translations.js"></script>
+<script src="../../assets/js/shared/async-email-forms.js"></script>
 </body>
 
 </html>

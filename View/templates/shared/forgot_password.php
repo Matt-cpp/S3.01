@@ -61,6 +61,7 @@ redirectIfAuthenticated();
         </div>
     </div>
     <script src="../../assets/js/translations.js"></script>
+    <script src="../../assets/js/shared/async-email-forms.js"></script>
 </body>
 
 </html>

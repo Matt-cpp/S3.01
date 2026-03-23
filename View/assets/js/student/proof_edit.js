@@ -60,7 +60,8 @@ function handleNewFileSelection(event, hiddenInput) {
   files.forEach((newFile) => {
     const isDuplicate = newFilesToAdd.some(
       (existingFile) =>
-        existingFile.name === newFile.name && existingFile.size === newFile.size
+        existingFile.name === newFile.name &&
+        existingFile.size === newFile.size,
     );
     if (!isDuplicate) {
       newFilesToAdd.push({
@@ -90,7 +91,7 @@ function removeNewFile(index) {
   if (fileToRemove && fileToRemove.inputElement) {
     const inputElement = fileToRemove.inputElement;
     const filesInThisInput = newFilesToAdd.filter(
-      (f) => f.inputElement === inputElement
+      (f) => f.inputElement === inputElement,
     );
 
     if (filesInThisInput.length === 0) {
@@ -188,14 +189,14 @@ function validateAndDisplayFiles() {
                     <span style="font-size: 24px;">${icon}</span>
                     <div style="flex: 1; min-width: 0;">
                         <div style="font-weight: 500; word-break: break-all; font-size: 14px;">${escapeHtml(
-                          file.name
+                          file.name,
                         )}</div>
                         <div style="font-size: 12px; color: #666;">${formatFileSize(
-                          file.size
+                          file.size,
                         )}</div>
                     </div>
                     <button type="button" onclick="removeNewFile(${index})" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap; font-size: 13px;">
-                        🗑️ Retirer
+                        Retirer
                     </button>
                 </div>
             `;
@@ -259,9 +260,9 @@ function updateFileSummary() {
     finalCount > 1 ? "s" : ""
   }<br>`;
   html += `<span${sizeClass}>Taille totale : ${formatFileSize(
-    totalSize
+    totalSize,
   )} / ${formatFileSize(FILE_CONFIG.maxTotalSize)} (${sizePercent.toFixed(
-    1
+    1,
   )}%)</span>`;
   html += "</div>";
 
@@ -321,7 +322,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(`Hidden input ${idx}:`, input.files.length, "files");
         for (let i = 0; i < input.files.length; i++) {
           console.log(
-            `  File: ${input.files[i].name} (${input.files[i].size} bytes)`
+            `  File: ${input.files[i].name} (${input.files[i].size} bytes)`,
           );
         }
       });

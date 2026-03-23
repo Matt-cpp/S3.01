@@ -580,8 +580,7 @@ class ProofModel
             $date = new DateTime($datetimeStr, $timezone);
             // Use IntlDateFormatter if available (recommended since PHP 8.1)
             if (class_exists('\IntlDateFormatter')) {
-                // pattern: 02/01/2025 Ã  14h30
-                $pattern = "dd/MM/yyyy 'Ã ' HH'h'mm";
+                $pattern = "dd/MM/yyyy 'à' HH'h'mm";
                 $formatter = new \IntlDateFormatter(
                     'fr_FR',
                     \IntlDateFormatter::NONE,
@@ -592,14 +591,13 @@ class ProofModel
                 );
                 $formatted = $formatter->format($date);
                 if ($formatted === false) {
-                    // fallback
-                    return $date->format('d/m/Y \Ã  H\hi');
+                    return $date->format('d/m/Y') . ' à ' . $date->format('H\hi');
                 }
                 return $formatted;
             }
 
             // Simple fallback if Intl not available
-            return $date->format('d/m/Y \Ã  H\hi');
+            return $date->format('d/m/Y') . ' à ' . $date->format('H\hi');
         } catch (Exception $e) {
             error_log('Error formatDateFr: ' . $e->getMessage());
             return '';

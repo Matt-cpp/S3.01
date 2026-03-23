@@ -27,11 +27,59 @@ header('Content-Type: text/html; charset=utf-8');
 
 require_once __DIR__ . '/../../../Presenter/student/ProofPresenter.php';
 
+$isAjaxRequest = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower((string) $_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+    || (isset($_SERVER['HTTP_ACCEPT']) && strpos((string) $_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+
 $presenter = new ProofPresenter();
 $viewData = $presenter->handleRequest($_GET, $_POST);
 
 if ($viewData['redirect']) {
+    if ($isAjaxRequest) {
+        $feedbackMessage = 'Action effectuée avec succès.';
+        if (strpos($viewData['redirect'], 'feedback=locked') !== false) {
+            $feedbackMessage = 'Justificatif verrouillé.';
+        } elseif (strpos($viewData['redirect'], 'feedback=unlocked') !== false) {
+            $feedbackMessage = 'Justificatif déverrouillé.';
+        } elseif (strpos($viewData['redirect'], 'feedback=rejected') !== false) {
+            $feedbackMessage = 'Justificatif refusé et étudiant notifié.';
+        } elseif (strpos($viewData['redirect'], 'feedback=validated') !== false) {
+            $feedbackMessage = 'Justificatif validé et étudiant notifié.';
+        } elseif (strpos($viewData['redirect'], 'feedback=info') !== false) {
+            $feedbackMessage = 'Demande d\'information envoyée à l\'étudiant.';
+        }
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => true,
+            'message' => $feedbackMessage,
+            'redirectUrl' => $viewData['redirect']
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
     header('Location: ' . $viewData['redirect']);
+    exit;
+}
+
+if ($isAjaxRequest && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $errorCandidates = [
+        trim((string) ($viewData['rejectionError'] ?? '')),
+        trim((string) ($viewData['validationError'] ?? '')),
+        trim((string) ($viewData['infoError'] ?? '')),
+        trim((string) ($viewData['splitError'] ?? '')),
+    ];
+    $errorMessage = 'Action impossible. Vérifiez les données saisies.';
+    foreach ($errorCandidates as $candidate) {
+        if ($candidate !== '') {
+            $errorMessage = $candidate;
+            break;
+        }
+    }
+    http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'success' => false,
+        'message' => $errorMessage
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -57,7 +105,7 @@ $timezone = new DateTimeZone('Europe/Paris');
 // Use absence_start_datetime and absence_end_datetime if available (from ProofModel)
 if (!empty($proof['absence_start_datetime'])) {
     $dt = new DateTime($proof['absence_start_datetime'], $timezone);
-    $formattedStart = $dt->format('d/m/Y \à H\hi');
+    $formattedStart = $dt->format('d/m/Y') . ' à ' . $dt->format('H\hi');
 } elseif (!empty($proof['absence_start_date'])) {
     $dt = new DateTime($proof['absence_start_date'], $timezone);
     $formattedStart = $dt->format('d/m/Y');
@@ -65,18 +113,10 @@ if (!empty($proof['absence_start_datetime'])) {
 
 if (!empty($proof['absence_end_datetime'])) {
     $dt2 = new DateTime($proof['absence_end_datetime'], $timezone);
-    $formattedEnd = $dt2->format('d/m/Y \à H\hi');
+    $formattedEnd = $dt2->format('d/m/Y') . ' à ' . $dt2->format('H\hi');
 } elseif (!empty($proof['absence_end_date'])) {
     $dt2 = new DateTime($proof['absence_end_date'], $timezone);
     $formattedEnd = $dt2->format('d/m/Y');
-}
-
-// Override with formatted fields from presenter if they exist
-if (!empty($proof['formatted_start'])) {
-    $formattedStart = $proof['formatted_start'];
-}
-if (!empty($proof['formatted_end'])) {
-    $formattedEnd = $proof['formatted_end'];
 }
 
 if (!$proof) {
@@ -124,7 +164,7 @@ if (!$proof) {
             </div>
             <div class="info-field">
                 <strong>Verrouillage:</strong> <?= htmlspecialchars($lockStatus) ?>
-                <form method="POST" action="view_proof.php" class="lock-form">
+                <form method="POST" action="view_proof.php" class="lock-form ajax-proof-form">
                     <input type="hidden" name="proof_id" value="<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>">
                     <?php if ($islocked): ?>
                         <input type="hidden" name="lock_action" value="unlock">
@@ -181,7 +221,7 @@ if (!$proof) {
             if (!empty($proofFiles)): ?>
                 <div class="files-list">
                     <?php foreach ($proofFiles as $index => $file): ?>
-                        <a href="../../../Presenter/Student/view_upload_proof.php?proof_id=<?= urlencode($proof['proof_id']) ?>&file_index=<?= $index ?>"
+                        <a href="../../../Presenter/Student/view_upload_proof.php?proof_id=<?= urlencode((string)($proof['proof_id'] ?? '')) ?>&file_index=<?= $index ?>"
                             target="_blank" rel="noopener" class="file-link"
                             title="<?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>">
                             📄 <?= htmlspecialchars($file['original_name'] ?? 'Fichier ' . ($index + 1)) ?>
@@ -198,7 +238,7 @@ if (!$proof) {
 
         <div class="actions">
             <?php if ($showInfoForm): ?>
-                <form method="POST" class="rejection-form">
+                <form method="POST" class="rejection-form ajax-proof-form">
                     <input type="hidden" name="proof_id" value="<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>">
                     <div class="form-group">
                         <label for="info_message">Message à l'étudiant :</label>
@@ -216,7 +256,7 @@ if (!$proof) {
                 </form>
 
             <?php elseif ($showRejectForm): ?>
-                <form method="POST" class="rejection-form">
+                <form method="POST" class="rejection-form ajax-proof-form">
                     <input type="hidden" name="proof_id" value="<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>">
                     <div class="form-group">
                         <label for="rejection_reason">Motif du rejet :</label>
@@ -251,7 +291,7 @@ if (!$proof) {
                 </form>
 
             <?php elseif ($showValidateForm): ?>
-                <form method="POST" class="validation-form">
+                <form method="POST" class="validation-form ajax-proof-form">
                     <input type="hidden" name="proof_id" value="<?= htmlspecialchars((string)($proof['proof_id'] ?? '')) ?>">
                     <div class="form-group">
                         <label for="validation_reason">Motif de validation :</label>
@@ -414,6 +454,62 @@ if (!$proof) {
                     toggleV();
                 }
             })();
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const forms = document.querySelectorAll('.ajax-proof-form');
+                forms.forEach(function(form) {
+                    form.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+
+                        const submitButton = form.querySelector('button[type="submit"]');
+                        if (!submitButton) {
+                            form.submit();
+                            return;
+                        }
+
+                        const originalText = submitButton.textContent;
+                        submitButton.disabled = true;
+                        submitButton.textContent = 'Traitement...';
+
+                        try {
+                            const formData = new FormData(form);
+                            const submitter = e.submitter;
+                            if (submitter && submitter.name) {
+                                formData.append(submitter.name, submitter.value || '1');
+                            }
+
+                            const response = await fetch(form.getAttribute('action') || window.location.href, {
+                                method: 'POST',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                },
+                                body: formData,
+                                credentials: 'same-origin'
+                            });
+
+                            const payload = await response.json();
+                            if (payload && payload.redirectUrl) {
+                                window.location.href = payload.redirectUrl;
+                                return;
+                            }
+
+                            if (payload && payload.success === true) {
+                                alert(payload.message || 'Action effectuée avec succès.');
+                                window.location.reload();
+                                return;
+                            }
+
+                            alert((payload && payload.message) ? payload.message : 'Une erreur est survenue.');
+                        } catch (error) {
+                            alert('Erreur reseau. Veuillez reessayer.');
+                        } finally {
+                            submitButton.disabled = false;
+                            submitButton.textContent = originalText;
+                        }
+                    });
+                });
+            });
         </script>
     </div>
 

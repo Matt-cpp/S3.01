@@ -35,6 +35,19 @@ function formatResourceLabel(fullLabel) {
 // Variable globale pour stocker les fichiers sélectionnés
 let selectedFiles = [];
 
+function updateFileInputStatus() {
+  const status = document.getElementById("proof_files_status");
+  if (!status) return;
+
+  if (selectedFiles.length === 0) {
+    status.textContent = "Aucun fichier choisi";
+  } else if (selectedFiles.length === 1) {
+    status.textContent = `1 fichier sélectionné : ${selectedFiles[0].name}`;
+  } else {
+    status.textContent = `${selectedFiles.length} fichiers sélectionnés`;
+  }
+}
+
 //Adds new files to the existing selection
 function addMoreFiles() {
   const fileInput = document.getElementById("proof_files");
@@ -177,6 +190,7 @@ function handleFileSelection(event) {
 
   // Display preview of valid files
   displayFilesPreview(selectedFiles, totalSize);
+  updateFileInputStatus();
 }
 
 /**
@@ -224,7 +238,7 @@ function displayFilesPreview(files, totalSize) {
                     )}</div>
                 </div>
                 <button type="button" class="file-remove" onclick="removeFile(${index})" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">
-                    🗑️ Supprimer
+                    Supprimer
                 </button>
             </div>
         `;
@@ -250,7 +264,7 @@ function displayFilesPreview(files, totalSize) {
             (${sizePercent.toFixed(1)}%)
         </div>
         <button type="button" onclick="addMoreFiles()" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-            ➕ Ajouter d'autres fichiers
+            Ajouter d'autres fichiers
         </button>
     `;
 
@@ -270,6 +284,7 @@ function removeFile(index) {
   // Recalculate and display
   const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
   displayFilesPreview(selectedFiles, totalSize);
+  updateFileInputStatus();
 }
 
 /**
@@ -954,6 +969,8 @@ function displayDelayWarning(message) {
 }
 
 window.addEventListener("DOMContentLoaded", function () {
+  updateFileInputStatus();
+
   // Check submission delay on page load
   checkSubmissionDelay();
 

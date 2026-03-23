@@ -22,6 +22,8 @@ require_once(__DIR__ . '/../../vendor/autoload.php');
 require_once(__DIR__ . '/../../Model/UserModel.php');
 require_once(__DIR__ . '/../../Model/format_ressource.php');
 
+use setasign\Fpdi\Tcpdf\Fpdi;
+
 if (!isset($_SESSION['reason_data'])) {
     die('Aucune donnée de justificatif trouvée.');
 }
@@ -39,8 +41,12 @@ if (isset($_SESSION['id_student'])) {
     }
 }
 
-// Create new PDF document
-$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+// Create new PDF document (prefer FPDI when available to import attached PDF pages)
+if (class_exists(Fpdi::class)) {
+    $pdf = new Fpdi(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+} else {
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+}
 
 // Set document information
 $pdf->SetCreator('Gestion d\'absences');
@@ -135,15 +141,26 @@ if ($studentInfo) {
 // Use the corresponding time zone
 $timezone = new DateTimeZone('Europe/Paris');
 $datetimeStart = new DateTime($reasonData['datetime_start'], $timezone);
-$htmlContent .= '<tr><td><strong>Date et heure de d\u00e9but :</strong></td><td>' . $datetimeStart->format('d/m/Y \u00e0 H:i:s') . '</td></tr>';
+$htmlContent .= '<tr><td><strong>Date et heure de début :</strong></td><td>' . $datetimeStart->format('d/m/Y') . ' à ' . $datetimeStart->format('H:i:s') . '</td></tr>';
 
 $datetimeEnd = new DateTime($reasonData['datetime_end'], $timezone);
-$htmlContent .= '<tr><td><strong>Date et heure de fin :</strong></td><td>' . $datetimeEnd->format('d/m/Y \u00e0 H:i:s') . '</td></tr>';
+$htmlContent .= '<tr><td><strong>Date et heure de fin :</strong></td><td>' . $datetimeEnd->format('d/m/Y') . ' à ' . $datetimeEnd->format('H:i:s') . '</td></tr>';
 
-$htmlContent .= '<tr><td><strong>Motif de l\'absence :</strong></td><td>' . htmlspecialchars($reasonData['absence_reason']) . '</td></tr>';
+$reasonLabels = [
+    'maladie' => 'Maladie',
+    'deces' => 'Décès dans la famille',
+    'obligations_familiales' => 'Obligations familiales',
+    'rdv_medical' => 'Rendez-vous médical',
+    'convocation_officielle' => 'Convocation officielle (permis, TOEIC, etc.)',
+    'transport' => 'Problème de transport',
+    'autre' => 'Autre',
+];
+$reasonDisplay = $reasonLabels[$reasonData['absence_reason'] ?? ''] ?? ($reasonData['absence_reason'] ?? 'Non précisé');
+
+$htmlContent .= '<tr><td><strong>Motif de l\'absence :</strong></td><td>' . htmlspecialchars($reasonDisplay) . '</td></tr>';
 
 if (!empty($reasonData['other_reason'])) {
-    $htmlContent .= '<tr><td><strong>Pr\u00e9cision du motif :</strong></td><td>' . htmlspecialchars($reasonData['other_reason']) . '</td></tr>';
+    $htmlContent .= '<tr><td><strong>Précision du motif :</strong></td><td>' . htmlspecialchars($reasonData['other_reason']) . '</td></tr>';
 }
 
 // Display uploaded files
@@ -163,7 +180,8 @@ if (!empty($reasonData['comments'])) {
     $htmlContent .= '<tr><td><strong>Commentaires :</strong></td><td>' . nl2br(htmlspecialchars($reasonData['comments'])) . '</td></tr>';
 }
 
-$htmlContent .= '<tr><td><strong>Date de soumission :</strong></td><td>' . date('d/m/Y \u00e0 H:i:s', strtotime($reasonData['submission_date'])) . '</td></tr>';
+$submissionDate = new DateTime($reasonData['submission_date'], $timezone);
+$htmlContent .= '<tr><td><strong>Date de soumission :</strong></td><td>' . $submissionDate->format('d/m/Y') . ' à ' . $submissionDate->format('H:i:s') . '</td></tr>';
 $htmlContent .= '</table>';
 
 // Add absence statistics if available
@@ -233,15 +251,15 @@ if ($statsHours > 0 || (!empty($courses) && $courses !== '')) {
                             <th width="10%">Salle</th>
                           </tr>';
 
-        foreach ($stats_evaluation_details as $eval) {
-            $html_content .= '<tr>';
-            $html_content .= '<td>' . htmlspecialchars(formatResourceLabel($eval['resource_label'] ?? 'Non spécifié')) . '</td>';
-            $html_content .= '<td>' . htmlspecialchars($eval['course_date'] ?? '') . '</td>';
-            $html_content .= '<td>' . htmlspecialchars($eval['start_time'] ?? '') . '-' . htmlspecialchars($eval['end_time'] ?? '') . '</td>';
-            $html_content .= '<td>' . htmlspecialchars($eval['course_type'] ?? '') . '</td>';
-            $html_content .= '<td>' . htmlspecialchars($eval['teacher'] ?? '') . '</td>';
-            $html_content .= '<td>' . htmlspecialchars($eval['room'] ?? '') . '</td>';
-            $html_content .= '</tr>';
+        foreach ($statsEvaluationDetails as $eval) {
+            $htmlContent .= '<tr>';
+            $htmlContent .= '<td>' . htmlspecialchars(formatResourceLabel($eval['resource_label'] ?? 'Non spécifié')) . '</td>';
+            $htmlContent .= '<td>' . htmlspecialchars($eval['course_date'] ?? '') . '</td>';
+            $htmlContent .= '<td>' . htmlspecialchars($eval['start_time'] ?? '') . '-' . htmlspecialchars($eval['end_time'] ?? '') . '</td>';
+            $htmlContent .= '<td>' . htmlspecialchars($eval['course_type'] ?? '') . '</td>';
+            $htmlContent .= '<td>' . htmlspecialchars($eval['teacher'] ?? '') . '</td>';
+            $htmlContent .= '<td>' . htmlspecialchars($eval['room'] ?? '') . '</td>';
+            $htmlContent .= '</tr>';
         }
         $htmlContent .= '</table>';
     }
@@ -295,9 +313,18 @@ if (!empty($proofFiles)) {
                     $pdf->SetTextColor(0, 0, 255);
                     $pdf->Cell(0, 10, 'Type de fichier : Document PDF', 0, 1, 'L');
                     $pdf->SetTextColor(0, 0, 0);
-                    $pdf->addPage();
 
-                    if (class_exists('Imagick')) {
+                    if ($pdf instanceof Fpdi) {
+                        $pageCount = $pdf->setSourceFile($uploadPath);
+                        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                            $templateId = $pdf->importPage($pageNo);
+                            $size = $pdf->getTemplateSize($templateId);
+                            $orientation = ($size['width'] > $size['height']) ? 'L' : 'P';
+                            $pdf->AddPage($orientation);
+                            $pdf->useTemplate($templateId, 10, 10, 190);
+                        }
+                    } elseif (class_exists('Imagick')) {
+                        $pdf->addPage();
                         try {
                             // First, get the number of pages in the PDF
                             $imagick = new Imagick();
@@ -339,6 +366,10 @@ if (!empty($proofFiles)) {
                             $pdf->Cell(0, 10, 'Erreur lors de la conversion PDF : ' . $e->getMessage(), 0, 1, 'L');
                             $pdf->SetTextColor(0, 0, 0);
                         }
+                    } else {
+                        $pdf->SetTextColor(255, 140, 0);
+                        $pdf->Cell(0, 10, 'Aperçu PDF indisponible: aucun moteur de rendu PDF (FPDI/Imagick) n\'est disponible.', 0, 1, 'L');
+                        $pdf->SetTextColor(0, 0, 0);
                     }
                 } catch (Exception $e) {
                     $pdf->SetTextColor(255, 0, 0);

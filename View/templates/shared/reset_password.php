@@ -124,7 +124,7 @@
         confirmPassword.addEventListener('input', checkPasswords);
 
         // Password strength validation
-        password.addEventListener('input', function() {
+        password.addEventListener('input', function () {
             const strength = document.getElementById('password-strength');
             if (!strength) {
                 const strengthDiv = document.createElement('div');
@@ -153,6 +153,7 @@
         });
     </script>
     <script src="../../assets/js/translations.js"></script>
+    <script src="../../assets/js/shared/async-email-forms.js"></script>
 </body>
 
 </html>
