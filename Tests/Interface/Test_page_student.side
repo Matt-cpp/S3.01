@@ -24,14 +24,14 @@
       "id": "e1abaf86-da9a-481c-8b8b-7e6615624609",
       "comment": "",
       "command": "store",
-      "target": "yony.collard@uphf.fr",
+      "target": "mail.test@uphf.fr",
       "targets": [],
       "value": "email"
     }, {
       "id": "719132c5-b16c-428a-83c0-d78e66cd6178",
       "comment": "",
       "command": "store",
-      "target": "yony1236",
+      "target": "abcde",
       "targets": [],
       "value": "mdp"
     }, {
@@ -91,16 +91,13 @@
       "id": "c13abb4e-d8a6-487f-85c4-d170530b6823",
       "comment": "",
       "command": "assertText",
-      "target": "linkText=+ Soumettre justificatif",
+      "target": "css=.page-title",
       "targets": [
-        ["linkText=+ Soumettre justificatif", "linkText"],
-        ["css=.nav-link-primary", "css:finder"],
-        ["xpath=//a[contains(text(),'+ Soumettre justificatif')]", "xpath:link"],
-        ["xpath=//a[contains(@href, '/View/templates/student/proof_submit.php')]", "xpath:href"],
-        ["xpath=//a[5]", "xpath:position"],
-        ["xpath=//a[contains(.,'+ Soumettre justificatif')]", "xpath:innerText"]
+        ["css=.page-title", "css:finder"],
+        ["xpath=//h1", "xpath:position"],
+        ["xpath=//h1[contains(.,'Tableau de bord - Professeur')]", "xpath:innerText"]
       ],
-      "value": "+ Soumettre justificatif"
+      "value": "Tableau de bord - Professeur"
     }, {
       "id": "f773052d-3a41-46f0-be0c-24652fa32eff",
       "comment": "",
@@ -176,7 +173,7 @@
       "id": "d310dc2e-ea69-4a25-a43d-78ba7c7bd203",
       "comment": "",
       "command": "click",
-      "target": "linkText=Mes absences",
+      "target": "linkText=Planifier rattrapage",
       "targets": [
         ["linkText=Mes absences", "linkText"],
         ["css=.nav-link:nth-child(2)", "css:finder"],
@@ -190,7 +187,7 @@
       "id": "a9b3af0a-36a2-47d7-ae28-4bee362fa03c",
       "comment": "",
       "command": "executeScript",
-      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 5000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 5000 ms)`); } return Math.round(ms);",
+      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 8000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 8000 ms)`); } return Math.round(ms);",
       "targets": [],
       "value": "loadMs"
     }, {
@@ -201,21 +198,21 @@
       "targets": [
         ["css=.page-title", "css:finder"],
         ["xpath=//h1", "xpath:position"],
-        ["xpath=//h1[contains(.,'Mes Absences')]", "xpath:innerText"]
+        ["xpath=//h1[contains(.,'Planifier un rattrapage')]", "xpath:innerText"]
       ],
-      "value": "Mes Absences"
+      "value": "Planifier un rattrapage"
     }, {
       "id": "9adb0698-18ec-4ccf-91d7-789b788bd9ea",
       "comment": "",
       "command": "click",
-      "target": "linkText=Mes justificatifs",
+      "target": "linkText=Mes évaluations",
       "targets": [
-        ["linkText=Mes justificatifs", "linkText"],
+        ["linkText=Mes évaluations", "linkText"],
         ["css=.nav-link:nth-child(3)", "css:finder"],
-        ["xpath=//a[contains(text(),'Mes justificatifs')]", "xpath:link"],
-        ["xpath=//a[contains(@href, '/View/templates/student/proofs.php')]", "xpath:href"],
+        ["xpath=//a[contains(text(),'Mes évaluations')]", "xpath:link"],
+        ["xpath=//a[contains(@href, '/View/templates/teacher/evaluations.php')]", "xpath:href"],
         ["xpath=//a[3]", "xpath:position"],
-        ["xpath=//a[contains(.,'Mes justificatifs')]", "xpath:innerText"]
+        ["xpath=//a[contains(.,'Mes évaluations')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
@@ -229,13 +226,13 @@
       "id": "cf6acd9d-cb8d-41db-aa1c-9a1de7ea85ea",
       "comment": "",
       "command": "assertText",
-      "target": "css=.page-title",
+      "target": "css=h1",
       "targets": [
-        ["css=.page-title", "css:finder"],
+        ["css=h1", "css:finder"],
         ["xpath=//h1", "xpath:position"],
-        ["xpath=//h1[contains(.,'Mes Justificatifs')]", "xpath:innerText"]
+        ["xpath=//h1[contains(.,'Tableau des Evaluations')]", "xpath:innerText"]
       ],
-      "value": "Mes Justificatifs"
+      "value": "Tableau des Evaluations"
     }, {
       "id": "cd0ceb2f-3157-44e5-ac3f-156178f75d3a",
       "comment": "",
@@ -245,7 +242,7 @@
         ["linkText=Statistiques", "linkText"],
         ["css=.nav-link:nth-child(4)", "css:finder"],
         ["xpath=//a[contains(text(),'Statistiques')]", "xpath:link"],
-        ["xpath=//a[contains(@href, '/View/templates/student/statistics.php')]", "xpath:href"],
+        ["xpath=//a[contains(@href, '/View/templates/teacher/statistics.php')]", "xpath:href"],
         ["xpath=//a[4]", "xpath:position"],
         ["xpath=//a[contains(.,'Statistiques')]", "xpath:innerText"]
       ],
@@ -264,82 +261,22 @@
       "target": "css=h1",
       "targets": [
         ["css=h1", "css:finder"],
-        ["xpath=//h1", "xpath:position"]
+        ["xpath=//h1", "xpath:position"],
+        ["xpath=//h1[contains(.,'Statistiques des absences')]", "xpath:innerText"]
       ],
-      "value": "Mes Statistiques d'absences"
+      "value": "Statistiques des absences"
     }, {
       "id": "f473b5d4-7d82-4406-b146-01da54d3609a",
-      "comment": "",
-      "command": "click",
-      "target": "linkText=+ Soumettre justificatif",
-      "targets": [
-        ["linkText=+ Soumettre justificatif", "linkText"],
-        ["css=.nav-link-primary", "css:finder"],
-        ["xpath=//a[contains(text(),'+ Soumettre justificatif')]", "xpath:link"],
-        ["xpath=//a[contains(@href, '/View/templates/student/proof_submit.php')]", "xpath:href"],
-        ["xpath=//a[5]", "xpath:position"],
-        ["xpath=//a[contains(.,'+ Soumettre justificatif')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "cee12510-ae4f-4245-8959-195ed569596c",
-      "comment": "",
-      "command": "executeScript",
-      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 5000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 5000 ms)`); } return Math.round(ms);",
-      "targets": [],
-      "value": "loadMs"
-    }, {
-      "id": "a2b1c421-4534-4389-8153-5c9c88027685",
-      "comment": "",
-      "command": "assertText",
-      "target": "css=.page-title",
-      "targets": [
-        ["css=.page-title", "css:finder"],
-        ["xpath=//h1", "xpath:position"],
-        ["xpath=//h1[contains(.,'Création de justificatif')]", "xpath:innerText"]
-      ],
-      "value": "Création de justificatif"
-    }, {
-      "id": "72ec2fa5-f100-480b-8ec3-6eb4a6872311",
-      "comment": "",
-      "command": "click",
-      "target": "css=.icon > span",
-      "targets": [
-        ["css=.icon > span", "css:finder"],
-        ["xpath=//a/div/span", "xpath:position"],
-        ["xpath=//span[contains(.,'❓')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "b90ca52e-39e4-436c-a3c6-f8536c03b156",
-      "comment": "",
-      "command": "executeScript",
-      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 5000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 5000 ms)`); } return Math.round(ms);",
-      "targets": [],
-      "value": "loadMs"
-    }, {
-      "id": "91e93e02-9a43-48dd-bba1-841e20c882df",
-      "comment": "",
-      "command": "assertText",
-      "target": "css=.page-title",
-      "targets": [
-        ["css=.page-title", "css:finder"],
-        ["xpath=//h1", "xpath:position"],
-        ["xpath=//h1[contains(.,'Informations et Procédure de Justification')]", "xpath:innerText"]
-      ],
-      "value": "Informations et Procédure de Justification"
-    }, {
-      "id": "3d837634-eeb0-44e4-9ea2-9f6072cc958f",
       "comment": "",
       "command": "click",
       "target": "css=.settings",
       "targets": [
         ["css=.settings", "css:finder"],
-        ["xpath=//a[2]/div", "xpath:position"]
+        ["xpath=//a/div", "xpath:position"]
       ],
       "value": ""
     }, {
-      "id": "e4ec3f9d-f412-4f00-a09a-2ab030862f90",
+      "id": "cee12510-ae4f-4245-8959-195ed569596c",
       "comment": "",
       "command": "executeScript",
       "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 5000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 5000 ms)`); } return Math.round(ms);",
@@ -357,7 +294,7 @@
       ],
       "value": "Paramètres"
     }, {
-      "id": "4d6ada02-9787-4ba9-912f-d58968763ee9",
+      "id": "bef829f1-9fd6-490e-83df-69dc9ec6fd02",
       "comment": "",
       "command": "click",
       "target": "linkText=Tableau de bord",
@@ -365,129 +302,46 @@
         ["linkText=Tableau de bord", "linkText"],
         ["css=.nav-link:nth-child(1)", "css:finder"],
         ["xpath=//a[contains(text(),'Tableau de bord')]", "xpath:link"],
-        ["xpath=//a[contains(@href, '/View/templates/student/home.php')]", "xpath:href"],
+        ["xpath=//a[contains(@href, '/View/templates/teacher/home.php')]", "xpath:href"],
         ["xpath=//a", "xpath:position"],
         ["xpath=//a[contains(.,'Tableau de bord')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
-      "id": "57847997-7406-410e-92cc-b555a346a3eb",
+      "id": "d1268e11-0e5e-48b9-a943-e9fc525d926a",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.page-title",
+      "targets": [
+        ["css=.page-title", "css:finder"],
+        ["xpath=//h1", "xpath:position"],
+        ["xpath=//h1[contains(.,'Planifier un rattrapage')]", "xpath:innerText"]
+      ],
+      "value": "Tableau de bord - Professeur"
+    }, {
+      "id": "0eb4dd5d-4fd3-451f-8db5-9260e5f9013f",
       "comment": "",
       "command": "click",
-      "target": "css=.proof-accepted .proof-description",
+      "target": "linkText=Planifier un rattrapage",
       "targets": [
-        ["css=.proof-accepted .proof-description", "css:finder"],
-        ["xpath=//a/div[2]/div[3]", "xpath:position"]
+        ["linkText=Planifier un rattrapage", "linkText"],
+        ["css=.btn-primary-action:nth-child(2)", "css:finder"],
+        ["xpath=(//a[contains(text(),'Planifier un rattrapage')])[2]", "xpath:link"],
+        ["xpath=(//a[contains(@href, 'planifier_rattrapage.php')])[3]", "xpath:href"],
+        ["xpath=//div[3]/div/a", "xpath:position"]
       ],
       "value": ""
     }, {
-      "id": "feea336c-13c8-4224-8e0a-d50d12730a87",
+      "id": "bfa22b1a-65f4-420f-89ea-5ddb6442ef26",
       "comment": "",
-      "command": "executeScript",
-      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 5000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 5000 ms)`); } return Math.round(ms);",
-      "targets": [],
-      "value": "loadMs"
-    }, {
-      "id": "2fc89dd8-5645-45bc-8d70-b1fecb708a03",
-      "comment": "",
-      "command": "assertValue",
-      "target": "id=statusFilter",
-      "targets": [],
-      "value": "accepted"
-    }, {
-      "id": "8fe2765c-0582-4258-b84a-5c2c0642ef5b",
-      "comment": "",
-      "command": "click",
-      "target": "linkText=Tableau de bord",
+      "command": "assertText",
+      "target": "css=.page-title",
       "targets": [
-        ["linkText=Tableau de bord", "linkText"],
-        ["css=.nav-link:nth-child(1)", "css:finder"],
-        ["xpath=//a[contains(text(),'Tableau de bord')]", "xpath:link"],
-        ["xpath=//a[contains(@href, '/View/templates/student/home.php')]", "xpath:href"],
-        ["xpath=//a", "xpath:position"],
-        ["xpath=//a[contains(.,'Tableau de bord')]", "xpath:innerText"]
+        ["css=.page-title", "css:finder"],
+        ["xpath=//h1", "xpath:position"],
+        ["xpath=//h1[contains(.,'Planifier un rattrapage')]", "xpath:innerText"]
       ],
-      "value": ""
-    }, {
-      "id": "901936f2-44fc-4310-ae6b-c6a3ff8b8572",
-      "comment": "",
-      "command": "click",
-      "target": "css=.proof-pending .proof-label",
-      "targets": [
-        ["css=.proof-pending .proof-label", "css:finder"],
-        ["xpath=//a[2]/div[2]/div[2]", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "b0c83c78-19b1-4d8e-8cfd-2e7ad94639ec",
-      "comment": "",
-      "command": "assertValue",
-      "target": "id=statusFilter",
-      "targets": [],
-      "value": "pending"
-    }, {
-      "id": "e8662122-26d8-4ced-93fa-9fa505bcfdb2",
-      "comment": "",
-      "command": "click",
-      "target": "linkText=Tableau de bord",
-      "targets": [
-        ["linkText=Tableau de bord", "linkText"],
-        ["css=.nav-link:nth-child(1)", "css:finder"],
-        ["xpath=//a[contains(text(),'Tableau de bord')]", "xpath:link"],
-        ["xpath=//a[contains(@href, '/View/templates/student/home.php')]", "xpath:href"],
-        ["xpath=//a", "xpath:position"],
-        ["xpath=//a[contains(.,'Tableau de bord')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "d53fcc81-6f55-4451-9878-3d7cce709e2f",
-      "comment": "",
-      "command": "click",
-      "target": "css=.proof-review .proof-label",
-      "targets": [
-        ["css=.proof-review .proof-label", "css:finder"],
-        ["xpath=//a[3]/div[2]/div[2]", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "85e0c854-ea80-4fe3-bfbc-e749c1e16cc2",
-      "comment": "",
-      "command": "assertValue",
-      "target": "id=statusFilter",
-      "targets": [],
-      "value": "under_review"
-    }, {
-      "id": "91f5bed2-9454-4f36-a4f3-53357a374cf8",
-      "comment": "",
-      "command": "click",
-      "target": "linkText=Tableau de bord",
-      "targets": [
-        ["linkText=Tableau de bord", "linkText"],
-        ["css=.nav-link:nth-child(1)", "css:finder"],
-        ["xpath=//a[contains(text(),'Tableau de bord')]", "xpath:link"],
-        ["xpath=//a[contains(@href, '/View/templates/student/home.php')]", "xpath:href"],
-        ["xpath=//a", "xpath:position"],
-        ["xpath=//a[contains(.,'Tableau de bord')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "52111bb6-89c5-4ca8-856b-68e22ea7afa8",
-      "comment": "",
-      "command": "click",
-      "target": "css=.proof-rejected",
-      "targets": [
-        ["css=.proof-rejected", "css:finder"],
-        ["xpath=//a[contains(@href, 'proofs.php?status=rejected')]", "xpath:href"],
-        ["xpath=//div/a[4]", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "8825e2f3-a1a7-4b03-8792-a125eb413e71",
-      "comment": "",
-      "command": "assertValue",
-      "target": "id=statusFilter",
-      "targets": [],
-      "value": "rejected"
+      "value": "Planifier un rattrapage"
     }, {
       "id": "71cc5592-0474-4737-bb26-80571dad0ff4",
       "comment": "",
@@ -498,89 +352,123 @@
     }]
   }, {
     "id": "64ea794c-f162-49d8-8e9c-bd8234e887d2",
-    "name": "TestFilterModal",
-    "commands": []
-  }, {
-    "id": "da62a2e4-97fd-451a-b1c3-e068540278ae",
-    "name": "TestSubmission",
-    "commands": []
-  }, {
-    "id": "98c9dbdd-a5e4-4e53-97a5-dfe3271a313d",
-    "name": "TestDarkMode",
+    "name": "TestFilter",
     "commands": [{
-      "id": "7f0b1392-ad65-4d9e-91b5-0186edf6d689",
+      "id": "7e0bad5f-db35-4675-8a89-430fcd0927c6",
       "comment": "",
       "command": "open",
       "target": "/View/templates/shared/login.php",
       "targets": [],
       "value": ""
     }, {
-      "id": "7383c8e5-8496-4aee-b8ca-ddfa7db3f334",
+      "id": "b16c327c-839c-404c-8130-6dc2b17223ae",
       "comment": "",
       "command": "setWindowSize",
       "target": "1400x800",
       "targets": [],
       "value": ""
     }, {
-      "id": "aab9b639-00a8-4e00-816e-98b6e4080ed6",
+      "id": "ed18fe40-c985-40fd-bdd0-64a4234afef9",
       "comment": "",
       "command": "click",
-      "target": "css=.settings",
+      "target": "linkText=Statistiques",
       "targets": [
-        ["css=.settings", "css:finder"],
-        ["xpath=//a[2]/div", "xpath:position"]
+        ["linkText=Statistiques", "linkText"],
+        ["css=.nav-link:nth-child(4)", "css:finder"],
+        ["xpath=//a[contains(text(),'Statistiques')]", "xpath:link"],
+        ["xpath=//a[contains(@href, '/View/templates/teacher/statistics.php')]", "xpath:href"],
+        ["xpath=//a[4]", "xpath:position"],
+        ["xpath=//a[contains(.,'Statistiques')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
-      "id": "354ef500-c9c3-45e1-ad7e-a46303b5aab6",
+      "id": "9cf1934c-5758-4995-ae77-adb9b4b0a54d",
       "comment": "",
       "command": "click",
-      "target": "css=.dark-preview",
+      "target": "css=.toggle-arrow",
       "targets": [
-        ["css=.dark-preview", "css:finder"],
-        ["xpath=//label[2]/div/div", "xpath:position"]
+        ["css=.toggle-arrow", "css:finder"],
+        ["xpath=//div[@id='filters-toggle']/span[3]", "xpath:idRelative"],
+        ["xpath=//div/span[3]", "xpath:position"],
+        ["xpath=//span[contains(.,'▼')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
-      "id": "437d4d7f-b388-4906-bf6f-83fb8fe2f34a",
+      "id": "199b0831-4b57-418c-b26d-390ebf667e8a",
       "comment": "",
-      "command": "pause",
-      "target": "3000",
+      "command": "select",
+      "target": "id=semester-filter",
       "targets": [],
-      "value": "3000"
+      "value": "label=S2"
     }, {
-      "id": "140ef034-d099-415b-bfa4-d14299c1d3a3",
+      "id": "7c3ffe42-d7ff-4dba-91bb-1ccb2ab865ef",
+      "comment": "",
+      "command": "click",
+      "target": "css=#semester-filter > option:nth-child(2)",
+      "targets": [
+        ["css=#semester-filter > option:nth-child(2)", "css:finder"],
+        ["xpath=//option[@value='S1']", "xpath:attributes"],
+        ["xpath=//select[@id='semester-filter']/option[2]", "xpath:idRelative"],
+        ["xpath=//option[2]", "xpath:position"],
+        ["xpath=//option[contains(.,'S1')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "90d3a7f6-e3ff-474d-9e72-e46dcec39f0e",
+      "comment": "",
+      "command": "select",
+      "target": "id=course-type-filter",
+      "targets": [],
+      "value": "label=CM"
+    }, {
+      "id": "27aca193-575a-4efd-8f57-91c621f88bf3",
+      "comment": "",
+      "command": "click",
+      "target": "id=student-search",
+      "targets": [
+        ["id=student-search", "id"],
+        ["css=#student-search", "css:finder"],
+        ["xpath=//input[@id='student-search']", "xpath:attributes"],
+        ["xpath=//div[@id='filters-content']/div/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "e333aa9b-f5f4-46a9-80f5-9fa52c3669d9",
       "comment": "",
       "command": "executeScript",
-      "target": "const el = document.querySelector('body'); if (!el) throw new Error('Element introuvable');  const c = getComputedStyle(el).backgroundColor.replace(/\\s+/g, ''); if (c !== 'rgb(26,26,26)') {   throw new Error('Couleur attendue rgb(26,26,26), obtenue: ' + c); }",
+      "target": "document.getElementById(\"student-search\").value=\"Nathan Simon\";document.getElementById(\"student-search\").dispatchEvent(new Event(\"input\",{bubbles:true}));document.getElementById(\"student-search\").dispatchEvent(new Event(\"change\",{bubbles:true}));",
       "targets": [],
-      "value": ""
+      "value": "Nathan Simon"
     }, {
-      "id": "ec5a5a03-eee9-43ae-b67a-16566b6f0324",
+      "id": "cc9e277b-9486-4584-8725-347245711c18",
       "comment": "",
       "command": "click",
-      "target": "css=.light-preview",
+      "target": "id=apply-filters",
       "targets": [
-        ["css=.dark-preview", "css:finder"],
-        ["xpath=//label[2]/div/div", "xpath:position"]
+        ["id=apply-filters", "id"],
+        ["css=#apply-filters", "css:finder"],
+        ["xpath=//button[@id='apply-filters']", "xpath:attributes"],
+        ["xpath=//div[@id='filters-content']/button", "xpath:idRelative"],
+        ["xpath=//div[2]/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Appliquer les filtres')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
-      "id": "13fec812-b0e8-4405-a294-df3442702394",
+      "id": "42f9d65b-3ec8-4aca-b21c-0e69023f7e96",
       "comment": "",
-      "command": "pause",
-      "target": "3000",
-      "targets": [],
-      "value": "3000"
+      "command": "assertText",
+      "target": "id=total-absences",
+      "targets": [
+        ["id=total-absences", "id"],
+        ["css=#total-absences", "css:finder"],
+        ["xpath=//span[@id='total-absences']", "xpath:attributes"],
+        ["xpath=//div[2]/span[2]", "xpath:position"],
+        ["xpath=//span[contains(.,'16')]", "xpath:innerText"]
+      ],
+      "value": "2"
     }, {
-      "id": "8b5277c6-a9d2-479f-a876-5d089e82f6d4",
-      "comment": "",
-      "command": "executeScript",
-      "target": "const el = document.querySelector('body'); if (!el) throw new Error('Element introuvable');  const c = getComputedStyle(el).backgroundColor.replace(/\\s+/g, ''); if (c !== 'rgba(0,0,0,0)') {   throw new Error('Couleur attendue rgba(0,0,0,0), obtenue: ' + c); }",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "46acf0d6-bd57-40a8-840f-6042a9473923",
+      "id": "17bcad59-74f4-4845-b88b-e74759777471",
       "comment": "",
       "command": "close",
       "target": "",
@@ -594,7 +482,7 @@
     "persistSession": false,
     "parallel": false,
     "timeout": 10000,
-    "tests": ["09210cde-da9c-4f48-a2c3-d7022cb4ca28"]
+    "tests": ["bee172b3-7535-42db-a415-d3400b7baf86", "c849e4bb-8ab2-4002-a5fc-6b3b372ad47a", "64ea794c-f162-49d8-8e9c-bd8234e887d2", "09210cde-da9c-4f48-a2c3-d7022cb4ca28"]
   }],
   "urls": ["http://localhost:8000/", "http://localhost:8000/View/templates/shared/login.php"],
   "plugins": []

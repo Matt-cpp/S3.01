@@ -81,7 +81,7 @@ $evaluations = $table->getEvaluations();
                             <tr>
                                 <td><?php echo htmlspecialchars(formatResourceLabel($eval['label'])); ?></td>
                                 <td><?php echo htmlspecialchars($eval['course_date']); ?></td>
-                                <td><?php echo htmlspecialchars($eval['start_time']); ?></td>
+                                <td><?php echo htmlspecialchars(date('H:i', strtotime((string)$eval['start_time']))); ?></td>
                                 <td><?php echo htmlspecialchars((string)$eval['nbabs']); ?></td>
                                 <td><?php echo htmlspecialchars((string)$eval['nb_justifications']); ?></td>
                                 <td>

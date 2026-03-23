@@ -195,16 +195,21 @@ class StudentStatisticsPresenter
             $filters['course_type'] = $_GET['course_type'];
         }
 
+        if (($filters['course_type'] ?? '') === 'evaluation') {
+            unset($filters['course_type']);
+            $filters['is_evaluation'] = true;
+        }
+
         return $filters;
     }
 
     /**
      * Get recent absences for the student (last 10)
      */
-    public function getRecentAbsences(int $limit = 10): array
+    public function getRecentAbsences(int $limit = 10, array $filters = []): array
     {
         try {
-            $absences = $this->statisticsModel->getStudentRecentAbsencesList($this->studentIdentifier, $limit);
+            $absences = $this->statisticsModel->getStudentRecentAbsencesList($this->studentIdentifier, $limit, $filters);
 
             // Format resource labels
             foreach ($absences as &$absence) {

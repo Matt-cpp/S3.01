@@ -211,7 +211,8 @@ class StatisticsModel
                 COUNT(DISTINCT CASE WHEN a.justified = false THEN a.id END) as unjustified_absences,
                 COUNT(DISTINCT CASE WHEN cs.course_type = 'CM' THEN a.id END) as cm_absences,
                 COUNT(DISTINCT CASE WHEN cs.course_type = 'TD' THEN a.id END) as td_absences,
-                COUNT(DISTINCT CASE WHEN cs.course_type = 'TP' THEN a.id END) as tp_absences
+                COUNT(DISTINCT CASE WHEN cs.course_type = 'TP' THEN a.id END) as tp_absences,
+                COUNT(DISTINCT CASE WHEN cs.is_evaluation = true THEN a.id END) as evaluation_absences
             FROM absences a
             JOIN users u ON a.student_identifier = u.identifier
             JOIN course_slots cs ON a.course_slot_id = cs.id
@@ -420,6 +421,11 @@ class StatisticsModel
         if (!empty($filters['course_type'])) {
             $conditions[] = "{$courseSlotAlias}.course_type = :course_type";
             $params[':course_type'] = $filters['course_type'];
+        }
+
+        if (isset($filters['is_evaluation'])) {
+            $conditions[] = "{$courseSlotAlias}.is_evaluation = :is_evaluation";
+            $params[':is_evaluation'] = $filters['is_evaluation'];
         }
 
         if (!empty($filters['semester'])) {
@@ -701,14 +707,7 @@ class StatisticsModel
         ";
         $params = [':student_identifier' => $studentIdentifier];
 
-        if (!empty($filters['start_date'])) {
-            $query .= " AND cs.course_date >= :start_date";
-            $params[':start_date'] = $filters['start_date'];
-        }
-        if (!empty($filters['end_date'])) {
-            $query .= " AND cs.course_date <= :end_date";
-            $params[':end_date'] = $filters['end_date'];
-        }
+        $query .= $this->buildFilterConditions($filters, $params, true, 'cs', 'a');
 
         $query .= " GROUP BY cs.course_type ORDER BY cs.course_type";
         try {
@@ -737,14 +736,7 @@ class StatisticsModel
         ";
         $params = [':student_identifier' => $studentIdentifier];
 
-        if (!empty($filters['start_date'])) {
-            $query .= " AND cs.course_date >= :start_date";
-            $params[':start_date'] = $filters['start_date'];
-        }
-        if (!empty($filters['end_date'])) {
-            $query .= " AND cs.course_date <= :end_date";
-            $params[':end_date'] = $filters['end_date'];
-        }
+        $query .= $this->buildFilterConditions($filters, $params, true, 'cs', 'a');
 
         $query .= " GROUP BY TO_CHAR(cs.course_date, 'YYYY-MM'), TO_CHAR(cs.course_date, 'Mon YYYY')
                     ORDER BY TO_CHAR(cs.course_date, 'YYYY-MM')";
@@ -759,7 +751,7 @@ class StatisticsModel
     /**
      * Recent absences list for a student (simple, for statistics page).
      */
-    public function getStudentRecentAbsencesList(string $studentIdentifier, int $limit = 10): array
+    public function getStudentRecentAbsencesList(string $studentIdentifier, int $limit = 10, array $filters = []): array
     {
         $sql = "
             SELECT
@@ -777,14 +769,24 @@ class StatisticsModel
             LEFT JOIN resources r ON cs.resource_id = r.id
             LEFT JOIN teachers t ON cs.teacher_id = t.id
             WHERE a.student_identifier = :student_identifier
-            ORDER BY cs.course_date DESC, cs.start_time DESC
-            LIMIT :limit
         ";
+        $params = [':student_identifier' => $studentIdentifier, ':limit' => $limit];
+        $sql .= $this->buildFilterConditions($filters, $params, true, 'cs', 'a');
+        $sql .= " ORDER BY cs.course_date DESC, cs.start_time DESC
+            LIMIT :limit";
+
         try {
             $conn = $this->db->getConnection();
             $stmt = $conn->prepare($sql);
-            $stmt->bindValue(':student_identifier', $studentIdentifier, PDO::PARAM_STR);
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+
+            foreach ($params as $key => $value) {
+                if ($key === ':limit') {
+                    $stmt->bindValue($key, $value, PDO::PARAM_INT);
+                } else {
+                    $stmt->bindValue($key, $value);
+                }
+            }
+
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (Exception $e) {

@@ -60,7 +60,7 @@ declare(strict_types=1);
     $courseTypeData = $presenter->getCourseTypeData($filters);
     $resourceData = $presenter->getResourceData($filters);
     $monthlyTrends = $presenter->getDetailedMonthlyTrends($filters);
-    $recentAbsences = $presenter->getRecentAbsences(10);
+    $recentAbsences = $presenter->getRecentAbsences(10, $filters);
     ?>
 
     <?php include __DIR__ . '/../navbar.php'; ?>
@@ -99,7 +99,7 @@ declare(strict_types=1);
                                 <option value="CM" <?php echo ($filters['course_type'] ?? '') === 'CM' ? 'selected' : ''; ?>>CM</option>
                                 <option value="TD" <?php echo ($filters['course_type'] ?? '') === 'TD' ? 'selected' : ''; ?>>TD</option>
                                 <option value="TP" <?php echo ($filters['course_type'] ?? '') === 'TP' ? 'selected' : ''; ?>>TP</option>
-                                <option value="DS" <?php echo ($filters['course_type'] ?? '') === 'DS' ? 'selected' : ''; ?>>DS (Évaluation)</option>
+                                <option value="evaluation" <?php echo isset($filters['is_evaluation']) && $filters['is_evaluation'] === true ? 'selected' : ''; ?>>Évaluation</option>
                             </select>
                         </div>
                     </div>

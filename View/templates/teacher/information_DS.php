@@ -47,7 +47,7 @@ if ($courseSlotId <= 0) {
                 <?php echo htmlspecialchars($courseInfo['course_date']); ?>
             </p>
             <p>Heure :
-                <?php echo htmlspecialchars($courseInfo['start_time']); ?>
+                <?php echo htmlspecialchars(!empty($courseInfo['start_time']) ? date('H:i', strtotime((string)$courseInfo['start_time'])) : 'Non définie'); ?>
             </p>
         </div>
 

@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 ?>
                                 <option value="<?php echo htmlspecialchars((string) $ds['id']); ?>"
                                     data-date="<?php echo htmlspecialchars($ds['course_date']); ?>"
-                                    data-time="<?php echo htmlspecialchars($ds['start_time']); ?>"
+                                    data-time="<?php echo htmlspecialchars(substr((string)$ds['start_time'], 0, 5)); ?>"
                                     data-resource="<?php echo htmlspecialchars(formatResourceLabel($ds['resource_label'] ?? $ds['resource_code'] ?? 'Non défini')); ?>"
                                     data-group="<?php echo htmlspecialchars($ds['group_code'] ?? ''); ?>"
                                     data-students="<?php echo $elevesJson; ?>" data-count="<?php echo $nbEleves; ?>">
@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <?php echo htmlspecialchars($room['code']); ?>
                                 </option>
                             <?php endforeach; ?>
-                            <option value="new">➕ Ajouter une nouvelle salle...</option>
+                            <option value="new">Ajouter une nouvelle salle...</option>
                         </select>
                         <div class="form-help">Sélectionnez une salle existante ou ajoutez-en une nouvelle</div>
                     </div>
