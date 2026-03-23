@@ -47,7 +47,7 @@ if (!isset($_SESSION['id_student'])) {
             <!-- Section 1: Importance of attendance and internal regulations -->
             <section class="info-section important-section">
                 <div class="section-header">
-                    <span class="section-icon">⚠️</span>
+                    <span class="section-icon"></span>
                     <h2>Assiduité Obligatoire</h2>
                 </div>
                 <div class="section-content">
@@ -61,7 +61,7 @@ if (!isset($_SESSION['id_student'])) {
                         les modalités décrites ci-dessous.
                     </p>
                     <div class="link-box">
-                        <span class="link-icon">📄</span>
+                        <span class="link-icon"></span>
                         <div>
                             <strong>Règlement intérieur :</strong><br>
                             <a href="https://recueildesactes.uphf.fr/download/f3c230cc-c68b-45b0-b1b9-b7e60868b6ce"
@@ -76,12 +76,12 @@ if (!isset($_SESSION['id_student'])) {
             <!-- Section 2: Justification deadline explanation with examples -->
             <section class="info-section">
                 <div class="section-header">
-                    <span class="section-icon">⏱️</span>
+                    <span class="section-icon">⏱</span>
                     <h2>Délai de Justification</h2>
                 </div>
                 <div class="section-content">
                     <div class="deadline-box">
-                        <h3>📅 Délai impératif : 48 heures ouvrées</h3>
+                        <h3>Délai impératif : 48 heures ouvrées</h3>
                         <p>
                             Vous disposez de <strong>48 heures ouvrées (2 jours ouvrés)</strong> après votre retour en
                             cours
@@ -90,7 +90,7 @@ if (!isset($_SESSION['id_student'])) {
                     </div>
 
                     <div class="example-box">
-                        <h4>💡 Exemple de calcul du délai :</h4>
+                        <h4>Exemple de calcul du délai :</h4>
                         <ul>
                             <li>
                                 <strong>Absence :</strong> Lundi 10h - 12h
@@ -106,7 +106,7 @@ if (!isset($_SESSION['id_student'])) {
                     </div>
 
                     <div class="example-box">
-                        <h4>💡 Exemple avec week-end :</h4>
+                        <h4>Exemple avec week-end :</h4>
                         <ul>
                             <li>
                                 <strong>Absence :</strong> Vendredi 14h - 17h
@@ -122,7 +122,6 @@ if (!isset($_SESSION['id_student'])) {
                     </div>
 
                     <div class="warning-box">
-                        <span class="warning-icon">⚠️</span>
                         <div>
                             <strong>Important :</strong> Au-delà de ce délai, votre justificatif risque fortement
                             de ne pas être pris en compte. Un message d'avertissement vous sera affiché lors
@@ -135,7 +134,7 @@ if (!isset($_SESSION['id_student'])) {
             <!-- Section 3: Consequences of an unjustified absence -->
             <section class="info-section alert-section">
                 <div class="section-header">
-                    <span class="section-icon">❌</span>
+                    <span class="section-icon"></span>
                     <h2>Conséquences d'une Absence Non Justifiée</h2>
                 </div>
                 <div class="section-content">
@@ -170,7 +169,6 @@ if (!isset($_SESSION['id_student'])) {
                     </div>
 
                     <div class="warning-box danger">
-                        <span class="warning-icon">🚨</span>
                         <div>
                             <strong>Attention :</strong> Une absence justifiée après le délai de 48h peut également
                             être considérée comme non justifiée et entraîner un 0 selon l'appréciation de l'équipe
@@ -179,7 +177,6 @@ if (!isset($_SESSION['id_student'])) {
                     </div>
 
                     <div class="info-box">
-                        <span class="info-icon">ℹ️</span>
                         <div>
                             <strong>Bon à savoir :</strong> Si votre justificatif est accepté, la mention "ABS"
                             sera conservée sans pénalité. La note ne sera pas comptabilisée dans votre moyenne
@@ -192,7 +189,6 @@ if (!isset($_SESSION['id_student'])) {
             <!-- Section 4: Acceptable reasons -->
             <section class="info-section">
                 <div class="section-header">
-                    <span class="section-icon">✅</span>
                     <h2>Motifs Acceptables de Justification</h2>
                 </div>
                 <div class="section-content">
@@ -231,7 +227,6 @@ if (!isset($_SESSION['id_student'])) {
                     </div>
 
                     <div class="info-box">
-                        <span class="info-icon">📄</span>
                         <div>
                             <strong>Documents requis :</strong> Tous les justificatifs doivent être des documents
                             officiels (certificats, attestations, convocations, etc.) mentionnant clairement
@@ -244,7 +239,6 @@ if (!isset($_SESSION['id_student'])) {
             <!-- Section 5: Submission procedure -->
             <section class="info-section">
                 <div class="section-header">
-                    <span class="section-icon">📤</span>
                     <h2>Procédure de Soumission d'un Justificatif</h2>
                 </div>
                 <div class="section-content">
@@ -300,7 +294,7 @@ if (!isset($_SESSION['id_student'])) {
 
                     <div class="action-box">
                         <a href="proof_submit.php" class="submit-button">
-                            <span>➕</span>
+                            <span></span>
                             Soumettre un justificatif maintenant
                         </a>
                     </div>
@@ -347,7 +341,6 @@ if (!isset($_SESSION['id_student'])) {
 
                     <div class="action-box">
                         <a href="proofs.php" class="secondary-button">
-                            <span>📄</span>
                             Consulter mes justificatifs
                         </a>
                     </div>
@@ -357,7 +350,6 @@ if (!isset($_SESSION['id_student'])) {
             <!-- Section 7: Contacts and help -->
             <section class="info-section">
                 <div class="section-header">
-                    <span class="section-icon">💬</span>
                     <h2>Besoin d'Aide ?</h2>
                 </div>
                 <div class="section-content">
@@ -377,7 +369,6 @@ if (!isset($_SESSION['id_student'])) {
                     </div>
 
                     <div class="info-box success">
-                        <span class="info-icon">💡</span>
                         <div>
                             <strong>Conseil :</strong> En cas de doute sur l'acceptabilité d'un motif ou sur
                             la procédure à suivre, n'hésitez pas à contacter votre responsable de formation
