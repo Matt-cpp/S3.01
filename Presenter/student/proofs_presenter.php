@@ -73,80 +73,13 @@ class StudentProofsPresenter
 
             foreach ($results as &$proof) {
                 $proof['total_hours_missed'] = ($proof['total_duration_minutes'] ?? 0) / 60;
-                $proof['half_days_count'] = $this->calculateHalfDaysForProof((int) $proof['proof_id']);
+                // half_days_count is already calculated in SQL query, no need to recalculate
             }
 
             return $results;
         } catch (Exception $e) {
             error_log('Error retrieving proofs: ' . $e->getMessage());
             return [];
-        }
-    }
-
-    /**
-     * Calculate the number of half-days for a proof
-     * Rule: 1 half-day counted if >= 1 minute of absence in the 8h-12h30 or 12h30-18h30 slot
-     */
-    private function calculateHalfDaysForProof(int $proofId): int
-    {
-        try {
-            $absences = $this->proofModel->getAbsenceSlotsForProof($proofId);
-
-            // Group by date and calculate duration per period
-            $periodDurations = [];
-
-            foreach ($absences as $absence) {
-                $date = $absence['course_date'];
-                $durationMinutes = (int) ($absence['duration_minutes'] ?? 0);
-
-                // Parse times
-                $startParts = explode(':', $absence['start_time']);
-                $startInMinutes = ((int) $startParts[0] * 60) + (int) $startParts[1];
-
-                $endParts = explode(':', $absence['end_time']);
-                $endInMinutes = ((int) $endParts[0] * 60) + (int) $endParts[1];
-
-                // Threshold: 12:30 = 750 minutes
-                $afternoonThreshold = 750;
-
-                if (!isset($periodDurations[$date])) {
-                    $periodDurations[$date] = [
-                        'morning_minutes' => 0,
-                        'afternoon_minutes' => 0
-                    ];
-                }
-
-                // Calculate time in each period (8h-12h30 morning, 12h30-18h30 afternoon)
-                if ($startInMinutes < $afternoonThreshold && $endInMinutes <= $afternoonThreshold) {
-                    // Entirely in the morning
-                    $periodDurations[$date]['morning_minutes'] += $durationMinutes;
-                } elseif ($startInMinutes >= $afternoonThreshold) {
-                    // Entirely in the afternoon
-                    $periodDurations[$date]['afternoon_minutes'] += $durationMinutes;
-                } else {
-                    // Spans both periods - split the duration
-                    $morningPart = $afternoonThreshold - $startInMinutes;
-                    $afternoonPart = $endInMinutes - $afternoonThreshold;
-                    $periodDurations[$date]['morning_minutes'] += $morningPart;
-                    $periodDurations[$date]['afternoon_minutes'] += $afternoonPart;
-                }
-            }
-
-            // Count half-days (1 if >= 1 minute in that period)
-            $totalHalfDays = 0;
-            foreach ($periodDurations as $date => $periods) {
-                if ($periods['morning_minutes'] >= 1) {
-                    $totalHalfDays++;
-                }
-                if ($periods['afternoon_minutes'] >= 1) {
-                    $totalHalfDays++;
-                }
-            }
-
-            return $totalHalfDays;
-        } catch (Exception $e) {
-            error_log('Error calculating half-days for proof: ' . $e->getMessage());
-            return 0;
         }
     }
 

@@ -58,7 +58,7 @@ class StudentStatisticsPresenter
      */
     public function getGeneralStats(array $filters = []): array
     {
-        return $this->statisticsModel->getStudentStatistics($this->studentIdentifier, $filters);
+        return $this->statisticsModel->getStudentStatistics($this->studentIdentifier, $filters) ?? [];
     }
 
     /**
