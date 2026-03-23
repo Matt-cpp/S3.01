@@ -18,7 +18,7 @@ require_once __DIR__ . '/../../Model/UserModel.php';
 
 // Login form processing
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_POST['password'])) {
-    $email = $_POST['email'] ?? '';
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $errors = [];
 
@@ -42,7 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                 $userModel = new UserModel($db);
                 $user = $userModel->getUserByEmail(strtolower($email));
 
-                if ($user && password_verify($password, $user['password_hash'])) {
+                if (!$user) {
+                    $errors[] = 'Email incorrect.';
+                } elseif (!password_verify($password, $user['password_hash'])) {
+                    $errors[] = 'Mot de passe incorrect.';
+                } else {
                     // Login successful
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['user_email'] = $user['email'];
@@ -69,12 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                         }
                     }
                     exit;
-                } else {
-                    $errors[] = 'Email ou mot de passe incorrect.';
                 }
             }
         } catch (Exception $e) {
-            $errors[] = 'Email ou mot de passe incorrect.';
+            $errors[] = 'Une erreur est survenue lors de la connexion.';
         }
     }
 

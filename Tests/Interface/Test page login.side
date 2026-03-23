@@ -1,0 +1,413 @@
+{
+  "id": "b2b5b18c-bace-4eb3-8cdc-e72a77250efc",
+  "version": "2.0",
+  "name": "Test page login",
+  "url": "http://localhost:8000",
+  "tests": [{
+    "id": "bee172b3-7535-42db-a415-d3400b7baf86",
+    "name": "testLoginMdp",
+    "commands": [{
+      "id": "5b702f4b-d24e-4e22-aa52-11198618e489",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/shared/login.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c52b1d42-dcb2-4942-9132-45a66ef97267",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1400x800",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "235b6274-697f-43aa-b1e4-4d2c07cf2593",
+      "comment": "",
+      "command": "click",
+      "target": "id=email",
+      "targets": [
+        ["id=email", "id"],
+        ["name=email", "name"],
+        ["css=#email", "css:finder"],
+        ["xpath=//input[@id='email']", "xpath:attributes"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "9e9115cc-4b37-41de-a565-9afdb9b88b06",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.getElementById(\"email\").value=${email};document.getElementById(\"email\").dispatchEvent(new Event(\"input\",{bubbles:true}));document.getElementById(\"email\").dispatchEvent(new Event(\"change\",{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "85471ef3-0fac-4f17-96b5-434fbab0716d",
+      "comment": "",
+      "command": "click",
+      "target": "id=password",
+      "targets": [
+        ["id=password", "id"],
+        ["name=password", "name"],
+        ["css=#password", "css:finder"],
+        ["xpath=//input[@id='password']", "xpath:attributes"],
+        ["xpath=//div[2]/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "37487c42-405c-48c5-addf-2dd09c64f39d",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.getElementById(\"password\").value=${mdp};document.getElementById(\"password\").dispatchEvent(new Event(\"input\",{bubbles:true}));document.getElementById(\"password\").dispatchEvent(new Event(\"change\",{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "87cf860d-4a35-4a99-9306-79af5d4e6277",
+      "comment": "",
+      "command": "click",
+      "target": "css=.btn-submit",
+      "targets": [
+        ["css=.btn-submit", "css:finder"],
+        ["xpath=//button[@type='submit']", "xpath:attributes"],
+        ["xpath=//button", "xpath:position"],
+        ["xpath=//button[contains(.,'Se connecter')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "032e39ad-5047-460a-80f6-a88fad50adc7",
+      "comment": "",
+      "command": "//assertText",
+      "target": "css=.error-messages > div",
+      "targets": [],
+      "value": "Email incorrect."
+    }]
+  }, {
+    "id": "3127464d-7da3-48fe-9955-2b0bee42f793",
+    "name": "testInvalideEmail",
+    "commands": [{
+      "id": "50fb182e-85b3-4c81-9133-ae836e34d626",
+      "comment": "",
+      "command": "store",
+      "target": "dfsqnvsn@gmail.com",
+      "targets": [],
+      "value": "email"
+    }, {
+      "id": "a822f273-27a9-4ba4-ac78-3bff7ded8371",
+      "comment": "",
+      "command": "store",
+      "target": "yony1236",
+      "targets": [],
+      "value": "mdp"
+    }, {
+      "id": "67fc6a9e-9960-4dbb-817d-ac00b5a96a39",
+      "comment": "",
+      "command": "run",
+      "target": "testLoginMdp",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "06f0ace4-62f9-464c-b920-7953a2ca59e8",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.error-messages > div",
+      "targets": [],
+      "value": "Email incorrect."
+    }, {
+      "id": "c452432a-5277-4507-9449-d46fe7cf3a5c",
+      "comment": "",
+      "command": "close",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "b998189b-ccb6-4c99-ac91-ea34706678c9",
+    "name": "testInvalideMdp",
+    "commands": [{
+      "id": "101cf6af-1154-4856-a8a9-b3bb4c609596",
+      "comment": "",
+      "command": "store",
+      "target": "yony.collard@uphf.fr",
+      "targets": [],
+      "value": "email"
+    }, {
+      "id": "2f493a83-5d88-49cc-b348-04fc346683d0",
+      "comment": "",
+      "command": "store",
+      "target": "yony1234",
+      "targets": [],
+      "value": "mdp"
+    }, {
+      "id": "53754e78-f331-4e42-913b-0e2dc5a20ab1",
+      "comment": "",
+      "command": "run",
+      "target": "testLoginMdp",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "672e9ac0-96e9-491b-ad97-88621c3eb5cd",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.error-messages > div",
+      "targets": [],
+      "value": "Mot de passe incorrect."
+    }, {
+      "id": "925e27db-fa83-4bac-9973-6fb209696b3e",
+      "comment": "",
+      "command": "close",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "0c73cc9f-d5e2-42e2-b1fe-858351b52c02",
+    "name": "testValideStudent",
+    "commands": [{
+      "id": "1ff670f5-091a-4d70-b827-bd9e39515609",
+      "comment": "",
+      "command": "store",
+      "target": "yony.collard@uphf.fr",
+      "targets": [],
+      "value": "email"
+    }, {
+      "id": "99f8b32d-6c0a-42b1-9dfc-c0edef2baeb0",
+      "comment": "",
+      "command": "store",
+      "target": "yony1236",
+      "targets": [],
+      "value": "mdp"
+    }, {
+      "id": "d9ed1181-9cae-46f4-9578-9a13b2e3beda",
+      "comment": "",
+      "command": "run",
+      "target": "testLogOff",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "e2df463a-b549-438f-9ae4-068fabfeceeb",
+      "comment": "",
+      "command": "run",
+      "target": "testLoginMdp",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "3f4e4544-a888-4566-82e6-4e4c93327186",
+      "comment": "",
+      "command": "assertText",
+      "target": "linkText=+ Soumettre justificatif",
+      "targets": [
+        ["linkText=+ Soumettre justificatif", "linkText"],
+        ["css=.nav-link-primary", "css:finder"],
+        ["xpath=//a[contains(text(),'+ Soumettre justificatif')]", "xpath:link"],
+        ["xpath=//a[contains(@href, '/View/templates/student/proof_submit.php')]", "xpath:href"],
+        ["xpath=//a[5]", "xpath:position"],
+        ["xpath=//a[contains(.,'+ Soumettre justificatif')]", "xpath:innerText"]
+      ],
+      "value": "+ Soumettre justificatif"
+    }, {
+      "id": "8dc1c367-b8a4-4cb6-8046-15c246c33443",
+      "comment": "",
+      "command": "close",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "09210cde-da9c-4f48-a2c3-d7022cb4ca28",
+    "name": "testLogOff",
+    "commands": [{
+      "id": "5dbb5e8e-c50b-447c-8548-8b1e05f158fd",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/shared/login.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "fe160983-4e36-4560-abec-9d7758cf73be",
+      "comment": "",
+      "command": "click",
+      "target": "id=profileIcon",
+      "targets": [
+        ["id=profileIcon", "id"],
+        ["css=#profileIcon", "css:finder"],
+        ["xpath=//div[@id='profileIcon']", "xpath:attributes"],
+        ["xpath=//div[2]/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "6aacdb42-855c-4925-af5c-8df560a732f7",
+      "comment": "",
+      "command": "click",
+      "target": "css=.dropdown-item > span",
+      "targets": [
+        ["css=.dropdown-item > span", "css:finder"],
+        ["xpath=//div[@id='profileDropdown']/a/span", "xpath:idRelative"],
+        ["xpath=//a/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Déconnexion')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "841a82f1-8f95-4a8a-bfbf-86ef041a22e5",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.form-title",
+      "targets": [
+        ["css=.form-title", "css:finder"],
+        ["xpath=//h1", "xpath:position"],
+        ["xpath=//h1[contains(.,'Se connecter')]", "xpath:innerText"]
+      ],
+      "value": "Se connecter"
+    }]
+  }, {
+    "id": "7ac5745c-cb90-4cd5-831a-0a04dd0cedf0",
+    "name": "testValideTeacher",
+    "commands": [{
+      "id": "7e70716b-b1c4-4e5c-8331-e5ea93d685d1",
+      "comment": "",
+      "command": "store",
+      "target": "mail.test@uphf.fr",
+      "targets": [],
+      "value": "email"
+    }, {
+      "id": "41aa5397-1ce6-47ef-a7d7-dce365002732",
+      "comment": "",
+      "command": "store",
+      "target": "abcde",
+      "targets": [],
+      "value": "mdp"
+    }, {
+      "id": "e0025846-a28f-4cb0-8375-414b3917aa4d",
+      "comment": "",
+      "command": "run",
+      "target": "testLogOff",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4551898b-b623-4dc9-9e25-ef2ef0ea4baa",
+      "comment": "",
+      "command": "run",
+      "target": "testLoginMdp",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "8c8f88b1-0cb2-467a-adc4-dd26f4455874",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.page-title",
+      "targets": [
+        ["css=.page-title", "css:finder"],
+        ["xpath=//h1", "xpath:position"],
+        ["xpath=//h1[contains(.,'Tableau de bord - Professeur')]", "xpath:innerText"]
+      ],
+      "value": "Tableau de bord - Professeur"
+    }, {
+      "id": "dc47511e-5c97-4f55-a374-3b6fea18b585",
+      "comment": "",
+      "command": "close",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "3cc49ef0-6ecd-4232-97ae-7c521b7372f1",
+    "name": "testValideSecretary",
+    "commands": [{
+      "id": "71b4fa0b-4e74-476f-b192-4d0f4149af2d",
+      "comment": "",
+      "command": "store",
+      "target": "secretaire@uphf.fr",
+      "targets": [],
+      "value": "email"
+    }, {
+      "id": "3279e240-bc2d-4250-bd70-340e4ca4426f",
+      "comment": "",
+      "command": "store",
+      "target": "secretaire",
+      "targets": [],
+      "value": "mdp"
+    }, {
+      "id": "26174426-2c7c-4677-abad-0b345c554cad",
+      "comment": "",
+      "command": "run",
+      "target": "testLogOff",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b74d660d-f2c2-4ced-bb85-2bbad60894d8",
+      "comment": "",
+      "command": "run",
+      "target": "testLoginMdp",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "d1dedf2d-ae62-4a1a-aba8-906bc368320b",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.history-card > h2",
+      "targets": [
+        ["css=.history-card > h2", "css:finder"],
+        ["xpath=//div[2]/div/h2", "xpath:position"],
+        ["xpath=//h2[contains(.,'Historique des imports')]", "xpath:innerText"]
+      ],
+      "value": "Historique des imports"
+    }, {
+      "id": "0fb4999a-942f-4f84-8a6b-130601978403",
+      "comment": "",
+      "command": "close",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "f058dea0-d5cd-4fc6-bbf8-adc8c1ad496a",
+    "name": "testValideAcademicManager",
+    "commands": [{
+      "id": "7954a87f-5e67-46df-a4dd-c9e49d0ed38f",
+      "comment": "",
+      "command": "store",
+      "target": "academic_manager@uphf.fr",
+      "targets": [],
+      "value": "email"
+    }, {
+      "id": "db15812d-cf83-4742-9da9-69fe260bdd97",
+      "comment": "",
+      "command": "store",
+      "target": "academic_manager",
+      "targets": [],
+      "value": "mdp"
+    }, {
+      "id": "51e52cf6-f935-4622-9ae6-48ce280e2375",
+      "comment": "",
+      "command": "run",
+      "target": "testLoginMdp",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "bfa6689f-62b3-449f-883b-bd0192061966",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.stat-card:nth-child(2) > .stat-title",
+      "targets": [
+        ["css=.stat-card:nth-child(2) > .stat-title", "css:finder"],
+        ["xpath=//div/div[2]/div", "xpath:position"]
+      ],
+      "value": "CUMUL DES ABSENCES DU MOIS"
+    }, {
+      "id": "215aa041-8304-4932-9e3b-8a3bb008b917",
+      "comment": "",
+      "command": "close",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "dcfbfd55-90ce-470f-b7bb-a55dce606326",
+    "name": "TestLogInAllPossibilities",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 10000,
+    "tests": ["b998189b-ccb6-4c99-ac91-ea34706678c9", "3127464d-7da3-48fe-9955-2b0bee42f793", "f058dea0-d5cd-4fc6-bbf8-adc8c1ad496a", "3cc49ef0-6ecd-4232-97ae-7c521b7372f1", "0c73cc9f-d5e2-42e2-b1fe-858351b52c02", "7ac5745c-cb90-4cd5-831a-0a04dd0cedf0", "09210cde-da9c-4f48-a2c3-d7022cb4ca28"]
+  }],
+  "urls": ["http://localhost:8000/"],
+  "plugins": []
+}
