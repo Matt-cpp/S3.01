@@ -200,7 +200,7 @@ class StatisticsModel
     }
 
     // Get absences statistics for a specific student
-    public function getStudentStatistics(string $studentIdentifier, array $filters = []): ?array
+    public function getStudentStatistics(string $studentIdentifier, array $filters = []): array
     {
         $query = "
             SELECT 
@@ -219,14 +219,14 @@ class StatisticsModel
         ";
 
         $params = [':student_identifier' => $studentIdentifier];
-        $query .= $this->buildFilterConditions($filters, $params, false);
+        $query .= $this->buildFilterConditions($filters, $params);
         $query .= " GROUP BY u.identifier, u.first_name, u.last_name";
 
         try {
-            return $this->db->selectOne($query, $params);
+            return $this->db->selectOne($query, $params) ?? [];
         } catch (Exception $e) {
             error_log("Error fetching student statistics: " . $e->getMessage());
-            return null;
+            return [];
         }
     }
 
@@ -244,7 +244,7 @@ class StatisticsModel
         ";
 
         $params = [':student_identifier' => $studentIdentifier];
-        $query .= $this->buildFilterConditions($filters, $params, false);
+        $query .= $this->buildFilterConditions($filters, $params);
         $query .= " GROUP BY r.label ORDER BY total_absences DESC";
 
         try {
@@ -269,7 +269,7 @@ class StatisticsModel
         ";
 
         $params = [':student_identifier' => $studentIdentifier];
-        $query .= $this->buildFilterConditions($filters, $params, false);
+        $query .= $this->buildFilterConditions($filters, $params);
         $query .= " GROUP BY TO_CHAR(cs.course_date, 'YYYY-MM'), TO_CHAR(cs.course_date, 'Month YYYY')
                     ORDER BY TO_CHAR(cs.course_date, 'YYYY-MM')";
 
@@ -346,7 +346,7 @@ class StatisticsModel
     }
 
     // Get general statistics summary
-    public function getGeneralStatistics(array $filters = []): ?array
+    public function getGeneralStatistics(array $filters = []): array
     {
         $query = "
             SELECT 
@@ -366,75 +366,82 @@ class StatisticsModel
         ";
 
         $params = [];
-        $subqueryConditions = $this->buildFilterConditions($filters, $params);
+        $subqueryConditions = $this->buildFilterConditions($filters, $params, true, 'cs2', 'a2', 'u', false);
         $query .= $subqueryConditions . " GROUP BY a2.student_identifier
             ) as absences_per_student
             WHERE 1=1";
 
         $params2 = [];
-        $query .= $this->buildFilterConditions($filters, $params2);
+        $query .= $this->buildFilterConditions($filters, $params2, true, 'cs', 'a', 'u', false);
 
         // Merge params
         $params = array_merge($params, $params2);
 
         try {
-            return $this->db->selectOne($query, $params);
+            return $this->db->selectOne($query, $params) ?? [];
         } catch (Exception $e) {
             error_log("Error fetching general statistics: " . $e->getMessage());
-            return null;
+            return [];
         }
     }
 
     // Build filter conditions for queries
-    private function buildFilterConditions(array $filters, array &$params, bool $includeAnd = true): string
-    {
+    private function buildFilterConditions(
+        array $filters,
+        array &$params,
+        bool $includeAnd = true,
+        string $courseSlotAlias = 'cs',
+        string $absenceAlias = 'a',
+        string $userAlias = 'u',
+        bool $includeUserFilters = true
+    ): string {
         $conditions = [];
 
         if (!empty($filters['start_date'])) {
-            $conditions[] = "cs.course_date >= :start_date";
+            $conditions[] = "{$courseSlotAlias}.course_date >= :start_date";
             $params[':start_date'] = $filters['start_date'];
         }
 
         if (!empty($filters['end_date'])) {
-            $conditions[] = "cs.course_date <= :end_date";
+            $conditions[] = "{$courseSlotAlias}.course_date <= :end_date";
             $params[':end_date'] = $filters['end_date'];
         }
 
         if (!empty($filters['group_id'])) {
-            $conditions[] = "cs.group_id = :group_id";
+            $conditions[] = "{$courseSlotAlias}.group_id = :group_id";
             $params[':group_id'] = $filters['group_id'];
         }
 
         if (!empty($filters['resource_id'])) {
-            $conditions[] = "cs.resource_id = :resource_id";
+            $conditions[] = "{$courseSlotAlias}.resource_id = :resource_id";
             $params[':resource_id'] = $filters['resource_id'];
         }
 
         if (!empty($filters['course_type'])) {
-            $conditions[] = "cs.course_type = :course_type";
+            $conditions[] = "{$courseSlotAlias}.course_type = :course_type";
             $params[':course_type'] = $filters['course_type'];
         }
 
         if (!empty($filters['semester'])) {
             if ($filters['semester'] === 'S1') {
-                $conditions[] = "(EXTRACT(MONTH FROM cs.course_date) BETWEEN 9 AND 12 OR EXTRACT(MONTH FROM cs.course_date) BETWEEN 1 AND 2)";
+                $conditions[] = "(EXTRACT(MONTH FROM {$courseSlotAlias}.course_date) BETWEEN 9 AND 12 OR EXTRACT(MONTH FROM {$courseSlotAlias}.course_date) BETWEEN 1 AND 2)";
             } elseif ($filters['semester'] === 'S2') {
-                $conditions[] = "EXTRACT(MONTH FROM cs.course_date) BETWEEN 3 AND 6";
+                $conditions[] = "EXTRACT(MONTH FROM {$courseSlotAlias}.course_date) BETWEEN 3 AND 6";
             }
         }
 
         if (!empty($filters['year'])) {
-            $conditions[] = "EXTRACT(YEAR FROM cs.course_date) = :year";
+            $conditions[] = "EXTRACT(YEAR FROM {$courseSlotAlias}.course_date) = :year";
             $params[':year'] = $filters['year'];
         }
 
         if (isset($filters['justified'])) {
-            $conditions[] = "a.justified = :justified";
+            $conditions[] = "{$absenceAlias}.justified = :justified";
             $params[':justified'] = $filters['justified'];
         }
 
-        if (!empty($filters['student_name'])) {
-            $conditions[] = "(u.first_name ILIKE :student_name OR u.last_name ILIKE :student_name OR CONCAT(u.first_name, ' ', u.last_name) ILIKE :student_name)";
+        if ($includeUserFilters && !empty($filters['student_name'])) {
+            $conditions[] = "({$userAlias}.first_name ILIKE :student_name OR {$userAlias}.last_name ILIKE :student_name OR CONCAT({$userAlias}.first_name, ' ', {$userAlias}.last_name) ILIKE :student_name)";
             $params[':student_name'] = '%' . $filters['student_name'] . '%';
         }
 

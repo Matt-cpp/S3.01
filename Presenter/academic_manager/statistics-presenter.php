@@ -83,7 +83,7 @@ class AcademicManagerStatisticsPresenter
     // Get general statistics
     public function getGeneralStats(array $filters = []): array
     {
-        return $this->statisticsModel->getGeneralStatistics($filters);
+        return $this->statisticsModel->getGeneralStatistics($filters) ?? [];
     }
 
     // Get absences by course type for pie chart
