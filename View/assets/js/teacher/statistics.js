@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initEvaluationSubjectChart();
   initMonthlyChart();
   initSemesterCharts();
+  initSubjectTrendsChart();
 
   // Initialize filter events
   initFilterEvents();

@@ -24,10 +24,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $user = requireRole('academic_manager');
 
-// Build absolute path for presenter
-$presenterPath = __DIR__ . '/../../../Presenter/academic_manager/decision_history_presenter.php';
-require_once $presenterPath;
-
 // Instantiate the presenter
 $presenter = new DecisionHistoryPresenter();
 

@@ -37,8 +37,8 @@ $studentIdentifier = getStudentIdentifier($_SESSION['id_student']);
 // Initialize the presenter to manage absence data
 $presenter = new StudentAbsencesPresenter($studentIdentifier);
 
-// Utilisation du cache de session pour optimiser les performances (refresh toutes les 15 minutes)
-if (!isset($_SESSION['Absences']) || (!isset($_SESSION['CourseTypes']) || !isset($_SESSION['Filters']) || !isset($_SESSION['ErrorMessage'])) || shouldRefreshCache(15)) {
+// Utilisation du cache de session pour optimiser les performances (refresh toutes les 30 secondes)
+if (!isset($_SESSION['Absences']) || (!isset($_SESSION['CourseTypes']) || !isset($_SESSION['Filters']) || !isset($_SESSION['ErrorMessage'])) || shouldRefreshCache(30)) {
 
     $absences = $presenter->getAbsences();
     $courseTypes = $presenter->getCourseTypes();
@@ -139,7 +139,7 @@ $errorMessage = $presenter->getErrorMessage();
 
             <div class="button-container">
                 <button type="submit">Filtrer</button>
-                <a href="student_absences.php" class="btn btn-secondary">Réinitialiser</a>
+                <a href="absences.php" class="btn btn-secondary">Réinitialiser</a>
             </div>
         </form>
 

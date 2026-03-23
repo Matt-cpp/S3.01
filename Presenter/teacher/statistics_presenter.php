@@ -19,6 +19,9 @@ $filters = [];
 if ($studentFilter !== '') {
     $filters['student_name'] = $studentFilter;
 }
+if ($semesterFilter !== '') {
+    $filters['semester'] = $semesterFilter;
+}
 if ($courseTypeFilter !== '') {
     $filters['course_type'] = $courseTypeFilter;
 }

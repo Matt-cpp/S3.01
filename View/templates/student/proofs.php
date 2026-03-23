@@ -38,9 +38,9 @@ $presenter = new StudentProofsPresenter($studentIdentifier);
 // Smart cache management: disabled when GET filters are present (coming from home page)
 $useCache = empty($_GET['status']);
 
-// Use session data if available and recent (defined in session_cache.php), default 1 minute
+// Use session data if available and recent (defined in session_cache.php), default 30 seconds
 // otherwise retrieve from the database
-if (!$useCache || !isset($_SESSION['Proofs']) || !isset($_SESSION['Reasons']) || !isset($_SESSION['ProofsFilters']) || !isset($_SESSION['ProofsErrorMessage']) || shouldRefreshCache(15)) {
+if (!$useCache || !isset($_SESSION['Proofs']) || !isset($_SESSION['Reasons']) || !isset($_SESSION['ProofsFilters']) || !isset($_SESSION['ProofsErrorMessage']) || shouldRefreshCache(30)) {
     $proofs = $presenter->getProofs();
     $reasons = $presenter->getReasons();
     if ($useCache) {

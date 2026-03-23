@@ -56,9 +56,8 @@ require_once __DIR__ . '/../../../Presenter/teacher/statistics_presenter.php';
                         <label for="semester-filter">Semestre</label>
                         <select id="semester-filter">
                             <option value="">Tous les semestres</option>
-                            <option value="S1_2025">S1 2025</option>
-                            <option value="S1_2024">S1 2024</option>
-                            <option value="S2_2024">S2 2024</option>
+                            <option value="S1" <?= (($_GET['semester'] ?? '') === 'S1') ? 'selected' : '' ?>>S1</option>
+                            <option value="S2" <?= (($_GET['semester'] ?? '') === 'S2') ? 'selected' : '' ?>>S2</option>
                         </select>
                     </div>
                     <div class="filter-group">

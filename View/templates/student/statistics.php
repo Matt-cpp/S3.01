@@ -105,7 +105,7 @@ declare(strict_types=1);
                     </div>
 
                     <div class="filter-actions">
-                        <a href="student_statistics.php" class="btn btn-secondary">Réinitialiser</a>
+                        <a href="statistics.php" class="btn btn-secondary">Réinitialiser</a>
                         <button type="submit" class="btn btn-primary">Appliquer</button>
                     </div>
                 </form>

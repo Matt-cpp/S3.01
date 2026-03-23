@@ -42,7 +42,7 @@ class StudentDashboardPresenter
             !isset($_SESSION['proofsByCategory']) ||
             !isset($_SESSION['recentAbsences']) ||
             !isset($_SESSION['stats']['total_absences_count']) ||
-            shouldRefreshCache(20)
+            shouldRefreshCache(30)
         ) {
             $_SESSION['stats'] = getAbsenceStatistics($this->studentId);
             $_SESSION['proofsByCategory'] = getProofsByCategory($this->studentId);
