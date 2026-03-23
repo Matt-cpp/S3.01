@@ -1321,30 +1321,7 @@ class ProofModel
         }
     }
 
-    /**
-     * Return the course slot data for each absence in a proof (for half-day calculation).
-     * Used by proofs_presenter.php::calculateHalfDaysForProof().
-     */
-    public function getAbsenceSlotsForProof(int $proofId): array
-    {
-        $sql = "
-            SELECT
-                cs.course_date,
-                cs.start_time,
-                cs.end_time,
-                cs.duration_minutes
-            FROM proof_absences pa
-            JOIN absences a ON pa.absence_id = a.id
-            JOIN course_slots cs ON a.course_slot_id = cs.id
-            WHERE pa.proof_id = :proof_id
-        ";
-        try {
-            return $this->db->select($sql, ['proof_id' => $proofId]);
-        } catch (Exception $e) {
-            error_log('Error getAbsenceSlotsForProof: ' . $e->getMessage());
-            return [];
-        }
-    }
+
 
     /**
      * Retrieve proofs for a student filtered by a specific status with full aggregated stats.
