@@ -47,7 +47,11 @@ class FeatureContext implements Context
         $this->jeSuisResponsablePedagogiqueEtConnecte();
         $this->lastUrl = 'View/templates/academic_manager/home.php';
         
-
+        ob_start();
+        // Override REQUEST_METHOD to avoid login presenter issues
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        require __DIR__ . '/../../View/templates/academic_manager/home.php';
+        $this->response = ob_get_clean();
     }
 
     #[When('je clique sur :buttonText')]
