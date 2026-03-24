@@ -112,6 +112,62 @@
       "targets": [],
       "value": "Email incorrect."
     }, {
+      "id": "cb9bd897-84cd-48fb-a891-4c719764cf4a",
+      "comment": "",
+      "command": "store",
+      "target": "yony.collard@gmail.com",
+      "targets": [],
+      "value": "email"
+    }, {
+      "id": "8092724c-764c-4779-9521-d57a04f7b8fb",
+      "comment": "",
+      "command": "store",
+      "target": "yony1236",
+      "targets": [],
+      "value": "mdp"
+    }, {
+      "id": "558c5799-caa6-4fa0-b3da-b3f7d29f9306",
+      "comment": "",
+      "command": "run",
+      "target": "testLoginMdp",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "9a9b241a-450f-4a8e-bbb5-4a595c93a0ab",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.error-messages > div",
+      "targets": [],
+      "value": "Email incorrect."
+    }, {
+      "id": "da5117d2-3736-4520-b83a-9d5acddb2083",
+      "comment": "",
+      "command": "store",
+      "target": "yony.collad@uphf.fr",
+      "targets": [],
+      "value": "email"
+    }, {
+      "id": "e1a5d457-2d4a-4ba4-8c13-cd578cf8421d",
+      "comment": "",
+      "command": "store",
+      "target": "yony1236",
+      "targets": [],
+      "value": "mdp"
+    }, {
+      "id": "023fff2c-ae7b-44ea-a8bb-01b4a6fe34b7",
+      "comment": "",
+      "command": "run",
+      "target": "testLoginMdp",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f9a59ee4-9bed-4a64-b081-0506fdeaf5c1",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.error-messages > div",
+      "targets": [],
+      "value": "Email incorrect."
+    }, {
       "id": "c452432a-5277-4507-9449-d46fe7cf3a5c",
       "comment": "",
       "command": "close",
@@ -145,6 +201,34 @@
       "value": ""
     }, {
       "id": "672e9ac0-96e9-491b-ad97-88621c3eb5cd",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.error-messages > div",
+      "targets": [],
+      "value": "Mot de passe incorrect."
+    }, {
+      "id": "a7b8fc09-1586-48e4-b215-f980b23f4816",
+      "comment": "",
+      "command": "store",
+      "target": "yony.collard@uphf.fr",
+      "targets": [],
+      "value": "email"
+    }, {
+      "id": "54c305fb-42ca-4e3c-a796-79bdae2bfca1",
+      "comment": "",
+      "command": "store",
+      "target": "yony1239",
+      "targets": [],
+      "value": "mdp"
+    }, {
+      "id": "06135b1f-d23f-4afe-924b-1d3ffaa76204",
+      "comment": "",
+      "command": "run",
+      "target": "testLoginMdp",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "86c59f92-bd57-4ab6-a3c8-002f619d2fe8",
       "comment": "",
       "command": "assertText",
       "target": "css=.error-messages > div",
