@@ -78,9 +78,9 @@ class HistoriqueDecisionsContext implements Context
             [
                 'date'                 => '2026-03-10',
                 'etudiant'             => 'Alice Martin',
-                'action'               => 'Accepté',
+                'action'               => 'Accepte',
                 'statut_avant'         => 'En attente',
-                'statut_apres'         => 'Acceptée',
+                'statut_apres'         => 'Acceptee',
                 'motif_rejet'          => '',
                 'commentaire'          => 'Document valide, absence excusée.',
                 'responsable'          => 'M. Dupont',
@@ -90,9 +90,9 @@ class HistoriqueDecisionsContext implements Context
             [
                 'date'                 => '2026-03-12',
                 'etudiant'             => 'Bob Leroy',
-                'action'               => 'Rejeté',
+                'action'               => 'Rejete',
                 'statut_avant'         => 'En attente',
-                'statut_apres'         => 'Rejetée',
+                'statut_apres'         => 'Rejetee',
                 'motif_rejet'          => 'Document illisible.',
                 'commentaire'          => 'Merci de renvoyer un document lisible.',
                 'responsable'          => 'Mme Bernard',
@@ -180,7 +180,7 @@ class HistoriqueDecisionsContext implements Context
             'La page d\'historique doit être ouverte avant d\'appliquer des filtres.'
         );
 
-        $this->filtreAction = 'Accepté';
+        $this->filtreAction = 'Accepte';
         $this->filtresAppliques = true;
 
         // Apply the filter so the state reflects a filtered view
@@ -195,7 +195,7 @@ class HistoriqueDecisionsContext implements Context
     // -------------------------------------------------------------------------
 
     /**
-     * @When /^je clique sur "Historique des decisions"$/
+     * @When /^je clique sur 'Historique des decisions'$/
      */
     public function jeCliqueSurHistoriqueDesDecisions(): void
     {
@@ -210,7 +210,7 @@ class HistoriqueDecisionsContext implements Context
     }
 
     /**
-     * @When /^je selectionne "([^"]*)" dans le filtre action$/
+     * @When /^je selectionne '([^']*)' dans le filtre action$/
      */
     public function jeSelectionneActionDansLeFiltreAction(string $action): void
     {
@@ -223,7 +223,7 @@ class HistoriqueDecisionsContext implements Context
     }
 
     /**
-     * @When /^je clique sur "Filtrer"$/
+     * @When /^je clique sur 'Filtrer'$/
      */
     public function jeCliqueSurFiltrer(): void
     {
@@ -254,7 +254,7 @@ class HistoriqueDecisionsContext implements Context
     }
 
     /**
-     * @When /^je clique sur "Reinitialiser"$/
+     * @When /^je clique sur Reinitialiser $/
      */
     public function jeCliqueSurReinitialiser(): void
     {
@@ -317,7 +317,7 @@ class HistoriqueDecisionsContext implements Context
      */
     public function jePeuxVoirLactionEffectuee(): void
     {
-        $actionsValides = ['Accepté', 'Rejeté', "Demande d'infos"];
+        $actionsValides = ['Accepte', 'Rejete', "Demande d'infos"];
 
         foreach ($this->decisionsAffichees as $index => $decision) {
             Assert::assertArrayHasKey('action', $decision, "Décision #$index : clé 'action' manquante.");
@@ -358,7 +358,7 @@ class HistoriqueDecisionsContext implements Context
 
         foreach ($this->decisionsAffichees as $index => $decision) {
             Assert::assertSame(
-                'Accepté',
+                'Accepte',
                 $decision['action'],
                 "Décision #$index : action attendue 'Accepté', obtenu '{$decision['action']}'."
             );
@@ -378,7 +378,7 @@ class HistoriqueDecisionsContext implements Context
         Assert::assertArrayHasKey('motif_rejet', $this->decisionSelectionnee);
 
         // When the action is a rejection, the motif must be non-empty
-        if ($this->decisionSelectionnee['action'] === 'Rejeté') {
+        if ($this->decisionSelectionnee['action'] === 'Rejete') {
             Assert::assertNotEmpty(
                 $this->decisionSelectionnee['motif_rejet'],
                 'Un motif de rejet est obligatoire quand l\'action est "Rejeté".'
