@@ -11,7 +11,7 @@ use Behat\Step\Then;
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext implements SettingContext
+class FeatureContext implements Context
 {
     private $response;
     private $lastUrl;
