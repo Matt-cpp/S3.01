@@ -11,7 +11,7 @@ use Behat\Step\Then;
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext implements Context
+class FeatureContext implements SnippetAcceptingContext
 {
     private $response;
     private $lastUrl;
@@ -20,10 +20,6 @@ class FeatureContext implements Context
 
     public function __construct()
     {
-        // Initialize session for testing
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
     }
 
     /**
@@ -35,14 +31,14 @@ class FeatureContext implements Context
     #[Given('je suis responsable pédagogique et connecté')]
     public function jeSuisResponsablePedagogiqueEtConnecte(): void
     {
-        $_SESSION['user_id'] = 1;
+        $_SESSION['user_id'] = 3;
         $_SESSION['user_role'] = 'academic_manager';
-        $_SESSION['identifier'] = 'manager001';
-        $_SESSION['first_name'] = 'Jean';
-        $_SESSION['last_name'] = 'Manager';
-        $_SESSION['user_email'] = 'manager@example.com';
-        $_SESSION['user_first_name'] = 'Jean';
-        $_SESSION['user_last_name'] = 'Manager';
+        $_SESSION['identifier'] = '8080808080';
+        $_SESSION['first_name'] = 'academic_manager';
+        $_SESSION['last_name'] = 'academic_manager';
+        $_SESSION['user_email'] = 'academic_manager@uphf.fr';
+        $_SESSION['user_first_name'] = 'academic_manager';
+        $_SESSION['user_last_name'] = 'academic_manager';
     }
 
     #[Given('je suis sur le tableau de bord')]

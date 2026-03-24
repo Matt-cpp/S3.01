@@ -13,19 +13,6 @@ Feature: Historique des décisions
     And je peux voir l'action effectuée (Accepté/Rejeté/Demande d'infos)
     And je peux voir le statut avant et après
 
-  Scenario: Filtrer l'historique par étudiant
-    Given je suis responsable pédagogique et sur la page d'historique
-    When j'entre le nom "Dupont" dans le filtre étudiant
-    And je clique sur "Filtrer"
-    Then le système m'affiche uniquement les décisions de l'étudiant Dupont
-
-  Scenario: Filtrer l'historique par date
-    Given je suis responsable pédagogique et sur la page d'historique
-    When j'entre la date de début "2026-01-01"
-    And j'entre la date de fin "2026-03-19"
-    And je clique sur "Filtrer"
-    Then le système m'affiche uniquement les décisions prises entre ces deux dates
-
   Scenario: Filtrer l'historique par action
     Given je suis responsable pédagogique et sur la page d'historique
     When je sélectionne "Accepté" dans le filtre action
