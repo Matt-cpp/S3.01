@@ -1,7 +1,7 @@
 {
   "id": "b2b5b18c-bace-4eb3-8cdc-e72a77250efc",
   "version": "2.0",
-  "name": "Test_page_teacher",
+  "name": "Test_page_student",
   "url": "http://localhost:8000/View/templates/shared/login.php",
   "tests": [{
     "id": "bee172b3-7535-42db-a415-d3400b7baf86",
@@ -352,7 +352,7 @@
     }]
   }, {
     "id": "64ea794c-f162-49d8-8e9c-bd8234e887d2",
-    "name": "TestFilterModal",
+    "name": "TestFilter",
     "commands": [{
       "id": "7e0bad5f-db35-4675-8a89-430fcd0927c6",
       "comment": "",
@@ -368,456 +368,7 @@
       "targets": [],
       "value": ""
     }, {
-      "id": "fb041390-ed07-412b-ae27-552c3d5972fa",
-      "comment": "",
-      "command": "click",
-      "target": "linkText=Mes absences",
-      "targets": [
-        ["linkText=Mes absences", "linkText"],
-        ["css=.nav-link:nth-child(2)", "css:finder"],
-        ["xpath=//a[contains(text(),'Mes absences')]", "xpath:link"],
-        ["xpath=//a[contains(@href, '/View/templates/student/absences.php')]", "xpath:href"],
-        ["xpath=//a[2]", "xpath:position"],
-        ["xpath=//a[contains(.,'Mes absences')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "0bbe3ffd-8596-4118-a07d-ac9975b4126b",
-      "comment": "",
-      "command": "click",
-      "target": "id=statusFilter",
-      "targets": [
-        ["id=statusFilter", "id"],
-        ["name=statusFilter", "name"],
-        ["css=#statusFilter", "css:finder"],
-        ["xpath=//select[@id='statusFilter']", "xpath:attributes"],
-        ["xpath=//select", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "065bd7f1-9cc9-42e7-8fd6-b2e0f0f73df6",
-      "comment": "",
-      "command": "click",
-      "target": "css=#statusFilter > option:nth-child(2)",
-      "targets": [
-        ["css=#statusFilter > option:nth-child(2)", "css:finder"],
-        ["xpath=//option[@value='justifiée']", "xpath:attributes"],
-        ["xpath=//select[@id='statusFilter']/option[2]", "xpath:idRelative"],
-        ["xpath=//option[2]", "xpath:position"],
-        ["xpath=//option[contains(.,'Justifiée')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "f8a4f079-2317-4d68-8a36-1fe2c48ef0ea",
-      "comment": "",
-      "command": "click",
-      "target": "id=courseTypeFilter",
-      "targets": [
-        ["id=courseTypeFilter", "id"],
-        ["name=courseTypeFilter", "name"],
-        ["css=#courseTypeFilter", "css:finder"],
-        ["xpath=//select[@id='courseTypeFilter']", "xpath:attributes"],
-        ["xpath=//div[4]/select", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "5742ee48-b148-4cff-94c8-7c3750477376",
-      "comment": "",
-      "command": "click",
-      "target": "css=#courseTypeFilter > option:nth-child(3)",
-      "targets": [
-        ["css=#courseTypeFilter > option:nth-child(3)", "css:finder"],
-        ["xpath=//option[@value='TD']", "xpath:attributes"],
-        ["xpath=//select[@id='courseTypeFilter']/option[3]", "xpath:idRelative"],
-        ["xpath=//div[4]/select/option[3]", "xpath:position"],
-        ["xpath=//option[contains(.,'\n                                TD                            ')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "d83d9e2a-386f-461a-97dd-3ccf75da3c0d",
-      "comment": "",
-      "command": "click",
-      "target": "id=firstDateFilter",
-      "targets": [
-        ["id=firstDateFilter", "id"],
-        ["name=firstDateFilter", "name"],
-        ["css=#firstDateFilter", "css:finder"],
-        ["xpath=//input[@id='firstDateFilter']", "xpath:attributes"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "c1ff6be3-4c09-4750-842b-7d7a481f6bc2",
-      "comment": "",
-      "command": "executeScript",
-      "target": "document.getElementById(\"firstDateFilter\").value='2026-01-05'; document.getElementById(\"firstDateFilter\").dispatchEvent(new Event(\"input\",{bubbles:true})); document.getElementById('firstDateFilter').dispatchEvent(new Event('change',{bubbles:true}));",
-      "targets": [],
-      "value": "2026-01-05"
-    }, {
-      "id": "e3d61f7e-e199-4d6d-9e03-bbc2f6b56ddd",
-      "comment": "",
-      "command": "click",
-      "target": "id=lastDateFilter",
-      "targets": [
-        ["id=lastDateFilter", "id"],
-        ["name=lastDateFilter", "name"],
-        ["css=#lastDateFilter", "css:finder"],
-        ["xpath=//input[@id='lastDateFilter']", "xpath:attributes"],
-        ["xpath=//div[2]/input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "894abc3a-3ca0-49eb-afcf-d0a47b3234f0",
-      "comment": "",
-      "command": "executeScript",
-      "target": "document.getElementById(\"lastDateFilter\").value='2026-01-06'; document.getElementById(\"lastDateFilter\").dispatchEvent(new Event(\"input\",{bubbles:true})); document.getElementById('lastDateFilter').dispatchEvent(new Event('change',{bubbles:true}));",
-      "targets": [],
-      "value": "2026-01-06"
-    }, {
-      "id": "9c1395d8-ed69-48a1-afbb-5e053a62ff6d",
-      "comment": "",
-      "command": "click",
-      "target": "css=.button-container > button",
-      "targets": [
-        ["css=.button-container > button", "css:finder"],
-        ["xpath=//button[@type='submit']", "xpath:attributes"],
-        ["xpath=//div[2]/button", "xpath:position"],
-        ["xpath=//button[contains(.,'Filtrer')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "514cef04-6d35-4016-8cc7-7f87b2afa244",
-      "comment": "",
-      "command": "click",
-      "target": "css=.absence-row:nth-child(1) > td:nth-child(4)",
-      "targets": [
-        ["css=.absence-row:nth-child(1) > td:nth-child(4)", "css:finder"],
-        ["xpath=//table[@id='absenceTable']/tbody/tr/td[4]", "xpath:idRelative"],
-        ["xpath=//td[4]", "xpath:position"],
-        ["xpath=//td[contains(.,'CHRISTELLE ROZE')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "83f82755-51e6-4a53-87d8-a5e79558d962",
-      "comment": "",
-      "command": "assertText",
-      "target": "id=modalDate",
-      "targets": [
-        ["id=modalDate", "id"],
-        ["css=#modalDate", "css:finder"],
-        ["xpath=//span[@id='modalDate']", "xpath:attributes"],
-        ["xpath=//div[@id='modalContent']/div/div/div/span[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/div/div/div/span[2]", "xpath:position"],
-        ["xpath=//span[contains(.,'05/01/2026')]", "xpath:innerText"]
-      ],
-      "value": "05/01/2026"
-    }, {
-      "id": "a892e4d5-f74e-4b84-a70e-66807973a2d1",
-      "comment": "",
-      "command": "assertText",
-      "target": "id=modalCourse",
-      "targets": [
-        ["id=modalCourse", "id"],
-        ["css=#modalCourse", "css:finder"],
-        ["xpath=//span[@id='modalCourse']", "xpath:attributes"],
-        ["xpath=//div[@id='modalContent']/div/div[2]/div/span[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/div/span[2]", "xpath:position"],
-        ["xpath=//span[contains(.,'R2.01 - DEVELOPPEMENT ORIENTE OBJETS')]", "xpath:innerText"]
-      ],
-      "value": "R2.01 - DEVELOPPEMENT ORIENTE OBJETS"
-    }, {
-      "id": "9d390259-a786-4578-b355-da6af88fbdce",
-      "comment": "",
-      "command": "assertText",
-      "target": "id=modalType",
-      "targets": [
-        ["id=modalType", "id"],
-        ["css=#modalType", "css:finder"],
-        ["xpath=//span[@id='modalType']", "xpath:attributes"],
-        ["xpath=//div[@id='modalContent']/div/div[3]/div/span[2]/span", "xpath:idRelative"],
-        ["xpath=//span[2]/span", "xpath:position"]
-      ],
-      "value": "TD"
-    }, {
-      "id": "3ab8c54e-d2fd-4e71-8a57-2d22b5486699",
-      "comment": "",
-      "command": "assertText",
-      "target": "css=#evaluationSection > h3",
-      "targets": [
-        ["css=#evaluationSection > h3", "css:finder"],
-        ["xpath=//div[@id='evaluationSection']/h3", "xpath:idRelative"],
-        ["xpath=//h3", "xpath:position"],
-        ["xpath=//h3[contains(.,'⚠️ Évaluation ratée')]", "xpath:innerText"]
-      ],
-      "value": "⚠️ Évaluation ratée"
-    }, {
-      "id": "622faa6f-1792-4cd8-9bd8-69914c9a514e",
-      "comment": "",
-      "command": "assertText",
-      "target": "id=makeupDate",
-      "targets": [
-        ["id=makeupDate", "id"],
-        ["css=#makeupDate", "css:finder"],
-        ["xpath=//span[@id='makeupDate']", "xpath:attributes"],
-        ["xpath=//div[@id='makeupSection']/div/span[2]", "xpath:idRelative"],
-        ["xpath=//div[5]/div/span[2]", "xpath:position"],
-        ["xpath=//span[contains(.,'15/08/2026')]", "xpath:innerText"]
-      ],
-      "value": "15/08/2026"
-    }, {
-      "id": "38cdf6cc-39e2-4ba9-ae7c-8c564574685c",
-      "comment": "",
-      "command": "assertText",
-      "target": "id=modalStatus",
-      "targets": [
-        ["id=modalStatus", "id"],
-        ["css=#modalStatus", "css:finder"],
-        ["xpath=//span[@id='modalStatus']", "xpath:attributes"],
-        ["xpath=//div[@id='modalContent']/div/div[6]/span[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/div/div[6]/span[2]", "xpath:position"]
-      ],
-      "value": "✅ Justifiée"
-    }, {
-      "id": "a99b8810-ac1c-4046-a8c5-b229d392ee50",
-      "comment": "",
-      "command": "click",
-      "target": "id=closeModal",
-      "targets": [
-        ["id=closeModal", "id"],
-        ["css=#closeModal", "css:finder"],
-        ["xpath=//button[@id='closeModal']", "xpath:attributes"],
-        ["xpath=//div[@id='modalContent']/button", "xpath:idRelative"],
-        ["xpath=//div[7]/div[2]/button", "xpath:position"],
-        ["xpath=//button[contains(.,'×')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "af160402-8e97-468d-b221-3929b49604b4",
-      "comment": "",
-      "command": "click",
-      "target": "linkText=Mes justificatifs",
-      "targets": [
-        ["linkText=Mes justificatifs", "linkText"],
-        ["css=.nav-link:nth-child(3)", "css:finder"],
-        ["xpath=//a[contains(text(),'Mes justificatifs')]", "xpath:link"],
-        ["xpath=//a[contains(@href, '/View/templates/student/proofs.php')]", "xpath:href"],
-        ["xpath=//a[3]", "xpath:position"],
-        ["xpath=//a[contains(.,'Mes justificatifs')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "b8a7c781-cbbb-495c-8fe3-9b7c4f2a8061",
-      "comment": "",
-      "command": "click",
-      "target": "id=statusFilter",
-      "targets": [
-        ["id=statusFilter", "id"],
-        ["name=statusFilter", "name"],
-        ["css=#statusFilter", "css:finder"],
-        ["xpath=//select[@id='statusFilter']", "xpath:attributes"],
-        ["xpath=//select", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "f8f87b37-4758-4f29-9482-420113154b36",
-      "comment": "",
-      "command": "select",
-      "target": "id=statusFilter",
-      "targets": [],
-      "value": "label=Refusé"
-    }, {
-      "id": "65c5c055-71f9-4b87-8fe8-d5660a9af47e",
-      "comment": "",
-      "command": "click",
-      "target": "css=#statusFilter > option:nth-child(5)",
-      "targets": [
-        ["css=#statusFilter > option:nth-child(5)", "css:finder"],
-        ["xpath=//option[@value='rejected']", "xpath:attributes"],
-        ["xpath=//select[@id='statusFilter']/option[5]", "xpath:idRelative"],
-        ["xpath=//option[5]", "xpath:position"],
-        ["xpath=//option[contains(.,'Refusé')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "56dddad9-436c-484d-88ec-c71676eebf7e",
-      "comment": "",
-      "command": "click",
-      "target": "id=reasonFilter",
-      "targets": [
-        ["id=reasonFilter", "id"],
-        ["name=reasonFilter", "name"],
-        ["css=#reasonFilter", "css:finder"],
-        ["xpath=//select[@id='reasonFilter']", "xpath:attributes"],
-        ["xpath=//div[4]/select", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "bee2cbc7-14fc-4f71-a380-7301649b14c7",
-      "comment": "",
-      "command": "select",
-      "target": "id=reasonFilter",
-      "targets": [],
-      "value": "label=Maladie"
-    }, {
-      "id": "0ef10216-eb47-44b7-8659-483f63621bb4",
-      "comment": "",
-      "command": "click",
-      "target": "css=#reasonFilter > option:nth-child(2)",
-      "targets": [
-        ["css=#reasonFilter > option:nth-child(2)", "css:finder"],
-        ["xpath=//option[@value='illness']", "xpath:attributes"],
-        ["xpath=//select[@id='reasonFilter']/option[2]", "xpath:idRelative"],
-        ["xpath=//div[4]/select/option[2]", "xpath:position"],
-        ["xpath=//option[contains(.,'\n                                Maladie                            ')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "94695c0b-c881-401e-80bf-bb349d905b24",
-      "comment": "",
-      "command": "click",
-      "target": "id=firstDateFilter",
-      "targets": [
-        ["id=firstDateFilter", "id"],
-        ["name=firstDateFilter", "name"],
-        ["css=#firstDateFilter", "css:finder"],
-        ["xpath=//input[@id='firstDateFilter']", "xpath:attributes"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "b6273503-f245-443a-8471-a75a16853c80",
-      "comment": "",
-      "command": "executeScript",
-      "target": "document.getElementById(\"firstDateFilter\").value='2025-12-24'; document.getElementById(\"firstDateFilter\").dispatchEvent(new Event(\"input\",{bubbles:true})); document.getElementById('firstDateFilter').dispatchEvent(new Event('change',{bubbles:true}));",
-      "targets": [],
-      "value": "2025-12-24"
-    }, {
-      "id": "dacfde68-d7d5-488c-9546-5fa2d5188810",
-      "comment": "",
-      "command": "click",
-      "target": "id=lastDateFilter",
-      "targets": [
-        ["id=lastDateFilter", "id"],
-        ["name=lastDateFilter", "name"],
-        ["css=#lastDateFilter", "css:finder"],
-        ["xpath=//input[@id='lastDateFilter']", "xpath:attributes"],
-        ["xpath=//div[2]/input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "1fc00f4d-bb0d-4733-a76f-959478662c9d",
-      "comment": "",
-      "command": "executeScript",
-      "target": "document.getElementById(\"lastDateFilter\").value='2025-12-25'; document.getElementById(\"lastDateFilter\").dispatchEvent(new Event(\"input\",{bubbles:true})); document.getElementById('lastDateFilter').dispatchEvent(new Event('change',{bubbles:true}));",
-      "targets": [],
-      "value": "2025-12-25"
-    }, {
-      "id": "db9ce6db-ff01-4db0-bef1-45e9382ebb54",
-      "comment": "",
-      "command": "click",
-      "target": "css=.button-container > button",
-      "targets": [
-        ["css=.button-container > button", "css:finder"],
-        ["xpath=//button[@type='submit']", "xpath:attributes"],
-        ["xpath=//div[2]/button", "xpath:position"],
-        ["xpath=//button[contains(.,'Filtrer')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "e455fa9e-b8d6-41cb-bd76-4dd119c2961a",
-      "comment": "",
-      "command": "click",
-      "target": "css=.proof-row:nth-child(1) > td:nth-child(5)",
-      "targets": [
-        ["css=.proof-row:nth-child(1) > td:nth-child(5)", "css:finder"],
-        ["xpath=//table[@id='proofsTable']/tbody/tr/td[5]", "xpath:idRelative"],
-        ["xpath=//td[5]", "xpath:position"],
-        ["xpath=//td[contains(.,'10/01/2026 à 11h52')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "373a0be6-bb0d-4aeb-89a0-7cebf59dfa72",
-      "comment": "",
-      "command": "assertText",
-      "target": "id=modalStartDate",
-      "targets": [
-        ["id=modalStartDate", "id"],
-        ["css=#modalStartDate", "css:finder"],
-        ["xpath=//span[@id='modalStartDate']", "xpath:attributes"],
-        ["xpath=//div[@id='modalContent']/div/div/div/span[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/div/div/div/span[2]", "xpath:position"],
-        ["xpath=//span[contains(.,'24/12/2025 à 11h00')]", "xpath:innerText"]
-      ],
-      "value": "24/12/2025 à 11h00"
-    }, {
-      "id": "9e800288-afac-4f26-a39c-f93089acafa5",
-      "comment": "",
-      "command": "assertText",
-      "target": "id=modalStudentComment",
-      "targets": [
-        ["id=modalStudentComment", "id"],
-        ["css=#modalStudentComment", "css:finder"],
-        ["xpath=//span[@id='modalStudentComment']", "xpath:attributes"],
-        ["xpath=//div[@id='studentCommentItem']/span[2]", "xpath:idRelative"],
-        ["xpath=//div[5]/span[2]", "xpath:position"]
-      ],
-      "value": "J'ai pas de justificatifs mdam"
-    }, {
-      "id": "dbcb27b6-842f-472d-9c61-37e49ad26a88",
-      "comment": "",
-      "command": "assertText",
-      "target": "id=modalHalfDays",
-      "targets": [
-        ["id=modalHalfDays", "id"],
-        ["css=#modalHalfDays", "css:finder"],
-        ["xpath=//span[@id='modalHalfDays']", "xpath:attributes"],
-        ["xpath=//div[@id='modalContent']/div/div[2]/div[3]/span[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/div[3]/span[2]", "xpath:position"],
-        ["xpath=//span[contains(.,'1 demi-journée')]", "xpath:innerText"]
-      ],
-      "value": "1 demi-journée"
-    }, {
-      "id": "c0a629d4-3ebe-458f-b00b-dcbf0cc044fb",
-      "comment": "",
-      "command": "assertText",
-      "target": "id=modalExam",
-      "targets": [
-        ["id=modalExam", "id"],
-        ["css=#modalExam", "css:finder"],
-        ["xpath=//span[@id='modalExam']", "xpath:attributes"],
-        ["xpath=//div[@id='modalContent']/div/div[2]/div[4]/span[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/div[4]/span[2]", "xpath:position"]
-      ],
-      "value": "Oui"
-    }, {
-      "id": "01ba2198-71eb-4c03-a0e5-51dab29b2f94",
-      "comment": "",
-      "command": "assertText",
-      "target": "id=modalStatus",
-      "targets": [
-        ["id=modalStatus", "id"],
-        ["css=#modalStatus", "css:finder"],
-        ["xpath=//span[@id='modalStatus']", "xpath:attributes"],
-        ["xpath=//div[@id='modalContent']/div/div[4]/span[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/div/div[4]/span[2]", "xpath:position"]
-      ],
-      "value": "❌ Refusé"
-    }, {
-      "id": "f1c8a002-8b55-4d3b-b9c3-4cf332421b60",
-      "comment": "",
-      "command": "click",
-      "target": "id=closeModal",
-      "targets": [
-        ["id=closeModal", "id"],
-        ["css=#closeModal", "css:finder"],
-        ["xpath=//button[@id='closeModal']", "xpath:attributes"],
-        ["xpath=//div[@id='modalContent']/button", "xpath:idRelative"],
-        ["xpath=//div[6]/div[2]/button", "xpath:position"],
-        ["xpath=//button[contains(.,'×')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "f65451bb-b4e8-4b9a-9e05-ca954cdbc7d6",
+      "id": "ed18fe40-c985-40fd-bdd0-64a4234afef9",
       "comment": "",
       "command": "click",
       "target": "linkText=Statistiques",
@@ -825,125 +376,104 @@
         ["linkText=Statistiques", "linkText"],
         ["css=.nav-link:nth-child(4)", "css:finder"],
         ["xpath=//a[contains(text(),'Statistiques')]", "xpath:link"],
-        ["xpath=//a[contains(@href, '/View/templates/student/statistics.php')]", "xpath:href"],
+        ["xpath=//a[contains(@href, '/View/templates/teacher/statistics.php')]", "xpath:href"],
         ["xpath=//a[4]", "xpath:position"],
         ["xpath=//a[contains(.,'Statistiques')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
-      "id": "ecbba97f-b95c-47ac-b262-7d97fea7ce19",
+      "id": "9cf1934c-5758-4995-ae77-adb9b4b0a54d",
       "comment": "",
       "command": "click",
-      "target": "css=.toggle-filters-btn",
+      "target": "css=.toggle-arrow",
       "targets": [
-        ["css=.toggle-filters-btn", "css:finder"],
-        ["xpath=//button[@onclick='toggleFilters()']", "xpath:attributes"],
-        ["xpath=//div[2]/button", "xpath:position"]
+        ["css=.toggle-arrow", "css:finder"],
+        ["xpath=//div[@id='filters-toggle']/span[3]", "xpath:idRelative"],
+        ["xpath=//div/span[3]", "xpath:position"],
+        ["xpath=//span[contains(.,'▼')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
-      "id": "c8ce6d8e-907b-4505-ba05-b92b06c2d5de",
+      "id": "199b0831-4b57-418c-b26d-390ebf667e8a",
       "comment": "",
-      "command": "click",
-      "target": "id=course_type",
-      "targets": [
-        ["id=course_type", "id"],
-        ["name=course_type", "name"],
-        ["css=#course_type", "css:finder"],
-        ["xpath=//select[@id='course_type']", "xpath:attributes"],
-        ["xpath=//div[@id='filtersContent']/form/div/div[3]/select", "xpath:idRelative"],
-        ["xpath=//select", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "f567b8e7-2c35-466a-ba7b-7bb116733ee8",
-      "comment": "",
-      "command": "click",
-      "target": "css=option:nth-child(5)",
-      "targets": [
-        ["css=option:nth-child(5)", "css:finder"],
-        ["xpath=//option[@value='DS']", "xpath:attributes"],
-        ["xpath=//select[@id='course_type']/option[5]", "xpath:idRelative"],
-        ["xpath=//option[5]", "xpath:position"],
-        ["xpath=//option[contains(.,'DS (Évaluation)')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "b69ec878-495b-435c-b6e7-a73a7ba7804c",
-      "comment": "",
-      "command": "click",
-      "target": "id=end_date",
-      "targets": [
-        ["id=end_date", "id"],
-        ["name=end_date", "name"],
-        ["css=#end_date", "css:finder"],
-        ["xpath=//input[@id='end_date']", "xpath:attributes"],
-        ["xpath=//div[@id='filtersContent']/form/div/div[2]/input", "xpath:idRelative"],
-        ["xpath=//div[2]/input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "cf059e3f-d3e8-4ac3-9a59-2afbbd89181b",
-      "comment": "",
-      "command": "executeScript",
-      "target": "document.getElementById(\"end_date\").value='2026-02-28'; document.getElementById(\"end_date\").dispatchEvent(new Event(\"input\",{bubbles:true})); document.getElementById('end_date').dispatchEvent(new Event('change',{bubbles:true}));",
+      "command": "select",
+      "target": "id=semester-filter",
       "targets": [],
-      "value": "2026-02-28"
+      "value": "label=S2"
     }, {
-      "id": "2f9ed598-f045-440d-b452-2fd793d1a81a",
+      "id": "7c3ffe42-d7ff-4dba-91bb-1ccb2ab865ef",
       "comment": "",
       "command": "click",
-      "target": "id=start_date",
+      "target": "css=#semester-filter > option:nth-child(2)",
       "targets": [
-        ["id=start_date", "id"],
-        ["name=start_date", "name"],
-        ["css=#start_date", "css:finder"],
-        ["xpath=//input[@id='start_date']", "xpath:attributes"],
-        ["xpath=//div[@id='filtersContent']/form/div/div/input", "xpath:idRelative"],
+        ["css=#semester-filter > option:nth-child(2)", "css:finder"],
+        ["xpath=//option[@value='S1']", "xpath:attributes"],
+        ["xpath=//select[@id='semester-filter']/option[2]", "xpath:idRelative"],
+        ["xpath=//option[2]", "xpath:position"],
+        ["xpath=//option[contains(.,'S1')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "90d3a7f6-e3ff-474d-9e72-e46dcec39f0e",
+      "comment": "",
+      "command": "select",
+      "target": "id=course-type-filter",
+      "targets": [],
+      "value": "label=CM"
+    }, {
+      "id": "27aca193-575a-4efd-8f57-91c621f88bf3",
+      "comment": "",
+      "command": "click",
+      "target": "id=student-search",
+      "targets": [
+        ["id=student-search", "id"],
+        ["css=#student-search", "css:finder"],
+        ["xpath=//input[@id='student-search']", "xpath:attributes"],
+        ["xpath=//div[@id='filters-content']/div/div/input", "xpath:idRelative"],
         ["xpath=//input", "xpath:position"]
       ],
       "value": ""
     }, {
-      "id": "6cfe6930-61de-490b-888d-158368f81434",
+      "id": "e333aa9b-f5f4-46a9-80f5-9fa52c3669d9",
       "comment": "",
       "command": "executeScript",
-      "target": "document.getElementById(\"start_date\").value='2025-12-01'; document.getElementById(\"start_date\").dispatchEvent(new Event(\"input\",{bubbles:true})); document.getElementById('start_date').dispatchEvent(new Event('change',{bubbles:true}));",
+      "target": "document.getElementById(\"student-search\").value=\"Nathan Simon\";document.getElementById(\"student-search\").dispatchEvent(new Event(\"input\",{bubbles:true}));document.getElementById(\"student-search\").dispatchEvent(new Event(\"change\",{bubbles:true}));",
       "targets": [],
-      "value": "2025-10-01"
+      "value": "Nathan Simon"
     }, {
-      "id": "74c47e41-b861-42b5-91f1-2a977dde89d4",
+      "id": "cc9e277b-9486-4584-8725-347245711c18",
       "comment": "",
       "command": "click",
-      "target": "css=.btn-primary",
+      "target": "id=apply-filters",
       "targets": [
-        ["css=.btn-primary", "css:finder"],
-        ["xpath=//button[@type='submit']", "xpath:attributes"],
-        ["xpath=//div[@id='filtersContent']/form/div[2]/button", "xpath:idRelative"],
-        ["xpath=//form/div[2]/button", "xpath:position"],
-        ["xpath=//button[contains(.,'Appliquer')]", "xpath:innerText"]
+        ["id=apply-filters", "id"],
+        ["css=#apply-filters", "css:finder"],
+        ["xpath=//button[@id='apply-filters']", "xpath:attributes"],
+        ["xpath=//div[@id='filters-content']/button", "xpath:idRelative"],
+        ["xpath=//div[2]/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Appliquer les filtres')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
-      "id": "869f68e8-1f0a-458e-9705-201761d929e6",
+      "id": "42f9d65b-3ec8-4aca-b21c-0e69023f7e96",
       "comment": "",
       "command": "assertText",
-      "target": "css=.stat-card-purple .stat-number",
+      "target": "id=total-absences",
       "targets": [
-        ["css=.stat-card-purple .stat-number", "css:finder"],
-        ["xpath=//div[4]/div[2]/div[2]", "xpath:position"]
+        ["id=total-absences", "id"],
+        ["css=#total-absences", "css:finder"],
+        ["xpath=//span[@id='total-absences']", "xpath:attributes"],
+        ["xpath=//div[2]/span[2]", "xpath:position"],
+        ["xpath=//span[contains(.,'16')]", "xpath:innerText"]
       ],
-      "value": "10"
+      "value": "2"
     }, {
-      "id": "8350a305-603a-4cb2-a984-ab0c6d99e729",
+      "id": "17bcad59-74f4-4845-b88b-e74759777471",
       "comment": "",
-      "command": "assertText",
-      "target": "css=tr:nth-child(1) > td:nth-child(1)",
-      "targets": [
-        ["css=tr:nth-child(1) > td:nth-child(1)", "css:finder"],
-        ["xpath=//td", "xpath:position"],
-        ["xpath=//td[contains(.,'12/01/2026')]", "xpath:innerText"]
-      ],
-      "value": "12/01/2026"
+      "command": "close",
+      "target": "",
+      "targets": [],
+      "value": ""
     }]
   }],
   "suites": [{
