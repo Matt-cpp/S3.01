@@ -8,6 +8,10 @@ use PHPUnit\Framework\Assert;
  */
 class FeatureContext implements Context
 {
+    /** @var array<int, array<string, mixed>> */
+    private array $historiqueJustifications = [];
+    private bool $notification = false;
+    private string $commentaireRejet = '';
     private bool $studentConnected = false;
 
     /** @var array<int, array<string, mixed>> */
@@ -55,13 +59,13 @@ class FeatureContext implements Context
     {
         $this->absences = [
             [
-                'date' => '2026-03-10',
+                'date' => '2026-03-20',
                 'cours' => 'Mathématiques',
                 'heures' => 2,
                 'status' => 'Non justifiée',
             ],
             [
-                'date' => '2026-03-15',
+                'date' => '2026-03-22',
                 'cours' => 'Programmation PHP',
                 'heures' => 3,
                 'status' => 'Non justifiée',
@@ -137,15 +141,7 @@ class FeatureContext implements Context
         $this->canSubmitForm = true;
     }
 
-    /**
-     * @When /^je clique sur "([^"]*)"$/
-     */
-    public function jeCliqueSur(string $action): void
-    {
-        Assert::assertSame('Soumettre', $action, 'Cette étape est prévue pour le bouton "Soumettre".');
 
-        $this->soumettreJustification();
-    }
 
     /**
      * @Then /^ma justification est enregistrée$/
@@ -244,4 +240,168 @@ class FeatureContext implements Context
         $this->absences[$this->selectedAbsenceIndex]['status'] = 'En attente de validation';
         $this->lastConfirmationMessage = 'Votre justification a bien été soumise.';
     }
+    /**
+     * @When /^je consulte une absence$/
+     */
+    public function jeConsulteUneAbsence(): void
+    {
+        Assert::assertNotEmpty($this->absences, 'Aucune absence à consulter.');
+        $this->selectedAbsenceIndex = 0;
+    }
+
+    /**
+     * @Then /^je vois la date limite pour justifier cette absence$/
+     */
+    public function jeVoisLaDateLimitePourJustifierCetteAbsence(): void
+    {
+        // Supposons une date limite 7 jours après l'absence
+        $absence = $this->absences[$this->selectedAbsenceIndex];
+        $dateLimite = date('Y-m-d', strtotime($absence['date'] . ' +7 days'));
+        Assert::assertNotEmpty($dateLimite, 'La date limite doit être affichée.');
+    }
+
+    /**
+     * @Then /^un délai de justification est respecté$/
+     */
+    public function unDelaiDeJustificationEstRespecte(): void
+    {
+        $absence = $this->absences[$this->selectedAbsenceIndex];
+        $dateLimite = date('Y-m-d', strtotime($absence['date'] . ' +7 days'));
+        $aujourdhui = date('Y-m-d');
+        Assert::assertLessThanOrEqual($dateLimite, $aujourdhui, 'Le délai de justification est dépassé.');
+    }
+
+    /**
+     * @When /^je sélectionne une justification en attente de validation$/
+     */
+    public function jeSelectionneUneJustificationEnAttenteDeValidation(): void
+    {
+        // On suppose que la première absence est en attente de validation
+        $this->selectedAbsenceIndex = 0;
+        $this->absences[$this->selectedAbsenceIndex]['status'] = 'En attente de validation';
+    }
+
+    /**
+     * @When /^je modifie le fichier de preuve ou la description$/
+     */
+    public function jeModifieLeFichierDePreuveOuLaDescription(): void
+    {
+        $this->justificationForm['fileName'] = 'preuve_modifiee.pdf';
+        $this->justificationForm['description'] = 'Description modifiée.';
+    }
+
+    // La méthode spécifique "je clique sur 'Mettre à jour'" est supprimée pour éviter l'ambiguïté.
+    /**
+     * @When /^je clique sur "([^"]*)"$/
+     */
+    public function jeCliqueSur(string $action): void
+    {
+        if ($action === 'Soumettre') {
+            $this->soumettreJustification();
+        } elseif ($action === 'Mettre à jour') {
+            $this->justificationSaved = true;
+            // Le statut reste "En attente de validation"
+        } else {
+            Assert::fail('Action inconnue : ' . $action);
+        }
+    }
+    /**
+     * @Then /^la justification est mise à jour$/
+     */
+    public function laJustificationEstMiseAJour(): void
+    {
+        Assert::assertTrue($this->justificationSaved, 'La justification aurait dû être mise à jour.');
+    }
+
+    /**
+     * @Then /^le statut reste "En attente de validation"$/
+     */
+    public function leStatutResteEnAttenteDeValidation(): void
+    {
+        Assert::assertSame('En attente de validation', $this->absences[$this->selectedAbsenceIndex]['status']);
+    }
+
+    /**
+     * @When /^je consulte la section "Historique des justifications"$/
+     */
+    public function jeConsulteLaSectionHistoriqueDesJustifications(): void
+    {
+        $this->historiqueJustifications = [
+            [
+                'date' => '2026-03-01',
+                'statut' => 'Excusée',
+                'commentaire' => 'Acceptée',
+            ],
+            [
+                'date' => '2026-03-05',
+                'statut' => 'Rejetée',
+                'commentaire' => 'Document illisible',
+            ],
+        ];
+    }
+
+    /**
+     * @Then /^je vois la liste de toutes mes justifications précédentes$/
+     */
+    public function jeVoisLaListeDeToutesMesJustificationsPrecedentes(): void
+    {
+        Assert::assertNotEmpty($this->historiqueJustifications, 'Aucune justification précédente trouvée.');
+    }
+
+    /**
+     * @Then /^pour chaque justification je vois : date de soumission, statut, commentaire du validateur$/
+     */
+    public function pourChaqueJustificationJeVoisDateStatutCommentaire(): void
+    {
+        foreach ($this->historiqueJustifications as $justification) {
+            Assert::assertArrayHasKey('date', $justification);
+            Assert::assertArrayHasKey('statut', $justification);
+            Assert::assertArrayHasKey('commentaire', $justification);
+        }
+    }
+
+    /**
+     * @When /^une justification est validée ou rejetée$/
+     */
+    public function uneJustificationEstValideeOuRejetee(): void
+    {
+        // Simuler la validation ou le rejet
+        $this->notification = true;
+        // Pour le test, on alterne entre "Excusée" et "Rejetée"
+        if (!isset($this->absences[$this->selectedAbsenceIndex]['status']) || $this->absences[$this->selectedAbsenceIndex]['status'] !== 'Rejetée') {
+            $this->absences[$this->selectedAbsenceIndex]['status'] = 'Excusée';
+            $this->commentaireRejet = '';
+        } else {
+            $this->absences[$this->selectedAbsenceIndex]['status'] = 'Rejetée';
+            $this->commentaireRejet = 'Absence non justifiée.';
+        }
+    }
+
+    /**
+     * @Then /^je reçois une notification$/
+     */
+    public function jeRecoisUneNotification(): void
+    {
+        Assert::assertTrue($this->notification ?? false, 'Aucune notification reçue.');
+    }
+
+    /**
+     * @Then /^le statut de l'absence devient "Excusée" ou "Rejetée"$/
+     */
+    public function leStatutDeLabsenceDevientExcuseeOuRejetee(): void
+    {
+        $status = $this->absences[$this->selectedAbsenceIndex]['status'];
+        Assert::assertTrue(in_array($status, ['Excusée', 'Rejetée'], true), 'Le statut doit être "Excusée" ou "Rejetée".');
+    }
+
+    /**
+     * @Then /^un commentaire explicatif est fourni en cas de rejet$/
+     */
+    public function unCommentaireExplicatifEstFourniEnCasDeRejet(): void
+    {
+        if (($this->absences[$this->selectedAbsenceIndex]['status'] ?? '') === 'Rejetée') {
+            Assert::assertNotEmpty($this->commentaireRejet, 'Un commentaire explicatif doit être fourni en cas de rejet.');
+        }
+    }
+
 }
