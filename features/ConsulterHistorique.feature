@@ -6,7 +6,7 @@ Feature: Historique des decisions
   Scenario: Acces a l'historique des decisions depuis le tableau de bord
     Given je suis responsable pedagogique et connecte
     And je suis sur le tableau de bord
-    When je clique sur 'Historique des decisions'
+    When je clique sur Historique des decisions
     Then le systeme m'affiche la liste des decisions des justificatifs
     And je peux voir la date de chaque decision
     And je peux voir le nom de l'etudiant
@@ -15,8 +15,8 @@ Feature: Historique des decisions
 
   Scenario: Filtrer l'historique par action
     Given je suis responsable pedagogique et sur la page d'historique
-    When je selectionne 'Accepte' dans le filtre action
-    And je clique sur 'Filtrer'
+    When je selectionne Accepte dans le filtre action
+    And je clique sur Filtrer
     Then le systeme m'affiche uniquement les decisions acceptees
 
   Scenario: Afficher les details d'une decision
@@ -30,6 +30,6 @@ Feature: Historique des decisions
   Scenario: Reinitialiser les filtres
     Given je suis responsable pedagogique et sur la page d'historique
     And j'ai applique des filtres
-    When je clique sur 'Reinitialiser'
+    When je clique sur Reinitialiser
     Then tous les filtres sont vides
     And le systeme m'affiche toutes les decisions
