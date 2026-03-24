@@ -1349,6 +1349,80 @@ class ProofModel
     }
 
     /**
+     * Get decision history with filtering capabilities
+     * Retrieves all decisions made on proofs by academic managers
+     */
+    public function getDecisionHistory(array $filters = []): array
+    {
+        $sql = "
+            SELECT 
+                dh.id,
+                dh.created_at AS decision_date,
+                dh.action,
+                dh.old_status,
+                dh.new_status,
+                dh.comment,
+                p.student_identifier,
+                p.absence_start_date,
+                p.absence_end_date,
+                p.main_reason,
+                p.custom_reason AS rejection_reason,
+                u.first_name,
+                u.last_name,
+                manager.first_name AS manager_first_name,
+                manager.last_name AS manager_last_name
+            FROM decision_history dh
+            JOIN proof p ON p.id = dh.justification_id
+            JOIN users u ON LOWER(u.identifier) = LOWER(p.student_identifier)
+            JOIN users manager ON manager.id = dh.user_id
+            WHERE 1=1
+        ";
+
+        // Apply filters
+        if (!empty($filters['student_name'])) {
+            $sql .= " AND (u.first_name ILIKE :student_name OR u.last_name ILIKE :student_name)";
+        }
+        if (!empty($filters['start_date'])) {
+            $sql .= " AND DATE(dh.created_at) >= :start_date";
+        }
+        if (!empty($filters['end_date'])) {
+            $sql .= " AND DATE(dh.created_at) <= :end_date";
+        }
+        if (!empty($filters['action'])) {
+            $sql .= " AND dh.action = :action";
+        }
+        if (!empty($filters['status'])) {
+            $sql .= " AND dh.new_status = :status";
+        }
+
+        $sql .= " ORDER BY dh.created_at DESC";
+
+        try {
+            $params = [];
+            if (!empty($filters['student_name'])) {
+                $params['student_name'] = '%' . $filters['student_name'] . '%';
+            }
+            if (!empty($filters['start_date'])) {
+                $params['start_date'] = $filters['start_date'];
+            }
+            if (!empty($filters['end_date'])) {
+                $params['end_date'] = $filters['end_date'];
+            }
+            if (!empty($filters['action'])) {
+                $params['action'] = $filters['action'];
+            }
+            if (!empty($filters['status'])) {
+                $params['status'] = $filters['status'];
+            }
+
+            return $this->db->select($sql, $params);
+        } catch (Exception $e) {
+            error_log('Error getDecisionHistory: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * Retrieve proofs for a student filtered by a specific status with full aggregated stats.
      * Used by get_info.php::getProofsByCategory() (four calls: under_review, pending, accepted, rejected).
      */

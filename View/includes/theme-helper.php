@@ -7,8 +7,9 @@ declare(strict_types=1);
  * Include this in the <head> of all template files to enable dark mode support
  */
 
-function renderThemeSupport(): void
-{
+if (!function_exists('renderThemeSupport')) {
+    function renderThemeSupport(): void
+    {
 ?>
     <!-- Dark Mode Support -->
     <link rel="stylesheet" href="/View/assets/css/shared/dark-mode.css">
@@ -26,23 +27,30 @@ function renderThemeSupport(): void
         })();
     </script>
 <?php
+    }
 }
 
-function renderThemeScript(): void
-{
+if (!function_exists('renderThemeScript')) {
+    function renderThemeScript(): void
+    {
 ?>
     <!-- Theme Manager Script -->
     <script src="/View/assets/js/shared/theme.js"></script>
 <?php
+    }
 }
 
-function getCurrentTheme(): string
-{
-    return $_COOKIE['theme'] ?? 'light';
+if (!function_exists('getCurrentTheme')) {
+    function getCurrentTheme(): string
+    {
+        return $_COOKIE['theme'] ?? 'light';
+    }
 }
 
-function isDarkMode(): bool
-{
-    return getCurrentTheme() === 'dark';
+if (!function_exists('isDarkMode')) {
+    function isDarkMode(): bool
+    {
+        return getCurrentTheme() === 'dark';
+    }
 }
 ?>

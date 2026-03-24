@@ -11,7 +11,7 @@ use Behat\Step\Then;
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext implements SnippetAcceptingContext
+class FeatureContext implements Context
 {
     private $response;
     private $lastUrl;
@@ -47,11 +47,7 @@ class FeatureContext implements SnippetAcceptingContext
         $this->jeSuisResponsablePedagogiqueEtConnecte();
         $this->lastUrl = 'View/templates/academic_manager/home.php';
         
-        ob_start();
-        // Override REQUEST_METHOD to avoid login presenter issues
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        require __DIR__ . '/../../View/templates/academic_manager/home.php';
-        $this->response = ob_get_clean();
+
     }
 
     #[When('je clique sur :buttonText')]
@@ -110,7 +106,7 @@ class FeatureContext implements SnippetAcceptingContext
         }
     }
 
-    #[Then('je peux voir l\'action effectuée \\(Accepté/Rejeté/Demande d\'infos\\)')]
+    #[Then('je peux voir l\'action effectuée (Accepté/Rejeté/Demande d\'infos)')]
     public function jePouxVoirLactionEffectuee(): void
     {
         if (strpos($this->response, 'Action') === false) {
@@ -187,6 +183,8 @@ class FeatureContext implements SnippetAcceptingContext
         }
     }
 
+    
+// ERROR 1
     #[When('je regarde une décision dans la liste')]
     public function jeRegardeUneDécisionDansLaListe(): void
     {
@@ -197,7 +195,7 @@ class FeatureContext implements SnippetAcceptingContext
         $this->decisionTableContent = $this->response;
     }
 
-    #[Then('je peux voir le motif de rejet \\(si applicable\\)')]
+    #[Then('je peux voir le motif de rejet (si applicable)')]
     public function jePouxVoirLeMotifDeRejet(): void
     {
         // It's optional - only check if rejection functionality is present
@@ -224,7 +222,7 @@ class FeatureContext implements SnippetAcceptingContext
     }
 
     #[Then('je peux voir la période d\'absence justifiée/rejetée')]
-    public function jePeuxVoirLaPériodeDabsenceJustifiéeRejetée(): void
+    public function jePeuxVoirLaPeriodeDabsenceJustifieeRejetee(): void
     {
         if (strpos($this->decisionTableContent, 'Période') === false &&
             strpos($this->decisionTableContent, 'absence') === false) {
