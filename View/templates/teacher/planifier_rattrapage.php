@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $planif->scheduleMakeups(
         (int) ($_POST['matiere'] ?? 0),
         $_POST['date'] ?? null,
+        $_POST['start_time'] ?? null,
         $_POST['duree'] ?? null,
         $_POST['salle_id'] ?? null,
         trim($_POST['new_salle'] ?? ''),
@@ -72,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <div class="main-content">
         <h1 class="page-title">Planifier un rattrapage</h1>
@@ -154,9 +155,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <div class="form-group">
+                        <label for="start_time">Heure de début <span class="required">*</span></label>
+                        <input type="time" id="start_time" name="start_time" min="08:00" max="17:00" step="300" required>
+                        <div class="form-help">Entre 08:00 et 17:00</div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="salle_id">Salle</label>
-                        <select id="salle_id" name="salle_id" onchange="toggleNewRoomInput(this)">
-                            <option value="">-- Aucune salle --</option>
+                        <select id="salle_id" name="salle_id" onchange="toggleNewRoomInput(this)" required>
+                            <option value="" selected>-- Sélectionnez une salle --</option>
                             <?php foreach ($rooms as $room): ?>
                                 <option value="<?php echo htmlspecialchars((string) $room['id']); ?>">
                                     <?php echo htmlspecialchars($room['code']); ?>
@@ -183,6 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <option value="60">1 heure</option>
                             <option value="90">1h30</option>
                             <option value="120">2 heures</option>
+                            <option value="180">3 heures</option>
                         </select>
                     </div>
                 </div>
@@ -264,15 +272,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Confirmation avant validation du rattrapage
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.querySelector('form');
+            const schoolStart = '08:00';
+            const schoolEnd = '17:00';
+
+            function isWeekday(dateValue) {
+                const parsed = new Date(dateValue + 'T00:00:00');
+                const day = parsed.getDay();
+                return day >= 1 && day <= 5;
+            }
+
+            function isFutureDateTime(dateValue, timeValue) {
+                const selected = new Date(dateValue + 'T' + timeValue + ':00');
+                return selected.getTime() > Date.now();
+            }
+
+            function showFormError(message) {
+                const existingMessage = document.querySelector('.message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+
+                const messageNode = document.createElement('div');
+                messageNode.className = 'message error';
+                messageNode.textContent = message;
+                form.parentNode.insertBefore(messageNode, form);
+                messageNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
             if (form) {
                 form.addEventListener('submit', async function (e) {
                     const matiere = document.getElementById('matiere').value;
                     const date = document.getElementById('date').value;
+                    const startTime = document.getElementById('start_time').value;
                     const duree = document.getElementById('duree').value;
+                    const salle = document.getElementById('salle_id').value;
+                    const newSalle = document.getElementById('new_salle').value.trim();
                     const submitButton = form.querySelector('button[type="submit"]');
                     const existingMessage = document.querySelector('.message');
 
-                    if (!matiere || !date || !duree) {
+                    if (!matiere || !date || !startTime || !duree || !salle) {
+                        return;
+                    }
+
+                    if (salle === 'new' && !newSalle) {
+                        e.preventDefault();
+                        showFormError('Veuillez renseigner une nouvelle salle.');
+                        return;
+                    }
+
+                    if (!isWeekday(date)) {
+                        e.preventDefault();
+                        showFormError('Le rattrapage doit être planifié un jour de cours (lundi-vendredi).');
+                        return;
+                    }
+
+                    if (startTime < schoolStart || startTime > schoolEnd) {
+                        e.preventDefault();
+                        showFormError('Le rattrapage doit commencer entre 08:00 et 17:00.');
+                        return;
+                    }
+
+                    if (!isFutureDateTime(date, startTime)) {
+                        e.preventDefault();
+                        showFormError('Le rattrapage doit être planifié dans le futur.');
                         return;
                     }
 
@@ -307,6 +369,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         messageNode.className = 'message ' + (payload.success ? 'success' : 'error');
                         messageNode.textContent = payload.message || 'Une erreur est survenue.';
                         form.parentNode.insertBefore(messageNode, form);
+                        messageNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
                         if (payload.success) {
                             setTimeout(() => {
@@ -321,6 +384,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         messageNode.className = 'message error';
                         messageNode.textContent = 'Erreur reseau. Veuillez reessayer.';
                         form.parentNode.insertBefore(messageNode, form);
+                        messageNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     } finally {
                         submitButton.disabled = false;
                         submitButton.textContent = originalLabel;

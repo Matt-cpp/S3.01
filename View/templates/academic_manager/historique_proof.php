@@ -52,7 +52,7 @@ $errorMessage = $presenter->getErrorMessage();
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
     <main>
         <h1 class="page-title">Historique des justificatifs</h1>
 

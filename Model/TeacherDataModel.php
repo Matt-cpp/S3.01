@@ -7,6 +7,7 @@ require_once __DIR__ . '/database.php';
 class TeacherDataModel
 {
     private Database $db;
+    private ?bool $makeupStartTimeColumnExists = null;
 
     public function __construct(?Database $db = null)
     {
@@ -95,10 +96,16 @@ class TeacherDataModel
         $sql = "SELECT resources.label, course_slots.course_date, course_slots.start_time,
                        COUNT(*) as nbabs,
                        COUNT(CASE WHEN absences.justified = TRUE THEN 1 END) as nb_justifications,
+                       COUNT(CASE WHEN makeups.id IS NOT NULL AND makeups.scheduled = TRUE THEN 1 END) as nb_rattrapages,
+                       CASE WHEN COUNT(CASE WHEN makeups.id IS NOT NULL AND makeups.scheduled = TRUE THEN 1 END) > 0
+                           THEN TRUE
+                           ELSE FALSE
+                       END as has_makeup,
                        course_slots.id as course_slot_id
                 FROM course_slots
                 LEFT JOIN resources ON course_slots.subject_identifier = resources.code
                 LEFT JOIN absences ON course_slots.id = absences.course_slot_id
+                 LEFT JOIN makeups ON makeups.absence_id = absences.id
                 WHERE course_slots.teacher_id = :teacher_id AND course_slots.is_evaluation = TRUE
                 GROUP BY course_slots.id, resources.label, course_slots.course_date, course_slots.start_time
                 ORDER BY {$safeOrderBy} DESC, course_slots.start_time DESC";
@@ -228,10 +235,35 @@ class TeacherDataModel
         int $evaluationSlotId,
         string $studentIdentifier,
         string $makeupDate,
+        string $makeupStartTime,
         ?int $roomId,
         ?int $durationMinutes,
         ?string $comment
     ): void {
+        $finalComment = $comment;
+        if (!$this->hasMakeupStartTimeColumn()) {
+            $prefix = 'Heure de debut: ' . $makeupStartTime;
+            $finalComment = $comment ? ($prefix . ' | ' . $comment) : $prefix;
+        }
+
+        if ($this->hasMakeupStartTimeColumn()) {
+            $this->db->execute(
+                "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, scheduled, makeup_date, makeup_start_time, room_id, duration_minutes, comment)
+                 VALUES (:absence_id, :evaluation_slot_id, :student_identifier, TRUE, :makeup_date, :makeup_start_time, :room_id, :duration_minutes, :comment)",
+                [
+                    ':absence_id' => $absenceId,
+                    ':evaluation_slot_id' => $evaluationSlotId,
+                    ':student_identifier' => $studentIdentifier,
+                    ':makeup_date' => $makeupDate,
+                    ':makeup_start_time' => $makeupStartTime,
+                    ':room_id' => $roomId,
+                    ':duration_minutes' => $durationMinutes,
+                    ':comment' => $finalComment,
+                ]
+            );
+            return;
+        }
+
         $this->db->execute(
             "INSERT INTO makeups (absence_id, evaluation_slot_id, student_identifier, scheduled, makeup_date, room_id, duration_minutes, comment)
              VALUES (:absence_id, :evaluation_slot_id, :student_identifier, TRUE, :makeup_date, :room_id, :duration_minutes, :comment)",
@@ -242,9 +274,56 @@ class TeacherDataModel
                 ':makeup_date' => $makeupDate,
                 ':room_id' => $roomId,
                 ':duration_minutes' => $durationMinutes,
-                ':comment' => $comment,
+                ':comment' => $finalComment,
             ]
         );
+    }
+
+    public function getCourseSlotMakeupSummary(int $courseSlotId): ?array
+    {
+        if ($this->hasMakeupStartTimeColumn()) {
+            $row = $this->db->selectOne(
+                "SELECT MIN(m.makeup_date) as makeup_date,
+                        MIN(m.makeup_start_time) as makeup_start_time,
+                        MAX(r.code) as room_code,
+                        MAX(m.duration_minutes) as duration_minutes,
+                        MAX(m.comment) as comment,
+                        COUNT(*) as planned_count
+                 FROM makeups m
+                 LEFT JOIN rooms r ON m.room_id = r.id
+                 WHERE m.evaluation_slot_id = :course_slot_id AND m.scheduled = TRUE",
+                [':course_slot_id' => $courseSlotId]
+            );
+
+            if (!$row || empty($row['planned_count'])) {
+                return null;
+            }
+
+            return $row;
+        }
+
+        $row = $this->db->selectOne(
+            "SELECT MIN(m.makeup_date) as makeup_date,
+                    MAX(r.code) as room_code,
+                    MAX(m.duration_minutes) as duration_minutes,
+                    MAX(m.comment) as comment,
+                    COUNT(*) as planned_count
+             FROM makeups m
+             LEFT JOIN rooms r ON m.room_id = r.id
+             WHERE m.evaluation_slot_id = :course_slot_id AND m.scheduled = TRUE",
+            [':course_slot_id' => $courseSlotId]
+        );
+
+        if (!$row || empty($row['planned_count'])) {
+            return null;
+        }
+
+        $parsedTime = $this->extractStartTimeFromComment((string) ($row['comment'] ?? ''));
+        if ($parsedTime !== null) {
+            $row['makeup_start_time'] = $parsedTime;
+        }
+
+        return $row;
     }
 
     public function getStudentContactByIdentifier(string $studentIdentifier): ?array
@@ -271,5 +350,31 @@ class TeacherDataModel
     {
         $room = $this->db->selectOne("SELECT code FROM rooms WHERE id = :room_id", [':room_id' => $roomId]);
         return $room['code'] ?? null;
+    }
+
+    private function hasMakeupStartTimeColumn(): bool
+    {
+        if ($this->makeupStartTimeColumnExists !== null) {
+            return $this->makeupStartTimeColumnExists;
+        }
+
+        $row = $this->db->selectOne(
+            "SELECT 1
+             FROM information_schema.columns
+             WHERE table_name = 'makeups' AND column_name = 'makeup_start_time'
+             LIMIT 1"
+        );
+
+        $this->makeupStartTimeColumnExists = $row !== null;
+        return $this->makeupStartTimeColumnExists;
+    }
+
+    private function extractStartTimeFromComment(string $comment): ?string
+    {
+        if (preg_match('/Heure de debut:\s*([0-2]\\d:[0-5]\\d)/', $comment, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 }

@@ -14,6 +14,7 @@ if ($courseSlotId <= 0) {
     $details = new AbsenceDetailsPresenter($courseSlotId);
     $courseInfo = $details->getAbsenceDetails();
     $absences = $details->getAbsences();
+    $makeupInfo = $details->getMakeupDetails();
 }
 ?>
 <!DOCTYPE html>
@@ -35,7 +36,7 @@ if ($courseSlotId <= 0) {
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
     <main class="container">
         <a href="evaluations.php" class="back-button">← Retour</a>
         <h1>Détails des Absences pour l'Évaluation</h1>
@@ -47,8 +48,29 @@ if ($courseSlotId <= 0) {
                 <?php echo htmlspecialchars($courseInfo['course_date']); ?>
             </p>
             <p>Heure :
-                <?php echo htmlspecialchars(!empty($courseInfo['start_time']) ? date('H:i', strtotime((string)$courseInfo['start_time'])) : 'Non définie'); ?>
+                <?php echo htmlspecialchars(!empty($courseInfo['start_time']) ? date('H:i', strtotime((string) $courseInfo['start_time'])) : 'Non définie'); ?>
             </p>
+        </div>
+
+        <div class="section">
+            <h3>Rattrapage</h3>
+            <?php if (empty($makeupInfo)): ?>
+                <p>Aucun rattrapage planifié pour cette évaluation.</p>
+            <?php else: ?>
+                <p>Date :
+                    <?php echo htmlspecialchars(!empty($makeupInfo['makeup_date']) ? date('d/m/Y', strtotime((string) $makeupInfo['makeup_date'])) : 'Non définie'); ?>
+                </p>
+                <p>Heure de début :
+                    <?php echo htmlspecialchars(!empty($makeupInfo['makeup_start_time']) ? substr((string) $makeupInfo['makeup_start_time'], 0, 5) : 'Non définie'); ?>
+                </p>
+                <p>Salle :
+                    <?php echo htmlspecialchars(!empty($makeupInfo['room_code']) ? (string) $makeupInfo['room_code'] : 'À définir'); ?>
+                </p>
+                <p>Durée :
+                    <?php echo htmlspecialchars(!empty($makeupInfo['duration_minutes']) ? ((string) $makeupInfo['duration_minutes'] . ' min') : 'Non définie'); ?>
+                </p>
+                <p>Étudiants concernés : <?php echo htmlspecialchars((string) ($makeupInfo['planned_count'] ?? '0')); ?></p>
+            <?php endif; ?>
         </div>
 
         <div class="section">

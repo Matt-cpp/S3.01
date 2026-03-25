@@ -283,7 +283,7 @@ $errorMessage = $presenter->getErrorMessage();
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
     <main>
         <h1 class="page-title">Historique des décisions</h1>
 
@@ -446,3 +446,4 @@ $errorMessage = $presenter->getErrorMessage();
 </body>
 
 </html>
+

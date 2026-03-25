@@ -34,7 +34,7 @@ if ($courseSlotId <= 0) {
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
     <main class="container">
         <h1>Détails des Absences</h1>
 

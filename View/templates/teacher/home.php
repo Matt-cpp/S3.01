@@ -58,7 +58,7 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
 </head>
 
 <body data-page="teacher_home">
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <div class="main-content">
         <h1 class="page-title" data-translate="dashboard_title">Tableau de bord - Professeur</h1>

@@ -5,6 +5,9 @@ declare(strict_types=1);
 // Handles makeup scheduling for teachers
 class MakeupSchedulingPresenter
 {
+    private const COURSE_START_TIME = '08:00';
+    private const COURSE_END_TIME = '17:00';
+
     private TeacherDataModel $teacherModel;
     private UserModel $userModel;
     private int $userId;
@@ -73,13 +76,39 @@ class MakeupSchedulingPresenter
      * Schedule makeups for all students of an exam
      * @return array ['success' => bool, 'message' => string, 'count' => int]
      */
-    public function scheduleMakeups(int $examId, string $date, string $duration, ?string $roomId, ?string $newRoomCode, ?string $comment): array
+    public function scheduleMakeups(int $examId, string $date, string $startTime, string $duration, ?string $roomId, ?string $newRoomCode, ?string $comment): array
     {
-        if (!$examId || !$date || !$duration) {
-            return ['success' => false, 'message' => 'Please fill in all required fields.', 'count' => 0];
+        if (!$examId || !$date || !$startTime || !$duration) {
+            return ['success' => false, 'message' => 'Veuillez remplir tous les champs requis.', 'count' => 0];
+        }
+
+        $normalizedStartTime = $this->normalizeStartTime($startTime);
+        if ($normalizedStartTime === null) {
+            return ['success' => false, 'message' => "L'heure de début est invalide.", 'count' => 0];
+        }
+
+        $durationMinutes = intval($duration);
+        if ($durationMinutes <= 0) {
+            return ['success' => false, 'message' => 'La durée sélectionnée est invalide.', 'count' => 0];
+        }
+
+        if (!$this->isFutureDateTime($date, $normalizedStartTime)) {
+            return ['success' => false, 'message' => 'Le rattrapage doit être planifié dans le futur.', 'count' => 0];
+        }
+
+        if (!$this->isWeekday($date)) {
+            return ['success' => false, 'message' => 'Le rattrapage doit être planifié un jour de cours (lundi-vendredi).', 'count' => 0];
+        }
+
+        if (!$this->isWithinCourseHours($normalizedStartTime)) {
+            return ['success' => false, 'message' => 'Le rattrapage doit commencer pendant les horaires de cours (08:00-17:00).', 'count' => 0];
         }
 
         $roomResolvedId = $this->getOrCreateRoom($roomId, $newRoomCode);
+        if ($roomResolvedId === null) {
+            return ['success' => false, 'message' => 'Veuillez sélectionner une salle pour le rattrapage.', 'count' => 0];
+        }
+
         $students = $this->getStudents($examId);
         $count = 0;
 
@@ -89,30 +118,32 @@ class MakeupSchedulingPresenter
                 $examId,
                 $student['identifier'],
                 $date,
+                $normalizedStartTime,
                 $roomResolvedId,
-                intval($duration),
+                $durationMinutes,
                 $comment
             );
             $count++;
         }
 
-        return ['success' => true, 'message' => "Makeup scheduled successfully for {$count} student(s)!", 'count' => $count];
+        return ['success' => true, 'message' => "Rattrapage planifié pour {$count} étudiant(s)!", 'count' => $count];
     }
 
-    public function insertMakeupSession(int $absenceId, int $evalId, string $studentId, string $makeupDate, ?int $roomId = null, ?int $durationMinutes = null, ?string $comment = null): bool
+    public function insertMakeupSession(int $absenceId, int $evalId, string $studentId, string $makeupDate, string $makeupStartTime, ?int $roomId = null, ?int $durationMinutes = null, ?string $comment = null): bool
     {
         $this->teacherModel->createMakeupSession(
             $absenceId,
             $evalId,
             $studentId,
             $makeupDate,
+            $makeupStartTime,
             $roomId,
             $durationMinutes,
             $comment
         );
 
         // Send email notification to student with room and duration info
-        $this->sendMakeupNotificationEmail($studentId, $evalId, $makeupDate, $roomId, $durationMinutes, $comment);
+        $this->sendMakeupNotificationEmail($studentId, $evalId, $makeupDate, $makeupStartTime, $roomId, $durationMinutes, $comment);
 
         return true;
     }
@@ -120,7 +151,7 @@ class MakeupSchedulingPresenter
     /**
      * Send email notification to student about makeup session
      */
-    private function sendMakeupNotificationEmail(string $studentId, int $evalId, string $makeupDate, ?int $roomId = null, ?int $durationMinutes = null, ?string $comment = null): void
+    private function sendMakeupNotificationEmail(string $studentId, int $evalId, string $makeupDate, string $makeupStartTime, ?int $roomId = null, ?int $durationMinutes = null, ?string $comment = null): void
     {
         try {
             // Get student information
@@ -160,6 +191,7 @@ class MakeupSchedulingPresenter
             $startTime = substr($course['start_time'], 0, 5);
             $endTime = substr($course['end_time'], 0, 5);
             $makeupDateFormatted = date('d/m/Y', strtotime($makeupDate));
+            $makeupStartTimeFormatted = substr($makeupStartTime, 0, 5);
             $commentText = $comment ? htmlspecialchars($comment) : '';
 
             $subject = "Rattrapage planifié - {$resourceLabel}";
@@ -172,6 +204,7 @@ class MakeupSchedulingPresenter
                 $startTime,
                 $endTime,
                 $makeupDateFormatted,
+                $makeupStartTimeFormatted,
                 $makeupRoomName,
                 $durationText,
                 $commentText
@@ -190,7 +223,7 @@ class MakeupSchedulingPresenter
     /**
      * Generate HTML email body for makeup notification
      */
-    private function generateMakeupEmailBody(string $firstName, string $lastName, string $resource, string $courseType, string $courseDate, string $startTime, string $endTime, string $makeupDate, string $room, string $duration, string $commentText): string
+    private function generateMakeupEmailBody(string $firstName, string $lastName, string $resource, string $courseType, string $courseDate, string $startTime, string $endTime, string $makeupDate, string $makeupStartTime, string $room, string $duration, string $commentText): string
     {
         $commentSection = $commentText ? "<div class='info-box'><strong>Commentaire de l'enseignant :</strong><p>{$commentText}</p></div>" : "";
 
@@ -253,6 +286,10 @@ class MakeupSchedulingPresenter
                         <td><strong>{$makeupDate}</strong></td>
                     </tr>
                     <tr>
+                        <td>Heure de début</td>
+                        <td><strong>{$makeupStartTime}</strong></td>
+                    </tr>
+                    <tr>
                         <td>Salle</td>
                         <td>{$room}</td>
                     </tr>
@@ -282,5 +319,35 @@ class MakeupSchedulingPresenter
 </body>
 </html>
 HTML;
+    }
+
+    private function normalizeStartTime(string $startTime): ?string
+    {
+        if (!preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $startTime)) {
+            return null;
+        }
+
+        return $startTime;
+    }
+
+    private function isFutureDateTime(string $date, string $startTime): bool
+    {
+        $scheduledAt = DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $startTime);
+        if (!$scheduledAt) {
+            return false;
+        }
+
+        return $scheduledAt > new DateTime('now');
+    }
+
+    private function isWeekday(string $date): bool
+    {
+        $day = (int) date('N', strtotime($date));
+        return $day >= 1 && $day <= 5;
+    }
+
+    private function isWithinCourseHours(string $startTime): bool
+    {
+        return $startTime >= self::COURSE_START_TIME && $startTime <= self::COURSE_END_TIME;
     }
 }

@@ -36,7 +36,7 @@ declare(strict_types=1);
     require_once __DIR__ . '/../../../Presenter/academic_manager/dashboard.php';
     $donnes = new AcademicManagerDashboardPresenter();
     ?>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <div class="main-content">
         <div class="stats-header">

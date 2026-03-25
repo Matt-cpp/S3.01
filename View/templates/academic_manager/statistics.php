@@ -71,7 +71,7 @@ declare(strict_types=1);
     $years = $presenter->getAvailableYears();
     ?>
 
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <div class="main-content">
         <div class="stats-header">

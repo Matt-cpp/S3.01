@@ -20,7 +20,7 @@
     $statistics = $presenter->getUserStatistics();
     ?>
     
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <div class="main-content">
         <div class="settings-container">
@@ -222,3 +222,4 @@
     <script src="/View/assets/js/shared/settings.js"></script>
 </body>
 </html>
+

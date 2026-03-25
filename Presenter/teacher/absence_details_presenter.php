@@ -32,4 +32,9 @@ class AbsenceDetailsPresenter
     {
         return $this->teacherModel->getCourseSlotAbsences($this->getCourseId());
     }
+
+    public function getMakeupDetails(): ?array
+    {
+        return $this->teacherModel->getCourseSlotMakeupSummary($this->getCourseId());
+    }
 }

@@ -36,7 +36,7 @@ if (!isset($_SESSION['id_student'])) {
 
 <body data-page="student_home">
     <?php
-    include __DIR__ . '/../navbar.php';
+    include __DIR__ . '/../shared/navbar.php';
     require_once __DIR__ . '/../../../Presenter/student/dashboard_presenter.php';
 
     // Handle cache refresh

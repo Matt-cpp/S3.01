@@ -63,7 +63,7 @@ declare(strict_types=1);
     $recentAbsences = $presenter->getRecentAbsences(10, $filters);
     ?>
 
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <div class="main-content">
         <!-- Header -->

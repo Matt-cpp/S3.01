@@ -57,7 +57,7 @@ $uploadedFileName = $_SESSION['reason_data']['proof_file'] ?? 'Fichier non dispo
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
     <div class="container">
         <h1>Votre justificatif a été envoyé</h1>
 

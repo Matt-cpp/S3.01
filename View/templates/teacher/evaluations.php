@@ -43,7 +43,7 @@ $evaluations = $table->getEvaluations();
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
     <main class="container">
         <h1>Tableau des Evaluations</h1>
         <div class="section">
@@ -66,13 +66,15 @@ $evaluations = $table->getEvaluations();
                         <th>Heures</th>
                         <th>Nombre d'Absences</th>
                         <th>Nombre de Justifications</th>
+                        <th>Rattrapage</th>
+                        <th>Détails</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Displayed if no evaluations -->
                     <?php if (empty($evaluations)): ?>
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 2rem; color: #666;">
+                            <td colspan="7" style="text-align: center; padding: 2rem; color: #666;">
                                 Aucune évaluation trouvée
                             </td>
                         </tr>
@@ -81,9 +83,16 @@ $evaluations = $table->getEvaluations();
                             <tr>
                                 <td><?php echo htmlspecialchars(formatResourceLabel($eval['label'])); ?></td>
                                 <td><?php echo htmlspecialchars($eval['course_date']); ?></td>
-                                <td><?php echo htmlspecialchars(date('H:i', strtotime((string)$eval['start_time']))); ?></td>
-                                <td><?php echo htmlspecialchars((string)$eval['nbabs']); ?></td>
-                                <td><?php echo htmlspecialchars((string)$eval['nb_justifications']); ?></td>
+                                <td><?php echo htmlspecialchars(date('H:i', strtotime((string) $eval['start_time']))); ?></td>
+                                <td><?php echo htmlspecialchars((string) $eval['nbabs']); ?></td>
+                                <td><?php echo htmlspecialchars((string) $eval['nb_justifications']); ?></td>
+                                <td>
+                                    <?php if (!empty($eval['has_makeup'])): ?>
+                                        Oui (<?php echo (int) ($eval['nb_rattrapages'] ?? 0); ?>)
+                                    <?php else: ?>
+                                        Non
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <button class="info-button"
                                         onclick="window.location.href='information_DS.php?course_slot_id=<?php echo $eval['course_slot_id']; ?>'">Voir

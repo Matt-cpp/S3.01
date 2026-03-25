@@ -62,7 +62,7 @@ $editData = $_SESSION['edit_proof'];
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <main>
         <?php

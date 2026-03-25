@@ -38,7 +38,7 @@ if (!isset($_SESSION['id_student'])) {
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <main>
         <h1 class="page-title">Informations et Procédure de Justification</h1>

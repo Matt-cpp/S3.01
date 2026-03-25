@@ -25,7 +25,7 @@ require_once __DIR__ . '/../../../Presenter/teacher/statistics_presenter.php';
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <div class="statistics-container">
         <!-- Header Section -->

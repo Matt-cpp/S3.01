@@ -42,7 +42,7 @@ declare(strict_types=1);
     $recentProofs = $donnes->getRecentProofs(5);
     $pendingProofsCount = $donnes->pendingProofsCount();
     ?>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <!-- Statistical cards section (KPIs) -->
     <div class="main-content">

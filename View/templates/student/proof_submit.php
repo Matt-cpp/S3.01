@@ -48,7 +48,7 @@ if (!isset($_SESSION['id_student'])) {
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <main>
         <?php

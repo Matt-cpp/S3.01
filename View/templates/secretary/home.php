@@ -35,7 +35,7 @@ require_once __DIR__ . '/../../../Presenter/secretary/dashboard-presenter.php';
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
 
     <div class="dashboard-container">
         <!-- Left section: Main dashboard -->

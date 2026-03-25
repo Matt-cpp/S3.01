@@ -14,7 +14,7 @@ $userEmail = $_SESSION['user_email'] ?? 'email@example.com';
 $userRole = $_SESSION['user_role'] ?? 'student';
 
 // Get home page URL based on role
-require_once __DIR__ . '/../../Presenter/shared/auth_guard.php';
+require_once __DIR__ . '/../../../Presenter/shared/auth_guard.php';
 $homeUrl = getUserHomePage($userRole);
 
 // Determine the current page for students
@@ -37,7 +37,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <!-- Student Navigation Menu -->
         <nav class="nav-menu">
             <a href="/View/templates/student/home.php"
-                class="nav-link <?php echo ($currentPage == 'home.php' && strpos($_SERVER['PHP_SELF'], '/student/') !== false) ? 'active' : ''; ?>">Tableau de bord</a>
+                class="nav-link <?php echo ($currentPage == 'home.php' && strpos($_SERVER['PHP_SELF'], '/student/') !== false) ? 'active' : ''; ?>">Tableau
+                de bord</a>
             <a href="/View/templates/student/absences.php"
                 class="nav-link <?php echo ($currentPage == 'absences.php') ? 'active' : ''; ?>">Mes absences</a>
             <a href="/View/templates/student/proofs.php"
@@ -45,7 +46,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <a href="/View/templates/student/statistics.php"
                 class="nav-link <?php echo ($currentPage == 'statistics.php' && strpos($_SERVER['PHP_SELF'], '/student/') !== false) ? 'active' : ''; ?>">Statistiques</a>
             <a href="/View/templates/student/proof_submit.php"
-                class="nav-link nav-link-primary <?php echo ($currentPage == 'proof_submit.php') ? 'active' : ''; ?>">+ Soumettre justificatif</a>
+                class="nav-link nav-link-primary <?php echo ($currentPage == 'proof_submit.php') ? 'active' : ''; ?>">+
+                Soumettre justificatif</a>
         </nav>
     <?php elseif ($userRole === 'academic_manager'): ?>
         <!-- Academic Manager Navigation Menu -->
@@ -67,9 +69,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <!-- Teacher Navigation Menu -->
         <nav class="nav-menu">
             <a href="/View/templates/teacher/home.php"
-                class="nav-link <?php echo ($currentPage == 'home.php' && strpos($_SERVER['PHP_SELF'], '/teacher/') !== false) ? 'active' : ''; ?>">Tableau de bord</a>
+                class="nav-link <?php echo ($currentPage == 'home.php' && strpos($_SERVER['PHP_SELF'], '/teacher/') !== false) ? 'active' : ''; ?>">Tableau
+                de bord</a>
             <a href="/View/templates/teacher/planifier_rattrapage.php"
-                class="nav-link <?php echo ($currentPage == 'planifier_rattrapage.php') ? 'active' : ''; ?>">Planifier rattrapage</a>
+                class="nav-link <?php echo ($currentPage == 'planifier_rattrapage.php') ? 'active' : ''; ?>">Planifier
+                rattrapage</a>
             <a href="/View/templates/teacher/evaluations.php"
                 class="nav-link <?php echo ($currentPage == 'evaluations.php') ? 'active' : ''; ?>">Mes évaluations</a>
             <a href="/View/templates/teacher/statistics.php"
@@ -97,7 +101,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <div class="profile-dropdown" id="profileDropdown">
                 <div class="dropdown-header">
                     <div class="dropdown-user-info">
-                        <span class="user-name"><?php echo htmlspecialchars(trim($userFirstName . ' ' . $userLastName)); ?></span>
+                        <span
+                            class="user-name"><?php echo htmlspecialchars(trim($userFirstName . ' ' . $userLastName)); ?></span>
                         <span class="user-email"><?php echo htmlspecialchars($userEmail); ?></span>
                     </div>
                 </div>
@@ -112,25 +117,25 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 <script>
     // Profile dropdown toggle
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const profileIcon = document.getElementById('profileIcon');
         const profileDropdown = document.getElementById('profileDropdown');
 
         if (profileIcon && profileDropdown) {
-            profileIcon.addEventListener('click', function(e) {
+            profileIcon.addEventListener('click', function (e) {
                 e.stopPropagation();
                 profileDropdown.classList.toggle('show');
             });
 
             // Close menu when clicking elsewhere
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!profileIcon.contains(e.target)) {
                     profileDropdown.classList.remove('show');
                 }
             });
 
             // Prevent closing when clicking inside the menu
-            profileDropdown.addEventListener('click', function(e) {
+            profileDropdown.addEventListener('click', function (e) {
                 e.stopPropagation();
             });
         }
@@ -143,7 +148,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         document.body.appendChild(overlay);
 
         if (hamburgerBtn && navMenu) {
-            hamburgerBtn.addEventListener('click', function(e) {
+            hamburgerBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 hamburgerBtn.classList.toggle('active');
                 navMenu.classList.toggle('mobile-open');
@@ -156,7 +161,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             });
 
             // Close menu when clicking the overlay
-            overlay.addEventListener('click', function() {
+            overlay.addEventListener('click', function () {
                 hamburgerBtn.classList.remove('active');
                 navMenu.classList.remove('mobile-open');
                 overlay.classList.remove('active');
@@ -165,8 +170,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             });
 
             // Close menu when clicking a link
-            navMenu.querySelectorAll('.nav-link').forEach(function(link) {
-                link.addEventListener('click', function() {
+            navMenu.querySelectorAll('.nav-link').forEach(function (link) {
+                link.addEventListener('click', function () {
                     hamburgerBtn.classList.remove('active');
                     navMenu.classList.remove('mobile-open');
                     overlay.classList.remove('active');

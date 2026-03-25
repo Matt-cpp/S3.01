@@ -143,7 +143,7 @@ if (!$proof) {
 </head>
 
 <body>
-    <?php include __DIR__ . '/../navbar.php'; ?>
+    <?php include __DIR__ . '/../shared/navbar.php'; ?>
     <div class="container">
         <h1 class="title">Validation du justificatif</h1>
 
