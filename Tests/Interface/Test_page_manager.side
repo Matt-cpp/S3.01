@@ -3,671 +3,740 @@
   "version": "2.0",
   "name": "Test Manager Pages",
   "url": "http://127.0.0.1:8000",
-  "tests": [
-    {
-      "id": "66666666-6666-4666-8666-666666666666",
-      "name": "mgr_login_dashboard",
-      "commands": [
-        {
-          "id": "c6-1",
-          "command": "open",
-          "target": "/Presenter/shared/logout_presenter.php",
-          "value": ""
-        },
-        {
-          "id": "c6-2",
-          "command": "open",
-          "target": "/View/templates/shared/login.php",
-          "value": ""
-        },
-        {
-          "id": "c6-3",
-          "command": "waitForElementPresent",
-          "target": "id=email",
-          "value": "10000"
-        },
-        {
-          "id": "c6-4",
-          "command": "waitForElementPresent",
-          "target": "id=password",
-          "value": "10000"
-        },
-        {
-          "id": "c6-5",
-          "command": "executeScript",
-          "target": "window.mgrLoginStart = performance.now();",
-          "value": ""
-        },
-        {
-          "id": "c6-5a",
-          "command": "executeScript",
-          "target": "const e=document.querySelector('#email'); if(!e) throw new Error('email introuvable URL='+location.href); e.value='academic_manager@uphf.fr'; e.dispatchEvent(new Event('input',{bubbles:true})); e.dispatchEvent(new Event('change',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c6-6",
-          "command": "executeScript",
-          "target": "const p=document.querySelector('#password'); if(!p) throw new Error('password introuvable URL='+location.href); p.value='academic_manager'; p.dispatchEvent(new Event('input',{bubbles:true})); p.dispatchEvent(new Event('change',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c6-7",
-          "command": "click",
-          "target": "css=button[type='submit']",
-          "value": ""
-        },
-        {
-          "id": "c6-8",
-          "command": "waitForElementVisible",
-          "target": "css=.stats-grid",
-          "value": "10000"
-        },
-        {
-          "id": "c6-8a",
-          "command": "executeScript",
-          "target": "const mgrLoadTime = performance.now() - window.mgrLoginStart; if(mgrLoadTime > 5000) console.warn('Manager login took ' + mgrLoadTime + 'ms'); window.mgrLoadTime = mgrLoadTime;",
-          "value": ""
-        },
-        {
-          "id": "c6-9",
-          "command": "assertElementPresent",
-          "target": "css=.quick-actions",
-          "value": ""
-        },
-        {
-          "id": "c6-10",
-          "command": "executeScript",
-          "target": "if(!location.pathname.includes('/View/templates/academic_manager/home.php')) throw new Error('URL KO: '+location.href);",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "id": "77777777-7777-4777-8777-777777777777",
-      "name": "mgr_nav_absences",
-      "commands": [
-        {
-          "id": "c7-1",
-          "command": "open",
-          "target": "/Presenter/shared/logout_presenter.php",
-          "value": ""
-        },
-        {
-          "id": "c7-2",
-          "command": "open",
-          "target": "/View/templates/shared/login.php",
-          "value": ""
-        },
-        {
-          "id": "c7-3",
-          "command": "waitForElementPresent",
-          "target": "id=email",
-          "value": "10000"
-        },
-        {
-          "id": "c7-4",
-          "command": "waitForElementPresent",
-          "target": "id=password",
-          "value": "10000"
-        },
-        {
-          "id": "c7-5",
-          "command": "executeScript",
-          "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c7-6",
-          "command": "executeScript",
-          "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c7-7",
-          "command": "click",
-          "target": "css=button[type='submit']",
-          "value": ""
-        },
-        {
-          "id": "c7-8",
-          "command": "waitForElementVisible",
-          "target": "css=.stats-grid",
-          "value": "10000"
-        },
-        {
-          "id": "c7-9",
-          "command": "executeScript",
-          "target": "window.absencesNavStart = performance.now();",
-          "value": ""
-        },
-        {
-          "id": "c7-9a",
-          "command": "click",
-          "target": "css=.nav-menu a[href='/View/templates/academic_manager/historique.php']",
-          "value": ""
-        },
-        {
-          "id": "c7-10",
-          "command": "waitForElementVisible",
-          "target": "id=absenceTable",
-          "value": "10000"
-        },
-        {
-          "id": "c7-10a",
-          "command": "executeScript",
-          "target": "const absencesLoadTime = performance.now() - window.absencesNavStart; if(absencesLoadTime > 3000) console.warn('Absences page load took ' + absencesLoadTime + 'ms');",
-          "value": ""
-        },
-        {
-          "id": "c7-11",
-          "command": "assertElementPresent",
-          "target": "id=filterButton",
-          "value": ""
-        },
-        {
-          "id": "c7-12",
-          "command": "assertElementPresent",
-          "target": "id=courseTypeFilter",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "id": "88888888-8888-4888-8888-888888888888",
-      "name": "mgr_nav_proofs",
-      "commands": [
-        {
-          "id": "c8-1",
-          "command": "open",
-          "target": "/Presenter/shared/logout_presenter.php",
-          "value": ""
-        },
-        {
-          "id": "c8-2",
-          "command": "open",
-          "target": "/View/templates/shared/login.php",
-          "value": ""
-        },
-        {
-          "id": "c8-3",
-          "command": "waitForElementPresent",
-          "target": "id=email",
-          "value": "10000"
-        },
-        {
-          "id": "c8-4",
-          "command": "waitForElementPresent",
-          "target": "id=password",
-          "value": "10000"
-        },
-        {
-          "id": "c8-5",
-          "command": "executeScript",
-          "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c8-6",
-          "command": "executeScript",
-          "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c8-7",
-          "command": "click",
-          "target": "css=button[type='submit']",
-          "value": ""
-        },
-        {
-          "id": "c8-8",
-          "command": "waitForElementVisible",
-          "target": "css=.stats-grid",
-          "value": "10000"
-        },
-        {
-          "id": "c8-9",
-          "command": "executeScript",
-          "target": "window.proofsNavStart = performance.now();",
-          "value": ""
-        },
-        {
-          "id": "c8-9a",
-          "command": "click",
-          "target": "css=.nav-menu a[href='/View/templates/academic_manager/historique_proof.php']",
-          "value": ""
-        },
-        {
-          "id": "c8-10",
-          "command": "waitForElementVisible",
-          "target": "id=proofTable",
-          "value": "10000"
-        },
-        {
-          "id": "c8-10a",
-          "command": "executeScript",
-          "target": "const proofsLoadTime = performance.now() - window.proofsNavStart; if(proofsLoadTime > 3000) console.warn('Proofs page load took ' + proofsLoadTime + 'ms');",
-          "value": ""
-        },
-        {
-          "id": "c8-11",
-          "command": "assertElementPresent",
-          "target": "id=statusFilter",
-          "value": ""
-        },
-        {
-          "id": "c8-12",
-          "command": "assertElementPresent",
-          "target": "id=reasonFilter",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "id": "99999999-9999-4999-8999-999999999999",
-      "name": "mgr_access_control_secretary_page",
-      "commands": [
-        {
-          "id": "c9-1",
-          "command": "open",
-          "target": "/Presenter/shared/logout_presenter.php",
-          "value": ""
-        },
-        {
-          "id": "c9-2",
-          "command": "open",
-          "target": "/View/templates/shared/login.php",
-          "value": ""
-        },
-        {
-          "id": "c9-3",
-          "command": "waitForElementPresent",
-          "target": "id=email",
-          "value": "10000"
-        },
-        {
-          "id": "c9-4",
-          "command": "waitForElementPresent",
-          "target": "id=password",
-          "value": "10000"
-        },
-        {
-          "id": "c9-5",
-          "command": "executeScript",
-          "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c9-6",
-          "command": "executeScript",
-          "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c9-7",
-          "command": "click",
-          "target": "css=button[type='submit']",
-          "value": ""
-        },
-        {
-          "id": "c9-8",
-          "command": "waitForElementVisible",
-          "target": "css=.stats-grid",
-          "value": "10000"
-        },
-        {
-          "id": "c9-9",
-          "command": "open",
-          "target": "/View/templates/secretary/home.php",
-          "value": ""
-        },
-        {
-          "id": "c9-10",
-          "command": "waitForElementVisible",
-          "target": "css=.stats-grid",
-          "value": "10000"
-        },
-        {
-          "id": "c9-11",
-          "command": "executeScript",
-          "target": "if(!location.pathname.includes('/View/templates/academic_manager/home.php')) throw new Error('Controle acces KO: '+location.href);",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
-      "name": "mgr_filters_absences_submit",
-      "commands": [
-        {
-          "id": "c13-1",
-          "command": "open",
-          "target": "/Presenter/shared/logout_presenter.php",
-          "value": ""
-        },
-        {
-          "id": "c13-2",
-          "command": "open",
-          "target": "/View/templates/shared/login.php",
-          "value": ""
-        },
-        {
-          "id": "c13-3",
-          "command": "waitForElementPresent",
-          "target": "id=email",
-          "value": "10000"
-        },
-        {
-          "id": "c13-4",
-          "command": "waitForElementPresent",
-          "target": "id=password",
-          "value": "10000"
-        },
-        {
-          "id": "c13-5",
-          "command": "executeScript",
-          "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c13-6",
-          "command": "executeScript",
-          "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c13-7",
-          "command": "click",
-          "target": "css=button[type='submit']",
-          "value": ""
-        },
-        {
-          "id": "c13-8",
-          "command": "open",
-          "target": "/View/templates/academic_manager/historique.php",
-          "value": ""
-        },
-        {
-          "id": "c13-9",
-          "command": "waitForElementPresent",
-          "target": "id=nameFilter",
-          "value": "10000"
-        },
-        {
-          "id": "c13-10",
-          "command": "executeScript",
-          "target": "document.querySelector('#nameFilter').value='test';",
-          "value": ""
-        },
-        {
-          "id": "c13-11",
-          "command": "executeScript",
-          "target": "window.filterAbsenceStart = performance.now();",
-          "value": ""
-        },
-        {
-          "id": "c13-11a",
-          "command": "click",
-          "target": "id=filterButton",
-          "value": ""
-        },
-        {
-          "id": "c13-12",
-          "command": "waitForElementPresent",
-          "target": "id=absenceTable",
-          "value": "10000"
-        },
-        {
-          "id": "c13-12a",
-          "command": "executeScript",
-          "target": "const filterTime = performance.now() - window.filterAbsenceStart; if(filterTime > 2500) console.warn('Filter absences took ' + filterTime + 'ms');",
-          "value": ""
-        },
-        {
-          "id": "c13-13",
-          "command": "assertElementPresent",
-          "target": "css=.results-counter",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "id": "ffffffff-ffff-4fff-8fff-ffffffffffff",
-      "name": "mgr_filters_proofs_submit",
-      "commands": [
-        {
-          "id": "c14-1",
-          "command": "open",
-          "target": "/Presenter/shared/logout_presenter.php",
-          "value": ""
-        },
-        {
-          "id": "c14-2",
-          "command": "open",
-          "target": "/View/templates/shared/login.php",
-          "value": ""
-        },
-        {
-          "id": "c14-3",
-          "command": "waitForElementPresent",
-          "target": "id=email",
-          "value": "10000"
-        },
-        {
-          "id": "c14-4",
-          "command": "waitForElementPresent",
-          "target": "id=password",
-          "value": "10000"
-        },
-        {
-          "id": "c14-5",
-          "command": "executeScript",
-          "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c14-6",
-          "command": "executeScript",
-          "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c14-7",
-          "command": "click",
-          "target": "css=button[type='submit']",
-          "value": ""
-        },
-        {
-          "id": "c14-8",
-          "command": "open",
-          "target": "/View/templates/academic_manager/historique_proof.php",
-          "value": ""
-        },
-        {
-          "id": "c14-9",
-          "command": "waitForElementPresent",
-          "target": "id=statusFilter",
-          "value": "10000"
-        },
-        {
-          "id": "c14-10",
-          "command": "select",
-          "target": "id=statusFilter",
-          "value": "label=En attente"
-        },
-        {
-          "id": "c14-11",
-          "command": "executeScript",
-          "target": "window.filterProofStart = performance.now();",
-          "value": ""
-        },
-        {
-          "id": "c14-11a",
-          "command": "click",
-          "target": "id=filterButton",
-          "value": ""
-        },
-        {
-          "id": "c14-12",
-          "command": "waitForElementPresent",
-          "target": "id=proofTable",
-          "value": "10000"
-        },
-        {
-          "id": "c14-12a",
-          "command": "executeScript",
-          "target": "const filterProofTime = performance.now() - window.filterProofStart; if(filterProofTime > 2500) console.warn('Filter proofs took ' + filterProofTime + 'ms');",
-          "value": ""
-        },
-        {
-          "id": "c14-13",
-          "command": "assertElementPresent",
-          "target": "css=.results-counter",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "id": "14141414-1414-4141-8141-141414141414",
-      "name": "mgr_auth_required",
-      "commands": [
-        {
-          "id": "c17-1",
-          "command": "open",
-          "target": "/Presenter/shared/logout_presenter.php",
-          "value": ""
-        },
-        {
-          "id": "c17-2",
-          "command": "open",
-          "target": "/View/templates/academic_manager/home.php",
-          "value": ""
-        },
-        {
-          "id": "c17-3",
-          "command": "waitForElementPresent",
-          "target": "id=email",
-          "value": "10000"
-        },
-        {
-          "id": "c17-4",
-          "command": "assertElementPresent",
-          "target": "id=password",
-          "value": ""
-        },
-        {
-          "id": "c17-5",
-          "command": "executeScript",
-          "target": "if(!location.pathname.includes('/View/templates/shared/login.php')) throw new Error('Redirection login attendue: '+location.href);",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "id": "15151515-1515-4151-8151-151515151515",
-      "name": "mgr_logout_via_navbar",
-      "commands": [
-        {
-          "id": "c18-1",
-          "command": "open",
-          "target": "/Presenter/shared/logout_presenter.php",
-          "value": ""
-        },
-        {
-          "id": "c18-2",
-          "command": "open",
-          "target": "/View/templates/shared/login.php",
-          "value": ""
-        },
-        {
-          "id": "c18-3",
-          "command": "waitForElementPresent",
-          "target": "id=email",
-          "value": "10000"
-        },
-        {
-          "id": "c18-4",
-          "command": "waitForElementPresent",
-          "target": "id=password",
-          "value": "10000"
-        },
-        {
-          "id": "c18-5",
-          "command": "executeScript",
-          "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c18-6",
-          "command": "executeScript",
-          "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
-          "value": ""
-        },
-        {
-          "id": "c18-7",
-          "command": "click",
-          "target": "css=button[type='submit']",
-          "value": ""
-        },
-        {
-          "id": "c18-8",
-          "command": "waitForElementVisible",
-          "target": "css=.stats-grid",
-          "value": "10000"
-        },
-        {
-          "id": "c18-9",
-          "command": "click",
-          "target": "id=profileIcon",
-          "value": ""
-        },
-        {
-          "id": "c18-10",
-          "command": "waitForElementVisible",
-          "target": "id=profileDropdown",
-          "value": "10000"
-        },
-        {
-          "id": "c18-11",
-          "command": "click",
-          "target": "css=#profileDropdown a.dropdown-item.logout",
-          "value": ""
-        },
-        {
-          "id": "c18-12",
-          "command": "waitForElementPresent",
-          "target": "id=email",
-          "value": "10000"
-        },
-        {
-          "id": "c18-13",
-          "command": "executeScript",
-          "target": "if(!location.pathname.includes('/View/templates/shared/login.php')) throw new Error('Logout KO: '+location.href);",
-          "value": ""
-        }
-      ]
-    }
-  ],
-  "suites": [
-    {
-      "id": "mgr-suite",
-      "name": "Manager Tests Suite",
-      "persistSession": false,
-      "parallel": false,
-      "timeout": 300,
-      "tests": [
-        "66666666-6666-4666-8666-666666666666",
-        "77777777-7777-4777-8777-777777777777",
-        "88888888-8888-4888-8888-888888888888",
-        "99999999-9999-4999-8999-999999999999",
-        "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
-        "ffffffff-ffff-4fff-8fff-ffffffffffff",
-        "14141414-1414-4141-8141-141414141414",
-        "15151515-1515-4151-8151-151515151515"
-      ]
-    }
-  ],
-  "urls": [
-    "http://127.0.0.1:8000"
-  ],
+  "tests": [{
+    "id": "66666666-6666-4666-8666-666666666666",
+    "name": "mgr_login_dashboard",
+    "commands": [{
+      "id": "c6-1",
+      "comment": "",
+      "command": "open",
+      "target": "/Presenter/shared/logout_presenter.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c6-2",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/shared/login.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c6-3",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=email",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c6-4",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=password",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c6-5",
+      "comment": "",
+      "command": "executeScript",
+      "target": "window.mgrLoginStart = performance.now();",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c6-5a",
+      "comment": "",
+      "command": "executeScript",
+      "target": "const e=document.querySelector('#email'); if(!e) throw new Error('email introuvable URL='+location.href); e.value='academic_manager@uphf.fr'; e.dispatchEvent(new Event('input',{bubbles:true})); e.dispatchEvent(new Event('change',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c6-6",
+      "comment": "",
+      "command": "executeScript",
+      "target": "const p=document.querySelector('#password'); if(!p) throw new Error('password introuvable URL='+location.href); p.value='academic_manager'; p.dispatchEvent(new Event('input',{bubbles:true})); p.dispatchEvent(new Event('change',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c6-7",
+      "comment": "",
+      "command": "click",
+      "target": "css=button[type='submit']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c6-8",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "css=.stats-grid",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c6-8a",
+      "comment": "",
+      "command": "executeScript",
+      "target": "const mgrLoadTime = performance.now() - window.mgrLoginStart; if(mgrLoadTime > 3000) console.warn('Manager login took ' + mgrLoadTime + 'ms'); window.mgrLoadTime = mgrLoadTime;",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c6-9",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=.quick-actions",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c6-10",
+      "comment": "",
+      "command": "executeScript",
+      "target": "if(!location.pathname.includes('/View/templates/academic_manager/home.php')) throw new Error('URL KO: '+location.href);",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "77777777-7777-4777-8777-777777777777",
+    "name": "mgr_nav_absences",
+    "commands": [{
+      "id": "c7-1",
+      "comment": "",
+      "command": "open",
+      "target": "/Presenter/shared/logout_presenter.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c7-2",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/shared/login.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c7-3",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=email",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c7-4",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=password",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c7-5",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c7-6",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c7-7",
+      "comment": "",
+      "command": "click",
+      "target": "css=button[type='submit']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c7-8",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "css=.stats-grid",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c7-9",
+      "comment": "",
+      "command": "executeScript",
+      "target": "window.absencesNavStart = performance.now();",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c7-9a",
+      "comment": "",
+      "command": "click",
+      "target": "css=.nav-menu a[href='/View/templates/academic_manager/historique.php']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c7-10",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "id=absenceTable",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c7-10a",
+      "comment": "",
+      "command": "executeScript",
+      "target": "const absencesLoadTime = performance.now() - window.absencesNavStart; if(absencesLoadTime > 3000) console.warn('Absences page load took ' + absencesLoadTime + 'ms');",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c7-11",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "id=filterButton",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c7-12",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "id=courseTypeFilter",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "88888888-8888-4888-8888-888888888888",
+    "name": "mgr_nav_proofs",
+    "commands": [{
+      "id": "c8-1",
+      "comment": "",
+      "command": "open",
+      "target": "/Presenter/shared/logout_presenter.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c8-2",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/shared/login.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c8-3",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=email",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c8-4",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=password",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c8-5",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c8-6",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c8-7",
+      "comment": "",
+      "command": "click",
+      "target": "css=button[type='submit']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c8-8",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "css=.stats-grid",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c8-9",
+      "comment": "",
+      "command": "executeScript",
+      "target": "window.proofsNavStart = performance.now();",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c8-9a",
+      "comment": "",
+      "command": "click",
+      "target": "css=.nav-menu a[href='/View/templates/academic_manager/historique_proof.php']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c8-10",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "id=proofTable",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c8-10a",
+      "comment": "",
+      "command": "executeScript",
+      "target": "const proofsLoadTime = performance.now() - window.proofsNavStart; if(proofsLoadTime > 3000) console.warn('Proofs page load took ' + proofsLoadTime + 'ms');",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c8-11",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "id=statusFilter",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c8-12",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "id=reasonFilter",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "99999999-9999-4999-8999-999999999999",
+    "name": "mgr_access_control_secretary_page",
+    "commands": [{
+      "id": "c9-1",
+      "comment": "",
+      "command": "open",
+      "target": "/Presenter/shared/logout_presenter.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c9-2",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/shared/login.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c9-3",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=email",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c9-4",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=password",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c9-5",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c9-6",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c9-7",
+      "comment": "",
+      "command": "click",
+      "target": "css=button[type='submit']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c9-8",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "css=.stats-grid",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c9-9",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/secretary/home.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c9-10",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "css=.stats-grid",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c9-11",
+      "comment": "",
+      "command": "executeScript",
+      "target": "if(!location.pathname.includes('/View/templates/academic_manager/home.php')) throw new Error('Controle acces KO: '+location.href);",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+    "name": "mgr_filters_absences_submit",
+    "commands": [{
+      "id": "c13-1",
+      "comment": "",
+      "command": "open",
+      "target": "/Presenter/shared/logout_presenter.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c13-2",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/shared/login.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c13-3",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=email",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c13-4",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=password",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c13-5",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c13-6",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c13-7",
+      "comment": "",
+      "command": "click",
+      "target": "css=button[type='submit']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c13-8",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/academic_manager/historique.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c13-9",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=nameFilter",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c13-10",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#nameFilter').value='test';",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c13-11",
+      "comment": "",
+      "command": "executeScript",
+      "target": "window.filterAbsenceStart = performance.now();",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c13-11a",
+      "comment": "",
+      "command": "click",
+      "target": "id=filterButton",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c13-12",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=absenceTable",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c13-12a",
+      "comment": "",
+      "command": "executeScript",
+      "target": "const filterTime = performance.now() - window.filterAbsenceStart; if(filterTime > 3000) console.warn('Filter absences took ' + filterTime + 'ms');",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c13-13",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=.results-counter",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "ffffffff-ffff-4fff-8fff-ffffffffffff",
+    "name": "mgr_filters_proofs_submit",
+    "commands": [{
+      "id": "c14-1",
+      "comment": "",
+      "command": "open",
+      "target": "/Presenter/shared/logout_presenter.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c14-2",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/shared/login.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c14-3",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=email",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c14-4",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=password",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c14-5",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c14-6",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c14-7",
+      "comment": "",
+      "command": "click",
+      "target": "css=button[type='submit']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c14-8",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/academic_manager/historique_proof.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c14-9",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=statusFilter",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c14-10",
+      "comment": "",
+      "command": "select",
+      "target": "id=statusFilter",
+      "targets": [],
+      "value": "label=En attente"
+    }, {
+      "id": "c14-11",
+      "comment": "",
+      "command": "executeScript",
+      "target": "window.filterProofStart = performance.now();",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c14-11a",
+      "comment": "",
+      "command": "click",
+      "target": "id=filterButton",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c14-12",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=proofTable",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c14-12a",
+      "comment": "",
+      "command": "executeScript",
+      "target": "const filterProofTime = performance.now() - window.filterProofStart; if(filterProofTime > 3000) console.warn('Filter proofs took ' + filterProofTime + 'ms');",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c14-13",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=.results-counter",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "14141414-1414-4141-8141-141414141414",
+    "name": "mgr_auth_required",
+    "commands": [{
+      "id": "c17-1",
+      "comment": "",
+      "command": "open",
+      "target": "/Presenter/shared/logout_presenter.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c17-2",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/academic_manager/home.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c17-3",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=email",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c17-4",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "id=password",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c17-5",
+      "comment": "",
+      "command": "executeScript",
+      "target": "if(!location.pathname.includes('/View/templates/shared/login.php')) throw new Error('Redirection login attendue: '+location.href);",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "15151515-1515-4151-8151-151515151515",
+    "name": "mgr_logout_via_navbar",
+    "commands": [{
+      "id": "c18-1",
+      "comment": "",
+      "command": "open",
+      "target": "/Presenter/shared/logout_presenter.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c18-2",
+      "comment": "",
+      "command": "open",
+      "target": "/View/templates/shared/login.php",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c18-3",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=email",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c18-4",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=password",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c18-5",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#email').value='academic_manager@uphf.fr'; document.querySelector('#email').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c18-6",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('#password').value='academic_manager'; document.querySelector('#password').dispatchEvent(new Event('input',{bubbles:true}));",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c18-7",
+      "comment": "",
+      "command": "click",
+      "target": "css=button[type='submit']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c18-8",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "css=.stats-grid",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c18-9",
+      "comment": "",
+      "command": "click",
+      "target": "id=profileIcon",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c18-10",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "id=profileDropdown",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c18-11",
+      "comment": "",
+      "command": "click",
+      "target": "css=#profileDropdown a.dropdown-item.logout",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c18-12",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=email",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "c18-13",
+      "comment": "",
+      "command": "executeScript",
+      "target": "if(!location.pathname.includes('/View/templates/shared/login.php')) throw new Error('Logout KO: '+location.href);",
+      "targets": [],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "mgr-suite",
+    "name": "Manager Tests Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["66666666-6666-4666-8666-666666666666", "77777777-7777-4777-8777-777777777777", "88888888-8888-4888-8888-888888888888", "99999999-9999-4999-8999-999999999999", "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee", "ffffffff-ffff-4fff-8fff-ffffffffffff", "14141414-1414-4141-8141-141414141414", "15151515-1515-4151-8151-151515151515"]
+  }],
+  "urls": ["http://127.0.0.1:8000/"],
   "plugins": []
 }

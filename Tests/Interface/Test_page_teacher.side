@@ -1,7 +1,7 @@
 {
   "id": "b2b5b18c-bace-4eb3-8cdc-e72a77250efc",
   "version": "2.0",
-  "name": "Test_page_student",
+  "name": "Test_page_teacher",
   "url": "http://localhost:8000/View/templates/shared/login.php",
   "tests": [{
     "id": "bee172b3-7535-42db-a415-d3400b7baf86",
@@ -187,7 +187,7 @@
       "id": "a9b3af0a-36a2-47d7-ae28-4bee362fa03c",
       "comment": "",
       "command": "executeScript",
-      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 8000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 8000 ms)`); } return Math.round(ms);",
+      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 3000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 3000 ms)`); } return Math.round(ms);",
       "targets": [],
       "value": "loadMs"
     }, {
@@ -219,7 +219,7 @@
       "id": "6fcfbb2f-b8c1-421a-bde1-fef88e0d8e98",
       "comment": "",
       "command": "executeScript",
-      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 20000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 5000 ms)`); } return Math.round(ms);",
+      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 3000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 3000 ms)`); } return Math.round(ms);",
       "targets": [],
       "value": "loadMs"
     }, {
@@ -251,7 +251,7 @@
       "id": "0ce811d9-f22e-4871-a0c5-454993d1577f",
       "comment": "",
       "command": "executeScript",
-      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 10000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 10000 ms)`); } return Math.round(ms);",
+      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 3000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 3000 ms)`); } return Math.round(ms);",
       "targets": [],
       "value": "loadMs"
     }, {
@@ -279,7 +279,7 @@
       "id": "cee12510-ae4f-4245-8959-195ed569596c",
       "comment": "",
       "command": "executeScript",
-      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 5000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 5000 ms)`); } return Math.round(ms);",
+      "target": "const nav = performance.getEntriesByType('navigation')[0]; if (!nav) throw new Error('Navigation timing indisponible'); const ms = nav.duration; if (ms > 3000) {   throw new Error(`Page trop lente: ${Math.round(ms)} ms (> 3000 ms)`); } return Math.round(ms);",
       "targets": [],
       "value": "loadMs"
     }, {
