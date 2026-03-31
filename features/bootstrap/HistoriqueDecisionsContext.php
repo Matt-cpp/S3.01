@@ -195,7 +195,7 @@ class HistoriqueDecisionsContext implements Context
     // -------------------------------------------------------------------------
 
     /**
-     * @When /^je clique sur 'Historique des decisions'$/
+     * @When /^je clique sur (Historique des decisions|'Historique des decisions')$/
      */
     public function jeCliqueSurHistoriqueDesDecisions(): void
     {
@@ -210,7 +210,7 @@ class HistoriqueDecisionsContext implements Context
     }
 
     /**
-     * @When /^je selectionne '([^']*)' dans le filtre action$/
+     * @When /^je selectionne (?:')?([^']*?)(?:')?\s+dans le filtre action$/
      */
     public function jeSelectionneActionDansLeFiltreAction(string $action): void
     {
@@ -223,7 +223,7 @@ class HistoriqueDecisionsContext implements Context
     }
 
     /**
-     * @When /^je clique sur 'Filtrer'$/
+     * @When /^je clique sur (Filtrer|'Filtrer')$/
      */
     public function jeCliqueSurFiltrer(): void
     {
@@ -254,7 +254,7 @@ class HistoriqueDecisionsContext implements Context
     }
 
     /**
-     * @When /^je clique sur Reinitialiser $/
+     * @When /^je clique sur (Reinitialiser|"Reinitialiser"|'Reinitialiser')$/
      */
     public function jeCliqueSurReinitialiser(): void
     {

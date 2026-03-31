@@ -1,0 +1,16 @@
+default:
+  suites:
+    justifierAbsence:
+      paths:
+        - features/JustifierAbsence.feature
+      bootstrap: features/bootstrap
+      contexts:
+        - FeatureContext
+    consulterHistorique:
+      paths:
+        - features/ConsulterHistorique.feature
+      bootstrap: features/bootstrap
+      contexts:
+        - HistoriqueDecisionsContext
+  formatters:
+    progress: ~
