@@ -9,7 +9,8 @@
         "behat/behat": "^3.29",
         "behat/mink": "^1.13",
         "behat/mink-extension": "*",
-        "dmore/behat-chrome-extension": "^1.4"
+        "dmore/behat-chrome-extension": "^1.4",
+        "emuse/behat-html-formatter": "^2.0"
     },
     "autoload-dev": {
         "psr-4": {
