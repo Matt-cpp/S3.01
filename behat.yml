@@ -1,0 +1,31 @@
+default:
+  suites:
+    justifierAbsence:
+      paths:
+        - features/JustifierAbsence.feature
+      bootstrap: features/bootstrap
+      contexts:
+        - FeatureContext
+    consulterHistorique:
+      paths:
+        - features/ConsulterHistorique.feature
+      bootstrap: features/bootstrap
+      contexts:
+        - HistoriqueDecisionsContext
+
+
+    # behat.yml
+
+  formatters:
+     
+    html:
+      output_path: build/html
+  extensions:
+    emuse\BehatHTMLFormatter\BehatHTMLFormatterExtension:
+      name: html
+      renderer: Twig,Behat2
+      file_name: index
+      print_args: true
+      print_outp: true
+      loop_break: true
+   

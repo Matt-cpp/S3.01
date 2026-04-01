@@ -6,7 +6,12 @@
         "setasign/fpdi": "2.6.6"
     },
     "require-dev": {
-        "phpunit/phpunit": "^12.4"
+        "phpunit/phpunit": "^12.4",
+        "behat/behat": "^3.29",
+        "behat/mink": "^1.13",
+        "behat/mink-extension": "*",
+        "dmore/behat-chrome-extension": "^1.4",
+        "emuse/behat-html-formatter": "^2.0"
     },
     "autoload-dev": {
         "psr-4": {
