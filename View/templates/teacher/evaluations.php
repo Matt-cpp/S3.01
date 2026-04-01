@@ -81,19 +81,19 @@ $evaluations = $table->getEvaluations();
                     <?php else: ?>
                         <?php foreach ($evaluations as $eval): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars(formatResourceLabel($eval['label'])); ?></td>
-                                <td><?php echo htmlspecialchars($eval['course_date']); ?></td>
-                                <td><?php echo htmlspecialchars(date('H:i', strtotime((string) $eval['start_time']))); ?></td>
-                                <td><?php echo htmlspecialchars((string) $eval['nbabs']); ?></td>
-                                <td><?php echo htmlspecialchars((string) $eval['nb_justifications']); ?></td>
-                                <td>
+                                <td data-label="Matière"><?php echo htmlspecialchars(formatResourceLabel($eval['label'])); ?></td>
+                                <td data-label="Date"><?php echo htmlspecialchars($eval['course_date']); ?></td>
+                                <td data-label="Heures"><?php echo htmlspecialchars(date('H:i', strtotime((string) $eval['start_time']))); ?></td>
+                                <td data-label="Nombre d'Absences"><?php echo htmlspecialchars((string) $eval['nbabs']); ?></td>
+                                <td data-label="Nombre de Justifications"><?php echo htmlspecialchars((string) $eval['nb_justifications']); ?></td>
+                                <td data-label="Rattrapage">
                                     <?php if (!empty($eval['has_makeup'])): ?>
                                         Oui (<?php echo (int) ($eval['nb_rattrapages'] ?? 0); ?>)
                                     <?php else: ?>
                                         Non
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td data-label="Détails">
                                     <button class="info-button"
                                         onclick="window.location.href='information_DS.php?course_slot_id=<?php echo $eval['course_slot_id']; ?>'">Voir
                                         les détails</button>

@@ -38,8 +38,10 @@ body {
     flex: 1;
     padding: 2rem;
     width: 80%;
+    max-width: 100%;
     margin: 0 auto;
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .settings-container {
@@ -68,6 +70,8 @@ body {
     padding: 2rem;
     box-shadow: var(--shadow);
     transition: background-color 0.3s ease;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .section-header {
@@ -176,6 +180,13 @@ body {
 /* Form Styles */
 .settings-form {
     max-width: 600px;
+    margin: 0 auto;
+}
+
+.settings-form .btn {
+    width: 100%;
+    justify-content: center;
+    display: flex;
 }
 
 .form-group {
@@ -199,6 +210,7 @@ body {
     background: var(--bg-primary);
     color: var(--text-primary);
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
 }
 
 .form-input:focus {
@@ -430,6 +442,7 @@ body {
 @media (max-width: 768px) {
     .main-content {
         padding: 1rem;
+        width: 100%;
     }
     
     .settings-section {

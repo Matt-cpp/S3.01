@@ -8,11 +8,7 @@
     align-items: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     width: 100%;
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
+    min-height: 64px;
     box-sizing: border-box;
     gap: 2rem;
 }
@@ -181,6 +177,7 @@
     .header {
         padding: 1rem;
         gap: 1rem;
+        min-height: 64px;
     }
     
     .nav-menu {

@@ -169,8 +169,14 @@ function updatePeriodFields(startDate, endDate, startTime = '08:00', endTime = '
     const container = document.getElementById('periodsContainer');
     container.innerHTML = '';
     
-    // Grid configuration based on the number of periods
-    const gridCols = numPeriods <= 2 ? '1fr 1fr' : numPeriods === 3 ? '1fr 1fr 1fr' : '1fr 1fr';
+    // Grid configuration based on the number of periods (single column on mobile)
+    const isMobile = window.innerWidth <= 768;
+    let gridCols;
+    if (isMobile) {
+        gridCols = '1fr';
+    } else {
+        gridCols = numPeriods <= 2 ? '1fr 1fr' : numPeriods === 3 ? '1fr 1fr 1fr' : '1fr 1fr';
+    }
     container.style.gridTemplateColumns = gridCols;
     
     // Generate fields for each period

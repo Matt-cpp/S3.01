@@ -23,11 +23,13 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 <link rel="stylesheet" href="/View/assets/css/shared/navbar.css">
 <header class="header">
     <!-- Hamburger Menu Button (mobile) -->
+    <?php if ($userRole !== 'secretary'): ?>
     <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false">
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
     </button>
+    <?php endif; ?>
 
     <div class="logo">
         <img id="logo" src="/View/img/UPHF_logo.png" alt="Logo UPHF" />
@@ -86,6 +88,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <a href="<?php echo htmlspecialchars($homeUrl); ?>" class="icon-link" title="Accueil">
                 <div class="icon home">🏠</div>
             </a>
+            <a href="../../../Presenter/shared/logout_presenter.php" class="icon-link" title="Se déconnecter">
+                <div class="icon logout-icon"></div>
+            </a>
         <?php endif; ?>
         <?php if ($userRole === 'student'): ?>
             <a href="/View/templates/student/info.php" class="icon-link" title="Informations et procédure">
@@ -97,6 +102,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <a href="/View/templates/shared/settings.php" class="icon-link">
             <div class="icon settings" title="Paramètres"></div>
         </a>
+        <?php if ($userRole !== 'secretary'): ?>
         <div class="icon profile" title="Profil" id="profileIcon">
             <div class="profile-dropdown" id="profileDropdown">
                 <div class="dropdown-header">
@@ -112,6 +118,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 </a>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 </header>
 
