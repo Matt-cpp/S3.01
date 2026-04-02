@@ -89,13 +89,13 @@ if ($courseSlotId <= 0) {
                     <tbody>
                         <?php foreach ($absences as $absence): ?>
                             <tr>
-                                <td>
+                                <td data-label="Prénom">
                                     <?php echo htmlspecialchars($absence['first_name']); ?>
                                 </td>
-                                <td>
+                                <td data-label="Nom">
                                     <?php echo htmlspecialchars($absence['last_name']); ?>
                                 </td>
-                                <td>
+                                <td data-label="Justifiée">
                                     <?php echo $absence['justified'] ? 'Oui' : 'Non'; ?>
                                 </td>
                             </tr>

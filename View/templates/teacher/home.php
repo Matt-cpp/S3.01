@@ -111,11 +111,11 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
                     <?php else: ?>
                         <?php foreach ($donnees as $ligne): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($ligne['last_name'] . ' ' . $ligne['first_name']); ?></td>
-                                <td><?php echo htmlspecialchars($ligne['degrees']); ?></td>
-                                <td><?php echo htmlspecialchars(formatResourceLabel($ligne['label'])); ?></td>
-                                <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($ligne['course_date']))); ?></td>
-                                <td><?php
+                                <td data-label="Nom / Prénom"><?php echo htmlspecialchars($ligne['last_name'] . ' ' . $ligne['first_name']); ?></td>
+                                <td data-label="Groupe"><?php echo htmlspecialchars($ligne['degrees']); ?></td>
+                                <td data-label="Matière"><?php echo htmlspecialchars(formatResourceLabel($ligne['label'])); ?></td>
+                                <td data-label="Date d'absence"><?php echo htmlspecialchars(date('d/m/Y', strtotime($ligne['course_date']))); ?></td>
+                                <td data-label="Statut"><?php
                                 if ($ligne['status'] == 'excused') {
                                     echo '<span data-translate="excused">Excusée</span>';
                                 } elseif ($ligne['status'] == 'unjustified') {
@@ -186,9 +186,9 @@ $donneesRattrapage = $tableRattrapage->getData($tableRattrapage->getCurrentPage(
                     <?php else: ?>
                         <?php foreach ($donneesRattrapage as $ligne): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($ligne['last_name'] . ' ' . $ligne['first_name']); ?></td>
-                                <td><?php echo htmlspecialchars(formatResourceLabel($ligne['label'])); ?></td>
-                                <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($ligne['course_date']))); ?></td>
+                                <td data-label="Nom / Prénom"><?php echo htmlspecialchars($ligne['last_name'] . ' ' . $ligne['first_name']); ?></td>
+                                <td data-label="Matière"><?php echo htmlspecialchars(formatResourceLabel($ligne['label'])); ?></td>
+                                <td data-label="Date d'absence"><?php echo htmlspecialchars(date('d/m/Y', strtotime($ligne['course_date']))); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>

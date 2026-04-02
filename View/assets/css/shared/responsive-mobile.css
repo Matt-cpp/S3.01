@@ -154,9 +154,11 @@
     }
 
     .button-container button,
-    .button-container .reset-link {
+    .button-container .reset-link,
+    .button-container .btn-secondary {
         width: 100% !important;
         text-align: center !important;
+        margin-left: 0 !important;
     }
 
     /* =============================================

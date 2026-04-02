@@ -11,6 +11,7 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
 }
 
 .container {
@@ -333,21 +334,30 @@ body {
 }
 
 /* Responsive */
+@media (max-width: 768px) {
+    .button-container,
+    .button-group {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .button-container .btn,
+    .button-group .btn {
+        width: 100% !important;
+        max-width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+}
+
 @media (max-width: 600px) {
     .container {
-        margin: 1rem;
+        width: calc(100% - 2rem);
+        margin: 1rem auto;
         padding: 1.5rem;
     }
-    
+
     .title {
         font-size: 1.5rem;
-    }
-    
-    .button-container {
-        flex-direction: column;
-    }
-    
-    .btn {
-        width: 100%;
     }
 }

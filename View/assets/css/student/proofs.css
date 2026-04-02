@@ -567,11 +567,23 @@ button[type="submit"]:hover {
     .filter-grid {
         grid-template-columns: 1fr;
     }
-    
+
+    .filter-form .button-container {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .filter-form .button-container button[type="submit"],
+    .filter-form .button-container .btn-secondary {
+        width: auto !important;
+        flex: 0 1 auto;
+    }
+
     #proofsTable {
         font-size: 0.85rem;
     }
-    
+
     #proofsTable th,
     #proofsTable td {
         padding: 8px 10px;

@@ -180,6 +180,12 @@ body {
     max-height: 800px;
 }
 
+@media (max-width: 768px) {
+    .filters-content.show {
+        max-height: 2000px;
+    }
+}
+
 .filters-form {
     padding: 2rem;
 }

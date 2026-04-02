@@ -232,9 +232,9 @@ $errorMessage = $presenter->getErrorMessage();
                                 data-status-text="<?php echo $status['text']; ?>"
                                 data-status-icon="<?php echo $status['icon']; ?>"
                                 data-status-class="<?php echo $status['class']; ?>">
-                                <td><?php echo $presenter->formatDate($absence['course_date']); ?></td>
-                                <td><?php echo $presenter->formatTime($absence['start_time'], $absence['end_time']); ?></td>
-                                <td>
+                                <td data-label="Date"><?php echo $presenter->formatDate($absence['course_date']); ?></td>
+                                <td data-label="Horaire"><?php echo $presenter->formatTime($absence['start_time'], $absence['end_time']); ?></td>
+                                <td data-label="Cours">
                                     <div>
                                         <?php echo htmlspecialchars(formatResourceLabel($absence['course_name'] ?? 'Non spécifié')); ?>
                                     </div>
