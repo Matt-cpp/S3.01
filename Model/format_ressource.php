@@ -1,13 +1,10 @@
 <?php
 /**
- * Fichier: format_ressource.php
- * 
- * Modele de formatage de ressources - Fournit une fonction pour 
- * formater les étiquettes de ressources (cours, évaluations, etc.) de manière cohérente et lisible.
+ * Model file to format resource labels into a more human-readable format.
  */
 if (!function_exists('formatResourceLabel')) {
     /**
-     * Met en forme une étiquette de ressource pour l'affichage.
+     * Format an input resource label into a more human-readable format.
      *
      * Input exemple : "INFFIS2-DEVELOPPEMENT ORIENTE OBJETS (T3BUTINFFI-R2.01)"
      * Output exemple: "R2.01 - DEVELOPPEMENT ORIENTE OBJETS"

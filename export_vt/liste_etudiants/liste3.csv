@@ -1,0 +1,23 @@
+Civ.;Nom;Prénom;Parcours;Groupe;Etat;Mail;Personnel;Etape;etudid;code_nip;code_ine
+M.;Dubois;Alexandre;;A1;I;alexandre.dubois@uphf.fr;;BUT1 INFORMATIQUE (T3BUTINF-A1) - FI;16001;11223344;AA123456
+Mme;Martin;Sophie;;A1;I;sophie.martin@uphf.fr;;BUT1 INFORMATIQUE (T3BUTINF-A1) - FI;16002;22334455;BB234567
+M.;Bernard;Lucas;;A2;I;lucas.bernard@uphf.fr;;BUT1 INFORMATIQUE (T3BUTINF-A1) - FI;16003;33445566;CC345678
+Mme;Petit;Emma;;A2;I;emma.petit@uphf.fr;;BUT1 INFORMATIQUE (T3BUTINF-A1) - FI;16004;44556677;DD456789
+M.;Robert;Thomas;;B1;I;thomas.robert@uphf.fr;;BUT2 INFORMATIQUE (T3BUTINF-A2-P01) - FI;16005;55667788;EE567890
+Mme;Richard;Léa;;B1;I;lea.richard@uphf.fr;;BUT2 INFORMATIQUE (T3BUTINF-A2-P01) - FI;16006;66778899;FF678901
+M.;Durand;Hugo;;B2;I;hugo.durand@uphf.fr;;BUT2 INFORMATIQUE (T3BUTINF-A2-P01) - FI;16007;77889900;GG789012
+Mme;Moreau;Camille;;B2;I;camille.moreau@uphf.fr;;BUT2 INFORMATIQUE (T3BUTINF-A2-P01) - FI;16008;88990011;HH890123
+M.;Simon;Nathan;;C1;I;nathan.simon@uphf.fr;;BUT3 INFO Parcours A (T3BUTINF-A3-P01) - FI;16009;99001122;II901234
+Mme;Laurent;Chloé;;C1;I;chloe.laurent@uphf.fr;;BUT3 INFO Parcours A (T3BUTINF-A3-P01) - FI;16010;10112233;JJ012345
+M.;Lefebvre;Antoine;;C2;I;antoine.lefebvre@uphf.fr;;BUT3 INFO Parcours A (T3BUTINF-A3-P01) - FI;16011;21223344;KK123456
+Mme;Michel;Julie;;C2;I;julie.michel@uphf.fr;;BUT3 INFO Parcours A (T3BUTINF-A3-P01) - FI;16012;32334455;LL234567
+M.;Garcia;Maxime;;A1;I;maxime.garcia@uphf.fr;;BUT1 INFORMATIQUE (T3BUTINF-A1) - FI;16013;43445566;MM345678
+Mme;Martinez;Laura;;A2;I;laura.martinez@uphf.fr;;BUT1 INFORMATIQUE (T3BUTINF-A1) - FI;16014;54556677;NN456789
+M.;Rodriguez;Paul;;B1;I;paul.rodriguez@uphf.fr;;BUT2 INFORMATIQUE (T3BUTINF-A2-P01) - FI;16015;65667788;OO567890
+Mme;Fernandez;Sarah;;B2;I;sarah.fernandez@uphf.fr;;BUT2 INFORMATIQUE (T3BUTINF-A2-P01) - FI;16016;76778899;PP678901
+M.;Lopez;Dylan;;C1;I;dylan.lopez@uphf.fr;;BUT3 INFO Parcours A (T3BUTINF-A3-P01) - FI;16017;87889900;QQ789012
+Mme;Gonzalez;Manon;;C2;I;manon.gonzalez@uphf.fr;;BUT3 INFO Parcours A (T3BUTINF-A3-P01) - FI;16018;98990011;RR890123
+M.;Sanchez;Théo;;A1;I;theo.sanchez@uphf.fr;;BUT1 INFORMATIQUE (T3BUTINF-A1) - FI;16019;19001122;SS901234
+Mme;Perez;Marine;;A2;I;marine.perez@uphf.fr;;BUT1 INFORMATIQUE (T3BUTINF-A1) - FI;16020;20112233;TT012345
+;;;;;;;;;;;
+soit 20 étudiants inscrits et 0 démissionaire.;;;;;;;;;;;

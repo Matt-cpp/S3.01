@@ -67,7 +67,7 @@ declare(strict_types=1);
 
         <!-- Barre d'actions rapides (Incitation + Groupement) -->
         <div class="quick-actions">
-            <a href="historique.php" class="btn btn-primary-action">Consulter l'historique des absences</a>
+            <a href="historique_absence.php" class="btn btn-primary-action">Consulter l'historique des absences</a>
             <a href="historique_proof.php" class="btn btn-primary-action">Voir les justificatifs</a>
         </div>
 
@@ -166,7 +166,7 @@ declare(strict_types=1);
             </table>
 
             <div class="history-section">
-                <a href="historique.php" class="btn-history btn-primary-action">Consulter l'historique</a>
+                <a href="historique_absence.php" class="btn-history btn-primary-action">Consulter l'historique</a>
             </div>
         </div>
 

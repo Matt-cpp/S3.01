@@ -161,7 +161,7 @@
       "id": "c7-9a",
       "comment": "",
       "command": "click",
-      "target": "css=.nav-menu a[href='/View/templates/academic_manager/historique.php']",
+      "target": "css=.nav-menu a[href='/View/templates/academic_manager/historique_absence.php']",
       "targets": [],
       "value": ""
     }, {
@@ -432,7 +432,7 @@
       "id": "c13-8",
       "comment": "",
       "command": "open",
-      "target": "/View/templates/academic_manager/historique.php",
+      "target": "/View/templates/academic_manager/historique_absence.php",
       "targets": [],
       "value": ""
     }, {

@@ -1,6 +1,6 @@
-liquibase.properties
-liquibase.log
-liquibase.*
+db/liquibase.properties
+db/liquibase.log
+db/liquibase.*
 
 # Fichier de configuration avec mots de passe
 .env
@@ -34,3 +34,8 @@ vendor/
 # Fichiers de configuration locale
 config/local.php
 config/database.local.php
+
+
+# Fichiers de test
+.idea
+.phpunit.cache

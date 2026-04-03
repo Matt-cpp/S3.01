@@ -58,8 +58,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 class="nav-link <?php echo ($currentPage == 'home.php' && strpos($_SERVER['PHP_SELF'], '/academic_manager/') !== false) ? 'active' : ''; ?>">
                 <span>Tableau de bord</span>
             </a>
-            <a href="/View/templates/academic_manager/historique.php"
-                class="nav-link <?php echo ($currentPage == 'historique.php' && strpos($_SERVER['PHP_SELF'], '/academic_manager/') !== false) ? 'active' : ''; ?>">
+            <a href="/View/templates/academic_manager/historique_absence.php"
+                class="nav-link <?php echo ($currentPage == 'historique_absence.php' && strpos($_SERVER['PHP_SELF'], '/academic_manager/') !== false) ? 'active' : ''; ?>">
                 <span>Absences</span>
             </a>
             <a href="/View/templates/academic_manager/historique_proof.php"

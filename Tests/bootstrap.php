@@ -76,7 +76,7 @@ function resetTestDatabase(): void
 
         if ($result['cnt'] == 0) {
             echo "⚠ Warning: Test database schema not found. Please run the schema setup first.\n";
-            echo "  You can create the test database using changelog-db.sql\n";
+            echo "  You can create the test database using db/changelog-db.sql\n";
         } else {
             echo "✓ Test database schema found\n";
         }
